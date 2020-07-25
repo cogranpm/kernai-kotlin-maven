@@ -14,6 +14,9 @@ import org.eclipse.jface.resource.ImageDescriptor.createFromFile
 import org.eclipse.swt.widgets.*
 import org.eclipse.swt.graphics.Image
 
+
+import com.parinherm.databinding.DataBindingView
+
 class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
 
     lateinit var mainContainer: Composite
@@ -38,7 +41,7 @@ class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
         mainContainer.layout = FillLayout(SWT.VERTICAL)
 
         val lblName: Label = getLabel("fred", navContainer)
-        val lblAddress: DocumentView = DocumentView(mainContainer)
+        val lblAddress: Composite = DataBindingView.makeView(mainContainer)
 
 
         return container
@@ -79,6 +82,16 @@ class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
         }
         actionChristmasTree.accelerator = SWT.MOD1 or ('X'.toInt())
 
+        val actionDataBinding: Action = object: Action ("&Data Binding") {
+            override fun run () {
+                println("here")
+                clearComposite(mainContainer)
+                val view: Composite = DataBindingView.makeView(mainContainer)
+                mainContainer.layout()
+            }
+        }
+        actionDataBinding.accelerator = SWT.MOD1 or ('B'.toInt())
+
         val menuManager = MenuManager("")
         val fileMenu = MenuManager("&File")
         val actionMenu = MenuManager("&Action")
@@ -90,6 +103,7 @@ class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
 
         // action menus
         actionMenu.add(actionChristmasTree)
+        actionMenu.add(actionDataBinding)
 
         menuManager.add(fileMenu)
         menuManager.add(actionMenu)
