@@ -1,0 +1,5 @@
+/media/data/Tools/lib/java/eclipse-2019-6/nebula/org.eclipse.nebula.widgets.pshelf_1.1.0.201907151344.jar
+/media/data/Tools/lib/java/eclipse-2019-6/nebula/org.eclipse.nebula.widgets.pshelf.css_1.0.0.201907151344.jar
+mvn install:install-file -Dfile=/media/data/Tools/lib/java/eclipse-2019-6/nebula/org.eclipse.nebula.widgets.pshelf_1.1.0.201907151344.jar -DgroupId=org.eclipse.nebula -DartifactId=pshelf -Dversion=1.1.0.201907151344 -Dpackaging=jar
+
+mvn install:install-file -Dfile=/media/data/Tools/lib/java/eclipse-2019-6/nebula/org.eclipse.nebula.widgets.pshelf.css_1.0.0.201907151344.jar -DgroupId=org.eclipse.nebula -DartifactId=pshelf_css -Dversion=1.1.0.201907151344 -Dpackaging=jar
