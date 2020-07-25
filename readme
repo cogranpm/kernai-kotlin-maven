@@ -1,5 +1,24 @@
+Notes on Maven:
+if a jar is not available in any repository: ie eclipse nebula
+then these are the instructions to put it in local repo:
+
+example paths:
 /media/data/Tools/lib/java/eclipse-2019-6/nebula/org.eclipse.nebula.widgets.pshelf_1.1.0.201907151344.jar
 /media/data/Tools/lib/java/eclipse-2019-6/nebula/org.eclipse.nebula.widgets.pshelf.css_1.0.0.201907151344.jar
+
+command line to install to local repo:
 mvn install:install-file -Dfile=/media/data/Tools/lib/java/eclipse-2019-6/nebula/org.eclipse.nebula.widgets.pshelf_1.1.0.201907151344.jar -DgroupId=org.eclipse.nebula -DartifactId=pshelf -Dversion=1.1.0.201907151344 -Dpackaging=jar
 
 mvn install:install-file -Dfile=/media/data/Tools/lib/java/eclipse-2019-6/nebula/org.eclipse.nebula.widgets.pshelf.css_1.0.0.201907151344.jar -DgroupId=org.eclipse.nebula -DartifactId=pshelf_css -Dversion=1.1.0.201907151344 -Dpackaging=jar
+
+then use the group, artifact and version specified in command line
+in the dependency section of the POM
+the command line will install the jar locally in some maven local repo directory
+
+the big deal about this POM is that it has all the eclipse swt/jface jars
+coming from maven repo online and gets correct swt version per platform
+automatically
+
+
+maven for Kotlin does not have an exec:java style plugin that I know of
+so you can run it via intelli j. Not sure how to uberjar it yet either
