@@ -16,15 +16,29 @@
         <kotlin.code.style>official</kotlin.code.style>
         <junit.version>4.12</junit.version>
         <swt.version>3.114.100</swt.version>
+        <exposed.version>0.26.1</exposed.version>
+        <arrow.version>0.10.4</arrow.version>
     </properties>
 
 
     <repositories>
+
+            <repository>
+                <id>exposed</id>
+                <name>exposed</name>
+                <url>https://dl.bintray.com/kotlin/exposed</url>
+            </repository>
+
         <repository>
-            <id>clojars</id>
-            <url>https://clojars.org/repo/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>jcenter</id>
+            <name>jcenter</name>
+            <url>https://jcenter.bintray.com/</url>
         </repository>
-    </repositories>
+
+   </repositories>
 
 
 
@@ -74,6 +88,34 @@
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains.exposed</groupId>
+            <artifactId>exposed-core</artifactId>
+            <version>${exposed.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.exposed</groupId>
+            <artifactId>exposed-dao</artifactId>
+            <version>${exposed.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.exposed</groupId>
+            <artifactId>exposed-jdbc</artifactId>
+            <version>${exposed.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-collections-immutable-jvm</artifactId>
+            <version>0.3.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.arrow-kt</groupId>
+            <artifactId>arrow-syntax</artifactId>
+            <version>${arrow.version}</version>
         </dependency>
 
 
