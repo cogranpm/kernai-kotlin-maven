@@ -21,4 +21,7 @@ automatically
 
 
 maven for Kotlin does not have an exec:java style plugin that I know of
-so you can run it via intelli j. Not sure how to uberjar it yet either
+so you can run it via intelli j.
+
+mvn assemble will get a fat jar in the target directory
+it has ...with-dependencies.jar in the name
