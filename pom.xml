@@ -67,6 +67,17 @@
             <properties><artifact-id-swt>org.eclipse.swt.win32.win32.x86_64</artifact-id-swt></properties>
         </profile>
 
+    <profile>
+      <id>Mac</id>
+      <activation>
+        <os>
+          <name>Mac OS X</name>
+          <arch>x86_64</arch>
+        </os>
+      </activation>
+      <properties><artifact-id-swt>org.eclipse.swt.cocoa.macosx.x86_64</artifact-id-swt></properties>
+    </profile>
+
 
     </profiles>
 
