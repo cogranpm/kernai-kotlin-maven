@@ -40,9 +40,11 @@ object DataBindingView{
       val tableLayout = TableColumnLayout(true)
       val lblFirstName = Label(editContainer, SWT.BORDER)
       val txtFirstName = Text(editContainer, swnone)
+      val lblIncome = Label(editContainer, SWT.BORDER)
+      val txtIncome = Text(editContainer, swnone)
       val btnSave = Button(editContainer, SWT.PUSH)
-      val wl = WritableList<Map<String, String>>()
-      val wm = WritableMap<String, String>()
+      val wl = WritableList<Map<String, Any>>()
+      val wm = WritableMap<String, Any>()
       val dbc = DataBindingContext()
 
 
@@ -64,35 +66,40 @@ object DataBindingView{
             }
          }
          val target = WidgetProperties.text<Text>(SWT.Modify).observe(txtFirstName)
-         val model = Observables.observeMapEntry<String, String>(selectedItem as WritableMap<String, String>,
+         val model = Observables.observeMapEntry(selectedItem as WritableMap<String, Any>,
             "fname" )
          dbc.bindValue(target, model)
 
       }
       val firstName = getColumn("First Name", listView, tableLayout)
       listView.contentProvider = ObservableListContentProvider<Map<String, String>>()
-      wm.put("fname", "wayne")
-      wl.add(wm)
-      wl.add(makeDomainItem("Belconnen"))
-      wl.add(makeDomainItem("Bertrand"))
+      wl.add(makeDomainItem("Wayne", 10000.45))
+      wl.add(makeDomainItem("Belconnen", 110.45))
+      wl.add(makeDomainItem("Bertrand", 345.18))
       listView.input = wl
       lblFirstName.text = "First Name"
       txtFirstName.text = "some text"
+      lblIncome.text = "Income"
       btnSave.text = "Save"
       btnSave.addSelectionListener( widgetSelectedAdapter { _ ->
-         println(wm.get("fname"))
+          for (item: Map<String, Any> in wl){
+             println("Name: ${item["fname"]} : Income: ${item["income"]}")
+          }
       })
       GridDataFactory.fillDefaults().applyTo(lblFirstName)
+      GridDataFactory.fillDefaults().applyTo(lblIncome)
       GridDataFactory.fillDefaults().grab(true, false).applyTo(txtFirstName)
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(txtIncome)
       composite.layout = FillLayout(SWT.VERTICAL)
       composite.layout()
 
       return composite
    }
 
-   fun makeDomainItem(firstName: String) : WritableMap<String, String> {
-      val wm = WritableMap<String, String>()
-      wm.put("fname", firstName)
+   fun makeDomainItem(firstName: String, income: Double) : WritableMap<String, Any> {
+      val wm = WritableMap<String, Any>()
+      wm["fname"] = firstName
+      wm["income"] = income
       return wm
    }
 
