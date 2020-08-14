@@ -1,12 +1,17 @@
 package com.parinherm.databinding
 
+import com.parinherm.databinding.Converters.updFromDouble
+import com.parinherm.databinding.Converters.updToDouble
 import org.eclipse.core.databinding.Binding
 import org.eclipse.core.databinding.DataBindingContext
+import org.eclipse.core.databinding.UpdateValueStrategy
 import org.eclipse.core.databinding.ValidationStatusProvider
+import org.eclipse.core.databinding.conversion.text.NumberToStringConverter
+import org.eclipse.core.databinding.conversion.text.StringToNumberConverter
 import org.eclipse.core.databinding.observable.Observables
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.core.databinding.observable.map.WritableMap
-import org.eclipse.core.databinding.observable.value.WritableValue
+import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.layout.GridDataFactory
@@ -17,14 +22,13 @@ import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.jface.viewers.TableViewerColumn
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.SashForm
+import org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter
+import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.Text
-import org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter
-import org.eclipse.swt.graphics.Image
-import org.eclipse.swt.layout.FillLayout
 
 object DataBindingView{
 
@@ -69,6 +73,11 @@ object DataBindingView{
          val model = Observables.observeMapEntry(selectedItem as WritableMap<String, Any>,
             "fname" )
          dbc.bindValue(target, model)
+
+         val targetIncome = WidgetProperties.text<Text>(SWT.Modify).observe(txtIncome)
+         val modelIncome: IObservableValue<Double> = Observables.observeMapEntry(selectedItem as WritableMap<String, Double>, "income")
+
+         dbc.bindValue<String, Double>(targetIncome, modelIncome, updToDouble, updFromDouble)
 
       }
       val firstName = getColumn("First Name", listView, tableLayout)
