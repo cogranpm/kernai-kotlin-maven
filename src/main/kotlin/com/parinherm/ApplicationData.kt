@@ -6,7 +6,7 @@ import org.eclipse.swt.graphics.Image
 
 object ApplicationData {
 
-    private var imageRegistry: ImageRegistry = ImageRegistry()
+    private val imageRegistry: ImageRegistry = ImageRegistry()
     const val  IMAGE_ACTVITY_SMALL = "activitysmall"
     const val IMAGE_ACTIVITY_LARGE = "activitylarge"
     const val  IMAGE_STOCK_INFO = "stock_info"
@@ -14,12 +14,9 @@ object ApplicationData {
     const val  IMAGE_GOUP = "goup"
     const val IMAGES_PATH = "/images/"
 
-
     init {
 
     }
-
-
 
     fun setupImages() {
         try {

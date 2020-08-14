@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.*
 import org.eclipse.swt.graphics.Image
 
 
+
 import com.parinherm.databinding.DataBindingView
 
 class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
