@@ -1,6 +1,8 @@
 package com.parinherm.databinding
 
 import com.parinherm.ApplicationData.countryList
+import com.parinherm.databinding.Converters.convertFromLookup
+import com.parinherm.databinding.Converters.convertToLookup
 import com.parinherm.databinding.Converters.updFromBigDecimal
 import com.parinherm.databinding.Converters.updFromDouble
 import com.parinherm.databinding.Converters.updFromInt
@@ -8,16 +10,15 @@ import com.parinherm.databinding.Converters.updToBigDecimal
 import com.parinherm.databinding.Converters.updToDouble
 import com.parinherm.databinding.Converters.updToInt
 import com.parinherm.entity.LookupDetail
-import org.eclipse.core.databinding.AggregateValidationStatus
-import org.eclipse.core.databinding.Binding
-import org.eclipse.core.databinding.DataBindingContext
-import org.eclipse.core.databinding.ValidationStatusProvider
+import jdk.dynalink.linker.support.Lookup
+import org.eclipse.core.databinding.*
 import org.eclipse.core.databinding.observable.IChangeListener
 import org.eclipse.core.databinding.observable.Observables
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.core.databinding.observable.map.WritableMap
 import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
+import org.eclipse.jface.databinding.swt.ISWTObservableValue
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.layout.GridDataFactory
@@ -97,8 +98,8 @@ object DataBindingView{
          ControlDecorationSupport.create(bindFirstName, SWT.TOP or SWT.LEFT)
 
          val targetCountry = WidgetProperties.comboSelection().observe(cboCountry.combo)
-         val modelCountry = Observables.observeMapEntry<String, LookupDetail>(selectedItem as WritableMap<String, LookupDetail>, "country")
-         val bindCountry = dbc.bindValue(targetCountry, modelCountry)
+         val modelCountry = Observables.observeMapEntry(selectedItem as WritableMap<String, Any>, "country")
+         val bindCountry = dbc.bindValue(targetCountry, modelCountry) //, UpdateValueStrategy.create(convertFromLookup), UpdateValueStrategy.create(convertToLookup(countryList)))
 
          val targetHeight = WidgetProperties.text<Text>(SWT.Modify).observe(txtHeight)
          val modelHeight: IObservableValue<Double> = Observables.observeMapEntry(selectedItem as WritableMap<String, Double>, "height")
@@ -140,12 +141,12 @@ object DataBindingView{
       val firstName = getColumn("First Name", listView, tableLayout)
       listView.contentProvider = ObservableListContentProvider<Map<String, String>>()
       wl.add(makeDomainItem("Wayne", 6.70, 44,
-         BigDecimal(245000.00), countryList[2]))
+         BigDecimal(245000.00), countryList[2].code))
       wl.add(makeDomainItem("Belconnen", 4.88, 21,
-         BigDecimal(89000.00), countryList[1]))
+         BigDecimal(89000.00), countryList[1].code))
       wl.add(makeDomainItem("Bertrand", 6.10, 32,
-         BigDecimal(22400.00), countryList.find{it.code == "Aus"}!!
-      ))
+         BigDecimal(22400.00), countryList[0].code)
+      )
       listView.input = wl
       lblFirstName.text = "First Name"
       txtFirstName.text = "some text"
@@ -168,7 +169,7 @@ object DataBindingView{
       btnSave.addSelectionListener( widgetSelectedAdapter { _ ->
           for (item: Map<String, Any> in wl){
              println("Name: ${item["fname"]}: " +
-                     "Country: ${(item["country"] as LookupDetail).code} " +
+                     "Country: ${item["country"]} " +
                      "Height: ${item["height"]} Age: ${item["age"]} " +
                      "Income: ${item["income"]} Entered: ${item["enteredDate"]} " +
                      "Time: ${item["enteredTime"]}")
@@ -195,7 +196,7 @@ object DataBindingView{
       return composite
    }
 
-   fun makeDomainItem(firstName: String, height: Double, age: Int, income: BigDecimal, country: LookupDetail) : WritableMap<String, Any> {
+   fun makeDomainItem(firstName: String, height: Double, age: Int, income: BigDecimal, country: String) : WritableMap<String, Any> {
       val wm = WritableMap<String, Any>()
       wm["fname"] = firstName
       wm["income"] = income

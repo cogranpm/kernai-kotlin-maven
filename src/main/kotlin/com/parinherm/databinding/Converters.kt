@@ -1,6 +1,7 @@
 package com.parinherm.databinding
 
 import com.parinherm.entity.LookupDetail
+import jdk.dynalink.linker.support.Lookup
 import org.eclipse.core.databinding.UpdateValueStrategy
 import org.eclipse.core.databinding.conversion.text.NumberToStringConverter
 import org.eclipse.core.databinding.conversion.text.StringToNumberConverter
@@ -67,21 +68,14 @@ object Converters {
 
 
 
-
     //converting from a combo lookup to a field type, say string
-    val convertListItemDetail: IConverter = IConverter.create(LookupDetail::class.java, String::class. java,
-    {
-        o: LookupDetail => o?.code
+    val convertFromLookup: IConverter<LookupDetail, String> = IConverter.create<LookupDetail, String> {it.code }
+    fun convertToLookup( list: List<LookupDetail>) : IConverter<String, LookupDetail> {
+        return IConverter.create<String, LookupDetail>{
+            item: String -> list.find { it.code == item }
+        }
     }
-    )
 
-    //converting from a field type to a lookup type
-    //need to create a finder method to do it
-    /*
-    IConverter convertToListItemDetail = IConverter.create(String.class, ListItemDetail.class,
-    { String o -> DataTypesList.findByCode(o)}
-    )
-    */
 
     init {
        updToInt.setAfterGetValidator(numberValidator)
