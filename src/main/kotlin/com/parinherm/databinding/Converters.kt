@@ -72,7 +72,7 @@ object Converters {
 }
 
 
-class DateTimeSelectionProperty<DateTime, Any> () : WidgetValueProperty<Widget, Any> (SWT.Selection) {
+class DateTimeSelectionProperty () : WidgetValueProperty<Widget, Any> (SWT.Selection) {
 
     val MONTH_MAPPING_VALUE = 1
 
@@ -81,43 +81,41 @@ class DateTimeSelectionProperty<DateTime, Any> () : WidgetValueProperty<Widget, 
     }
 
     override fun doGetValue(source: Widget) : Any {
-        val dateTime: org.eclipse.swt.widgets.DateTime = source as org.eclipse.swt.widgets.DateTime
-        if ((dateTime.getStyle() and SWT.TIME) != 0) {
-            return LocalTime.of(dateTime.getHours(), dateTime.getMinutes(), dateTime.getSeconds()) as Any
+        val dateTime: DateTime = source as DateTime
+        if ((dateTime.style and SWT.TIME) != 0) {
+            return LocalTime.of(dateTime.hours, dateTime.minutes, dateTime.seconds) as Any
         }
-
-        return LocalDate.of(dateTime.getYear(), dateTime.getMonth(), dateTime.getDay()) as Any
-
+        return LocalDate.of(dateTime.year, dateTime.month, dateTime.day) as Any
     }
 
 
     override fun doSetValue(source: Widget, value: Any) {
-        val dateTime: org.eclipse.swt.widgets.DateTime = source as org.eclipse.swt.widgets.DateTime
-        val ta = getTemporalAccessor(value)
+        val dateTime: DateTime = source as DateTime
+        val ta = getTemporalAccessor(value) ?: throw IllegalArgumentException()
 
-        if(ta != null){
-            if((dateTime.getStyle() and SWT.TIME) != 0) {
-                dateTime.setTime(ta.get(ChronoField.HOUR_OF_DAY),
-                    ta.get(ChronoField.MINUTE_OF_HOUR),
-                    ta.get(ChronoField.SECOND_OF_MINUTE))
-            } else {
-                dateTime.setDate(ta.get(ChronoField.YEAR),
-                    ta.get(ChronoField.MONTH_OF_YEAR) - MONTH_MAPPING_VALUE,
-                    ta.get(ChronoField.DAY_OF_MONTH))
-            }
+        if((dateTime.style and SWT.TIME) != 0) {
+            dateTime.setTime(ta.get(ChronoField.HOUR_OF_DAY),
+                ta.get(ChronoField.MINUTE_OF_HOUR),
+                ta.get(ChronoField.SECOND_OF_MINUTE))
+        } else {
+            dateTime.setDate(
+                ta.get(ChronoField.YEAR),
+                ta.get(ChronoField.MONTH_OF_YEAR) - MONTH_MAPPING_VALUE,
+                ta.get(ChronoField.DAY_OF_MONTH)
+            )
         }
     }
 
     private fun getTemporalAccessor(value: Any): TemporalAccessor? {
-        var ta: TemporalAccessor? = null
         if (value is Date) {
-            ta = LocalDateTime.from((value as Date).toInstant())
+            return LocalDateTime.from((value as Date).toInstant())
         } else if(value is TemporalAccessor){
-            ta = value
+            return value as TemporalAccessor
         } else if(value is Calendar) {
-            ta = LocalDateTime.from((value as Calendar).toInstant())
+            return LocalDateTime.from((value as Calendar).toInstant())
+        }else {
+            return null
         }
-        return ta
     }
 
 

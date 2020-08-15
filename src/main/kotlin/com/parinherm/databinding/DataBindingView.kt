@@ -110,19 +110,20 @@ object DataBindingView{
          val bindIncome = dbc.bindValue(targetIncome, modelIncome, updToBigDecimal, updFromBigDecimal)
          ControlDecorationSupport.create(bindIncome, SWT.TOP or SWT.LEFT)
 
-         val enteredDateSelectionProperty: DateTimeSelectionProperty<DateTime, Any> = DateTimeSelectionProperty()
+         val enteredDateSelectionProperty: DateTimeSelectionProperty = DateTimeSelectionProperty()
          val targetEnteredDate = enteredDateSelectionProperty.observe(wEnteredDate)
          val modelEnteredDate = Observables.observeMapEntry(selectedItem as WritableMap<String, LocalDate>, "enteredDate")
          val bindEnteredDate = dbc.bindValue(targetEnteredDate, modelEnteredDate)
          ControlDecorationSupport.create(bindEnteredDate, SWT.TOP or SWT.LEFT)
 
-         val enteredTimeSelectionProperty: DateTimeSelectionProperty<DateTime, Any> = DateTimeSelectionProperty()
+         // this one isn't working form some reason
+         val enteredTimeSelectionProperty: DateTimeSelectionProperty = DateTimeSelectionProperty()
          val targetEnteredTime = enteredTimeSelectionProperty.observe(wEnteredTime)
          val modelEnteredTime = Observables.observeMapEntry(selectedItem as WritableMap<String, LocalTime>, "enteredTime")
          val bindEnteredTime = dbc.bindValue(targetEnteredTime, modelEnteredTime)
          ControlDecorationSupport.create(bindEnteredTime, SWT.TOP or SWT.LEFT)
 
-         dbc.getBindings().forEach{
+         dbc.bindings.forEach{
             it.target.addChangeListener(listener)
          }
 
@@ -179,7 +180,7 @@ object DataBindingView{
       wm["height"] = height
       wm["age"] = age
       wm["enteredDate"] = LocalDate.now()
-      wm["enteredTime"] = LocalTime.now()
+      wm["enteredTime"] = LocalTime.of(3, 0, 0)
       return wm
    }
 
