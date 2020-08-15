@@ -1,11 +1,13 @@
 package com.parinherm.databinding
 
+import com.parinherm.ApplicationData.countryList
 import com.parinherm.databinding.Converters.updFromBigDecimal
 import com.parinherm.databinding.Converters.updFromDouble
 import com.parinherm.databinding.Converters.updFromInt
 import com.parinherm.databinding.Converters.updToBigDecimal
 import com.parinherm.databinding.Converters.updToDouble
 import com.parinherm.databinding.Converters.updToInt
+import com.parinherm.entity.LookupDetail
 import org.eclipse.core.databinding.AggregateValidationStatus
 import org.eclipse.core.databinding.Binding
 import org.eclipse.core.databinding.DataBindingContext
@@ -20,10 +22,7 @@ import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.TableColumnLayout
-import org.eclipse.jface.viewers.ColumnLabelProvider
-import org.eclipse.jface.viewers.ColumnWeightData
-import org.eclipse.jface.viewers.TableViewer
-import org.eclipse.jface.viewers.TableViewerColumn
+import org.eclipse.jface.viewers.*
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.SashForm
 import org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter
@@ -56,6 +55,8 @@ object DataBindingView{
       val tableLayout = TableColumnLayout(true)
       val lblFirstName = Label(editContainer, labelStyle)
       val txtFirstName = Text(editContainer, swnone)
+      val lblCountry = Label(editContainer, labelStyle)
+      val cboCountry = ComboViewer(editContainer)
       val lblHeight = Label(editContainer, labelStyle)
       val txtHeight = Text(editContainer, swnone)
       val lblAge = Label(editContainer, labelStyle)
@@ -91,9 +92,13 @@ object DataBindingView{
             }
          }
          val targetFirstName = WidgetProperties.text<Text>(SWT.Modify).observe(txtFirstName)
-         val modelFirstName = Observables.observeMapEntry(selectedItem as WritableMap<String, Any>,"fname" )
+         val modelFirstName = Observables.observeMapEntry(selectedItem as WritableMap<String, String>,"fname" )
          val bindFirstName = dbc.bindValue(targetFirstName, modelFirstName)
          ControlDecorationSupport.create(bindFirstName, SWT.TOP or SWT.LEFT)
+
+         val targetCountry = WidgetProperties.comboSelection().observe(cboCountry.combo)
+         val modelCountry = Observables.observeMapEntry<String, LookupDetail>(selectedItem as WritableMap<String, LookupDetail>, "country")
+         val bindCountry = dbc.bindValue(targetCountry, modelCountry)
 
          val targetHeight = WidgetProperties.text<Text>(SWT.Modify).observe(txtHeight)
          val modelHeight: IObservableValue<Double> = Observables.observeMapEntry(selectedItem as WritableMap<String, Double>, "height")
@@ -134,12 +139,17 @@ object DataBindingView{
       }
       val firstName = getColumn("First Name", listView, tableLayout)
       listView.contentProvider = ObservableListContentProvider<Map<String, String>>()
-      wl.add(makeDomainItem("Wayne", 6.70, 44, BigDecimal(245000.00)))
-      wl.add(makeDomainItem("Belconnen", 4.88, 21, BigDecimal(89000.00)))
-      wl.add(makeDomainItem("Bertrand", 6.10, 32, BigDecimal(22400.00)))
+      wl.add(makeDomainItem("Wayne", 6.70, 44,
+         BigDecimal(245000.00), countryList[2]))
+      wl.add(makeDomainItem("Belconnen", 4.88, 21,
+         BigDecimal(89000.00), countryList[1]))
+      wl.add(makeDomainItem("Bertrand", 6.10, 32,
+         BigDecimal(22400.00), countryList.find{it.code == "Aus"}!!
+      ))
       listView.input = wl
       lblFirstName.text = "First Name"
       txtFirstName.text = "some text"
+      lblCountry.text = "Country"
       lblHeight.text = "Height"
       lblAge.text = "Age"
       lblIncome.text = "Income"
@@ -147,20 +157,32 @@ object DataBindingView{
       lblEnteredTime.text = "Time Entered"
       btnSave.text = "Save"
 
+      cboCountry.contentProvider = ArrayContentProvider.getInstance()
+      cboCountry.labelProvider = (object: LabelProvider() {
+         override fun getText(element: Any) : String {
+            return (element as LookupDetail).label
+         }
+      })
+      cboCountry.input = countryList
+
       btnSave.addSelectionListener( widgetSelectedAdapter { _ ->
           for (item: Map<String, Any> in wl){
-             println("Name: ${item["fname"]} : Height: ${item["height"]} Age: ${item["age"]} " +
+             println("Name: ${item["fname"]}: " +
+                     "Country: ${(item["country"] as LookupDetail).code} " +
+                     "Height: ${item["height"]} Age: ${item["age"]} " +
                      "Income: ${item["income"]} Entered: ${item["enteredDate"]} " +
                      "Time: ${item["enteredTime"]}")
           }
       })
       GridDataFactory.fillDefaults().applyTo(lblFirstName)
+      GridDataFactory.fillDefaults().applyTo(lblCountry)
       GridDataFactory.fillDefaults().applyTo(lblHeight)
       GridDataFactory.fillDefaults().applyTo(lblAge)
       GridDataFactory.fillDefaults().applyTo(lblIncome)
       GridDataFactory.fillDefaults().applyTo(lblEnteredDate)
       GridDataFactory.fillDefaults().applyTo(lblEnteredTime)
       GridDataFactory.fillDefaults().grab(true, false).applyTo(txtFirstName)
+      GridDataFactory.fillDefaults().grab(true, false).applyTo(cboCountry.control)
       GridDataFactory.fillDefaults().grab(true, false).applyTo(txtHeight)
       GridDataFactory.fillDefaults().grab(true, false).applyTo(txtAge)
       GridDataFactory.fillDefaults().grab(true, false).applyTo(txtIncome)
@@ -173,7 +195,7 @@ object DataBindingView{
       return composite
    }
 
-   fun makeDomainItem(firstName: String, height: Double, age: Int, income: BigDecimal) : WritableMap<String, Any> {
+   fun makeDomainItem(firstName: String, height: Double, age: Int, income: BigDecimal, country: LookupDetail) : WritableMap<String, Any> {
       val wm = WritableMap<String, Any>()
       wm["fname"] = firstName
       wm["income"] = income
@@ -181,6 +203,7 @@ object DataBindingView{
       wm["age"] = age
       wm["enteredDate"] = LocalDate.now()
       wm["enteredTime"] = LocalTime.of(3, 0, 0)
+      wm["country"] = country
       return wm
    }
 

@@ -1,5 +1,6 @@
 package com.parinherm
 
+import com.parinherm.entity.LookupDetail
 import org.eclipse.jface.resource.ImageDescriptor
 import org.eclipse.jface.resource.ImageRegistry
 import org.eclipse.swt.graphics.Image
@@ -41,5 +42,12 @@ object ApplicationData {
     public fun getImage(name: String): Image {
         return this.imageRegistry.get(name)
     }
+
+    val countryList: List<LookupDetail> = listOf(
+        LookupDetail("Aus", "Australia"),
+        LookupDetail("Can", "Canada"),
+        LookupDetail("Bra", "Brazil"),
+        LookupDetail("SA", "South Africa")
+    )
 
 }
