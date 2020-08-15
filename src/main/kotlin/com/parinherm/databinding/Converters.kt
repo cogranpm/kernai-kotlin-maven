@@ -1,10 +1,12 @@
 package com.parinherm.databinding
 
+import com.parinherm.entity.LookupDetail
 import org.eclipse.core.databinding.UpdateValueStrategy
 import org.eclipse.core.databinding.conversion.text.NumberToStringConverter
 import org.eclipse.core.databinding.conversion.text.StringToNumberConverter
 import java.math.BigDecimal
 import org.eclipse.core.databinding.conversion.Converter
+import org.eclipse.core.databinding.conversion.IConverter
 import org.eclipse.core.databinding.validation.ValidationStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -62,6 +64,24 @@ object Converters {
             ValidationStatus.error("Invalid number entered")
         }
     }
+
+
+
+
+    //converting from a combo lookup to a field type, say string
+    val convertListItemDetail: IConverter = IConverter.create(LookupDetail::class.java, String::class. java,
+    {
+        o: LookupDetail => o?.code
+    }
+    )
+
+    //converting from a field type to a lookup type
+    //need to create a finder method to do it
+    /*
+    IConverter convertToListItemDetail = IConverter.create(String.class, ListItemDetail.class,
+    { String o -> DataTypesList.findByCode(o)}
+    )
+    */
 
     init {
        updToInt.setAfterGetValidator(numberValidator)
