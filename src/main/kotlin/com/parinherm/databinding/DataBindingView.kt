@@ -1,7 +1,11 @@
 package com.parinherm.databinding
 
+import com.parinherm.databinding.Converters.updFromBigDecimal
 import com.parinherm.databinding.Converters.updFromDouble
+import com.parinherm.databinding.Converters.updFromInt
+import com.parinherm.databinding.Converters.updToBigDecimal
 import com.parinherm.databinding.Converters.updToDouble
+import com.parinherm.databinding.Converters.updToInt
 import org.eclipse.core.databinding.Binding
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.ValidationStatusProvider
@@ -87,6 +91,15 @@ object DataBindingView{
          val modelHeight: IObservableValue<Double> = Observables.observeMapEntry(selectedItem as WritableMap<String, Double>, "height")
          dbc.bindValue<String, Double>(targetHeight, modelHeight, updToDouble, updFromDouble)
 
+         val targetAge = WidgetProperties.text<Text>(SWT.Modify).observe(txtAge)
+         val modelAge: IObservableValue<Int> = Observables.observeMapEntry(selectedItem as WritableMap<String, Int>, "age")
+         dbc.bindValue<String, Int>(targetAge, modelAge, updToInt, updFromInt)
+
+         val targetIncome = WidgetProperties.text<Text>(SWT.Modify).observe(txtIncome)
+         val modelIncome: IObservableValue<BigDecimal> = Observables.observeMapEntry(selectedItem as WritableMap<String, BigDecimal>, "income")
+         dbc.bindValue(targetIncome, modelIncome, updToBigDecimal, updFromBigDecimal)
+
+
          dbc.getBindings().forEach{
             it.target.addChangeListener(listener)
          }
@@ -100,7 +113,7 @@ object DataBindingView{
       listView.input = wl
       lblFirstName.text = "First Name"
       txtFirstName.text = "some text"
-      lblHeight.text = "Income"
+      lblHeight.text = "Height"
       lblAge.text = "Age"
       lblIncome.text = "Income"
       btnSave.text = "Save"
@@ -140,9 +153,9 @@ object DataBindingView{
       val colProvider = (object: ColumnLabelProvider() {
          override fun getText(element: Any?): String {
              /* element is a map */
-            val map = element as Map<String, String>
+            val map = element as Map<String, Any>
             // looks like we'll hard code for now
-            return map.getOrDefault("fname", "")
+            return map.getOrDefault("fname", "").toString()
          }
 
          /*override fun getImage(element: Any?): Image {

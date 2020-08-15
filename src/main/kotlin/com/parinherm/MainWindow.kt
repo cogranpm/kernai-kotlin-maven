@@ -33,15 +33,15 @@ class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
         val container = Composite(parent, SWT.NONE)
         container.layout = FillLayout()
         val sashForm: SashForm = SashForm(container, SWT.HORIZONTAL or (SWT.BORDER))
-        sashForm.sashWidth = 10
-        val weights: Array<Int> = arrayOf(1, 2)
+        sashForm.sashWidth = 3
+        val weights: Array<Int> = arrayOf(1, 3)
         val navContainer: Composite = Composite(sashForm, SWT.NONE)
         mainContainer = Composite(sashForm, SWT.NONE)
         sashForm.weights = weights.toIntArray()
         navContainer.layout= FillLayout(SWT.VERTICAL)
         mainContainer.layout = FillLayout(SWT.VERTICAL)
 
-        val lblName: Label = getLabel("fred", navContainer)
+        val lblName: Label = getLabel("Navigation Item", navContainer)
         val lblAddress: Composite = DataBindingView.makeView(mainContainer)
 
 
