@@ -5,6 +5,7 @@ import org.eclipse.core.databinding.conversion.text.NumberToStringConverter
 import org.eclipse.core.databinding.conversion.text.StringToNumberConverter
 import java.math.BigDecimal
 import org.eclipse.core.databinding.conversion.Converter
+import org.eclipse.core.databinding.validation.ValidationStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -12,11 +13,13 @@ import org.eclipse.jface.databinding.swt.WidgetValueProperty
 import org.eclipse.swt.SWT
 import org.eclipse.swt.widgets.Widget
 import org.eclipse.swt.widgets.DateTime
+import java.text.DecimalFormat
+import java.text.DecimalFormatSymbols
+import java.text.ParseException
 import java.time.temporal.TemporalAccessor
 import java.time.LocalTime
 import java.time.temporal.ChronoField
-import java.util.Date
-import java.util.Calendar
+import java.util.*
 
 
 object Converters {
@@ -32,13 +35,42 @@ object Converters {
     val updToBigDecimal = UpdateValueStrategy<String, BigDecimal>(UpdateValueStrategy.POLICY_UPDATE).setConverter(StringToNumberConverter.toBigDecimal())
     val updFromBigDecimal = UpdateValueStrategy<BigDecimal, String>(UpdateValueStrategy.POLICY_UPDATE).setConverter(NumberToStringConverter.fromBigDecimal())
 
+    val numberValidator = {x: Any ->
+        val regex = "^[+-]?(\\d+(,\\d{3})*)$".toRegex()
+        if(regex.matches(x.toString())){
+            ValidationStatus.ok()
+        }else {
+            ValidationStatus.error("Invalid number entered")
+        }
+    }
+
+    val floatValidator = {x: Any ->
+        val regex = "[0-9]+(\\.){0,1}[0-9]*".toRegex()
+        if(regex.matches(x.toString())){
+            ValidationStatus.ok()
+        }else {
+            ValidationStatus.error("Invalid number entered")
+        }
+    }
+
+    val bigDecimalValidator = {x: String ->
+        try {
+            val format = DecimalFormat("", DecimalFormatSymbols(Locale.ENGLISH))
+                .parse(x)
+            ValidationStatus.ok()
+        } catch(e: ParseException){
+            ValidationStatus.error("Invalid number entered")
+        }
+    }
+
+    init {
+       updToInt.setAfterGetValidator(numberValidator)
+       updToDouble.setAfterGetValidator(floatValidator)
+       updToBigDecimal.setAfterGetValidator(bigDecimalValidator)
+    }
+
 }
 
-class LocalDateConverter : Converter <String, LocalDate> (String::class, LocalDate::class) {
-    override fun convert(fromObject: String) : LocalDate {
-        return LocalDateTime.now().toLocalDate()
-    }
-}
 
 class DateTimeSelectionProperty<DateTime, Any> () : WidgetValueProperty<Widget, Any> (SWT.Selection) {
 

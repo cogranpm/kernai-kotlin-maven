@@ -6,6 +6,7 @@ import com.parinherm.databinding.Converters.updFromInt
 import com.parinherm.databinding.Converters.updToBigDecimal
 import com.parinherm.databinding.Converters.updToDouble
 import com.parinherm.databinding.Converters.updToInt
+import org.eclipse.core.databinding.AggregateValidationStatus
 import org.eclipse.core.databinding.Binding
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.ValidationStatusProvider
@@ -14,6 +15,7 @@ import org.eclipse.core.databinding.observable.Observables
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.core.databinding.observable.map.WritableMap
 import org.eclipse.core.databinding.observable.value.IObservableValue
+import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.layout.GridDataFactory
@@ -30,6 +32,7 @@ import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.widgets.*
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.LocalTime
 
 object DataBindingView{
 
@@ -39,6 +42,7 @@ object DataBindingView{
    }
 
    val swnone = SWT.NONE
+   val labelStyle = SWT.BORDER
    val listViewStyle = SWT.SINGLE or SWT.H_SCROLL or SWT.V_SCROLL or SWT.FULL_SELECTION or SWT.BORDER
 
 
@@ -50,16 +54,19 @@ object DataBindingView{
       val listView = TableViewer(listContainer, listViewStyle)
       val listTable = listView.table
       val tableLayout = TableColumnLayout(true)
-      val lblFirstName = Label(editContainer, SWT.BORDER)
+      val lblFirstName = Label(editContainer, labelStyle)
       val txtFirstName = Text(editContainer, swnone)
-      val lblHeight = Label(editContainer, SWT.BORDER)
+      val lblHeight = Label(editContainer, labelStyle)
       val txtHeight = Text(editContainer, swnone)
-      val lblAge = Label(editContainer, SWT.BORDER)
+      val lblAge = Label(editContainer, labelStyle)
       val txtAge = Text(editContainer, swnone)
-      val lblIncome = Label(editContainer, SWT.BORDER)
+      val lblIncome = Label(editContainer, labelStyle)
       val txtIncome = Text(editContainer, swnone)
-      val lblEnteredDate = Label(editContainer, SWT.BORDER)
+      val lblEnteredDate = Label(editContainer, labelStyle)
       val wEnteredDate = DateTime(editContainer, SWT.DROP_DOWN or SWT.DATE)
+      val lblEnteredTime = Label(editContainer, labelStyle)
+      val wEnteredTime = DateTime(editContainer, SWT.DROP_DOWN or SWT.TIME)
+      val lblErrors = Label(editContainer, labelStyle)
       val btnSave = Button(editContainer, SWT.PUSH)
       val wl = WritableList<Map<String, Any>>()
       val dbc = DataBindingContext()
@@ -83,62 +90,82 @@ object DataBindingView{
                dbc.removeBinding(binding)
             }
          }
-         val target = WidgetProperties.text<Text>(SWT.Modify).observe(txtFirstName)
-         val model = Observables.observeMapEntry(selectedItem as WritableMap<String, Any>,
-            "fname" )
-         dbc.bindValue(target, model)
+         val targetFirstName = WidgetProperties.text<Text>(SWT.Modify).observe(txtFirstName)
+         val modelFirstName = Observables.observeMapEntry(selectedItem as WritableMap<String, Any>,"fname" )
+         val bindFirstName = dbc.bindValue(targetFirstName, modelFirstName)
+         ControlDecorationSupport.create(bindFirstName, SWT.TOP or SWT.LEFT)
 
          val targetHeight = WidgetProperties.text<Text>(SWT.Modify).observe(txtHeight)
          val modelHeight: IObservableValue<Double> = Observables.observeMapEntry(selectedItem as WritableMap<String, Double>, "height")
-         dbc.bindValue<String, Double>(targetHeight, modelHeight, updToDouble, updFromDouble)
+         val bindHeight = dbc.bindValue<String, Double>(targetHeight, modelHeight, updToDouble, updFromDouble)
+         ControlDecorationSupport.create(bindHeight, SWT.TOP or SWT.LEFT)
 
          val targetAge = WidgetProperties.text<Text>(SWT.Modify).observe(txtAge)
          val modelAge: IObservableValue<Int> = Observables.observeMapEntry(selectedItem as WritableMap<String, Int>, "age")
-         dbc.bindValue<String, Int>(targetAge, modelAge, updToInt, updFromInt)
+         val bindAge = dbc.bindValue<String, Int>(targetAge, modelAge, updToInt, updFromInt)
+         ControlDecorationSupport.create(bindAge, SWT.TOP or SWT.LEFT)
 
          val targetIncome = WidgetProperties.text<Text>(SWT.Modify).observe(txtIncome)
          val modelIncome: IObservableValue<BigDecimal> = Observables.observeMapEntry(selectedItem as WritableMap<String, BigDecimal>, "income")
-         dbc.bindValue(targetIncome, modelIncome, updToBigDecimal, updFromBigDecimal)
+         val bindIncome = dbc.bindValue(targetIncome, modelIncome, updToBigDecimal, updFromBigDecimal)
+         ControlDecorationSupport.create(bindIncome, SWT.TOP or SWT.LEFT)
 
          val enteredDateSelectionProperty: DateTimeSelectionProperty<DateTime, Any> = DateTimeSelectionProperty()
          val targetEnteredDate = enteredDateSelectionProperty.observe(wEnteredDate)
          val modelEnteredDate = Observables.observeMapEntry(selectedItem as WritableMap<String, LocalDate>, "enteredDate")
-         dbc.bindValue(targetEnteredDate, modelEnteredDate)
+         val bindEnteredDate = dbc.bindValue(targetEnteredDate, modelEnteredDate)
+         ControlDecorationSupport.create(bindEnteredDate, SWT.TOP or SWT.LEFT)
 
+         val enteredTimeSelectionProperty: DateTimeSelectionProperty<DateTime, Any> = DateTimeSelectionProperty()
+         val targetEnteredTime = enteredTimeSelectionProperty.observe(wEnteredTime)
+         val modelEnteredTime = Observables.observeMapEntry(selectedItem as WritableMap<String, LocalTime>, "enteredTime")
+         val bindEnteredTime = dbc.bindValue(targetEnteredTime, modelEnteredTime)
+         ControlDecorationSupport.create(bindEnteredTime, SWT.TOP or SWT.LEFT)
 
          dbc.getBindings().forEach{
             it.target.addChangeListener(listener)
          }
 
+         val  errorObservable: IObservableValue<String> = WidgetProperties.text<Label>().observe(lblErrors)
+         val allValidationBinding: Binding = dbc.bindValue(errorObservable,
+            AggregateValidationStatus(dbc.bindings, AggregateValidationStatus.MAX_SEVERITY), null, null)
+
       }
       val firstName = getColumn("First Name", listView, tableLayout)
       listView.contentProvider = ObservableListContentProvider<Map<String, String>>()
-      wl.add(makeDomainItem("Wayne", 6.7, 44, BigDecimal(245000)))
-      wl.add(makeDomainItem("Belconnen", 4.88, 21, BigDecimal(89000)))
-      wl.add(makeDomainItem("Bertrand", 6.1, 32, BigDecimal(22400)))
+      wl.add(makeDomainItem("Wayne", 6.70, 44, BigDecimal(245000.00)))
+      wl.add(makeDomainItem("Belconnen", 4.88, 21, BigDecimal(89000.00)))
+      wl.add(makeDomainItem("Bertrand", 6.10, 32, BigDecimal(22400.00)))
       listView.input = wl
       lblFirstName.text = "First Name"
       txtFirstName.text = "some text"
       lblHeight.text = "Height"
       lblAge.text = "Age"
       lblIncome.text = "Income"
-      lblEnteredDate.text = "Entered"
+      lblEnteredDate.text = "Date Entered"
+      lblEnteredTime.text = "Time Entered"
       btnSave.text = "Save"
 
       btnSave.addSelectionListener( widgetSelectedAdapter { _ ->
           for (item: Map<String, Any> in wl){
              println("Name: ${item["fname"]} : Height: ${item["height"]} Age: ${item["age"]} " +
-                     "Income: ${item["income"]} Entered: ${item["enteredDate"]}")
+                     "Income: ${item["income"]} Entered: ${item["enteredDate"]} " +
+                     "Time: ${item["enteredTime"]}")
           }
       })
       GridDataFactory.fillDefaults().applyTo(lblFirstName)
       GridDataFactory.fillDefaults().applyTo(lblHeight)
       GridDataFactory.fillDefaults().applyTo(lblAge)
       GridDataFactory.fillDefaults().applyTo(lblIncome)
+      GridDataFactory.fillDefaults().applyTo(lblEnteredDate)
+      GridDataFactory.fillDefaults().applyTo(lblEnteredTime)
       GridDataFactory.fillDefaults().grab(true, false).applyTo(txtFirstName)
       GridDataFactory.fillDefaults().grab(true, false).applyTo(txtHeight)
       GridDataFactory.fillDefaults().grab(true, false).applyTo(txtAge)
       GridDataFactory.fillDefaults().grab(true, false).applyTo(txtIncome)
+      GridDataFactory.fillDefaults().applyTo(wEnteredDate)
+      GridDataFactory.fillDefaults().applyTo(wEnteredTime)
+      GridDataFactory.fillDefaults().span(2, 1).applyTo(lblErrors)
       composite.layout = FillLayout(SWT.VERTICAL)
       composite.layout()
 
@@ -152,12 +179,7 @@ object DataBindingView{
       wm["height"] = height
       wm["age"] = age
       wm["enteredDate"] = LocalDate.now()
-
-      /*
-      createdDate: LocalDate,
-      createdTime: LocalTime,
-      createdDateTime: LocalDateTime,
-       */
+      wm["enteredTime"] = LocalTime.now()
       return wm
    }
 
