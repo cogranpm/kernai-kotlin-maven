@@ -27,10 +27,7 @@ import org.eclipse.swt.custom.SashForm
 import org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.layout.GridLayout
-import org.eclipse.swt.widgets.Button
-import org.eclipse.swt.widgets.Composite
-import org.eclipse.swt.widgets.Label
-import org.eclipse.swt.widgets.Text
+import org.eclipse.swt.widgets.*
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -42,13 +39,15 @@ object DataBindingView{
    }
 
    val swnone = SWT.NONE
+   val listViewStyle = SWT.SINGLE or SWT.H_SCROLL or SWT.V_SCROLL or SWT.FULL_SELECTION or SWT.BORDER
+
 
    fun makeView(parent: Composite): Composite {
       val composite = Composite(parent, swnone)
-      val sashForm = SashForm(composite, swnone)
+      val sashForm = SashForm(composite, SWT.BORDER)
       val listContainer = Composite(sashForm, swnone)
       val editContainer = Composite(sashForm, swnone)
-      val listView = TableViewer(listContainer, swnone)
+      val listView = TableViewer(listContainer, listViewStyle)
       val listTable = listView.table
       val tableLayout = TableColumnLayout(true)
       val lblFirstName = Label(editContainer, SWT.BORDER)
@@ -59,13 +58,15 @@ object DataBindingView{
       val txtAge = Text(editContainer, swnone)
       val lblIncome = Label(editContainer, SWT.BORDER)
       val txtIncome = Text(editContainer, swnone)
+      val lblEnteredDate = Label(editContainer, SWT.BORDER)
+      val wEnteredDate = DateTime(editContainer, SWT.DROP_DOWN or SWT.DATE)
       val btnSave = Button(editContainer, SWT.PUSH)
       val wl = WritableList<Map<String, Any>>()
-      val wm = WritableMap<String, Any>()
       val dbc = DataBindingContext()
 
 
       sashForm.weights = intArrayOf(1, 2)
+      sashForm.sashWidth = 4
       listContainer.layout = GridLayout(1, true)
       editContainer.layout = GridLayout(2, false)
       listTable.headerVisible = true
@@ -99,6 +100,11 @@ object DataBindingView{
          val modelIncome: IObservableValue<BigDecimal> = Observables.observeMapEntry(selectedItem as WritableMap<String, BigDecimal>, "income")
          dbc.bindValue(targetIncome, modelIncome, updToBigDecimal, updFromBigDecimal)
 
+         val enteredDateSelectionProperty: DateTimeSelectionProperty<DateTime, Any> = DateTimeSelectionProperty()
+         val targetEnteredDate = enteredDateSelectionProperty.observe(wEnteredDate)
+         val modelEnteredDate = Observables.observeMapEntry(selectedItem as WritableMap<String, LocalDate>, "enteredDate")
+         dbc.bindValue(targetEnteredDate, modelEnteredDate)
+
 
          dbc.getBindings().forEach{
             it.target.addChangeListener(listener)
@@ -116,11 +122,13 @@ object DataBindingView{
       lblHeight.text = "Height"
       lblAge.text = "Age"
       lblIncome.text = "Income"
+      lblEnteredDate.text = "Entered"
       btnSave.text = "Save"
 
       btnSave.addSelectionListener( widgetSelectedAdapter { _ ->
           for (item: Map<String, Any> in wl){
-             println("Name: ${item["fname"]} : Height: ${item["height"]} Age: ${item["age"]} Income: ${item["income"]}")
+             println("Name: ${item["fname"]} : Height: ${item["height"]} Age: ${item["age"]} " +
+                     "Income: ${item["income"]} Entered: ${item["enteredDate"]}")
           }
       })
       GridDataFactory.fillDefaults().applyTo(lblFirstName)
@@ -144,6 +152,12 @@ object DataBindingView{
       wm["height"] = height
       wm["age"] = age
       wm["enteredDate"] = LocalDate.now()
+
+      /*
+      createdDate: LocalDate,
+      createdTime: LocalTime,
+      createdDateTime: LocalDateTime,
+       */
       return wm
    }
 
