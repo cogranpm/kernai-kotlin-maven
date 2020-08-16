@@ -40,7 +40,10 @@ import com.parinherm.ApplicationData.swnone
 import com.parinherm.ApplicationData.listViewStyle
 import com.parinherm.ApplicationData.labelStyle
 
-class DataBindingView{
+class DataBindingView
+{
+
+   private val widgetsMap = mutableMapOf<String, Any>()
 
    private var selectionChange: Boolean = false
    private var dirtyFlag: DirtyFlag = DirtyFlag(false)
@@ -79,6 +82,14 @@ class DataBindingView{
       val btnSave = Button(editContainer, SWT.PUSH)
       val wl = WritableList<Map<String, Any>>()
       val dbc = DataBindingContext()
+
+      widgetsMap["dbc"] = dbc
+      widgetsMap["sashForm"] = sashForm
+      widgetsMap["listContiner"] = listContainer
+      widgetsMap["editContainer"] = editContainer
+      widgetsMap["listView"] = listView
+
+
 
 
       sashForm.weights = intArrayOf(1, 2)
