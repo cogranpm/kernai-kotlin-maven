@@ -14,6 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>1.3.72</kotlin.version>
         <kotlin.code.style>official</kotlin.code.style>
+        <serialization.version>0.20.0</serialization.version>
         <junit.version>4.12</junit.version>
         <!-- <swt.version>3.114.100</swt.version> -->
         <swt.version>3.110.0</swt.version>
@@ -130,6 +131,11 @@
             <version>${arrow.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-runtime</artifactId>
+            <version>${serialization.version}</version>
+        </dependency>
 
 
         <dependency>
@@ -302,7 +308,17 @@
                     <args>
                         <arg>-Xjsr305=strict</arg> <!-- Enable strict mode for JSR-305 annotations -->
                     </args>
+                    <compilerPlugins>
+                        <plugin>kotlinx-serialization</plugin>
+                    </compilerPlugins>
                 </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-serialization</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
 
 
             </plugin>
