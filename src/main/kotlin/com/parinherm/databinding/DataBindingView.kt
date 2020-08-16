@@ -21,6 +21,7 @@ import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
 import org.eclipse.jface.databinding.swt.ISWTObservableValue
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
+import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.TableColumnLayout
 import org.eclipse.jface.viewers.*
@@ -97,9 +98,15 @@ object DataBindingView{
          val bindFirstName = dbc.bindValue(targetFirstName, modelFirstName)
          ControlDecorationSupport.create(bindFirstName, SWT.TOP or SWT.LEFT)
 
-         val targetCountry = WidgetProperties.comboSelection().observe(cboCountry.combo)
-         val modelCountry = Observables.observeMapEntry(selectedItem as WritableMap<String, Any>, "country")
-         val bindCountry = dbc.bindValue(targetCountry, modelCountry) //, UpdateValueStrategy.create(convertFromLookup), UpdateValueStrategy.create(convertToLookup(countryList)))
+         // not sure why this delayed one exists but I need to call it otherwise there is an overload resolution ambiguity error
+         // if i just call observe
+         val targetCountry: IObservableValue<LookupDetail> = ViewerProperties.singleSelection<ComboViewer, LookupDetail>().observeDelayed(1, cboCountry)
+         val modelCountry = Observables.observeMapEntry(selectedItem as WritableMap<String, String>, "country")
+         // this is the prototype for a combo viewer that is populated with a lookup detail instance
+         // it's target is a model with a string property
+         val bindCountry = dbc.bindValue(targetCountry, modelCountry,
+               UpdateValueStrategy.create<LookupDetail, String>(convertFromLookup),
+               UpdateValueStrategy.create<String, LookupDetail>(convertToLookup(countryList)))
 
          val targetHeight = WidgetProperties.text<Text>(SWT.Modify).observe(txtHeight)
          val modelHeight: IObservableValue<Double> = Observables.observeMapEntry(selectedItem as WritableMap<String, Double>, "height")
