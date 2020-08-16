@@ -9,9 +9,11 @@ import com.parinherm.databinding.Converters.updFromInt
 import com.parinherm.databinding.Converters.updToBigDecimal
 import com.parinherm.databinding.Converters.updToDouble
 import com.parinherm.databinding.Converters.updToInt
+import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.LookupDetail
 import jdk.dynalink.linker.support.Lookup
 import org.eclipse.core.databinding.*
+import org.eclipse.core.databinding.beans.typed.BeanProperties
 import org.eclipse.core.databinding.observable.IChangeListener
 import org.eclipse.core.databinding.observable.Observables
 import org.eclipse.core.databinding.observable.list.WritableList
@@ -37,9 +39,12 @@ import java.time.LocalTime
 
 object DataBindingView{
 
-   private var viewDirty: Boolean = false
+   private var selectionChange: Boolean = false
+   private var dirtyFlag: DirtyFlag = DirtyFlag(false)
    private val listener: IChangeListener = IChangeListener {
-      viewDirty = true
+      if (!selectionChange) {
+         dirtyFlag.dirty = true
+      }
    }
 
    val swnone = SWT.NONE
@@ -83,6 +88,8 @@ object DataBindingView{
       listTable.linesVisible = true
       listContainer.layout = tableLayout
       listView.addSelectionChangedListener { _ ->
+         selectionChange = true
+         btnSave.enabled = false
          val selection = listView.structuredSelection
          val selectedItem = selection.firstElement
          //setup the databindings
@@ -144,6 +151,12 @@ object DataBindingView{
          val allValidationBinding: Binding = dbc.bindValue(errorObservable,
             AggregateValidationStatus(dbc.bindings, AggregateValidationStatus.MAX_SEVERITY), null, null)
 
+         //save button binding
+         val targetSave = WidgetProperties.enabled<Button>().observe(btnSave)
+         val modelDirty = BeanProperties.value<DirtyFlag, Boolean>("dirty").observe(this.dirtyFlag)
+         val bindSave = dbc.bindValue(targetSave, modelDirty)
+         selectionChange = false
+
       }
       val firstName = getColumn("First Name", listView, tableLayout)
       listView.contentProvider = ObservableListContentProvider<Map<String, String>>()
@@ -164,6 +177,7 @@ object DataBindingView{
       lblEnteredDate.text = "Date Entered"
       lblEnteredTime.text = "Time Entered"
       btnSave.text = "Save"
+      btnSave.enabled = false
 
       cboCountry.contentProvider = ArrayContentProvider.getInstance()
       cboCountry.labelProvider = (object: LabelProvider() {
@@ -181,6 +195,7 @@ object DataBindingView{
                      "Income: ${item["income"]} Entered: ${item["enteredDate"]} " +
                      "Time: ${item["enteredTime"]}")
           }
+         this.dirtyFlag.dirty = false
       })
       GridDataFactory.fillDefaults().applyTo(lblFirstName)
       GridDataFactory.fillDefaults().applyTo(lblCountry)
