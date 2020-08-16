@@ -3,6 +3,7 @@ package com.parinherm
 import com.parinherm.entity.LookupDetail
 import org.eclipse.jface.resource.ImageDescriptor
 import org.eclipse.jface.resource.ImageRegistry
+import org.eclipse.swt.SWT
 import org.eclipse.swt.graphics.Image
 
 object ApplicationData {
@@ -14,6 +15,12 @@ object ApplicationData {
     const val IMAGE_STOCK_EXIT = "stock_exit"
     const val  IMAGE_GOUP = "goup"
     const val IMAGES_PATH = "/images/"
+
+
+    const val swnone = SWT.NONE
+    const val labelStyle = SWT.BORDER
+    const val listViewStyle = SWT.SINGLE or SWT.H_SCROLL or SWT.V_SCROLL or SWT.FULL_SELECTION or SWT.BORDER
+
 
     init {
 

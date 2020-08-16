@@ -36,20 +36,21 @@ import org.eclipse.swt.widgets.*
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalTime
+import com.parinherm.ApplicationData.swnone
+import com.parinherm.ApplicationData.listViewStyle
+import com.parinherm.ApplicationData.labelStyle
 
-object DataBindingView{
+class DataBindingView{
 
    private var selectionChange: Boolean = false
    private var dirtyFlag: DirtyFlag = DirtyFlag(false)
+
    private val listener: IChangeListener = IChangeListener {
       if (!selectionChange) {
          dirtyFlag.dirty = true
       }
    }
 
-   val swnone = SWT.NONE
-   val labelStyle = SWT.BORDER
-   val listViewStyle = SWT.SINGLE or SWT.H_SCROLL or SWT.V_SCROLL or SWT.FULL_SELECTION or SWT.BORDER
 
 
    fun makeView(parent: Composite): Composite {
@@ -89,7 +90,8 @@ object DataBindingView{
       listContainer.layout = tableLayout
       listView.addSelectionChangedListener { _ ->
          selectionChange = true
-         btnSave.enabled = false
+
+
          val selection = listView.structuredSelection
          val selectedItem = selection.firstElement
          //setup the databindings
@@ -155,17 +157,20 @@ object DataBindingView{
          val targetSave = WidgetProperties.enabled<Button>().observe(btnSave)
          val modelDirty = BeanProperties.value<DirtyFlag, Boolean>("dirty").observe(this.dirtyFlag)
          val bindSave = dbc.bindValue(targetSave, modelDirty)
+
+         dirtyFlag.dirty = false
+         btnSave.enabled = false
          selectionChange = false
 
       }
       val firstName = getColumn("First Name", listView, tableLayout)
       listView.contentProvider = ObservableListContentProvider<Map<String, String>>()
       wl.add(makeDomainItem("Wayne", 6.70, 44,
-         BigDecimal(245000.00), countryList[2].code))
+         BigDecimal(245000.00), countryList[2].code, false) )
       wl.add(makeDomainItem("Belconnen", 4.88, 21,
-         BigDecimal(89000.00), countryList[1].code))
+         BigDecimal(89000.00), countryList[1].code, false))
       wl.add(makeDomainItem("Bertrand", 6.10, 32,
-         BigDecimal(22400.00), countryList[0].code)
+         BigDecimal(22400.00), countryList[0].code, false)
       )
       listView.input = wl
       lblFirstName.text = "First Name"
@@ -218,7 +223,8 @@ object DataBindingView{
       return composite
    }
 
-   fun makeDomainItem(firstName: String, height: Double, age: Int, income: BigDecimal, country: String) : WritableMap<String, Any> {
+   private fun makeDomainItem(firstName: String, height: Double, age: Int,
+                      income: BigDecimal, country: String, isDeceased: Boolean) : WritableMap<String, Any> {
       val wm = WritableMap<String, Any>()
       wm["fname"] = firstName
       wm["income"] = income
@@ -227,10 +233,11 @@ object DataBindingView{
       wm["enteredDate"] = LocalDate.now()
       wm["enteredTime"] = LocalTime.of(3, 0, 0)
       wm["country"] = country
+      wm["isDeceased"] = isDeceased
       return wm
    }
 
-   fun getColumn(caption: String, viewer: TableViewer, layout: TableColumnLayout) : TableViewerColumn {
+   private fun getColumn(caption: String, viewer: TableViewer, layout: TableColumnLayout) : TableViewerColumn {
       val column = TableViewerColumn(viewer, SWT.LEFT)
       val col = column.column
       val colProvider = (object: ColumnLabelProvider() {

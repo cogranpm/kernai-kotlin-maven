@@ -42,7 +42,7 @@ class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
         mainContainer.layout = FillLayout(SWT.VERTICAL)
 
         val lblName: Label = getLabel("Navigation Item", navContainer)
-        val lblAddress: Composite = DataBindingView.makeView(mainContainer)
+        DataBindingView().makeView(mainContainer)
 
 
         return container
@@ -87,7 +87,7 @@ class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
             override fun run () {
                 println("here")
                 clearComposite(mainContainer)
-                val view: Composite = DataBindingView.makeView(mainContainer)
+                val view: Composite = DataBindingView().makeView(mainContainer)
                 mainContainer.layout()
             }
         }
