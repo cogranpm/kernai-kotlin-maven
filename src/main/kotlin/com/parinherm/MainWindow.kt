@@ -1,5 +1,6 @@
 package com.parinherm
 
+import com.parinherm.builders.swtBuilder
 import org.eclipse.jface.action.*
 import org.eclipse.jface.resource.ImageDescriptor
 import org.eclipse.jface.window.ApplicationWindow
@@ -17,6 +18,7 @@ import org.eclipse.swt.graphics.Image
 
 
 import com.parinherm.databinding.DataBindingView
+import kotlinx.serialization.ImplicitReflectionSerializer
 
 class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
 
@@ -29,6 +31,7 @@ class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
     }
 
 
+    @ImplicitReflectionSerializer
     override fun createContents(parent: Composite?): Control {
         val container = Composite(parent, SWT.NONE)
         container.layout = FillLayout()
@@ -42,6 +45,14 @@ class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
         mainContainer.layout = FillLayout(SWT.VERTICAL)
 
         val lblName: Label = getLabel("Navigation Item", navContainer)
+
+        /* testing a load ui definitions from server
+        scenario, so a api site would be running
+        ui defs are put on wire format and downloaded
+        and then renderer takes care of constructing the widgets etc
+         */
+
+        swtBuilder.renderTest()
         DataBindingView().makeView(mainContainer)
 
 
