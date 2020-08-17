@@ -13,6 +13,14 @@ data class WindowDef(val title: String, val height: Int, val fields: List<FieldD
 @Serializable
 data class FieldDef(val title: String, val type: Int)
 
+@Serializable
+class ViewDef (val view: Map<String, String>, val widgets: List<WidgetDef>)
+
+@Serializable
+class WidgetDef(val view: Map<String, String>)
+//class WidgetDef(val view: Map<String, @ContextualSerialization Any>)
+
+
 object swtBuilder {
 
     @ImplicitReflectionSerializer
@@ -20,6 +28,25 @@ object swtBuilder {
 
         val json = Json(JsonConfiguration.Stable)
 
+        /* class containing a map style: why because the
+        serializer can't seem to handle a list of maps
+        but is ok with a list of classes containing a map
+        catch is: it's not ok with Any as the value type, which is a bummer
+         */
+        val firstNameDef = WidgetDef(mapOf("title" to "First Name", "height" to "40"))
+        val lastNameDef = WidgetDef(mapOf("title" to "Last Name", "height" to "40"))
+        val viewDef = ViewDef(mapOf("title" to "Kernai", "height" to "400", "width" to "40"), listOf(firstNameDef, lastNameDef))
+
+        val viewDefTest = ViewDef(mapOf("title" to "Test", "height" to "10", "width" to "300"), listOf(firstNameDef, lastNameDef))
+        val viewDefs: List<ViewDef> = listOf(viewDef, viewDefTest)
+        val viewData = json.stringify(ViewDef.serializer().list, viewDefs )
+        println(viewData)
+        val reViewData: List<ViewDef> = json.parse(ViewDef.serializer().list, viewData)
+        reViewData.forEach { println(it.view["title"])}
+        println("****************************************")
+
+
+        /* data class style */
         val dataBindingFields = listOf<FieldDef>(
             FieldDef("FirstName", 0),
             FieldDef("LastName", 0))
