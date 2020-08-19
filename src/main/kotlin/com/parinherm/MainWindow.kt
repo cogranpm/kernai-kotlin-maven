@@ -1,6 +1,6 @@
 package com.parinherm
 
-//import com.parinherm.builders.swtBuilder
+import com.parinherm.builders.swtBuilder
 import org.eclipse.jface.action.*
 import org.eclipse.jface.resource.ImageDescriptor
 import org.eclipse.jface.window.ApplicationWindow
@@ -18,7 +18,6 @@ import org.eclipse.swt.graphics.Image
 
 
 import com.parinherm.databinding.DataBindingView
-//import kotlinx.serialization.ImplicitReflectionSerializer
 
 class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
 
@@ -31,7 +30,6 @@ class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
     }
 
 
-    //@ImplicitReflectionSerializer
     override fun createContents(parent: Composite?): Control {
         val container = Composite(parent, SWT.NONE)
         container.layout = FillLayout()
@@ -51,8 +49,7 @@ class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
         ui defs are put on wire format and downloaded
         and then renderer takes care of constructing the widgets etc
          */
-        //@OptIn(kotlinx.serialization.ImplicitReflectionSerializer::class)
-        //swtBuilder.renderTest()
+        swtBuilder.renderTest()
         DataBindingView().makeView(mainContainer)
 
 
