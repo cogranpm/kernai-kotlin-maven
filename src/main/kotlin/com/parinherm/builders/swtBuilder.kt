@@ -2,6 +2,7 @@ package com.parinherm.builders
 /* loads application definition from server
 and is able to build a ui from it
  */
+/*
 
 import kotlinx.serialization.*
 import kotlinx.serialization.builtins.ListSerializer
@@ -29,11 +30,13 @@ object swtBuilder {
 
         val json = Json.Default//JsonConfiguration.Stable)
 
-        /* class containing a map style: why because the
+        */
+/* class containing a map style: why because the
         serializer can't seem to handle a list of maps
         but is ok with a list of classes containing a map
         catch is: it's not ok with Any as the value type, which is a bummer
-         */
+         *//*
+
         val firstNameDef = WidgetDef(mapOf("title" to "First Name", "height" to "40"))
         val lastNameDef = WidgetDef(mapOf("title" to "Last Name", "height" to "40"))
         val viewDef = ViewDef(mapOf("title" to "Kernai", "height" to "400", "width" to "40"), listOf(firstNameDef, lastNameDef))
@@ -47,7 +50,9 @@ object swtBuilder {
         println("****************************************")
 
 
-        /* data class style */
+        */
+/* data class style *//*
+
         val dataBindingFields = listOf<FieldDef>(
             FieldDef("FirstName", 0),
             FieldDef("LastName", 0))
@@ -70,4 +75,4 @@ object swtBuilder {
             }
         }
     }
-}
+}*/

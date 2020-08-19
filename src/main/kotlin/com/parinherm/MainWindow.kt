@@ -1,12 +1,12 @@
 package com.parinherm
 
-import com.parinherm.builders.swtBuilder
+//import com.parinherm.builders.swtBuilder
 import org.eclipse.jface.action.*
 import org.eclipse.jface.resource.ImageDescriptor
 import org.eclipse.jface.window.ApplicationWindow
 import org.eclipse.swt.SWT
 import org.eclipse.swt.graphics.Point
-import org.eclipse.nebula.widgets.pshelf.*
+//import org.eclipse.nebula.widgets.pshelf.*
 import org.eclipse.swt.custom.SashForm
 import org.eclipse.swt.layout.FillLayout
 import java.io.IOException

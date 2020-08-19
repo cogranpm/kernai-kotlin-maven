@@ -11,7 +11,6 @@ import com.parinherm.databinding.Converters.updToDouble
 import com.parinherm.databinding.Converters.updToInt
 import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.LookupDetail
-import jdk.dynalink.linker.support.Lookup
 import org.eclipse.core.databinding.*
 import org.eclipse.core.databinding.beans.typed.BeanProperties
 import org.eclipse.core.databinding.observable.IChangeListener

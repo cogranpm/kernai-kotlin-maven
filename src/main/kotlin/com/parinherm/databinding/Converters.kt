@@ -1,7 +1,6 @@
 package com.parinherm.databinding
 
 import com.parinherm.entity.LookupDetail
-import jdk.dynalink.linker.support.Lookup
 import org.eclipse.core.databinding.UpdateValueStrategy
 import org.eclipse.core.databinding.conversion.text.NumberToStringConverter
 import org.eclipse.core.databinding.conversion.text.StringToNumberConverter
