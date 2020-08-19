@@ -1,5 +1,6 @@
 package com.parinherm
 
+import com.parinherm.server.SimpleHttpServer
 import com.parinherm.server.SparkServer
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -14,8 +15,9 @@ fun main(args: Array<String>) {
    val job = GlobalScope.launch {
         SparkServer.run()
    }
-
      */
+
+    SimpleHttpServer.start()
 
     val display: Display = Display.getDefault()
     Realm.runWithDefault(DisplayRealm.getRealm(display)) {
@@ -28,8 +30,10 @@ fun main(args: Array<String>) {
             println (ex.message)
         }
 
-        println("Exit")
+
     }
+
+    SimpleHttpServer.stop()
 }
 
 

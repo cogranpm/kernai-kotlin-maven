@@ -3,6 +3,7 @@ package com.parinherm.builders
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import com.parinherm.server.ViewBuilder
 
 /* loads application definition from server
 and is able to build a ui from it
@@ -18,19 +19,9 @@ object swtBuilder {
     inline fun <reified T> Gson.fromJson(json: String) = fromJson<T>(json, object: TypeToken<T>() {}.type)
 
    fun getTestDefinitions(): String {
-       //load these from server or somewhere
-       // definition of data is something like a view is:
-       // a map of properties needed by view
-       // a list of maps per view that represents the fields on a form
-       val firstNameDef = mapOf("title" to "First Name", "includeLabel" to false)
-       val lastNameDef = mapOf("title" to "Last Name", "includeLabel" to true)
-       val formDef = mapOf("title" to "kernai", "type" to 1,
-           "fields" to listOf(firstNameDef, lastNameDef))
 
-       //transform to json for wire format
-       val gson = GsonBuilder().create()
-       val formDefWire = gson.toJson(formDef)
-       return formDefWire
+       val sm: String = HttpClient.getViews()
+        return ViewBuilder.getViewDefinitions()
    }
 
     fun renderTest() {
