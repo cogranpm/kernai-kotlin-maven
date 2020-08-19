@@ -21,7 +21,9 @@ object swtBuilder {
    fun getTestDefinitions(): String {
 
        val sm: String = HttpClient.getViews()
-        return ViewBuilder.getViewDefinitions()
+       return sm
+       //println(sm)
+       // return ViewBuilder.getViewDefinitions()
    }
 
     fun renderTest() {
