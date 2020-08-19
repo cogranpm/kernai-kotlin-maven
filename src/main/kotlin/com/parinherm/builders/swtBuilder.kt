@@ -4,6 +4,7 @@ and is able to build a ui from it
  */
 
 import kotlinx.serialization.*
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.*
 import kotlinx.serialization.builtins.list
 
@@ -23,10 +24,10 @@ class WidgetDef(val view: Map<String, String>)
 
 object swtBuilder {
 
-    @ImplicitReflectionSerializer
+    //@ImplicitReflectionSerializer
     fun renderTest(){
 
-        val json = Json(JsonConfiguration.Stable)
+        val json = Json.Default//JsonConfiguration.Stable)
 
         /* class containing a map style: why because the
         serializer can't seem to handle a list of maps
@@ -39,9 +40,9 @@ object swtBuilder {
 
         val viewDefTest = ViewDef(mapOf("title" to "Test", "height" to "10", "width" to "300"), listOf(firstNameDef, lastNameDef))
         val viewDefs: List<ViewDef> = listOf(viewDef, viewDefTest)
-        val viewData = json.stringify(ViewDef.serializer().list, viewDefs )
+        val viewData = json.encodeToString(ListSerializer(ViewDef.serializer()), viewDefs )
         println(viewData)
-        val reViewData: List<ViewDef> = json.parse(ViewDef.serializer().list, viewData)
+        val reViewData: List<ViewDef> = json.decodeFromString(ListSerializer(ViewDef.serializer()), viewData)
         reViewData.forEach { println(it.view["title"])}
         println("****************************************")
 
@@ -59,9 +60,9 @@ object swtBuilder {
             WindowDef("Kernai", 100, dataBindingFields),
             WindowDef("Test", 100, testFields))
 
-        val jsonData = json.stringify(WindowDef.serializer().list, listStuff)
+        val jsonData = json.encodeToString(ListSerializer(WindowDef.serializer()), listStuff)
         println(jsonData)
-        val rehydryatedData = json.parse(WindowDef.serializer().list, jsonData)
+        val rehydryatedData = json.decodeFromString(ListSerializer(WindowDef.serializer()), jsonData)
         rehydryatedData.forEach {
             println("${it.title}")
             it.fields.forEach {
