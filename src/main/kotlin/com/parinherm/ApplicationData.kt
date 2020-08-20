@@ -67,13 +67,18 @@ object ApplicationData {
     )
 
     public object ViewDef{
-        val props = mapOf(
-            "version" to "version",
-            "inputType" to "controlType",
-            "title" to "title",
-            "forms" to "forms",
-            "fields" to "fields"
-        )
+        const val title = "title"
+        const val version = "version"
+        const val inputType = "inputType"
+        const val forms = "forms"
+        const val fields = "fields"
+        const val text = "text"
+        const val combo = "combo"
+        const val checkbox = "checkbox"
+        //what field from the data (a map) is the input control binding to
+        const val entityKey = "entityKey"
+        const val fieldDataType = "fieldDataType"
+
 
     }
 

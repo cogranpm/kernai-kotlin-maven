@@ -11,22 +11,21 @@ object ViewBuilder {
         // a map of properties needed by view
         // a list of maps per view that represents the fields on a form
         val firstNameDef = mapOf(
-            ViewDef.props["title"] to "First Name",
-            "inputType" to "text")
+            ViewDef.title to "First Name",
+            ViewDef.inputType to ViewDef.text)
 
         val lastNameDef = mapOf(
-            "title" to "Last Name",
-            "inputType" to "text")
+            ViewDef.title to "Last Name",
+            ViewDef.inputType to ViewDef.text)
 
         val bindingTestDef = mapOf(
-            "title" to "kernai",
-            "type" to 1, "version" to 1,
-            "fields" to listOf(firstNameDef, lastNameDef))
+            ViewDef.title to "Kernai",
+            ViewDef.fields to listOf(firstNameDef, lastNameDef))
 
 
         val viewDefinitions = mapOf(
-            "version" to 1,
-            "forms" to listOf(bindingTestDef)
+            ViewDef.version to 1,
+            ViewDef.forms to listOf(bindingTestDef)
         )
 
         //transform to json for wire format
