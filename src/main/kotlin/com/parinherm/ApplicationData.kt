@@ -21,10 +21,17 @@ object ApplicationData {
     const val labelStyle = SWT.BORDER
     const val listViewStyle = SWT.SINGLE or SWT.H_SCROLL or SWT.V_SCROLL or SWT.FULL_SELECTION or SWT.BORDER
 
+    const val serverPort = "8080"
+    const val serverHost = "localhost"
+    const val serverProtocol = "http"
+    val urls = mapOf<String, String>("views" to "views")
+
 
     init {
 
     }
+
+    fun makeServerUrl(urlKey: String) : String = "$serverProtocol://$serverHost:$serverPort/${urls[urlKey]}"
 
     fun setupImages() {
         try {

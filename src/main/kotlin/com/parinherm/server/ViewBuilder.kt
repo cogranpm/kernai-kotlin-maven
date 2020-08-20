@@ -16,7 +16,6 @@ object ViewBuilder {
 
         //transform to json for wire format
         val gson = GsonBuilder().create()
-        val formDefWire = gson.toJson(formDef)
-        return formDefWire
+        return gson.toJson(formDef)
     }
 }
