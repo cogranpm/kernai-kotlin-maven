@@ -11,6 +11,7 @@ object SimpleHttpServer {
     fun start(){
         server.apply {
 
+            // test route
             createContext("/hello") { http ->
                 http.responseHeaders.add("Content-type", "text/plain")
                 http.sendResponseHeaders(200, 0)
@@ -19,11 +20,12 @@ object SimpleHttpServer {
                 }
             }
 
+            // route for loading view definitions from server
             createContext("/views") { http ->
                 http.responseHeaders.add("Content-type", "application/json")
                 http.sendResponseHeaders(200, 0)
                 PrintWriter(http.responseBody).use { out ->
-                    out.println(ViewBuilder.getViewDefinitions())
+                    out.println(ViewBuilder.makeDefinitions())
                 }
             }
             start()

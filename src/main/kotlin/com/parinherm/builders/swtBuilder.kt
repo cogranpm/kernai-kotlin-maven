@@ -18,13 +18,8 @@ object swtBuilder {
     // this is necessary because gson is a java library and has some weird kind of init thing
     inline fun <reified T> Gson.fromJson(json: String) = fromJson<T>(json, object: TypeToken<T>() {}.type)
 
-   fun getTestDefinitions(): String {
+   fun getTestDefinitions(): String = HttpClient.getViews()
 
-       val sm: String = HttpClient.getViews()
-       return sm
-       //println(sm)
-       // return ViewBuilder.getViewDefinitions()
-   }
 
     fun renderTest() {
         val turns = Gson().fromJson<Map<String, Any>>(getTestDefinitions())

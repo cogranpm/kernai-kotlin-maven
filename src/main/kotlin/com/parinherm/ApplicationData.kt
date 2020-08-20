@@ -27,6 +27,8 @@ object ApplicationData {
     val urls = mapOf<String, String>("views" to "views")
 
 
+
+
     init {
 
     }
@@ -63,5 +65,16 @@ object ApplicationData {
         LookupDetail("Bra", "Brazil"),
         LookupDetail("SA", "South Africa")
     )
+
+    public object ViewDef{
+        val props = mapOf(
+            "version" to "version",
+            "inputType" to "controlType",
+            "title" to "title",
+            "forms" to "forms",
+            "fields" to "fields"
+        )
+
+    }
 
 }
