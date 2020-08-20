@@ -1,5 +1,6 @@
 package com.parinherm.server
 
+import com.google.gson.GsonBuilder
 import com.sun.net.httpserver.HttpServer
 import java.io.PrintWriter
 import java.net.InetSocketAddress
@@ -24,8 +25,10 @@ object SimpleHttpServer {
             createContext("/views") { http ->
                 http.responseHeaders.add("Content-type", "application/json")
                 http.sendResponseHeaders(200, 0)
+                //transform to json for wire format
+                val gson = GsonBuilder().create()
                 PrintWriter(http.responseBody).use { out ->
-                    out.println(ViewBuilder.makeDefinitions())
+                    out.println(gson.toJson(ViewBuilder.makeDefinitions()))
                 }
             }
             start()

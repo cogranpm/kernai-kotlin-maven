@@ -238,13 +238,6 @@
             <version>1.4.200</version>
         </dependency>
 
-        <!-- adding an internal web server for simulating downloads of
-        ui specifications etc -->
-        <dependency>
-            <groupId>com.sparkjava</groupId>
-            <artifactId>spark-kotlin</artifactId>
-            <version>1.0.0-alpha</version>
-        </dependency>
 
         <dependency>
             <groupId>org.eclipse.nebula</groupId>

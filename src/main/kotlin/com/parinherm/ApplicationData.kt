@@ -1,6 +1,7 @@
 package com.parinherm
 
 import com.parinherm.entity.LookupDetail
+import com.parinherm.server.ViewBuilder
 import org.eclipse.jface.resource.ImageDescriptor
 import org.eclipse.jface.resource.ImageRegistry
 import org.eclipse.swt.SWT
@@ -26,11 +27,15 @@ object ApplicationData {
     const val serverProtocol = "http"
     val urls = mapOf<String, String>("views" to "views")
 
-
-
+    val views = ViewBuilder.makeDefinitions()
 
     init {
 
+    }
+
+    fun getView(viewId: String): Map<String, Any> {
+        val forms: List<Map<String, Any>> = views[ViewDef.forms] as List<Map<String, Any>>
+        return forms.first { it[ViewDef.viewid] == viewId }
     }
 
     fun makeServerUrl(urlKey: String) : String = "$serverProtocol://$serverHost:$serverPort/${urls[urlKey]}"
@@ -69,15 +74,24 @@ object ApplicationData {
     public object ViewDef{
         const val title = "title"
         const val version = "version"
-        const val inputType = "inputType"
+        const val viewid = "viewid"
+        const val bindingTestViewId = "bindingtest"
         const val forms = "forms"
         const val fields = "fields"
-        const val text = "text"
-        const val combo = "combo"
-        const val checkbox = "checkbox"
+
         //what field from the data (a map) is the input control binding to
-        const val entityKey = "entityKey"
+        const val fieldName = "fieldName"
+
+        // needed for conversions text to int etc
+        //determines what control type is used
         const val fieldDataType = "fieldDataType"
+        // possible datatypes
+        const val float = "float"
+        const val int = "int"
+        const val text = "text"
+        const val lookup = "lookup"
+        const val bool = "bool"
+        const val datetime = "datetime"
 
 
     }

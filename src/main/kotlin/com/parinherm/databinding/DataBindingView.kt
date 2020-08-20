@@ -38,21 +38,13 @@ import java.time.LocalTime
 import com.parinherm.ApplicationData.swnone
 import com.parinherm.ApplicationData.listViewStyle
 import com.parinherm.ApplicationData.labelStyle
+import com.parinherm.builders.ViewState
 
-class DataBindingView
+class DataBindingView (val data: List<Map<String, Any>>)
 {
 
    private val widgetsMap = mutableMapOf<String, Any>()
-
-   private var selectionChange: Boolean = false
-   private var dirtyFlag: DirtyFlag = DirtyFlag(false)
-
-   private val listener: IChangeListener = IChangeListener {
-      if (!selectionChange) {
-         dirtyFlag.dirty = true
-      }
-   }
-
+   val viewState: ViewState = ViewState(data)
 
 
    fun makeView(parent: Composite): Composite {
@@ -79,17 +71,6 @@ class DataBindingView
       val wEnteredTime = DateTime(editContainer, SWT.DROP_DOWN or SWT.TIME)
       val lblErrors = Label(editContainer, labelStyle)
       val btnSave = Button(editContainer, SWT.PUSH)
-      val wl = WritableList<Map<String, Any>>()
-      val dbc = DataBindingContext()
-
-      widgetsMap["dbc"] = dbc
-      widgetsMap["sashForm"] = sashForm
-      widgetsMap["listContiner"] = listContainer
-      widgetsMap["editContainer"] = editContainer
-      widgetsMap["listView"] = listView
-
-
-
 
       sashForm.weights = intArrayOf(1, 2)
       sashForm.sashWidth = 4
@@ -99,22 +80,22 @@ class DataBindingView
       listTable.linesVisible = true
       listContainer.layout = tableLayout
       listView.addSelectionChangedListener { _ ->
-         selectionChange = true
+         viewState.selectionChange = true
 
 
          val selection = listView.structuredSelection
          val selectedItem = selection.firstElement
          //setup the databindings
-         dbc.dispose()
-         val bindings = dbc.validationStatusProviders
+         viewState.dbc.dispose()
+         val bindings = viewState.dbc.validationStatusProviders
          for(binding: ValidationStatusProvider in bindings){
             if(binding is Binding){
-               dbc.removeBinding(binding)
+               viewState.dbc.removeBinding(binding)
             }
          }
          val targetFirstName = WidgetProperties.text<Text>(SWT.Modify).observe(txtFirstName)
          val modelFirstName = Observables.observeMapEntry(selectedItem as WritableMap<String, String>,"fname" )
-         val bindFirstName = dbc.bindValue(targetFirstName, modelFirstName)
+         val bindFirstName = viewState.dbc.bindValue(targetFirstName, modelFirstName)
          ControlDecorationSupport.create(bindFirstName, SWT.TOP or SWT.LEFT)
 
          // not sure why this delayed one exists but I need to call it otherwise there is an overload resolution ambiguity error
@@ -123,66 +104,60 @@ class DataBindingView
          val modelCountry = Observables.observeMapEntry(selectedItem as WritableMap<String, String>, "country")
          // this is the prototype for a combo viewer that is populated with a lookup detail instance
          // it's target is a model with a string property
-         val bindCountry = dbc.bindValue(targetCountry, modelCountry,
+         val bindCountry = viewState.dbc.bindValue(targetCountry, modelCountry,
                UpdateValueStrategy.create<LookupDetail, String>(convertFromLookup),
                UpdateValueStrategy.create<String, LookupDetail>(convertToLookup(countryList)))
 
          val targetHeight = WidgetProperties.text<Text>(SWT.Modify).observe(txtHeight)
          val modelHeight: IObservableValue<Double> = Observables.observeMapEntry(selectedItem as WritableMap<String, Double>, "height")
-         val bindHeight = dbc.bindValue<String, Double>(targetHeight, modelHeight, updToDouble, updFromDouble)
+         val bindHeight = viewState.dbc.bindValue<String, Double>(targetHeight, modelHeight, updToDouble, updFromDouble)
          ControlDecorationSupport.create(bindHeight, SWT.TOP or SWT.LEFT)
 
          val targetAge = WidgetProperties.text<Text>(SWT.Modify).observe(txtAge)
          val modelAge: IObservableValue<Int> = Observables.observeMapEntry(selectedItem as WritableMap<String, Int>, "age")
-         val bindAge = dbc.bindValue<String, Int>(targetAge, modelAge, updToInt, updFromInt)
+         val bindAge = viewState.dbc.bindValue<String, Int>(targetAge, modelAge, updToInt, updFromInt)
          ControlDecorationSupport.create(bindAge, SWT.TOP or SWT.LEFT)
 
          val targetIncome = WidgetProperties.text<Text>(SWT.Modify).observe(txtIncome)
          val modelIncome: IObservableValue<BigDecimal> = Observables.observeMapEntry(selectedItem as WritableMap<String, BigDecimal>, "income")
-         val bindIncome = dbc.bindValue(targetIncome, modelIncome, updToBigDecimal, updFromBigDecimal)
+         val bindIncome = viewState.dbc.bindValue(targetIncome, modelIncome, updToBigDecimal, updFromBigDecimal)
          ControlDecorationSupport.create(bindIncome, SWT.TOP or SWT.LEFT)
 
          val enteredDateSelectionProperty: DateTimeSelectionProperty = DateTimeSelectionProperty()
          val targetEnteredDate = enteredDateSelectionProperty.observe(wEnteredDate)
          val modelEnteredDate = Observables.observeMapEntry(selectedItem as WritableMap<String, LocalDate>, "enteredDate")
-         val bindEnteredDate = dbc.bindValue(targetEnteredDate, modelEnteredDate)
+         val bindEnteredDate = viewState.dbc.bindValue(targetEnteredDate, modelEnteredDate)
          ControlDecorationSupport.create(bindEnteredDate, SWT.TOP or SWT.LEFT)
 
          // this one isn't working form some reason
          val enteredTimeSelectionProperty: DateTimeSelectionProperty = DateTimeSelectionProperty()
          val targetEnteredTime = enteredTimeSelectionProperty.observe(wEnteredTime)
          val modelEnteredTime = Observables.observeMapEntry(selectedItem as WritableMap<String, LocalTime>, "enteredTime")
-         val bindEnteredTime = dbc.bindValue(targetEnteredTime, modelEnteredTime)
+         val bindEnteredTime = viewState.dbc.bindValue(targetEnteredTime, modelEnteredTime)
          ControlDecorationSupport.create(bindEnteredTime, SWT.TOP or SWT.LEFT)
 
-         dbc.bindings.forEach{
-            it.target.addChangeListener(listener)
+         viewState.dbc.bindings.forEach{
+            it.target.addChangeListener(viewState.listener)
          }
 
          val  errorObservable: IObservableValue<String> = WidgetProperties.text<Label>().observe(lblErrors)
-         val allValidationBinding: Binding = dbc.bindValue(errorObservable,
-            AggregateValidationStatus(dbc.bindings, AggregateValidationStatus.MAX_SEVERITY), null, null)
+         val allValidationBinding: Binding = viewState.dbc.bindValue(errorObservable,
+            AggregateValidationStatus(viewState.dbc.bindings, AggregateValidationStatus.MAX_SEVERITY), null, null)
 
          //save button binding
          val targetSave = WidgetProperties.enabled<Button>().observe(btnSave)
-         val modelDirty = BeanProperties.value<DirtyFlag, Boolean>("dirty").observe(this.dirtyFlag)
-         val bindSave = dbc.bindValue(targetSave, modelDirty)
+         val modelDirty = BeanProperties.value<DirtyFlag, Boolean>("dirty").observe(viewState.dirtyFlag)
+         val bindSave = viewState.dbc.bindValue(targetSave, modelDirty)
 
-         dirtyFlag.dirty = false
+         viewState.dirtyFlag.dirty = false
          btnSave.enabled = false
-         selectionChange = false
+         viewState.selectionChange = false
 
       }
-      val firstName = getColumn("First Name", listView, tableLayout)
+      val firstName = viewState.getColumn("fname", "First Name", listView, tableLayout)
       listView.contentProvider = ObservableListContentProvider<Map<String, String>>()
-      wl.add(makeDomainItem("Wayne", 6.70, 44,
-         BigDecimal(245000.00), countryList[2].code, false) )
-      wl.add(makeDomainItem("Belconnen", 4.88, 21,
-         BigDecimal(89000.00), countryList[1].code, false))
-      wl.add(makeDomainItem("Bertrand", 6.10, 32,
-         BigDecimal(22400.00), countryList[0].code, false)
-      )
-      listView.input = wl
+
+      listView.input = viewState.wl
       lblFirstName.text = "First Name"
       txtFirstName.text = "some text"
       lblCountry.text = "Country"
@@ -203,14 +178,14 @@ class DataBindingView
       cboCountry.input = countryList
 
       btnSave.addSelectionListener( widgetSelectedAdapter { _ ->
-          for (item: Map<String, Any> in wl){
+          for (item: Map<String, Any> in viewState.wl){
              println("Name: ${item["fname"]}: " +
                      "Country: ${item["country"]} " +
                      "Height: ${item["height"]} Age: ${item["age"]} " +
                      "Income: ${item["income"]} Entered: ${item["enteredDate"]} " +
                      "Time: ${item["enteredTime"]}")
           }
-         this.dirtyFlag.dirty = false
+         viewState.dirtyFlag.dirty = false
       })
       GridDataFactory.fillDefaults().applyTo(lblFirstName)
       GridDataFactory.fillDefaults().applyTo(lblCountry)
@@ -233,40 +208,6 @@ class DataBindingView
       return composite
    }
 
-   private fun makeDomainItem(firstName: String, height: Double, age: Int,
-                      income: BigDecimal, country: String, isDeceased: Boolean) : WritableMap<String, Any> {
-      val wm = WritableMap<String, Any>()
-      wm["fname"] = firstName
-      wm["income"] = income
-      wm["height"] = height
-      wm["age"] = age
-      wm["enteredDate"] = LocalDate.now()
-      wm["enteredTime"] = LocalTime.of(3, 0, 0)
-      wm["country"] = country
-      wm["isDeceased"] = isDeceased
-      return wm
-   }
 
-   private fun getColumn(caption: String, viewer: TableViewer, layout: TableColumnLayout) : TableViewerColumn {
-      val column = TableViewerColumn(viewer, SWT.LEFT)
-      val col = column.column
-      val colProvider = (object: ColumnLabelProvider() {
-         override fun getText(element: Any?): String {
-             /* element is a map */
-            val map = element as Map<String, Any>
-            // looks like we'll hard code for now
-            return map.getOrDefault("fname", "").toString()
-         }
 
-         /*override fun getImage(element: Any?): Image {
-
-         }*/
-      })
-      col.text = caption
-      col.resizable = false
-      col.moveable = false
-      layout.setColumnData(col, ColumnWeightData(100))
-      column.setLabelProvider(colProvider)
-      return column
-   }
 }

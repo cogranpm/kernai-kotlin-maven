@@ -18,6 +18,7 @@ import org.eclipse.swt.graphics.Image
 
 
 import com.parinherm.databinding.DataBindingView
+import com.parinherm.tests.TestData
 
 class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
 
@@ -49,8 +50,9 @@ class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
         ui defs are put on wire format and downloaded
         and then renderer takes care of constructing the widgets etc
          */
-        swtBuilder.renderTest()
-        DataBindingView().makeView(mainContainer)
+        //swtBuilder.renderTest()
+        val viewState = swtBuilder.renderView(TestData.data, mainContainer, ApplicationData.ViewDef.bindingTestViewId)
+        DataBindingView(TestData.data).makeView(mainContainer)
 
 
         return container
@@ -95,7 +97,7 @@ class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
             override fun run () {
                 println("here")
                 clearComposite(mainContainer)
-                val view: Composite = DataBindingView().makeView(mainContainer)
+                val view: Composite = DataBindingView(TestData.data).makeView(mainContainer)
                 mainContainer.layout()
             }
         }

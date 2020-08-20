@@ -5,21 +5,23 @@ import com.parinherm.ApplicationData.ViewDef
 
 object ViewBuilder {
 
-    fun makeDefinitions(): String {
-        //load these from server or somewhere
+    fun makeDefinitions(): Map<String, Any>  {
         // definition of data is something like a view is:
         // a map of properties needed by view
-        // a list of maps per view that represents the fields on a form
+        // a list of maps per view that represents the fields on a form etc etc
         val firstNameDef = mapOf(
+            ViewDef.fieldName to "FirstName",
             ViewDef.title to "First Name",
-            ViewDef.inputType to ViewDef.text)
+            ViewDef.fieldDataType to ViewDef.text)
 
         val lastNameDef = mapOf(
+            ViewDef.fieldName to "LastName",
             ViewDef.title to "Last Name",
-            ViewDef.inputType to ViewDef.text)
+            ViewDef.fieldDataType to ViewDef.text)
 
         val bindingTestDef = mapOf(
-            ViewDef.title to "Kernai",
+            ViewDef.viewid to ViewDef.bindingTestViewId,
+            ViewDef.title to "Binding Test",
             ViewDef.fields to listOf(firstNameDef, lastNameDef))
 
 
@@ -28,8 +30,6 @@ object ViewBuilder {
             ViewDef.forms to listOf(bindingTestDef)
         )
 
-        //transform to json for wire format
-        val gson = GsonBuilder().create()
-        return gson.toJson(viewDefinitions)
+        return viewDefinitions
     }
 }
