@@ -19,7 +19,7 @@ class ViewState (val data: List<Map<String, Any>>) {
     val widgets = mutableMapOf<String, Any>()
     val widgetBindings = mutableMapOf<String, WidgetBinding<String?>>()
     val wl = WritableList<Map<String, Any>>()
-    val wm = WritableMap<String, Any>()
+    var wm = WritableMap<String, Any>()
     val dbc = DataBindingContext()
 
 

@@ -9,11 +9,16 @@ import com.parinherm.server.ViewBuilder
 import com.parinherm.ApplicationData.swnone
 import com.parinherm.ApplicationData.listViewStyle
 import com.parinherm.ApplicationData.labelStyle
+import com.parinherm.databinding.DateTimeSelectionProperty
 import com.parinherm.entity.LookupDetail
+import org.eclipse.core.databinding.AggregateValidationStatus
+import org.eclipse.core.databinding.Binding
 import org.eclipse.core.databinding.DataBindingContext
+import org.eclipse.core.databinding.ValidationStatusProvider
 import org.eclipse.core.databinding.observable.Observables
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.core.databinding.observable.map.WritableMap
+import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
 import org.eclipse.jface.databinding.swt.ISWTObservableValue
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
@@ -30,6 +35,7 @@ import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.widgets.*
+import java.time.LocalDate
 
 
 /* loads application definition from server
@@ -65,6 +71,18 @@ object swtBuilder {
         val listTable = listView.table
         val tableLayout = TableColumnLayout(true)
 
+        /*************************************************************
+         * databindings
+         */
+        //setup the databindings
+        viewState.dbc.dispose()
+        val bindings = viewState.dbc.validationStatusProviders
+        for(binding: ValidationStatusProvider in bindings){
+            if(binding is Binding){
+                viewState.dbc.removeBinding(binding)
+            }
+        }
+
         /*****************************************************************
          * fields
          */
@@ -81,11 +99,9 @@ object swtBuilder {
                     addWidgetToViewState(viewState, fieldName, input)
                     val target: ISWTObservableValue<String?> = WidgetProperties.text<Text>(SWT.Modify).observe(input)
                     val model = Observables.observeMapEntry(viewState.wm, fieldName)
-                    //addWidgetToViewState(viewState, "${fieldName}target", target)
-                    //addWidgetToViewState(viewState, "${fieldName}model", model)
                     viewState.widgetBindings[fieldName] = WidgetBinding(target, model)
-                    //val bindFirstName = viewState.dbc.bindValue(targetFirstName, modelFirstName)
-                    //ControlDecorationSupport.create(bindFirstName, SWT.TOP or SWT.LEFT)
+                    val bindInput = viewState.dbc.bindValue(target, model)
+                    ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
 
                 }
                 ViewDef.float -> {
@@ -114,6 +130,12 @@ object swtBuilder {
                 ViewDef.datetime -> {
                     val input = DateTime(editContainer, SWT.DROP_DOWN or SWT.DATE)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
+                    val inputProperty: DateTimeSelectionProperty = DateTimeSelectionProperty()
+                    val target = inputProperty.observe(input)
+                    val model = Observables.observeMapEntry(viewState.wm as WritableMap<String, LocalDate>, fieldName)
+                    val bindInput = viewState.dbc.bindValue(target, model)
+                    ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
+
                 }
                 ViewDef.lookup ->  {
                     val input = ComboViewer(editContainer)
@@ -148,6 +170,15 @@ object swtBuilder {
         listTable.linesVisible = true
         listContainer.layout = tableLayout
 
+        listView.addSelectionChangedListener { _ ->
+            val selection = listView.structuredSelection
+            val selectedItem = selection.firstElement
+
+            viewState.wm.clear()
+            viewState.wm.putAll(selectedItem as WritableMap<String, Any>)
+
+        }
+
         btnSave.text = "Save"
         btnSave.enabled = false
         btnSave.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
@@ -156,6 +187,18 @@ object swtBuilder {
             }
             viewState.dirtyFlag.dirty = false
         })
+
+        /*********************************************************
+         * databinding part 2
+         */
+        viewState.dbc.bindings.forEach{
+            it.target.addChangeListener(viewState.listener)
+        }
+
+        val  errorObservable: IObservableValue<String> = WidgetProperties.text<Label>().observe(lblErrors)
+        val allValidationBinding: Binding = viewState.dbc.bindValue(errorObservable,
+            AggregateValidationStatus(viewState.dbc.bindings, AggregateValidationStatus.MAX_SEVERITY), null, null)
+
 
         GridDataFactory.fillDefaults().span(2, 1).applyTo(lblErrors)
         composite.layout = FillLayout(SWT.VERTICAL)
