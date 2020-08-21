@@ -44,7 +44,7 @@ class DataBindingView (val data: List<Map<String, Any>>)
 {
 
    private val widgetsMap = mutableMapOf<String, Any>()
-   val viewState: ViewState = ViewState(data)
+   private val viewState: ViewState = ViewState(data)
 
 
    fun makeView(parent: Composite): Composite {
