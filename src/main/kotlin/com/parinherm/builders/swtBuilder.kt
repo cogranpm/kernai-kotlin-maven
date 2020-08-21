@@ -89,14 +89,27 @@ object swtBuilder {
 
                 }
                 ViewDef.float -> {
-
-                }
-                ViewDef.int -> {
-
-                }
-                ViewDef.bool -> {
                     val input = Text(editContainer, swnone)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
+                }
+                ViewDef.money -> {
+                    val input = Text(editContainer, swnone)
+                    GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
+                }
+                ViewDef.int -> {
+                    val input = Spinner(editContainer, swnone)
+                    input.minimum = Integer.MIN_VALUE
+                    input.maximum = Integer.MAX_VALUE
+                    GridDataFactory.fillDefaults().grab(false, false).applyTo(input)
+                    val target = WidgetProperties.spinnerSelection().observe(input)
+                    val model = Observables.observeMapEntry(viewState.wm as WritableMap<String, Int>, fieldName)
+                }
+                ViewDef.bool -> {
+                    val input = Button(editContainer, SWT.CHECK)
+                    GridDataFactory.fillDefaults().grab(false, false).applyTo(input)
+                    val target = WidgetProperties.buttonSelection().observe(input)
+                    val model = Observables.observeMapEntry(viewState.wm as WritableMap<String, Boolean>, fieldName)
+
                 }
                 ViewDef.datetime -> {
                     val input = DateTime(editContainer, SWT.DROP_DOWN or SWT.DATE)
