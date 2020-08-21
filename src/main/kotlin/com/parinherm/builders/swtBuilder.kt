@@ -12,6 +12,7 @@ import com.parinherm.ApplicationData.labelStyle
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.core.databinding.observable.map.WritableMap
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.TableColumnLayout
 import org.eclipse.jface.viewers.ComboViewer
@@ -94,6 +95,8 @@ object swtBuilder {
             //println("${item["title"]} ${ViewDef.fieldDataType}  ${item[ViewDef.fieldDataType]}")
         }
         /**************************************************************************/
+       listView.contentProvider = ObservableListContentProvider<Map<String, Any>>()
+        listView.input = viewState.wl
 
        val lblErrors = Label(editContainer, labelStyle)
        val btnSave = Button(editContainer, SWT.PUSH)

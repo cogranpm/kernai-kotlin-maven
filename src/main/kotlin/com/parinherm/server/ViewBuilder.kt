@@ -10,13 +10,13 @@ object ViewBuilder {
         // a map of properties needed by view
         // a list of maps per view that represents the fields on a form etc etc
         val firstNameDef = mapOf(
-            ViewDef.fieldName to "FirstName",
+            ViewDef.fieldName to "fname",
             ViewDef.title to "First Name",
             ViewDef.fieldDataType to ViewDef.text)
 
         val lastNameDef = mapOf(
-            ViewDef.fieldName to "LastName",
-            ViewDef.title to "Last Name",
+            ViewDef.fieldName to "income",
+            ViewDef.title to "Income",
             ViewDef.fieldDataType to ViewDef.text)
 
         val bindingTestDef = mapOf(
