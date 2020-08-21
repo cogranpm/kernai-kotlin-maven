@@ -14,7 +14,7 @@ object ViewBuilder {
             ViewDef.title to "First Name",
             ViewDef.fieldDataType to ViewDef.text)
 
-        val lastNameDef = mapOf(
+        val incomeDef = mapOf(
             ViewDef.fieldName to "income",
             ViewDef.title to "Income",
             ViewDef.fieldDataType to ViewDef.text)
@@ -22,7 +22,9 @@ object ViewBuilder {
         val bindingTestDef = mapOf(
             ViewDef.viewid to ViewDef.bindingTestViewId,
             ViewDef.title to "Binding Test",
-            ViewDef.fields to listOf(firstNameDef, lastNameDef))
+            ViewDef.fields to listOf(
+                firstNameDef,
+                incomeDef))
 
 
         val viewDefinitions = mapOf(
