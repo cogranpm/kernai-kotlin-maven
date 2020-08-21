@@ -4,6 +4,7 @@ import com.parinherm.entity.DirtyFlag
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.observable.IChangeListener
 import org.eclipse.core.databinding.observable.list.WritableList
+import org.eclipse.core.databinding.observable.map.WritableMap
 import org.eclipse.jface.layout.TableColumnLayout
 import org.eclipse.jface.viewers.ColumnLabelProvider
 import org.eclipse.jface.viewers.ColumnWeightData
@@ -16,8 +17,9 @@ class ViewState (val data: List<Map<String, Any>>) {
 
     // could be a viewer, or a control
     val widgets = mutableMapOf<String, Any>()
+    val widgetBindings = mutableMapOf<String, WidgetBinding<String?>>()
     val wl = WritableList<Map<String, Any>>()
-
+    val wm = WritableMap<String, Any>()
     val dbc = DataBindingContext()
 
 

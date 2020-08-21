@@ -11,8 +11,12 @@ import com.parinherm.ApplicationData.listViewStyle
 import com.parinherm.ApplicationData.labelStyle
 import com.parinherm.entity.LookupDetail
 import org.eclipse.core.databinding.DataBindingContext
+import org.eclipse.core.databinding.observable.Observables
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.core.databinding.observable.map.WritableMap
+import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
+import org.eclipse.jface.databinding.swt.ISWTObservableValue
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.TableColumnLayout
@@ -68,12 +72,27 @@ object swtBuilder {
         fields.forEach { item: Map<String, Any> ->
             val label = Label(editContainer, labelStyle)
             label.text = item[ViewDef.title] as String
+            val fieldName = item[ViewDef.fieldName] as String
             GridDataFactory.fillDefaults().applyTo(label)
             when(item[ViewDef.fieldDataType]) {
                 ViewDef.text -> {
                     val input = Text(editContainer, swnone)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
-                    addWidgetToViewState(viewState, item[ViewDef.fieldName] as String, input)
+                    addWidgetToViewState(viewState, fieldName, input)
+                    val target: ISWTObservableValue<String?> = WidgetProperties.text<Text>(SWT.Modify).observe(input)
+                    val model = Observables.observeMapEntry(viewState.wm, fieldName)
+                    //addWidgetToViewState(viewState, "${fieldName}target", target)
+                    //addWidgetToViewState(viewState, "${fieldName}model", model)
+                    viewState.widgetBindings[fieldName] = WidgetBinding(target, model)
+                    //val bindFirstName = viewState.dbc.bindValue(targetFirstName, modelFirstName)
+                    //ControlDecorationSupport.create(bindFirstName, SWT.TOP or SWT.LEFT)
+
+                }
+                ViewDef.float -> {
+
+                }
+                ViewDef.int -> {
+
                 }
                 ViewDef.bool -> {
                     val input = Text(editContainer, swnone)

@@ -98,6 +98,7 @@ object ApplicationData {
         const val lookupKey = "lookupKey"
         const val bool = "bool"
         const val datetime = "datetime"
+        const val money = "money"
 
 
     }

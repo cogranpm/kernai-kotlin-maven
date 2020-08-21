@@ -18,17 +18,17 @@ object ViewBuilder {
         val incomeDef = mapOf(
             ViewDef.fieldName to "income",
             ViewDef.title to "Income",
-            ViewDef.fieldDataType to ViewDef.text)
+            ViewDef.fieldDataType to ViewDef.money)
 
         val heightDef = mapOf(
                 ViewDef.fieldName to "height",
                 ViewDef.title to "Height",
-                ViewDef.fieldDataType to ViewDef.text)
+                ViewDef.fieldDataType to ViewDef.float)
 
         val ageDef = mapOf(
                 ViewDef.fieldName to "age",
                 ViewDef.title to "Age",
-                ViewDef.fieldDataType to ViewDef.text)
+                ViewDef.fieldDataType to ViewDef.int)
 
         val countryDef = mapOf(
                 ViewDef.fieldName to "country",
