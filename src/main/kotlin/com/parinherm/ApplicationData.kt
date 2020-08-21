@@ -28,6 +28,7 @@ object ApplicationData {
     val urls = mapOf<String, String>("views" to "views")
 
     val views = ViewBuilder.makeDefinitions()
+    const val countryLookupKey = "country"
 
     init {
 
@@ -71,6 +72,10 @@ object ApplicationData {
         LookupDetail("SA", "South Africa")
     )
 
+    val lookups: Map<String, List<LookupDetail>> = mapOf(
+            countryLookupKey to countryList
+    )
+
     public object ViewDef{
         const val title = "title"
         const val version = "version"
@@ -90,6 +95,7 @@ object ApplicationData {
         const val int = "int"
         const val text = "text"
         const val lookup = "lookup"
+        const val lookupKey = "lookupKey"
         const val bool = "bool"
         const val datetime = "datetime"
 

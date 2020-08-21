@@ -9,13 +9,16 @@ import com.parinherm.server.ViewBuilder
 import com.parinherm.ApplicationData.swnone
 import com.parinherm.ApplicationData.listViewStyle
 import com.parinherm.ApplicationData.labelStyle
+import com.parinherm.entity.LookupDetail
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.core.databinding.observable.map.WritableMap
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.TableColumnLayout
+import org.eclipse.jface.viewers.ArrayContentProvider
 import org.eclipse.jface.viewers.ComboViewer
+import org.eclipse.jface.viewers.LabelProvider
 import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.SashForm
@@ -43,6 +46,10 @@ object swtBuilder {
        return views
    }
 
+    fun addWidgetToViewState(viewState: ViewState, widgetKey: String, widget: Any){
+        viewState.widgets[widgetKey] = widget
+    }
+
     fun renderView(data: List<WritableMap<String, Any>>, parent: Composite, viewId: String) : ViewState{
         val form: Map<String, Any> = ApplicationData.getView(viewId)
         val viewState = ViewState(data)
@@ -66,6 +73,7 @@ object swtBuilder {
                 ViewDef.text -> {
                     val input = Text(editContainer, swnone)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
+                    addWidgetToViewState(viewState, item[ViewDef.fieldName] as String, input)
                 }
                 ViewDef.bool -> {
                     val input = Text(editContainer, swnone)
@@ -78,25 +86,24 @@ object swtBuilder {
                 ViewDef.lookup ->  {
                     val input = ComboViewer(editContainer)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input.combo)
+                    input.contentProvider = ArrayContentProvider.getInstance()
+                    input.labelProvider = (object: LabelProvider() {
+                        override fun getText(element: Any) : String {
+                            return (element as LookupDetail).label
+                        }
+                    })
+                    input.input = ApplicationData.lookups[item[ViewDef.lookupKey]]
+                    println(input.input)
                 }
                 else -> {}
             }
 
             // everyting is a list column right now
             val column = viewState.getColumn(item[ViewDef.fieldName] as String, item[ViewDef.title] as String, listView, tableLayout)
-
-            /*
-            val cboCountry = ComboViewer(editContainer)
-            val txtHeight = Text(editContainer, swnone)
-            val txtAge = Text(editContainer, swnone)
-            val txtIncome = Text(editContainer, swnone)
-             */
-
-            //println("${item["title"]} ${ViewDef.fieldDataType}  ${item[ViewDef.fieldDataType]}")
         }
         /**************************************************************************/
        listView.contentProvider = ObservableListContentProvider<Map<String, Any>>()
-        listView.input = viewState.wl
+       listView.input = viewState.wl
 
        val lblErrors = Label(editContainer, labelStyle)
        val btnSave = Button(editContainer, SWT.PUSH)

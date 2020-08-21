@@ -1,6 +1,7 @@
 package com.parinherm.server
 
 import com.google.gson.GsonBuilder
+import com.parinherm.ApplicationData
 import com.parinherm.ApplicationData.ViewDef
 
 object ViewBuilder {
@@ -19,12 +20,47 @@ object ViewBuilder {
             ViewDef.title to "Income",
             ViewDef.fieldDataType to ViewDef.text)
 
+        val heightDef = mapOf(
+                ViewDef.fieldName to "height",
+                ViewDef.title to "Height",
+                ViewDef.fieldDataType to ViewDef.text)
+
+        val ageDef = mapOf(
+                ViewDef.fieldName to "age",
+                ViewDef.title to "Age",
+                ViewDef.fieldDataType to ViewDef.text)
+
+        val countryDef = mapOf(
+                ViewDef.fieldName to "country",
+                ViewDef.title to "Country",
+                ViewDef.fieldDataType to ViewDef.lookup,
+                ViewDef.lookupKey to ApplicationData.countryLookupKey
+        )
+
+        val enteredDateDef = mapOf(
+                ViewDef.fieldName to "enteredDate",
+                ViewDef.title to "Entered",
+                ViewDef.fieldDataType to ViewDef.datetime)
+
+
+        val isDeceasedDef = mapOf(
+                ViewDef.fieldName to "isDeceased",
+                ViewDef.title to "Deceased",
+                ViewDef.fieldDataType to ViewDef.bool)
+
+
         val bindingTestDef = mapOf(
             ViewDef.viewid to ViewDef.bindingTestViewId,
             ViewDef.title to "Binding Test",
             ViewDef.fields to listOf(
-                firstNameDef,
-                incomeDef))
+                    firstNameDef,
+                    incomeDef,
+                    heightDef,
+                    ageDef,
+                    countryDef,
+                    enteredDateDef,
+                    isDeceasedDef
+            ))
 
 
         val viewDefinitions = mapOf(
