@@ -9,12 +9,10 @@ import com.parinherm.server.ViewBuilder
 import com.parinherm.ApplicationData.swnone
 import com.parinherm.ApplicationData.listViewStyle
 import com.parinherm.ApplicationData.labelStyle
+import com.parinherm.databinding.Converters
 import com.parinherm.databinding.DateTimeSelectionProperty
 import com.parinherm.entity.LookupDetail
-import org.eclipse.core.databinding.AggregateValidationStatus
-import org.eclipse.core.databinding.Binding
-import org.eclipse.core.databinding.DataBindingContext
-import org.eclipse.core.databinding.ValidationStatusProvider
+import org.eclipse.core.databinding.*
 import org.eclipse.core.databinding.observable.Observables
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.core.databinding.observable.map.WritableMap
@@ -23,6 +21,7 @@ import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
 import org.eclipse.jface.databinding.swt.ISWTObservableValue
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
+import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.TableColumnLayout
 import org.eclipse.jface.viewers.ArrayContentProvider
@@ -35,6 +34,7 @@ import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.widgets.*
+import java.math.BigDecimal
 import java.time.LocalDate
 
 
@@ -107,10 +107,26 @@ object swtBuilder {
                 ViewDef.float -> {
                     val input = Text(editContainer, swnone)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
+                    val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
+                    val model: IObservableValue<Double> = Observables.observeMapEntry(viewState.wm as WritableMap<String, Double>, fieldName)
+                    val bindHeight = viewState.dbc.bindValue<String, Double>(target, model,
+                        Converters.updToDouble,
+                        Converters.updFromDouble
+                    )
+                    ControlDecorationSupport.create(bindHeight, SWT.TOP or SWT.LEFT)
+
                 }
                 ViewDef.money -> {
                     val input = Text(editContainer, swnone)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
+                    val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
+                    val model: IObservableValue<BigDecimal> = Observables.observeMapEntry(viewState.wm as WritableMap<String, BigDecimal>, fieldName)
+                    val bindInput = viewState.dbc.bindValue(target, model,
+                        Converters.updToBigDecimal,
+                        Converters.updFromBigDecimal
+                    )
+                    ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
+
                 }
                 ViewDef.int -> {
                     val input = Spinner(editContainer, swnone)
@@ -119,12 +135,14 @@ object swtBuilder {
                     GridDataFactory.fillDefaults().grab(false, false).applyTo(input)
                     val target = WidgetProperties.spinnerSelection().observe(input)
                     val model = Observables.observeMapEntry(viewState.wm as WritableMap<String, Int>, fieldName)
+                    val bindInput = viewState.dbc.bindValue<Int, Int>(target, model)
                 }
                 ViewDef.bool -> {
                     val input = Button(editContainer, SWT.CHECK)
                     GridDataFactory.fillDefaults().grab(false, false).applyTo(input)
                     val target = WidgetProperties.buttonSelection().observe(input)
                     val model = Observables.observeMapEntry(viewState.wm as WritableMap<String, Boolean>, fieldName)
+                    val bindInput = viewState.dbc.bindValue(target, model)
 
                 }
                 ViewDef.datetime -> {
@@ -146,8 +164,14 @@ object swtBuilder {
                             return (element as LookupDetail).label
                         }
                     })
-                    input.input = ApplicationData.lookups[item[ViewDef.lookupKey]]
-                    println(input.input)
+                    val comboSource = ApplicationData.lookups.getOrDefault(item[ViewDef.lookupKey] as String, listOf())
+                    input.input = comboSource
+                    val target : IObservableValue<LookupDetail> = ViewerProperties.singleSelection<ComboViewer, LookupDetail>().observeDelayed(1, input)
+                    val model = Observables.observeMapEntry(viewState.wm as WritableMap<String, String>, fieldName)
+                    val bindInput = viewState.dbc.bindValue(target, model,
+                        UpdateValueStrategy.create<LookupDetail, String>(Converters.convertFromLookup),
+                        UpdateValueStrategy.create<String, LookupDetail>(Converters.convertToLookup(comboSource)))
+
                 }
                 else -> {}
             }

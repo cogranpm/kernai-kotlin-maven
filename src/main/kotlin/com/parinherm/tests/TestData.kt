@@ -9,7 +9,7 @@ import java.time.LocalTime
 object TestData {
 
     val data = listOf<WritableMap<String, Any>>(
-        makeDomainItem("Wayne", 6.70, 44, BigDecimal(245000.00), countryList[2].code, false),
+        makeDomainItem("Wayne", 6.70, 44, BigDecimal(245000.00), countryList[2].code, true),
         makeDomainItem("Belconnen", 4.88, 21, BigDecimal(89000.00), countryList[1].code, false),
         makeDomainItem("Bertrand", 6.10, 32, BigDecimal(22400.00), countryList[0].code, false)
     )
