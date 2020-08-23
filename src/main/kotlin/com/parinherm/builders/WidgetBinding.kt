@@ -9,7 +9,7 @@ import org.eclipse.jface.databinding.swt.ISWTObservableValue
 // out means ? extends T
 data class WidgetBinding <T, M> (val bindingTarget: ISWTObservableValue<T>,
                                  val bindingModel: IObservableValue<M>,
-                                 val targetToModel: UpdateValueStrategy<in T, out M>?,
-                                 val modelToTarget: UpdateValueStrategy<in M, out T>?
+                                 val targetToModel: UpdateValueStrategy<T, M>?,
+                                 val modelToTarget: UpdateValueStrategy<M, T>?
 )
 

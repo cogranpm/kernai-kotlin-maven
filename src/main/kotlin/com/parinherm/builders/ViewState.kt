@@ -21,19 +21,21 @@ class ViewState (val data: List<Map<String, Any>>) {
     //how to have a collection of databinding observables with different parameterized types
     //eg IObservableValue<String?> or <LookpuDetail>
     //val widgetBindings = mutableMapOf<String, WidgetBinding>()
-    var widgetBindings: MutableMap<String, WidgetBinding<Any, Any>> = mutableMapOf()
+    var widgetBindings: MutableMap<String, WidgetBinding<*, *>> = mutableMapOf()
     val wl = WritableList<Map<String, Any>>()
-    var wm = WritableMap<String, Any>()
+    //var wm = WritableMap<String, Any>()
     val dbc = DataBindingContext()
 
 
-    var selectionChange: Boolean = false
+    //var selectionChange: Boolean = false
     var dirtyFlag: DirtyFlag = DirtyFlag(false)
 
     val listener: IChangeListener = IChangeListener {
-        if (!selectionChange) {
+        /*if (!selectionChange) {
             dirtyFlag.dirty = true
         }
+         */
+        dirtyFlag.dirty = true
     }
 
     init {

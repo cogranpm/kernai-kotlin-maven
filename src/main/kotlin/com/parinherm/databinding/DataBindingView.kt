@@ -80,7 +80,7 @@ class DataBindingView (val data: List<Map<String, Any>>)
       listTable.linesVisible = true
       listContainer.layout = tableLayout
       listView.addSelectionChangedListener { _ ->
-         viewState.selectionChange = true
+         //viewState.selectionChange = true
 
 
          val selection = listView.structuredSelection
@@ -151,7 +151,7 @@ class DataBindingView (val data: List<Map<String, Any>>)
 
          viewState.dirtyFlag.dirty = false
          btnSave.enabled = false
-         viewState.selectionChange = false
+         //viewState.selectionChange = false
 
       }
       val firstName = viewState.getColumn("fname", "First Name", listView, tableLayout)
