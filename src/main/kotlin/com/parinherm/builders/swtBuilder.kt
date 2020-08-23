@@ -54,7 +54,7 @@ object swtBuilder {
     inline fun <reified T> Gson.fromJson(json: String) = fromJson<T>(json, object: TypeToken<T>() {}.type)
 
 
-    fun renderView(data: List<WritableMap<String, Any>>, parent: Composite, viewId: String) : ViewState {
+    fun renderView(data: List<WritableMap<String, Any>>, parent: Composite, viewId: String) : Composite {
         // form is a data definition of a ui screen
         // contained in lists of maps
         val form: Map<String, Any> = ApplicationData.getView(viewId)
@@ -189,7 +189,7 @@ object swtBuilder {
         composite.layout()
 
         //createDataBindings(viewState, fields)
-        return viewState
+        return composite
     }
 
 

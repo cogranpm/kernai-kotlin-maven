@@ -1,49 +1,52 @@
 package com.parinherm
 
-import com.parinherm.builders.swtBuilder
-import org.eclipse.jface.action.*
-import org.eclipse.jface.resource.ImageDescriptor
-import org.eclipse.jface.window.ApplicationWindow
-import org.eclipse.swt.SWT
-import org.eclipse.swt.graphics.Point
 //import org.eclipse.nebula.widgets.pshelf.*
-import org.eclipse.swt.custom.SashForm
-import org.eclipse.swt.layout.FillLayout
-import java.io.IOException
-import java.io.File
-import org.eclipse.jface.resource.ImageDescriptor.createFromFile
-import org.eclipse.swt.widgets.*
-import org.eclipse.swt.graphics.Image
 
 
-
+import com.parinherm.builders.swtBuilder
 import com.parinherm.databinding.DataBindingView
 import com.parinherm.tests.TestData
+import org.eclipse.jface.action.*
+import org.eclipse.jface.window.ApplicationWindow
+import org.eclipse.swt.SWT
+import org.eclipse.swt.custom.CTabFolder
+import org.eclipse.swt.custom.CTabItem
+import org.eclipse.swt.custom.SashForm
+import org.eclipse.swt.graphics.Image
+import org.eclipse.swt.graphics.Point
+import org.eclipse.swt.layout.FillLayout
+import org.eclipse.swt.widgets.*
+import java.io.IOException
 
-class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
+
+class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
 
     lateinit var mainContainer: Composite
 
+
+    val actionSave: Action = object : Action("&Save") {
+        override fun run() {
+           println("Saving")
+        }
+    }
+
+
+
     init {
+        actionSave.accelerator = SWT.MOD1 or('S'.toInt())
         addMenuBar()
         addToolBar(SWT.WRAP)
         addStatusLine()
+
     }
 
 
     override fun createContents(parent: Composite?): Control {
         val container = Composite(parent, SWT.NONE)
         container.layout = FillLayout()
-        val sashForm: SashForm = SashForm(container, SWT.HORIZONTAL or (SWT.BORDER))
-        sashForm.sashWidth = 3
-        val weights: Array<Int> = arrayOf(1, 3)
-        val navContainer: Composite = Composite(sashForm, SWT.NONE)
-        mainContainer = Composite(sashForm, SWT.NONE)
-        sashForm.weights = weights.toIntArray()
-        navContainer.layout= FillLayout(SWT.VERTICAL)
-        mainContainer.layout = FillLayout(SWT.VERTICAL)
-
-        val lblName: Label = getLabel("Navigation Item", navContainer)
+        val folder = CTabFolder(container, SWT.TOP or SWT.BORDER)
+        val item = CTabItem(folder, SWT.NONE)
+        item.text = "&Getting Started"
 
         /* testing a load ui definitions from server
         scenario, so a api site would be running
@@ -51,8 +54,9 @@ class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
         and then renderer takes care of constructing the widgets etc
          */
         //swtBuilder.renderTest()
-        val viewState = swtBuilder.renderView(TestData.data, mainContainer, ApplicationData.ViewDef.bindingTestViewId)
-        DataBindingView(TestData.data).makeView(mainContainer)
+        val view = swtBuilder.renderView(TestData.data, folder, ApplicationData.ViewDef.bindingTestViewId)
+        item.control = view
+        //DataBindingView(TestData.data).makeView(folder)
 
 
         return container
@@ -63,7 +67,7 @@ class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
 
        val actionOpenFile: Action = object : Action("Open") {
             override fun run() {
-                val dialog = FileDialog(shell, SWT.OPEN )
+                val dialog = FileDialog(shell, SWT.OPEN)
                 val file = dialog.open()
                 if (file != null) {
                     try {
@@ -84,7 +88,9 @@ class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
         }
         actionQuit.accelerator = SWT.MOD1 or('Q'.toInt())
 
-        val actionChristmasTree: Action = object: Action ("&Christmas Tree") {
+
+
+        val actionChristmasTree: Action = object: Action("&Christmas Tree") {
             override fun run () {
                 clearComposite(mainContainer)
                 val christmas: ChristmasTreeView = ChristmasTreeView(mainContainer)
@@ -93,7 +99,7 @@ class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
         }
         actionChristmasTree.accelerator = SWT.MOD1 or ('X'.toInt())
 
-        val actionDataBinding: Action = object: Action ("&Data Binding") {
+        val actionDataBinding: Action = object: Action("&Data Binding") {
             override fun run () {
                 println("here")
                 clearComposite(mainContainer)
@@ -110,6 +116,7 @@ class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
         // file menus
         fileMenu.add(Separator())
         fileMenu.add(actionOpenFile)
+        fileMenu.add(actionSave)
         fileMenu.add(actionQuit)
 
         // action menus
@@ -124,6 +131,8 @@ class MainWindow (parentShell: Shell?): ApplicationWindow(parentShell) {
     override fun createToolBarManager(style: Int): ToolBarManager {
         val toolBarManager = ToolBarManager(SWT.NONE);
         toolBarManager.update(true)
+        val save = ActionContributionItem(actionSave)
+        toolBarManager.add(save)
         return toolBarManager
     }
 
