@@ -53,16 +53,6 @@ object swtBuilder {
     // this is necessary because gson is a java library and has some weird kind of init thing
     inline fun <reified T> Gson.fromJson(json: String) = fromJson<T>(json, object: TypeToken<T>() {}.type)
 
-   fun getViewDefinitions(): Map<String, Any>{
-       val views = Gson().fromJson<Map<String, Any>>( HttpClient.getViews())
-       return views
-   }
-
-    fun addWidgetToViewState(viewState: ViewState, widgetKey: String, widget: Any){
-        viewState.widgets[widgetKey] = widget
-    }
-
-    fun getWidgetFromViewState(viewState: ViewState, widgetKey: String) = viewState.widgets[widgetKey]
 
     fun renderView(data: List<WritableMap<String, Any>>, parent: Composite, viewId: String) : ViewState {
         // form is a data definition of a ui screen
@@ -87,7 +77,7 @@ object swtBuilder {
                 ViewDef.text -> {
                     val input = Text(editContainer, swnone)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
-                    addWidgetToViewState(viewState, fieldName, input)
+                    viewState.addWidgetToViewState(fieldName, input)
                     /*val target: ISWTObservableValue<String> = WidgetProperties.text<Text>(SWT.Modify).observe(
                         input)
                     val model: IObservableValue<Any> = Observables.observeMapEntry(viewState.wm, fieldName)
@@ -101,7 +91,7 @@ object swtBuilder {
                 ViewDef.float -> {
                     val input = Text(editContainer, swnone)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
-                    addWidgetToViewState(viewState, fieldName, input)
+                    viewState.addWidgetToViewState(fieldName, input)
                     /*
                     val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
                     val model: IObservableValue<Double> =
@@ -116,24 +106,24 @@ object swtBuilder {
                 ViewDef.money -> {
                     val input = Text(editContainer, swnone)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
-                    addWidgetToViewState(viewState, fieldName, input)
+                    viewState.addWidgetToViewState(fieldName, input)
                }
                 ViewDef.int -> {
                     val input = Spinner(editContainer, swnone)
                     input.minimum = Integer.MIN_VALUE
                     input.maximum = Integer.MAX_VALUE
                     GridDataFactory.fillDefaults().grab(false, false).applyTo(input)
-                    addWidgetToViewState(viewState, fieldName, input)
+                    viewState.addWidgetToViewState(fieldName, input)
                }
                 ViewDef.bool -> {
                     val input = Button(editContainer, SWT.CHECK)
                     GridDataFactory.fillDefaults().grab(false, false).applyTo(input)
-                    addWidgetToViewState(viewState, fieldName, input)
+                    viewState.addWidgetToViewState(fieldName, input)
                }
                 ViewDef.datetime -> {
                     val input = DateTime(editContainer, SWT.DROP_DOWN or SWT.DATE)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
-                    addWidgetToViewState(viewState, fieldName, input)
+                    viewState.addWidgetToViewState(fieldName, input)
                }
                 ViewDef.lookup ->  {
                     val input = ComboViewer(editContainer)
@@ -146,7 +136,7 @@ object swtBuilder {
                     })
                     val comboSource = ApplicationData.lookups.getOrDefault(item[ViewDef.lookupKey] as String, listOf())
                     input.input = comboSource
-                    addWidgetToViewState(viewState, fieldName, input)
+                    viewState.addWidgetToViewState(fieldName, input)
                 }
                 else -> {}
             }
@@ -159,7 +149,7 @@ object swtBuilder {
        listView.input = viewState.wl
 
        val lblErrors = Label(editContainer, labelStyle)
-        addWidgetToViewState(viewState, "lblErrors", lblErrors)
+        viewState.addWidgetToViewState("lblErrors", lblErrors)
        val btnSave = Button(editContainer, SWT.PUSH)
 
         sashForm.weights = intArrayOf(1, 2)
@@ -171,20 +161,25 @@ object swtBuilder {
         listContainer.layout = tableLayout
 
         listView.addSelectionChangedListener { _ ->
+            viewState.selectingFlag = true
             val selection = listView.structuredSelection
             val selectedItem = selection.firstElement
             createDataBindings(viewState, selectedItem as WritableMap<String, Any>, fields)
+            Display.getDefault().timerExec(100) {
+                viewState.selectingFlag = false
+            }
         }
 
         btnSave.text = "Save"
-        addWidgetToViewState(viewState, "btnSave", btnSave)
+        viewState.addWidgetToViewState("btnSave", btnSave)
         btnSave.enabled = false
         btnSave.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
+           viewState.dirtyFlag.dirty = false
             for (item: Map<String, Any> in viewState.wl) {
                 println(item.keys)
                 println(item.values)
             }
-            viewState.dirtyFlag.dirty = false
+
         })
 
 
@@ -229,7 +224,7 @@ object swtBuilder {
             val fieldName = item[ViewDef.fieldName] as String
             when (item[ViewDef.fieldDataType]) {
                 ViewDef.text -> {
-                    val input = getWidgetFromViewState(viewState, fieldName) as Text
+                    val input = viewState.getWidgetFromViewState(fieldName) as Text
                     val target: ISWTObservableValue<String> = WidgetProperties.text<Text>(SWT.Modify).observe(
                         input)
                     val model: IObservableValue<Any> = Observables.observeMapEntry(selectedItem, fieldName)
@@ -237,7 +232,7 @@ object swtBuilder {
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
                 }
                 ViewDef.float -> {
-                    val input = getWidgetFromViewState(viewState, fieldName) as Text
+                    val input = viewState.getWidgetFromViewState(fieldName) as Text
                     val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
                     val model: IObservableValue<Double> =
                         Observables.observeMapEntry(selectedItem as WritableMap<String, Double>, fieldName)
@@ -249,7 +244,7 @@ object swtBuilder {
                     ControlDecorationSupport.create(bindHeight, SWT.TOP or SWT.LEFT)
                 }
                 ViewDef.money -> {
-                    val input = getWidgetFromViewState(viewState, fieldName) as Text
+                    val input = viewState.getWidgetFromViewState(fieldName) as Text
                     val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
                     val model: IObservableValue<BigDecimal> =
                         Observables.observeMapEntry(selectedItem as WritableMap<String, BigDecimal>, fieldName)
@@ -261,20 +256,20 @@ object swtBuilder {
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
                 }
                 ViewDef.int -> {
-                    val input = getWidgetFromViewState(viewState, fieldName) as Spinner
+                    val input = viewState.getWidgetFromViewState(fieldName) as Spinner
                     val target = WidgetProperties.spinnerSelection().observe(input)
                     //val model = Observables.observeMapEntry(viewState.wm as WritableMap<String, Int>, fieldName)
                     val model = Observables.observeMapEntry(selectedItem as WritableMap<String, Int>, fieldName)
                     val bindInput = viewState.dbc.bindValue<Int, Int>(target, model)
                 }
                 ViewDef.bool -> {
-                    val input = getWidgetFromViewState(viewState, fieldName) as Button
+                    val input = viewState.getWidgetFromViewState(fieldName) as Button
                     val target = WidgetProperties.buttonSelection().observe(input)
                     val model = Observables.observeMapEntry(selectedItem as WritableMap<String, Boolean>, fieldName)
                     val bindInput = viewState.dbc.bindValue(target, model)
                 }
                 ViewDef.datetime -> {
-                    val input = getWidgetFromViewState(viewState, fieldName) as DateTime
+                    val input = viewState.getWidgetFromViewState(fieldName) as DateTime
                     val inputProperty: DateTimeSelectionProperty = DateTimeSelectionProperty()
                     val target = inputProperty.observe(input)
                     val model = Observables.observeMapEntry(selectedItem as WritableMap<String, LocalDate>, fieldName)
@@ -282,7 +277,7 @@ object swtBuilder {
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
                 }
                 ViewDef.lookup -> {
-                    val input = getWidgetFromViewState(viewState, fieldName) as ComboViewer
+                    val input = viewState.getWidgetFromViewState(fieldName) as ComboViewer
                     val comboSource = ApplicationData.lookups.getOrDefault(item[ViewDef.lookupKey] as String, listOf())
                     val target: IObservableValue<LookupDetail> =
                         ViewerProperties.singleSelection<ComboViewer, LookupDetail>().observeDelayed(1, input)
@@ -302,14 +297,14 @@ object swtBuilder {
             }
 
             val  errorObservable: IObservableValue<String> = WidgetProperties.text<Label>().observe(
-                getWidgetFromViewState(viewState, "lblErrors") as Label)
+                viewState.getWidgetFromViewState("lblErrors") as Label)
             val allValidationBinding: Binding = viewState.dbc.bindValue(errorObservable,
                 AggregateValidationStatus(viewState.dbc.bindings, AggregateValidationStatus.MAX_SEVERITY), null, null)
 
 
             //save button binding
             val targetSave = WidgetProperties.enabled<Button>().observe(
-                getWidgetFromViewState(viewState, "btnSave") as Button)
+                viewState.getWidgetFromViewState("btnSave") as Button)
             val modelDirty = BeanProperties.value<DirtyFlag, Boolean>("dirty").observe(viewState.dirtyFlag)
             val bindSave = viewState.dbc.bindValue(targetSave, modelDirty)
 

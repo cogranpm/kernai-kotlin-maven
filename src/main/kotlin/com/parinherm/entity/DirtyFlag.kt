@@ -6,7 +6,6 @@ class DirtyFlag (dirty: Boolean) : ModelObject() {
         set(value){
             val oldValue: Boolean = field
             field = value
-            println("Dirty Flag $value")
             this.firePropertyChange("dirty", oldValue, field)
         }
 
