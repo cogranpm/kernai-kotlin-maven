@@ -17,7 +17,11 @@ class ViewState (val data: List<Map<String, Any>>) {
 
     // could be a viewer, or a control
     val widgets = mutableMapOf<String, Any>()
-    val widgetBindings = mutableMapOf<String, WidgetBinding<String?>>()
+
+    //how to have a collection of databinding observables with different parameterized types
+    //eg IObservableValue<String?> or <LookpuDetail>
+    //val widgetBindings = mutableMapOf<String, WidgetBinding>()
+    var widgetBindings: MutableMap<String, WidgetBinding<Any, Any>> = mutableMapOf()
     val wl = WritableList<Map<String, Any>>()
     var wm = WritableMap<String, Any>()
     val dbc = DataBindingContext()
@@ -44,7 +48,6 @@ class ViewState (val data: List<Map<String, Any>>) {
             override fun getText(element: Any?): String {
                 /* element is a map */
                 val map = element as Map<String, Any>
-                // looks like we'll hard code for now
                 return map.getOrDefault(fieldName, "").toString()
             }
 
