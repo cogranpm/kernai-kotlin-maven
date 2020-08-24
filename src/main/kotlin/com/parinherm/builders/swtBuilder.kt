@@ -19,6 +19,7 @@ import org.eclipse.core.databinding.beans.typed.BeanProperties
 import org.eclipse.core.databinding.observable.Observables
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.core.databinding.observable.map.WritableMap
+import org.eclipse.core.databinding.observable.set.IObservableSet
 import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
 import org.eclipse.jface.databinding.swt.ISWTObservableValue
@@ -146,7 +147,7 @@ object swtBuilder {
         /**************************************************************************/
        val contentProvider = ObservableListContentProvider<Map<String, Any>>()
        listView.contentProvider = contentProvider
-        val knownElements = contentProvider.knownElements
+        val knownElements: IObservableSet<Map<String, Any>> = contentProvider.knownElements
         //val fname = Observables.observeDetailMapEntry(viewState.wl, "fname", knownElements)
         val labelMaps = arrayOf(1)
         /*
@@ -194,6 +195,7 @@ object swtBuilder {
                 println(item.keys)
                 println(item.values)
             }
+            //viewState.wl
 
         })
 
