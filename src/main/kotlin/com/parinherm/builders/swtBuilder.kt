@@ -24,13 +24,11 @@ import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
 import org.eclipse.jface.databinding.swt.ISWTObservableValue
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
+import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
 import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.TableColumnLayout
-import org.eclipse.jface.viewers.ArrayContentProvider
-import org.eclipse.jface.viewers.ComboViewer
-import org.eclipse.jface.viewers.LabelProvider
-import org.eclipse.jface.viewers.TableViewer
+import org.eclipse.jface.viewers.*
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.SashForm
 import org.eclipse.swt.events.SelectionListener
@@ -146,7 +144,22 @@ object swtBuilder {
             val column = viewState.getColumn(item[ViewDef.fieldName] as String, item[ViewDef.title] as String, listView, tableLayout)
         }
         /**************************************************************************/
-       listView.contentProvider = ObservableListContentProvider<Map<String, Any>>()
+       val contentProvider = ObservableListContentProvider<Map<String, Any>>()
+       listView.contentProvider = contentProvider
+        val knownElements = contentProvider.knownElements
+        //val fname = Observables.observeDetailMapEntry(viewState.wl, "fname", knownElements)
+        val labelMaps = arrayOf(1)
+        /*
+        val labelProvider = (object: ObservableMapLabelProvider(labelMaps) {
+            override fun getText(element: Any?): String {
+                //return super.getText(element)
+                return "testing"
+            }
+        })
+
+         */
+
+
        listView.input = viewState.wl
 
        val lblErrors = Label(editContainer, labelStyle)
@@ -187,7 +200,10 @@ object swtBuilder {
         btnNew.text = "New"
         btnNew.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
             // should probably just put ui into new mode
-            //viewState.wl.add(data.make())
+            val newItem = data.make()
+            viewState.wl.add(newItem)
+            listView.setSelection(StructuredSelection(newItem))
+
         })
 
         composite.addDisposeListener{

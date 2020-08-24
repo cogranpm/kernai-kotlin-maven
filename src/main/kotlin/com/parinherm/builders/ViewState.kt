@@ -101,7 +101,7 @@ class ViewState (val data: List<Map<String, Any>>) {
             override fun getText(element: Any?): String {
                 /* element is a map */
                 val map = element as Map<String, Any>
-                return map.getOrDefault(fieldName, "").toString()
+                return map?.getOrDefault(fieldName, "")?.toString()
             }
 
             /*override fun getImage(element: Any?): Image {
