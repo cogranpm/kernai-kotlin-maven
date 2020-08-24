@@ -34,8 +34,8 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
 
     init {
         actionSave.accelerator = SWT.MOD1 or('S'.toInt())
+        addToolBar(SWT.FLAT or SWT.WRAP)
         addMenuBar()
-        addToolBar(SWT.WRAP)
         addStatusLine()
 
     }
@@ -45,7 +45,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         val container = Composite(parent, SWT.NONE)
         container.layout = FillLayout()
         val folder = CTabFolder(container, SWT.TOP or SWT.BORDER)
-        val item = CTabItem(folder, SWT.NONE)
+        val item = CTabItem(folder, SWT.CLOSE)
         item.text = "&Getting Started"
 
         /* testing a load ui definitions from server
@@ -54,11 +54,22 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         and then renderer takes care of constructing the widgets etc
          */
         //swtBuilder.renderTest()
-        val view = swtBuilder.renderView(TestData.data, folder, ApplicationData.ViewDef.bindingTestViewId)
+        val view = swtBuilder.renderView(TestData, folder, ApplicationData.ViewDef.bindingTestViewId)
         item.control = view
         //DataBindingView(TestData.data).makeView(folder)
 
+        /* this messes up the layout here or
+        in the toolbar manager override
+         *
+        val save = ActionContributionItem(actionSave)
+        toolBarManager.add(save)
+        toolBarManager.update(false)
 
+         */
+
+
+        container.layout()
+        //shell.pack()
         return container
     }
 
@@ -129,10 +140,8 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
     }
 
     override fun createToolBarManager(style: Int): ToolBarManager {
-        val toolBarManager = ToolBarManager(SWT.NONE);
-        toolBarManager.update(true)
-        val save = ActionContributionItem(actionSave)
-        toolBarManager.add(save)
+        val toolBarManager = ToolBarManager(style);
+
         return toolBarManager
     }
 
@@ -157,6 +166,9 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
 
 
     override fun getInitialSize(): Point {
-        return Point(900, 900)
+        //rreturn Point(900, 900)
+        val width = Display.getDefault().primaryMonitor.clientArea.width
+        val height = Display.getDefault().primaryMonitor.clientArea.width
+        return Point(width, height)
     }
 }

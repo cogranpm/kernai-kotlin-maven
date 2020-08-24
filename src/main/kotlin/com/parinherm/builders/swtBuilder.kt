@@ -12,6 +12,7 @@ import com.parinherm.ApplicationData.labelStyle
 import com.parinherm.databinding.Converters
 import com.parinherm.databinding.DateTimeSelectionProperty
 import com.parinherm.entity.DirtyFlag
+import com.parinherm.entity.IDataEntity
 import com.parinherm.entity.LookupDetail
 import org.eclipse.core.databinding.*
 import org.eclipse.core.databinding.beans.typed.BeanProperties
@@ -54,11 +55,11 @@ object swtBuilder {
     inline fun <reified T> Gson.fromJson(json: String) = fromJson<T>(json, object: TypeToken<T>() {}.type)
 
 
-    fun renderView(data: List<WritableMap<String, Any>>, parent: Composite, viewId: String) : Composite {
+    fun renderView(data: IDataEntity, parent: Composite, viewId: String) : Composite {
         // form is a data definition of a ui screen
         // contained in lists of maps
         val form: Map<String, Any> = ApplicationData.getView(viewId)
-        val viewState = ViewState(data)
+        val viewState = ViewState(data.data)
         val composite = Composite(parent, swnone)
         val sashForm = SashForm(composite, SWT.BORDER)
         val listContainer = Composite(sashForm, swnone)
@@ -151,6 +152,7 @@ object swtBuilder {
        val lblErrors = Label(editContainer, labelStyle)
         viewState.addWidgetToViewState("lblErrors", lblErrors)
        val btnSave = Button(editContainer, SWT.PUSH)
+        val btnNew = Button(editContainer, SWT.PUSH)
 
         sashForm.weights = intArrayOf(1, 2)
         sashForm.sashWidth = 4
@@ -181,6 +183,16 @@ object swtBuilder {
             }
 
         })
+
+        btnNew.text = "New"
+        btnNew.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
+            // should probably just put ui into new mode
+            //viewState.wl.add(data.make())
+        })
+
+        composite.addDisposeListener{
+            println("I am being closed")
+        }
 
 
 
