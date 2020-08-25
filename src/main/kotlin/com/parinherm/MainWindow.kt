@@ -63,7 +63,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         item.control = view
         //DataBindingView(TestData.data).makeView(folder)
 
-        val beansBindingView = BeansViewBuilder.renderView(folder, ApplicationData.ViewDef.beansBindingTestViewId)
+        val beansBindingView = BeansViewBuilder.renderView(folder, BeansBindingTestData.data, ApplicationData.ViewDef.beansBindingTestViewId)
         beanBindingTestTab.control = beansBindingView
 
         /* this messes up the layout here or

@@ -1,9 +1,11 @@
 package com.parinherm.builders
 
+import com.parinherm.entity.BeanTest
 import com.parinherm.entity.DirtyFlag
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.observable.ChangeEvent
 import org.eclipse.core.databinding.observable.IChangeListener
+import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.internal.databinding.swt.SWTObservableValueDecorator
 import org.eclipse.jface.layout.TableColumnLayout
 import org.eclipse.jface.viewers.ColumnLabelProvider
@@ -12,12 +14,18 @@ import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.jface.viewers.TableViewerColumn
 import org.eclipse.swt.SWT
 
-class BeansViewState {
-
+class BeansViewState (data: List<BeanTest>){
+    val wl = WritableList<BeanTest>()
     val widgets = mutableMapOf<String, Any>()
     var selectingFlag = false
     val dbc = DataBindingContext()
     var dirtyFlag: DirtyFlag = DirtyFlag(false)
+
+    init {
+        wl.addAll(data)
+    }
+
+
     val listener: IChangeListener = IChangeListener {
         processStateChange(it)
     }

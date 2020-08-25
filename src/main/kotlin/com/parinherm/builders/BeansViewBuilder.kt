@@ -3,6 +3,7 @@ package com.parinherm.builders
 import com.parinherm.ApplicationData
 import com.parinherm.databinding.Converters
 import com.parinherm.databinding.DateTimeSelectionProperty
+import com.parinherm.entity.BeanTest
 import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.LookupDetail
 import org.eclipse.core.databinding.AggregateValidationStatus
@@ -33,8 +34,8 @@ import java.time.LocalDate
 
 object BeansViewBuilder {
 
-    fun renderView(parent: Composite, viewId: String): Composite {
-        val viewState = BeansViewState()
+    fun renderView(parent: Composite, data: List<BeanTest>, viewId: String): Composite {
+        val viewState = BeansViewState(data)
         val form: Map<String, Any> = ApplicationData.getView(viewId)
         val composite = Composite(parent, ApplicationData.swnone)
         val sashForm = SashForm(composite, SWT.BORDER)
@@ -110,7 +111,7 @@ object BeansViewBuilder {
         val contentProvider = ObservableListContentProvider<Map<String, Any>>()
         listView.contentProvider = contentProvider
         val knownElements: IObservableSet<Map<String, Any>> = contentProvider.knownElements
-        //val fname = Observables.observeDetailMapEntry(viewState.wl, "fname", knownElements)
+        val firstName = BeanProperties.value<BeanTest, String>("name").observeDetail(knownElements)
         val labelMaps = arrayOf(1)
         /*
             val labelProvider = (object: ObservableMapLabelProvider(labelMaps) {
@@ -123,7 +124,7 @@ object BeansViewBuilder {
              */
 
 
-        //listView.input = viewState.wl
+        listView.input = viewState.wl
 
         val lblErrors = Label(editContainer, ApplicationData.labelStyle)
         viewState.addWidgetToViewState("lblErrors", lblErrors)
@@ -142,7 +143,7 @@ object BeansViewBuilder {
             viewState.selectingFlag = true
             val selection = listView.structuredSelection
             val selectedItem = selection.firstElement
-            //swtBuilder.createDataBindings(viewState, selectedItem as WritableMap<String, Any>, fields)
+            createDataBindings(viewState, selectedItem as BeanTest, fields)
             Display.getDefault().timerExec(100) {
                 viewState.selectingFlag = false
             }
@@ -174,7 +175,7 @@ object BeansViewBuilder {
         return composite
     }
 
-    fun createDataBindings(viewState: ViewState, selectedItem: WritableMap<String, Any>, fields: List<Map<String, Any>>) {
+    fun createDataBindings(viewState: BeansViewState, selectedItem: BeanTest, fields: List<Map<String, Any>>) {
 
         viewState.dbc.dispose()
         val bindings = viewState.dbc.validationStatusProviders
@@ -191,15 +192,15 @@ object BeansViewBuilder {
                     val input = viewState.getWidgetFromViewState(fieldName) as Text
                     val target: ISWTObservableValue<String> = WidgetProperties.text<Text>(SWT.Modify).observe(
                             input)
-                    val model: IObservableValue<Any> = Observables.observeMapEntry(selectedItem, fieldName)
+                    //val model: IObservableValue<Any> = Observables.observeMapEntry(selectedItem, fieldName)
+                    val model = BeanProperties.value<BeanTest, String>(fieldName).observe(selectedItem)
                     val bindInput = viewState.dbc.bindValue(target, model)
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
                 }
                 ApplicationData.ViewDef.float -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as Text
                     val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
-                    val model: IObservableValue<Double> =
-                            Observables.observeMapEntry(selectedItem as WritableMap<String, Double>, fieldName)
+                    val model: IObservableValue<Double> = BeanProperties.value<BeanTest, Double>(fieldName).observe(selectedItem)
                     val bindHeight = viewState.dbc.bindValue<String, Double>(
                             target, model,
                             Converters.updToDouble,
@@ -210,8 +211,7 @@ object BeansViewBuilder {
                 ApplicationData.ViewDef.money -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as Text
                     val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
-                    val model: IObservableValue<BigDecimal> =
-                            Observables.observeMapEntry(selectedItem as WritableMap<String, BigDecimal>, fieldName)
+                    val model: IObservableValue<BigDecimal> = BeanProperties.value<BeanTest, BigDecimal>(fieldName).observe(selectedItem)
                     val bindInput = viewState.dbc.bindValue(
                             target, model,
                             Converters.updToBigDecimal,
@@ -222,21 +222,20 @@ object BeansViewBuilder {
                 ApplicationData.ViewDef.int -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as Spinner
                     val target = WidgetProperties.spinnerSelection().observe(input)
-                    //val model = Observables.observeMapEntry(viewState.wm as WritableMap<String, Int>, fieldName)
-                    val model = Observables.observeMapEntry(selectedItem as WritableMap<String, Int>, fieldName)
+                    val model = BeanProperties.value<BeanTest, Int>(fieldName).observe(selectedItem)
                     val bindInput = viewState.dbc.bindValue<Int, Int>(target, model)
                 }
                 ApplicationData.ViewDef.bool -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as Button
                     val target = WidgetProperties.buttonSelection().observe(input)
-                    val model = Observables.observeMapEntry(selectedItem as WritableMap<String, Boolean>, fieldName)
+                    val model =  BeanProperties.value<BeanTest, Boolean>(fieldName).observe(selectedItem)
                     val bindInput = viewState.dbc.bindValue(target, model)
                 }
                 ApplicationData.ViewDef.datetime -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as DateTime
                     val inputProperty: DateTimeSelectionProperty = DateTimeSelectionProperty()
                     val target = inputProperty.observe(input)
-                    val model = Observables.observeMapEntry(selectedItem as WritableMap<String, LocalDate>, fieldName)
+                    val model = BeanProperties.value<BeanTest, LocalDate>(fieldName).observe(selectedItem)
                     val bindInput = viewState.dbc.bindValue(target, model)
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
                 }
@@ -245,7 +244,7 @@ object BeansViewBuilder {
                     val comboSource = ApplicationData.lookups.getOrDefault(item[ApplicationData.ViewDef.lookupKey] as String, listOf())
                     val target: IObservableValue<LookupDetail> =
                             ViewerProperties.singleSelection<ComboViewer, LookupDetail>().observeDelayed(1, input)
-                    val model = Observables.observeMapEntry(selectedItem as WritableMap<String, String>, fieldName)
+                    val model = BeanProperties.value<BeanTest, String>(fieldName).observe(selectedItem)
                     val bindInput = viewState.dbc.bindValue(
                             target, model,
                             UpdateValueStrategy.create<LookupDetail, String>(Converters.convertFromLookup),
