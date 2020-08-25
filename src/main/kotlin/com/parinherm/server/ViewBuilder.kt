@@ -73,7 +73,7 @@ object ViewBuilder {
 
     fun makeSampleBean(): Map<String, Any> {
         val firstNameDef = mapOf(
-                ViewDef.fieldName to "fname",
+                ViewDef.fieldName to "name",
                 ViewDef.title to "First Name",
                 ViewDef.fieldLabelConverter to {element: Any? -> "${(element as BeanTest).name}"},
                 ViewDef.fieldDataType to ViewDef.text)
@@ -113,7 +113,7 @@ object ViewBuilder {
 
 
         val isDeceasedDef = mapOf(
-                ViewDef.fieldName to "isDeceased",
+                ViewDef.fieldName to "deceased",
                 ViewDef.title to "Deceased",
                 ViewDef.fieldDataType to ViewDef.bool,
                 ViewDef.fieldLabelConverter to {element: Any? -> "${(element as BeanTest).deceased}"})

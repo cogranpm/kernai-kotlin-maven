@@ -10,15 +10,23 @@ import org.eclipse.core.databinding.AggregateValidationStatus
 import org.eclipse.core.databinding.Binding
 import org.eclipse.core.databinding.UpdateValueStrategy
 import org.eclipse.core.databinding.ValidationStatusProvider
+import org.eclipse.core.databinding.beans.IBeanValueProperty
 import org.eclipse.core.databinding.beans.typed.BeanProperties
+import org.eclipse.core.databinding.beans.typed.PojoProperties
 import org.eclipse.core.databinding.observable.Observables
+import org.eclipse.core.databinding.observable.list.WritableList
+import org.eclipse.core.databinding.observable.map.IObservableMap
 import org.eclipse.core.databinding.observable.map.WritableMap
 import org.eclipse.core.databinding.observable.set.IObservableSet
 import org.eclipse.core.databinding.observable.value.IObservableValue
+import org.eclipse.core.databinding.property.Properties
+import org.eclipse.core.databinding.property.value.IValueProperty
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
 import org.eclipse.jface.databinding.swt.ISWTObservableValue
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
+import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
+import org.eclipse.jface.databinding.viewers.ViewerSupport
 import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.TableColumnLayout
@@ -108,23 +116,30 @@ object BeansViewBuilder {
                     tableLayout,
                     item[ApplicationData.ViewDef.fieldLabelConverter] as (_: Any?) -> String)
         }
-        val contentProvider = ObservableListContentProvider<Map<String, Any>>()
+        val contentProvider = ObservableListContentProvider<BeanTest>()
         listView.contentProvider = contentProvider
-        val knownElements: IObservableSet<Map<String, Any>> = contentProvider.knownElements
-        val firstName = BeanProperties.value<BeanTest, String>("name").observeDetail(knownElements)
-        val labelMaps = arrayOf(1)
-        /*
+        val knownElements = contentProvider.knownElements
+        //val firstName = BeanProperties.value<BeanTest, String>("name").observeDetail<BeanTest?>(knownElements)
+        /*val labelMaps = arrayOf(1)
+
             val labelProvider = (object: ObservableMapLabelProvider(labelMaps) {
                 override fun getText(element: Any?): String {
-                    //return super.getText(element)
-                    return "testing"
+                    return ""
                 }
             })
 
-             */
+         */
 
 
-        listView.input = viewState.wl
+        val name: IValueProperty<BeanTest, String> = BeanProperties.value<BeanTest, String>("name")
+        val age: IValueProperty<BeanTest, Int> = BeanProperties.value<BeanTest, Int>("age")
+        val income: IValueProperty<BeanTest, BigDecimal> = BeanProperties.value<BeanTest, BigDecimal>("income")
+        val height: IValueProperty<BeanTest, Double> = BeanProperties.value<BeanTest, Double>("height")
+        val country: IValueProperty<BeanTest, String> = BeanProperties.value<BeanTest, String>("country")
+        val deceased: IValueProperty<BeanTest, Boolean> = BeanProperties.value<BeanTest, Boolean>("deceased")
+        val enteredDate: IValueProperty<BeanTest, LocalDate> = BeanProperties.value<BeanTest, LocalDate>("enteredDate")
+        ViewerSupport.bind(listView, viewState.wl, name, age, income, height, country, deceased, enteredDate)
+
 
         val lblErrors = Label(editContainer, ApplicationData.labelStyle)
         viewState.addWidgetToViewState("lblErrors", lblErrors)
@@ -190,9 +205,7 @@ object BeansViewBuilder {
             when (item[ApplicationData.ViewDef.fieldDataType]) {
                 ApplicationData.ViewDef.text -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as Text
-                    val target: ISWTObservableValue<String> = WidgetProperties.text<Text>(SWT.Modify).observe(
-                            input)
-                    //val model: IObservableValue<Any> = Observables.observeMapEntry(selectedItem, fieldName)
+                    val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
                     val model = BeanProperties.value<BeanTest, String>(fieldName).observe(selectedItem)
                     val bindInput = viewState.dbc.bindValue(target, model)
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
@@ -274,4 +287,5 @@ object BeansViewBuilder {
         }
     }
 }
+
 
