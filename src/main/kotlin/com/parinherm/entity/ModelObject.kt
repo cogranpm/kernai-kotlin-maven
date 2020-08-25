@@ -2,10 +2,11 @@ package com.parinherm.entity
 
 import java.beans.PropertyChangeListener
 import java.beans.PropertyChangeSupport
+import kotlin.reflect.KProperty
 
 open class ModelObject {
 
-    val changeSupport: PropertyChangeSupport = PropertyChangeSupport(this)
+    protected val changeSupport: PropertyChangeSupport = PropertyChangeSupport(this)
 
     fun addPropertyChangeListener(listener: PropertyChangeListener) {
         changeSupport.addPropertyChangeListener(listener)
@@ -19,3 +20,5 @@ open class ModelObject {
        changeSupport.firePropertyChange(propertyName, oldValue, newValue)
     }
 }
+
+

@@ -3,8 +3,10 @@ package com.parinherm
 //import org.eclipse.nebula.widgets.pshelf.*
 
 
+import com.parinherm.builders.BeansViewBuilder
 import com.parinherm.builders.swtBuilder
 import com.parinherm.databinding.DataBindingView
+import com.parinherm.tests.BeansBindingTestData
 import com.parinherm.tests.TestData
 import org.eclipse.jface.action.*
 import org.eclipse.jface.window.ApplicationWindow
@@ -46,7 +48,10 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         container.layout = FillLayout()
         val folder = CTabFolder(container, SWT.TOP or SWT.BORDER)
         val item = CTabItem(folder, SWT.CLOSE)
-        item.text = "&Getting Started"
+        item.text = "&Map Binding Test"
+
+        val beanBindingTestTab = CTabItem(folder, SWT.CLOSE)
+        beanBindingTestTab.text = "Beans Binding Test"
 
         /* testing a load ui definitions from server
         scenario, so a api site would be running
@@ -57,6 +62,9 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         val view = swtBuilder.renderView(TestData, folder, ApplicationData.ViewDef.bindingTestViewId)
         item.control = view
         //DataBindingView(TestData.data).makeView(folder)
+
+        val beansBindingView = BeansViewBuilder.renderView(folder, ApplicationData.ViewDef.beansBindingTestViewId)
+        beanBindingTestTab.control = beansBindingView
 
         /* this messes up the layout here or
         in the toolbar manager override

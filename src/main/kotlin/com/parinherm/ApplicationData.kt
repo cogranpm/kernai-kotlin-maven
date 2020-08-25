@@ -77,10 +77,13 @@ object ApplicationData {
     )
 
     public object ViewDef{
+
+        const val bindingTestViewId = "bindingtest"
+        const val beansBindingTestViewId = "beansbinding"
         const val title = "title"
         const val version = "version"
         const val viewid = "viewid"
-        const val bindingTestViewId = "bindingtest"
+
         const val forms = "forms"
         const val fields = "fields"
 
@@ -99,6 +102,8 @@ object ApplicationData {
         const val bool = "bool"
         const val datetime = "datetime"
         const val money = "money"
+
+        const val fieldLabelConverter = "fieldLabelConverter"
 
 
     }
