@@ -74,23 +74,15 @@ class BeansViewState <T> (data: List<T>){
     }
 
 
-    fun getColumn(fieldName: String,
-                  caption: String,
+    fun getColumn(caption: String,
                   viewer: TableViewer,
-                  layout: TableColumnLayout,
-                  labelConverter: (element: Any?) -> String) : TableViewerColumn {
+                  layout: TableColumnLayout) : TableViewerColumn {
         val column = TableViewerColumn(viewer, SWT.LEFT)
         val col = column.column
-        val colProvider = (object: ColumnLabelProvider() {
-            override fun getText(element: Any?): String {
-                return labelConverter(element)
-            }
-        })
         col.text = caption
-        col.resizable = false
-        col.moveable = false
+        col.resizable = true
+        col.moveable = true
         layout.setColumnData(col, ColumnWeightData(100))
-        //column.setLabelProvider(colProvider)
         return column
     }
 

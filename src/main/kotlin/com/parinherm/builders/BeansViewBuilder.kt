@@ -34,6 +34,7 @@ import org.eclipse.jface.viewers.*
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.SashForm
 import org.eclipse.swt.events.SelectionListener
+import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.widgets.*
@@ -79,8 +80,7 @@ object BeansViewBuilder {
                     
                     /* column observables */
                     val observableColumn: IValueProperty<T, String> = BeanProperties.value<T, String>(fieldName)
-                    val observableLabel = observableColumn.observeDetail(contentProvider.knownElements)
-                    columnLabelList.add(observableLabel)
+                    columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                     labelConverterList.add(item[ApplicationData.ViewDef.fieldLabelConverter] as (_: Any?) -> String)
                 }
                 ApplicationData.ViewDef.float -> {
@@ -90,8 +90,7 @@ object BeansViewBuilder {
 
                     /* column observables */
                     val observableColumn: IValueProperty<T, Double> = BeanProperties.value<T, Double>(fieldName)
-                    val observableLabel = observableColumn.observeDetail(contentProvider.knownElements)
-                    columnLabelList.add(observableLabel)
+                    columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                     labelConverterList.add(item[ApplicationData.ViewDef.fieldLabelConverter] as (_: Any?) -> String)
                 }
                 ApplicationData.ViewDef.money -> {
@@ -101,8 +100,7 @@ object BeansViewBuilder {
 
                     /* column observables */
                     val observableColumn: IValueProperty<T, BigDecimal> = BeanProperties.value<T, BigDecimal>(fieldName)
-                    val observableLabel = observableColumn.observeDetail(contentProvider.knownElements)
-                    columnLabelList.add(observableLabel)
+                    columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                     labelConverterList.add(item[ApplicationData.ViewDef.fieldLabelConverter] as (_: Any?) -> String)
                 }
                 ApplicationData.ViewDef.int -> {
@@ -114,8 +112,7 @@ object BeansViewBuilder {
                     
                     /* column observables */
                     val observableColumn: IValueProperty<T, Int> = BeanProperties.value<T, Int>(fieldName)
-                    val observableLabel = observableColumn.observeDetail(contentProvider.knownElements)
-                    columnLabelList.add(observableLabel)
+                    columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                     labelConverterList.add(item[ApplicationData.ViewDef.fieldLabelConverter] as (_: Any?) -> String)
                 }
                 ApplicationData.ViewDef.bool -> {
@@ -125,8 +122,7 @@ object BeansViewBuilder {
 
                     /* column observables */
                     val observableColumn: IValueProperty<T, Boolean> = BeanProperties.value<T, Boolean>(fieldName)
-                    val observableLabel = observableColumn.observeDetail(contentProvider.knownElements)
-                    columnLabelList.add(observableLabel)
+                    columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                     labelConverterList.add(item[ApplicationData.ViewDef.fieldLabelConverter] as (_: Any?) -> String)
                 }
                 ApplicationData.ViewDef.datetime -> {
@@ -135,8 +131,7 @@ object BeansViewBuilder {
                     viewState.addWidgetToViewState(fieldName, input)
                     /* column observables */
                     val observableColumn: IValueProperty<T, LocalDate> = BeanProperties.value<T, LocalDate>(fieldName)
-                    val observableLabel = observableColumn.observeDetail(contentProvider.knownElements)
-                    columnLabelList.add(observableLabel)
+                    columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                     labelConverterList.add(item[ApplicationData.ViewDef.fieldLabelConverter] as (_: Any?) -> String)
                 }
                 ApplicationData.ViewDef.lookup -> {
@@ -154,20 +149,14 @@ object BeansViewBuilder {
 
                     /* column observables */
                     val observableColumn: IValueProperty<T, String> = BeanProperties.value<T, String>(fieldName)
-                    val observableLabel = observableColumn.observeDetail(contentProvider.knownElements)
-                    columnLabelList.add(observableLabel)
+                    columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                     labelConverterList.add(item[ApplicationData.ViewDef.fieldLabelConverter] as (_: Any?) -> String)
                 }
                 else -> {
                 }
             }
 
-            val column = viewState.getColumn(
-                    item[ApplicationData.ViewDef.fieldName] as String,
-                    item[ApplicationData.ViewDef.title] as String,
-                    listView,
-                    tableLayout,
-                    item[ApplicationData.ViewDef.fieldLabelConverter] as (_: Any?) -> String)
+            val column = viewState.getColumn(item[ApplicationData.ViewDef.title] as String, listView, tableLayout)
         }
 
         //observable column support, but no control over the cell contents
@@ -177,6 +166,11 @@ object BeansViewBuilder {
             override fun getColumnText(element: Any?, columnIndex: Int): String {
                 return "${labelConverterList[columnIndex](element)}"
             }
+
+            /*override fun getColumnImage(element: Any?, columnIndex: Int): Image {
+                return super.getColumnImage(element, columnIndex)
+            }
+             */
         })
         listView.contentProvider = contentProvider
         listView.labelProvider = labelProvider
