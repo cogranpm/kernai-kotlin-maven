@@ -14,8 +14,8 @@ import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.jface.viewers.TableViewerColumn
 import org.eclipse.swt.SWT
 
-class BeansViewState (data: List<BeanTest>){
-    val wl = WritableList<BeanTest>()
+class BeansViewState <T> (data: List<T>){
+    val wl = WritableList<T>()
     val widgets = mutableMapOf<String, Any>()
     var selectingFlag = false
     val dbc = DataBindingContext()
@@ -90,7 +90,7 @@ class BeansViewState (data: List<BeanTest>){
         col.resizable = false
         col.moveable = false
         layout.setColumnData(col, ColumnWeightData(100))
-        column.setLabelProvider(colProvider)
+        //column.setLabelProvider(colProvider)
         return column
     }
 

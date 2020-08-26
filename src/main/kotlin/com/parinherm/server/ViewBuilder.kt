@@ -100,7 +100,10 @@ object ViewBuilder {
                 ViewDef.fieldName to "country",
                 ViewDef.title to "Country",
                 ViewDef.fieldDataType to ViewDef.lookup,
-                ViewDef.fieldLabelConverter to {element: Any? -> "${(element as BeanTest).country}"},
+                ViewDef.fieldLabelConverter to {element: Any? ->
+                    val listItem = ApplicationData.countryList.find { it.code == (element as BeanTest).country }
+                    "${listItem?.label}"
+                },
                 ViewDef.lookupKey to ApplicationData.countryLookupKey
         )
 

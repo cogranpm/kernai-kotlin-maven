@@ -6,6 +6,7 @@ package com.parinherm
 import com.parinherm.builders.BeansViewBuilder
 import com.parinherm.builders.swtBuilder
 import com.parinherm.databinding.DataBindingView
+import com.parinherm.entity.BeanTest
 import com.parinherm.tests.BeansBindingTestData
 import com.parinherm.tests.TestData
 import org.eclipse.jface.action.*
@@ -63,7 +64,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         item.control = view
         //DataBindingView(TestData.data).makeView(folder)
 
-        val beansBindingView = BeansViewBuilder.renderView(folder, BeansBindingTestData.data, ApplicationData.ViewDef.beansBindingTestViewId)
+        val beansBindingView = BeansViewBuilder.renderView<BeanTest>(folder, BeansBindingTestData.data, ApplicationData.ViewDef.beansBindingTestViewId)
         beanBindingTestTab.control = beansBindingView
 
         /* this messes up the layout here or
