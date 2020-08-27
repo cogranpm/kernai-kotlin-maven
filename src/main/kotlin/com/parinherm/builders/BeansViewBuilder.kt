@@ -268,6 +268,7 @@ object BeansViewBuilder {
                val dir = comparator.getDirection()
                viewer.table.sortDirection = dir
                viewer.table.sortColumn = column
+               //println("Direction: $dir Column: $column")
                viewer.refresh()
            }
        })

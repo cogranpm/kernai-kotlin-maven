@@ -23,11 +23,12 @@ open class BeansViewerComparator : IViewerComparator, ViewerComparator() {
 
 
     override fun setColumn(column: Int) {
+        //println("SetColumn column:$column propertyIndex:$propertyIndex")
         if(column == propertyIndex){
             sort_direction = 1 - sort_direction
         } else {
-            this.propertyIndex = column
-            sort_direction = SWT.DOWN
+            propertyIndex = column
+            sort_direction = descending
         }
     }
 

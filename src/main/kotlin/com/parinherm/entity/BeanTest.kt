@@ -48,7 +48,7 @@ class BeanTest (name: String, income: BigDecimal, height: Double, age: Int, ente
                 age_index -> entity1.age.compareTo(entity2.age)
                 country_index -> compareLookups(entity1.country, entity2.country, ApplicationData.countryList)
                 enteredDate_index -> entity1.enteredDate.compareTo(entity2.enteredDate)
-                deceased_index -> if(entity1.deceased == entity2.deceased)  0 else 1
+                deceased_index -> if(entity1.deceased == entity2.deceased) 0 else 1
                 else -> 0
             }
             if(sort_direction == descending){
