@@ -174,7 +174,7 @@ object BeansViewBuilder {
                 }
             }
 
-            val column = getColumn(item[ApplicationData.ViewDef.title] as String, listView, tableLayout, columnIndex)
+            val column = getColumn(viewState.comparator, item[ApplicationData.ViewDef.title] as String, listView, tableLayout, columnIndex)
             viewState.addWidgetToViewState(fieldName + "_column", column)
             columnIndex++
         }
@@ -247,7 +247,7 @@ object BeansViewBuilder {
     }
 
 
-    private fun getColumn(caption: String,
+    private fun getColumn(comparator: BeansViewerComparator, caption: String,
                   viewer: TableViewer,
                   layout: TableColumnLayout,
                 columnIndex: Int) : TableViewerColumn {
@@ -257,15 +257,18 @@ object BeansViewBuilder {
         col.resizable = true
         col.moveable = true
         layout.setColumnData(col, ColumnWeightData(100))
-        col.addSelectionListener(getSelectionAdapter(col, columnIndex))
+        col.addSelectionListener(getSelectionAdapter(viewer, col, columnIndex, comparator))
         return column
     }
 
-    private fun getSelectionAdapter (column: TableColumn, index: Int) : SelectionAdapter {
+    private fun getSelectionAdapter (viewer: TableViewer, column: TableColumn, index: Int, comparator: BeansViewerComparator) : SelectionAdapter {
        val selectionAdapter = (object: SelectionAdapter() {
            override fun widgetSelected(e: SelectionEvent?) {
-                //comparator.setColumn(index)
-
+               comparator.setColumn(index)
+               val dir = comparator.getDirection()
+               viewer.table.sortDirection = dir
+               viewer.table.sortColumn = column
+               viewer.refresh()
            }
        })
         return selectionAdapter
