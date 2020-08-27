@@ -1,3 +1,18 @@
+/************************************************************
+ * BeansViewBuilder
+ * a function that returns a configured SWT/JFACE composite
+ * crud view that uses databinding
+ * and expects a JavaBean style entity that uses PropertyChange notifications
+ * because that is what JFace expects
+ * it's possible to databind a simple map of key/values but the functionality is limited
+ * ie how to get observable table viewer columns
+ * expects a Map argument that supplies the declarative configuration of the view
+ * it's expected these can be served from some kind of server in the future
+ * serialized and rehydrated on the client into a view
+ * idea is to allow more control from the server over the clients
+ * good for automatice updates and so on
+ */
+
 package com.parinherm.builders
 
 import com.parinherm.ApplicationData
@@ -33,6 +48,8 @@ import org.eclipse.jface.layout.TableColumnLayout
 import org.eclipse.jface.viewers.*
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.SashForm
+import org.eclipse.swt.events.SelectionAdapter
+import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.layout.FillLayout
@@ -43,8 +60,8 @@ import java.time.LocalDate
 
 object BeansViewBuilder {
 
-    fun <T> renderView(parent: Composite, data: List<T>, viewId: String): Composite {
-        val viewState = BeansViewState(data)
+    fun <T> renderView(parent: Composite, viewState: BeansViewState<T>, viewId: String): Composite {
+
         val form: Map<String, Any> = ApplicationData.getView(viewId)
         val composite = Composite(parent, ApplicationData.swnone)
         val sashForm = SashForm(composite, SWT.BORDER)
@@ -65,6 +82,7 @@ object BeansViewBuilder {
         // need a list of converters for column label content, ie from domain entity property to a string
         // ie from a Double to a String, this list is referenced by index when rendering the column label text
         val labelConverterList: MutableList<(element: Any?) -> String> = mutableListOf()
+        var columnIndex = 0
 
         val fields = form[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
         fields.forEach { item: Map<String, Any> ->
@@ -158,6 +176,7 @@ object BeansViewBuilder {
 
             val column = getColumn(item[ApplicationData.ViewDef.title] as String, listView, tableLayout)
             viewState.addWidgetToViewState(fieldName + "_column", column)
+            columnIndex++
         }
 
         //observable column support, but no control over the cell contents
@@ -227,7 +246,7 @@ object BeansViewBuilder {
     }
 
 
-    fun getColumn(caption: String,
+    private fun getColumn(caption: String,
                   viewer: TableViewer,
                   layout: TableColumnLayout) : TableViewerColumn {
         val column = TableViewerColumn(viewer, SWT.LEFT)
@@ -238,6 +257,17 @@ object BeansViewBuilder {
         layout.setColumnData(col, ColumnWeightData(100))
         return column
     }
+
+    private fun getSelectionAdapter (column: TableColumn, index: Int) : SelectionAdapter {
+       val selectionAdapter = (object: SelectionAdapter() {
+           override fun widgetSelected(e: SelectionEvent?) {
+                //comparator.setColumn(index)
+
+           }
+       })
+        return selectionAdapter
+    }
+
 
 
     fun <T> createDataBindings(viewState: BeansViewState<T>, selectedItem: T, fields: List<Map<String, Any>>) {

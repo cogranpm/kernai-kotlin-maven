@@ -71,6 +71,9 @@ object ViewBuilder {
         return viewDefinitions
     }
 
+
+    // YIKES, these won't serialize property now, gone beyond simple primitives
+    // with lambdas
     fun makeSampleBean(): Map<String, Any> {
         val firstNameDef = mapOf(
                 ViewDef.fieldName to "name",

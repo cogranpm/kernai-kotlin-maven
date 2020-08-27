@@ -4,6 +4,7 @@ package com.parinherm
 
 
 import com.parinherm.builders.BeansViewBuilder
+import com.parinherm.builders.BeansViewState
 import com.parinherm.builders.swtBuilder
 import com.parinherm.databinding.DataBindingView
 import com.parinherm.entity.BeanTest
@@ -64,7 +65,8 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         item.control = view
         //DataBindingView(TestData.data).makeView(folder)
 
-        val beansBindingView = BeansViewBuilder.renderView<BeanTest>(folder, BeansBindingTestData.data, ApplicationData.ViewDef.beansBindingTestViewId)
+        val viewState = BeansViewState<BeanTest>(BeansBindingTestData.data, BeanTest.Comparator())
+        val beansBindingView = BeansViewBuilder.renderView<BeanTest>(folder, viewState, ApplicationData.ViewDef.beansBindingTestViewId)
         beanBindingTestTab.control = beansBindingView
 
         /* this messes up the layout here or
