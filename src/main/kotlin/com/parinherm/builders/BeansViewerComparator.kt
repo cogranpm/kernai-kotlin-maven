@@ -16,18 +16,18 @@ open class BeansViewerComparator : IViewerComparator, ViewerComparator() {
 
     override fun getDirection() : Int {
         return when(sort_direction){
-            descending -> SWT.UP
-            else -> SWT.DOWN
+            descending -> SWT.DOWN
+            else -> SWT.UP
         }
     }
 
 
     override fun setColumn(column: Int) {
         if(column == propertyIndex){
-            sort_direction = sort_direction - 1
+            sort_direction = 1 - sort_direction
         } else {
             this.propertyIndex = column
-            sort_direction = descending
+            sort_direction = SWT.DOWN
         }
     }
 
