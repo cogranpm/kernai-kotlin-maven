@@ -174,7 +174,7 @@ object BeansViewBuilder {
                 }
             }
 
-            val column = getColumn(item[ApplicationData.ViewDef.title] as String, listView, tableLayout)
+            val column = getColumn(item[ApplicationData.ViewDef.title] as String, listView, tableLayout, columnIndex)
             viewState.addWidgetToViewState(fieldName + "_column", column)
             columnIndex++
         }
@@ -195,6 +195,7 @@ object BeansViewBuilder {
         listView.contentProvider = contentProvider
         listView.labelProvider = labelProvider
         listView.input = viewState.wl
+        listView.comparator = viewState.comparator
 
         val lblErrors = Label(editContainer, ApplicationData.labelStyle)
         viewState.addWidgetToViewState("lblErrors", lblErrors)
@@ -248,13 +249,15 @@ object BeansViewBuilder {
 
     private fun getColumn(caption: String,
                   viewer: TableViewer,
-                  layout: TableColumnLayout) : TableViewerColumn {
+                  layout: TableColumnLayout,
+                columnIndex: Int) : TableViewerColumn {
         val column = TableViewerColumn(viewer, SWT.LEFT)
         val col = column.column
         col.text = caption
         col.resizable = true
         col.moveable = true
         layout.setColumnData(col, ColumnWeightData(100))
+        col.addSelectionListener(getSelectionAdapter(col, columnIndex))
         return column
     }
 

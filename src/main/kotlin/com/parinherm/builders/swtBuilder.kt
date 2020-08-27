@@ -19,6 +19,7 @@ import org.eclipse.core.databinding.beans.typed.BeanProperties
 import org.eclipse.core.databinding.observable.Observables
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.core.databinding.observable.map.WritableMap
+import org.eclipse.core.databinding.observable.masterdetail.MasterDetailObservables
 import org.eclipse.core.databinding.observable.set.IObservableSet
 import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
@@ -258,6 +259,8 @@ object swtBuilder {
                     val target: ISWTObservableValue<String> = WidgetProperties.text<Text>(SWT.Modify).observe(
                         input)
                     val model: IObservableValue<Any> = Observables.observeMapEntry(selectedItem, fieldName)
+
+                    //val x = Observables.observeDetailMapEntry<String, Any>(selectedItem, model, null)
                    val bindInput = viewState.dbc.bindValue(target, model)
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
                 }

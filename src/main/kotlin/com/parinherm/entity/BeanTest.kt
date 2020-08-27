@@ -1,6 +1,8 @@
 package com.parinherm.entity
 
 import com.parinherm.ApplicationData
+import com.parinherm.builders.BeansViewerComparator
+import com.parinherm.builders.IViewerComparator
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.jface.viewers.ViewerComparator
 import org.eclipse.swt.SWT
@@ -25,7 +27,7 @@ class BeanTest (name: String, income: BigDecimal, height: Double, age: Int, ente
     var country: String by Delegates.observable(country, observer)
     var deceased: Boolean by Delegates.observable(deceased, observer)
 
-    class Comparator : ViewerComparator() {
+    class Comparator : BeansViewerComparator(), IViewerComparator{
 
         val name_index = 0
         val income_index = 1
@@ -35,30 +37,6 @@ class BeanTest (name: String, income: BigDecimal, height: Double, age: Int, ente
         val enteredDate_index = 5
         val deceased_index = 6
 
-        var propertyIndex: Int = 0
-        val descending: Int = 1
-        private var direction: Int = descending
-
-        init {
-
-        }
-
-        fun getDirection() : Int {
-            return when(direction){
-                descending -> SWT.UP
-                else -> SWT.DOWN
-            }
-        }
-
-
-        fun setColumn(column: Int) {
-            if(column == propertyIndex){
-                direction = direction - 1
-            } else {
-                this.propertyIndex = column
-                direction = descending
-            }
-        }
 
         override fun compare(viewer: Viewer?, e1: Any?, e2: Any?): Int {
             val entity1 = e1 as BeanTest
@@ -68,20 +46,12 @@ class BeanTest (name: String, income: BigDecimal, height: Double, age: Int, ente
                 income_index -> entity1.income.compareTo(entity2.income)
                 height_index -> entity1.height.compareTo(entity2.height)
                 age_index -> entity1.age.compareTo(entity2.age)
-                country_index -> {
-                    val country1 = ApplicationData.countryList.find { it.code == entity1.country }
-                    val country2 = ApplicationData.countryList.find { it.code == entity2.country }
-                    if (country1 != null && country2 != null){
-                        return country1.label.compareTo(country2.label)
-                    } else {
-                        return 0
-                    }
-                }
+                country_index -> compareLookups(entity1.country, entity2.country, ApplicationData.countryList)
                 enteredDate_index -> entity1.enteredDate.compareTo(entity2.enteredDate)
                 deceased_index -> if(entity1.deceased == entity2.deceased)  0 else 1
                 else -> 0
             }
-            if(direction == descending){
+            if(sort_direction == descending){
                 return -rc
             } else {
                 return rc

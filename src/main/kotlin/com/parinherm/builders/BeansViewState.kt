@@ -11,7 +11,7 @@ import org.eclipse.jface.layout.TableColumnLayout
 import org.eclipse.jface.viewers.*
 import org.eclipse.swt.SWT
 
-class BeansViewState <T> (data: List<T>, val comparator: ViewerComparator){
+class BeansViewState <T> (data: List<T>, val comparator: BeansViewerComparator){
     val wl = WritableList<T>()
     val widgets = mutableMapOf<String, Any>()
     var selectingFlag = false
