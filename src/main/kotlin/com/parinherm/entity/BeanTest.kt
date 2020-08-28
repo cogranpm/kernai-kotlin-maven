@@ -51,11 +51,7 @@ class BeanTest (name: String, income: BigDecimal, height: Double, age: Int, ente
                 deceased_index -> if(entity1.deceased == entity2.deceased) 0 else 1
                 else -> 0
             }
-            if(sort_direction == descending){
-                return -rc
-            } else {
-                return rc
-            }
+           return flipSortDirection(rc)
         }
 
     }

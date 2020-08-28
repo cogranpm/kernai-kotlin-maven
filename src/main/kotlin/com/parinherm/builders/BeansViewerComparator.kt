@@ -32,6 +32,14 @@ open class BeansViewerComparator : IViewerComparator, ViewerComparator() {
         }
     }
 
+    protected fun flipSortDirection(rc: Int) : Int {
+        if(sort_direction == descending){
+            return -rc
+        } else {
+            return rc
+        }
+    }
+
 
     //add implementations for sorting entities by all the types etc
     // especially lookups
