@@ -104,6 +104,7 @@ object ApplicationData {
         const val money = "money"
 
         const val fieldLabelConverter = "fieldLabelConverter"
+        const val required = "required"
 
 
     }

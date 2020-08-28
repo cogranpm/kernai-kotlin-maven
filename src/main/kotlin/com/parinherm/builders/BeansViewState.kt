@@ -2,6 +2,7 @@ package com.parinherm.builders
 
 import com.parinherm.entity.BeanTest
 import com.parinherm.entity.DirtyFlag
+import com.parinherm.entity.NewFlag
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.observable.ChangeEvent
 import org.eclipse.core.databinding.observable.IChangeListener
@@ -17,6 +18,7 @@ class BeansViewState <T> (data: List<T>, val comparator: BeansViewerComparator){
     var selectingFlag = false
     val dbc = DataBindingContext()
     var dirtyFlag: DirtyFlag = DirtyFlag(false)
+    var newFlag: NewFlag = NewFlag(false)
 
     init {
         wl.addAll(data)

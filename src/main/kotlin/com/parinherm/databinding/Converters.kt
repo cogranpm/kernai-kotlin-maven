@@ -8,6 +8,7 @@ import java.math.BigDecimal
 import org.eclipse.core.databinding.conversion.Converter
 import org.eclipse.core.databinding.conversion.IConverter
 import org.eclipse.core.databinding.validation.ValidationStatus
+import org.eclipse.core.runtime.IStatus
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -26,6 +27,7 @@ import java.util.*
 
 object Converters {
 
+    //these need to be deleted, hard wires the Strategy to the converter
     val updToDouble = UpdateValueStrategy<String, Double>(UpdateValueStrategy.POLICY_UPDATE).setConverter(
         StringToNumberConverter.toDouble(true))
     val updFromDouble = UpdateValueStrategy<Double, String>(UpdateValueStrategy.POLICY_UPDATE).setConverter(
@@ -37,7 +39,7 @@ object Converters {
     val updToBigDecimal = UpdateValueStrategy<String, BigDecimal>(UpdateValueStrategy.POLICY_UPDATE).setConverter(StringToNumberConverter.toBigDecimal())
     val updFromBigDecimal = UpdateValueStrategy<BigDecimal, String>(UpdateValueStrategy.POLICY_UPDATE).setConverter(NumberToStringConverter.fromBigDecimal())
 
-    val numberValidator = {x: Any ->
+    val numberValidator = {x: String? ->
         val regex = "^[+-]?(\\d+(,\\d{3})*)$".toRegex()
         if(regex.matches(x.toString())){
             ValidationStatus.ok()
@@ -46,7 +48,7 @@ object Converters {
         }
     }
 
-    val floatValidator = {x: Any ->
+    val floatValidator = { x: String? ->
         val regex = "[0-9]+(\\.){0,1}[0-9]*".toRegex()
         if(regex.matches(x.toString())){
             ValidationStatus.ok()
@@ -55,7 +57,7 @@ object Converters {
         }
     }
 
-    val bigDecimalValidator = {x: String ->
+    val bigDecimalValidator = {x: String? ->
         try {
             val format = DecimalFormat("", DecimalFormatSymbols(Locale.ENGLISH))
                 .parse(x)
@@ -68,18 +70,14 @@ object Converters {
 
 
     //converting from a combo lookup to a field type, say string
-    val convertFromLookup: IConverter<LookupDetail, String> = IConverter.create<LookupDetail, String> {it.code }
-    fun convertToLookup( list: List<LookupDetail>) : IConverter<String, LookupDetail> {
+    val convertFromLookup: IConverter<LookupDetail, String?> = IConverter.create<LookupDetail, String?> {it.code }
+    fun convertToLookup( list: List<LookupDetail>) : IConverter<String?, LookupDetail> {
         return IConverter.create<String, LookupDetail>{
             item: String -> list.find { it.code == item }
         }
     }
 
-
     init {
-       updToInt.setAfterGetValidator(numberValidator)
-       updToDouble.setAfterGetValidator(floatValidator)
-       updToBigDecimal.setAfterGetValidator(bigDecimalValidator)
     }
 
 }

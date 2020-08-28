@@ -3,7 +3,7 @@ package com.parinherm.entity
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
-class DirtyFlag (dirty: Boolean) : ModelObject() {
+class NewFlag(isNew: Boolean = false) : ModelObject() {
 
     private val observer = {
         property: KProperty<*>,
@@ -11,10 +11,11 @@ class DirtyFlag (dirty: Boolean) : ModelObject() {
         newValue: Any -> changeSupport.firePropertyChange(property.name, oldValue, newValue)
     }
 
-    var dirty: Boolean by Delegates.observable(dirty, observer)
+    var isNew: Boolean by Delegates.observable(isNew, observer)
 
     init{
     }
+
 
 
 }

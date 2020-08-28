@@ -17,7 +17,10 @@ package com.parinherm.builders
 
 import com.parinherm.ApplicationData
 import com.parinherm.databinding.Converters
+import com.parinherm.databinding.Converters.bigDecimalValidator
+import com.parinherm.databinding.Converters.floatValidator
 import com.parinherm.databinding.DateTimeSelectionProperty
+import com.parinherm.databinding.ValidationRequired
 //import com.parinherm.entity.BeanTest
 import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.LookupDetail
@@ -28,6 +31,8 @@ import org.eclipse.core.databinding.ValidationStatusProvider
 import org.eclipse.core.databinding.beans.IBeanValueProperty
 import org.eclipse.core.databinding.beans.typed.BeanProperties
 import org.eclipse.core.databinding.beans.typed.PojoProperties
+import org.eclipse.core.databinding.conversion.text.NumberToStringConverter
+import org.eclipse.core.databinding.conversion.text.StringToNumberConverter
 import org.eclipse.core.databinding.observable.Observables
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.core.databinding.observable.map.IObservableMap
@@ -36,6 +41,8 @@ import org.eclipse.core.databinding.observable.set.IObservableSet
 import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.core.databinding.property.Properties
 import org.eclipse.core.databinding.property.value.IValueProperty
+import org.eclipse.core.databinding.validation.IValidator
+import org.eclipse.core.databinding.validation.ValidationStatus
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
 import org.eclipse.jface.databinding.swt.ISWTObservableValue
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
@@ -268,7 +275,6 @@ object BeansViewBuilder {
                val dir = comparator.getDirection()
                viewer.table.sortDirection = dir
                viewer.table.sortColumn = column
-               //println("Direction: $dir Column: $column")
                viewer.refresh()
            }
        })
@@ -288,54 +294,67 @@ object BeansViewBuilder {
         }
 
         fields.forEach { item: Map<String, Any> ->
+            val fieldTitle = item[ApplicationData.ViewDef.title] as String
             val fieldName = item[ApplicationData.ViewDef.fieldName] as String
             when (item[ApplicationData.ViewDef.fieldDataType]) {
                 ApplicationData.ViewDef.text -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as Text
                     val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
                     val model = BeanProperties.value<T, String>(fieldName).observe(selectedItem)
-                    val bindInput = viewState.dbc.bindValue(target, model)
+                    val modelToTarget = UpdateValueStrategy<String?, String?>(UpdateValueStrategy.POLICY_UPDATE)
+                    val targetToModel = UpdateValueStrategy<String?, String?>(UpdateValueStrategy.POLICY_UPDATE)
+                    if (item[ApplicationData.ViewDef.required] as Boolean) {
+                        targetToModel.setAfterConvertValidator(ValidationRequired(fieldTitle))
+                    }
+                    val bindInput = viewState.dbc.bindValue(target, model, targetToModel, modelToTarget)
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
+
                 }
                 ApplicationData.ViewDef.float -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as Text
                     val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
                     val model: IObservableValue<Double> = BeanProperties.value<T, Double>(fieldName).observe(selectedItem)
-                    val bindHeight = viewState.dbc.bindValue<String, Double>(
-                            target, model,
-                            Converters.updToDouble,
-                            Converters.updFromDouble
-                    )
-                    ControlDecorationSupport.create(bindHeight, SWT.TOP or SWT.LEFT)
+                    val targetToModel = UpdateValueStrategy<String?, Double?>(UpdateValueStrategy.POLICY_UPDATE)
+                    val modelToTarget = UpdateValueStrategy<Double?, String?>(UpdateValueStrategy.POLICY_UPDATE)
+                    targetToModel.setConverter(StringToNumberConverter.toDouble(true))
+                    targetToModel.setAfterGetValidator(floatValidator)
+                    modelToTarget.setConverter(NumberToStringConverter.fromDouble(true))
+                    val bindInput = viewState.dbc.bindValue<String, Double>(target, model, targetToModel, modelToTarget)
+                    ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
                 }
                 ApplicationData.ViewDef.money -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as Text
                     val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
                     val model: IObservableValue<BigDecimal> = BeanProperties.value<T, BigDecimal>(fieldName).observe(selectedItem)
-                    val bindInput = viewState.dbc.bindValue(
-                            target, model,
-                            Converters.updToBigDecimal,
-                            Converters.updFromBigDecimal
-                    )
+                    val targetToModel = UpdateValueStrategy<String?, BigDecimal?>(UpdateValueStrategy.POLICY_UPDATE)
+                    val modelToTarget = UpdateValueStrategy<BigDecimal?, String?>(UpdateValueStrategy.POLICY_UPDATE)
+                    targetToModel.setAfterGetValidator(bigDecimalValidator)
+                    val bindInput = viewState.dbc.bindValue(target, model, targetToModel, modelToTarget)
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
                 }
                 ApplicationData.ViewDef.int -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as Spinner
                     val target = WidgetProperties.spinnerSelection().observe(input)
                     val model = BeanProperties.value<T, Int>(fieldName).observe(selectedItem)
-                    val bindInput = viewState.dbc.bindValue<Int, Int>(target, model)
+                    val targetToModel = UpdateValueStrategy<Int?, Int?>(UpdateValueStrategy.POLICY_UPDATE)
+                    val modelToTarget = UpdateValueStrategy<Int?, Int?>(UpdateValueStrategy.POLICY_UPDATE)
+                    val bindInput = viewState.dbc.bindValue<Int, Int>(target, model, targetToModel, modelToTarget)
                 }
                 ApplicationData.ViewDef.bool -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as Button
                     val target = WidgetProperties.buttonSelection().observe(input)
                     val model =  BeanProperties.value<T, Boolean>(fieldName).observe(selectedItem)
-                    val bindInput = viewState.dbc.bindValue(target, model)
+                    val targetToModel = UpdateValueStrategy<Boolean?, Boolean?>(UpdateValueStrategy.POLICY_UPDATE)
+                    val modelToTarget = UpdateValueStrategy<Boolean?, Boolean?>(UpdateValueStrategy.POLICY_UPDATE)
+                    val bindInput = viewState.dbc.bindValue<Boolean, Boolean>(target, model, targetToModel, modelToTarget)
                 }
                 ApplicationData.ViewDef.datetime -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as DateTime
                     val inputProperty: DateTimeSelectionProperty = DateTimeSelectionProperty()
                     val target = inputProperty.observe(input)
                     val model = BeanProperties.value<T, LocalDate>(fieldName).observe(selectedItem)
+                    val targetToModel = UpdateValueStrategy<String?, LocalDate?>(UpdateValueStrategy.POLICY_UPDATE)
+                    val modelToTarget = UpdateValueStrategy<LocalDate?, String?>(UpdateValueStrategy.POLICY_UPDATE)
                     val bindInput = viewState.dbc.bindValue(target, model)
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
                 }
@@ -345,11 +364,12 @@ object BeansViewBuilder {
                     val target: IObservableValue<LookupDetail> =
                             ViewerProperties.singleSelection<ComboViewer, LookupDetail>().observeDelayed(1, input)
                     val model = BeanProperties.value<T, String>(fieldName).observe(selectedItem)
-                    val bindInput = viewState.dbc.bindValue(
-                            target, model,
-                            UpdateValueStrategy.create<LookupDetail, String>(Converters.convertFromLookup),
-                            UpdateValueStrategy.create<String, LookupDetail>(Converters.convertToLookup(comboSource))
-                    )
+                    val targetToModel = UpdateValueStrategy<LookupDetail, String>(UpdateValueStrategy.POLICY_UPDATE)
+                    val modelToTarget = UpdateValueStrategy<String?, LookupDetail>(UpdateValueStrategy.POLICY_UPDATE)
+                    targetToModel.setConverter(Converters.convertFromLookup)
+                    modelToTarget.setConverter(Converters.convertToLookup(comboSource))
+                    val bindInput = viewState.dbc.bindValue<LookupDetail, String?>(target, model, targetToModel, modelToTarget)
+                    ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
                 }
                 else -> {
                 }
@@ -359,15 +379,15 @@ object BeansViewBuilder {
                 it.target.addChangeListener(viewState.listener)
             }
 
+            val validationObserver = AggregateValidationStatus(viewState.dbc.bindings, AggregateValidationStatus.MAX_SEVERITY)
             val errorObservable: IObservableValue<String> = WidgetProperties.text<Label>().observe(
                     viewState.getWidgetFromViewState("lblErrors") as Label)
-            val allValidationBinding: Binding = viewState.dbc.bindValue(errorObservable,
-                    AggregateValidationStatus(viewState.dbc.bindings, AggregateValidationStatus.MAX_SEVERITY), null, null)
+            val allValidationBinding: Binding = viewState.dbc.bindValue(errorObservable, validationObserver, null, null)
 
 
             //save button binding
-            val targetSave = WidgetProperties.enabled<Button>().observe(
-                    viewState.getWidgetFromViewState("btnSave") as Button)
+            val btnSave = viewState.getWidgetFromViewState("btnSave") as Button
+            val targetSave = WidgetProperties.enabled<Button>().observe(btnSave)
             val modelDirty = BeanProperties.value<DirtyFlag, Boolean>("dirty").observe(viewState.dirtyFlag)
             val bindSave = viewState.dbc.bindValue(targetSave, modelDirty)
 

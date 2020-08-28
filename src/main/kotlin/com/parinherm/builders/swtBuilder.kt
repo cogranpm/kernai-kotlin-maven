@@ -16,12 +16,15 @@ import com.parinherm.entity.IDataEntity
 import com.parinherm.entity.LookupDetail
 import org.eclipse.core.databinding.*
 import org.eclipse.core.databinding.beans.typed.BeanProperties
+import org.eclipse.core.databinding.conversion.text.NumberToStringConverter
+import org.eclipse.core.databinding.conversion.text.StringToNumberConverter
 import org.eclipse.core.databinding.observable.Observables
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.core.databinding.observable.map.WritableMap
 import org.eclipse.core.databinding.observable.masterdetail.MasterDetailObservables
 import org.eclipse.core.databinding.observable.set.IObservableSet
 import org.eclipse.core.databinding.observable.value.IObservableValue
+import org.eclipse.core.databinding.validation.IValidator
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
 import org.eclipse.jface.databinding.swt.ISWTObservableValue
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
@@ -269,11 +272,18 @@ object swtBuilder {
                     val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
                     val model: IObservableValue<Double> =
                         Observables.observeMapEntry(selectedItem as WritableMap<String, Double>, fieldName)
-                    val bindHeight = viewState.dbc.bindValue<String, Double>(
-                        target, model,
-                        Converters.updToDouble,
-                        Converters.updFromDouble
-                    )
+                    val targetToModel = UpdateValueStrategy<String?, Double?>(UpdateValueStrategy.POLICY_UPDATE)
+                    val modelToTarget = UpdateValueStrategy<Double?, String?>(UpdateValueStrategy.POLICY_UPDATE)
+                    targetToModel.setConverter(StringToNumberConverter.toDouble(true))
+                    targetToModel.setAfterGetValidator(Converters.floatValidator as IValidator<in String?>)
+                    //modelToTarget.setAfterGetValidator(floatValidator)
+                    modelToTarget.setConverter(NumberToStringConverter.fromDouble(true))
+                    val bindHeight = viewState.dbc.bindValue<String, Double>(target, model, targetToModel, modelToTarget)
+//                    val bindHeight = viewState.dbc.bindValue<String, Double>(
+//                        target, model,
+//                        Converters.updToDouble,
+//                        Converters.updFromDouble
+//                    )
                     ControlDecorationSupport.create(bindHeight, SWT.TOP or SWT.LEFT)
                 }
                 ViewDef.money -> {
