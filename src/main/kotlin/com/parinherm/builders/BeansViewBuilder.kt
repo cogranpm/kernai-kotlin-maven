@@ -20,6 +20,7 @@ import com.parinherm.databinding.Converters
 import com.parinherm.databinding.Converters.bigDecimalValidator
 import com.parinherm.databinding.Converters.floatValidator
 import com.parinherm.databinding.DateTimeSelectionProperty
+import com.parinherm.databinding.FloatValidation
 import com.parinherm.databinding.ValidationRequired
 //import com.parinherm.entity.BeanTest
 import com.parinherm.entity.DirtyFlag
@@ -317,7 +318,7 @@ object BeansViewBuilder {
                     val targetToModel = UpdateValueStrategy<String?, Double?>(UpdateValueStrategy.POLICY_UPDATE)
                     val modelToTarget = UpdateValueStrategy<Double?, String?>(UpdateValueStrategy.POLICY_UPDATE)
                     targetToModel.setConverter(StringToNumberConverter.toDouble(true))
-                    targetToModel.setAfterGetValidator(floatValidator)
+                    targetToModel.setAfterGetValidator(FloatValidation(fieldTitle))
                     modelToTarget.setConverter(NumberToStringConverter.fromDouble(true))
                     val bindInput = viewState.dbc.bindValue<String, Double>(target, model, targetToModel, modelToTarget)
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)

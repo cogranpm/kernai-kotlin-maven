@@ -15,3 +15,4 @@ class ValidationRequired (val fieldTitle: String) : IValidator<String?> {
 
     }
 }
+
