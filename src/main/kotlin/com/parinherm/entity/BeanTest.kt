@@ -7,17 +7,13 @@ import org.eclipse.jface.viewers.Viewer
 import org.eclipse.jface.viewers.ViewerComparator
 import org.eclipse.swt.SWT
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.time.LocalDate
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
-class BeanTest (name: String, income: BigDecimal, height: Double, age: Int, enteredDate: LocalDate, country: String, deceased: Boolean ) : ModelObject() {
+class BeanTest (override var id: Long = 0, name: String, income: BigDecimal, height: Double, age: Int, enteredDate: LocalDate, country: String, deceased: Boolean ) : ModelObject(), IBeanDataEntity {
 
-    private val observer = {
-        property: KProperty<*>,
-        oldValue: Any,
-        newValue: Any -> changeSupport.firePropertyChange(property.name, oldValue, newValue)
-    }
 
     var name: String by Delegates.observable(name, observer)
     var income: BigDecimal by Delegates.observable(income, observer)
@@ -26,6 +22,8 @@ class BeanTest (name: String, income: BigDecimal, height: Double, age: Int, ente
     var enteredDate: LocalDate by Delegates.observable(enteredDate, observer)
     var country: String by Delegates.observable(country, observer)
     var deceased: Boolean by Delegates.observable(deceased, observer)
+
+
 
     class Comparator : BeansViewerComparator(), IViewerComparator{
 
@@ -54,6 +52,10 @@ class BeanTest (name: String, income: BigDecimal, height: Double, age: Int, ente
            return flipSortDirection(rc)
         }
 
+    }
+
+    override fun toString(): String {
+        return "BeanTest(id=$id, name=$name, income=$income, height=$height, age=$age, country=$country, enteredDate=$enteredDate, deceased=$deceased)"
     }
 }
 

@@ -65,7 +65,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         item.control = view
         //DataBindingView(TestData.data).makeView(folder)
 
-        val viewState = BeansViewState<BeanTest>(BeansBindingTestData.data, BeanTest.Comparator())
+        val viewState = BeansViewState<BeanTest>(BeansBindingTestData.data, BeansBindingTestData::make, BeanTest.Comparator())
         val beansBindingView = BeansViewBuilder.renderView<BeanTest>(folder, viewState, ApplicationData.ViewDef.beansBindingTestViewId)
         beanBindingTestTab.control = beansBindingView
 

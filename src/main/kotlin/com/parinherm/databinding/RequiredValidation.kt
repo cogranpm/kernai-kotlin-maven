@@ -5,7 +5,7 @@ import org.eclipse.core.databinding.validation.ValidationStatus
 import org.eclipse.core.runtime.IStatus
 import org.eclipse.core.runtime.Status
 
-class ValidationRequired (val fieldTitle: String) : IValidator<String?> {
+class RequiredValidation (val fieldTitle: String) : IValidator<String?> {
     override fun validate(value: String?): IStatus {
        if(value.isNullOrEmpty()) {
            return ValidationStatus.error("$fieldTitle is required")

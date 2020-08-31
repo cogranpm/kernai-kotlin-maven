@@ -19,6 +19,13 @@ open class ModelObject {
     fun firePropertyChange(propertyName: String, oldValue: Any, newValue: Any){
        changeSupport.firePropertyChange(propertyName, oldValue, newValue)
     }
+
+    protected val observer = {
+        property: KProperty<*>,
+        oldValue: Any,
+        newValue: Any -> changeSupport.firePropertyChange(property.name, oldValue, newValue)
+    }
+
 }
 
 
