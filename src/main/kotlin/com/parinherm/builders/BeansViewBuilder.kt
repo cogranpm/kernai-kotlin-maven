@@ -16,11 +16,8 @@
 package com.parinherm.builders
 
 import com.parinherm.ApplicationData
-import com.parinherm.databinding.Converters
+import com.parinherm.databinding.*
 import com.parinherm.databinding.Converters.bigDecimalValidator
-import com.parinherm.databinding.DateTimeSelectionProperty
-import com.parinherm.databinding.FloatValidation
-import com.parinherm.databinding.RequiredValidation
 //import com.parinherm.entity.BeanTest
 import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
@@ -308,7 +305,7 @@ object BeansViewBuilder {
                     val modelToTarget = UpdateValueStrategy<String?, String?>(ApplicationData.defaultUpdatePolicy)
                     val targetToModel = UpdateValueStrategy<String?, String?>(ApplicationData.defaultUpdatePolicy)
                     if (item[ApplicationData.ViewDef.required] as Boolean) {
-                        targetToModel.setAfterConvertValidator(RequiredValidation(fieldTitle))
+                        targetToModel.setAfterConvertValidator(CompositeValidator(listOf(RequiredValidation(fieldTitle))))
                     }
                     val bindInput = viewState.dbc.bindValue(target, model, targetToModel, modelToTarget)
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
