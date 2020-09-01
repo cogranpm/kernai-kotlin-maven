@@ -2,6 +2,7 @@ package com.parinherm
 
 import com.parinherm.entity.LookupDetail
 import com.parinherm.server.ViewBuilder
+import org.eclipse.core.databinding.UpdateValueStrategy
 import org.eclipse.jface.resource.ImageDescriptor
 import org.eclipse.jface.resource.ImageRegistry
 import org.eclipse.swt.SWT
@@ -29,6 +30,8 @@ object ApplicationData {
 
     val views = ViewBuilder.makeDefinitions()
     const val countryLookupKey = "country"
+
+    val defaultUpdatePolicy = UpdateValueStrategy.POLICY_UPDATE  //UpdateValueStrategy.POLICY_ON_REQUEST
 
     init {
 

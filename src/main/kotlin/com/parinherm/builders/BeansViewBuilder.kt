@@ -221,6 +221,10 @@ object BeansViewBuilder {
         viewState.addWidgetToViewState("btnSave", btnSave)
         btnSave.enabled = false
         btnSave.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
+
+            // needed if ApplicationData.defaultUpdatePolicy = UpdateValueStrategy.POLICY_ON_REQUEST
+            //viewState.dbc.updateModels()
+
             viewState.dirtyFlag.dirty = false
             // debug the fields of the selected item
 
@@ -301,8 +305,8 @@ object BeansViewBuilder {
                     val input = viewState.getWidgetFromViewState(fieldName) as Text
                     val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
                     val model = BeanProperties.value<T, String>(fieldName).observe(viewState.currentItem)
-                    val modelToTarget = UpdateValueStrategy<String?, String?>(UpdateValueStrategy.POLICY_UPDATE)
-                    val targetToModel = UpdateValueStrategy<String?, String?>(UpdateValueStrategy.POLICY_UPDATE)
+                    val modelToTarget = UpdateValueStrategy<String?, String?>(ApplicationData.defaultUpdatePolicy)
+                    val targetToModel = UpdateValueStrategy<String?, String?>(ApplicationData.defaultUpdatePolicy)
                     if (item[ApplicationData.ViewDef.required] as Boolean) {
                         targetToModel.setAfterConvertValidator(RequiredValidation(fieldTitle))
                     }
@@ -314,8 +318,8 @@ object BeansViewBuilder {
                     val input = viewState.getWidgetFromViewState(fieldName) as Text
                     val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
                     val model: IObservableValue<Double> = BeanProperties.value<T, Double>(fieldName).observe(viewState.currentItem)
-                    val targetToModel = UpdateValueStrategy<String?, Double?>(UpdateValueStrategy.POLICY_UPDATE)
-                    val modelToTarget = UpdateValueStrategy<Double?, String?>(UpdateValueStrategy.POLICY_UPDATE)
+                    val targetToModel = UpdateValueStrategy<String?, Double?>(ApplicationData.defaultUpdatePolicy)
+                    val modelToTarget = UpdateValueStrategy<Double?, String?>(ApplicationData.defaultUpdatePolicy)
                     targetToModel.setConverter(StringToNumberConverter.toDouble(true))
                     targetToModel.setAfterGetValidator(FloatValidation(fieldTitle))
                     modelToTarget.setConverter(NumberToStringConverter.fromDouble(true))
@@ -326,8 +330,8 @@ object BeansViewBuilder {
                     val input = viewState.getWidgetFromViewState(fieldName) as Text
                     val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
                     val model: IObservableValue<BigDecimal> = BeanProperties.value<T, BigDecimal>(fieldName).observe(viewState.currentItem)
-                    val targetToModel = UpdateValueStrategy<String?, BigDecimal?>(UpdateValueStrategy.POLICY_UPDATE)
-                    val modelToTarget = UpdateValueStrategy<BigDecimal?, String?>(UpdateValueStrategy.POLICY_UPDATE)
+                    val targetToModel = UpdateValueStrategy<String?, BigDecimal?>(ApplicationData.defaultUpdatePolicy)
+                    val modelToTarget = UpdateValueStrategy<BigDecimal?, String?>(ApplicationData.defaultUpdatePolicy)
                     targetToModel.setAfterGetValidator(bigDecimalValidator)
                     val bindInput = viewState.dbc.bindValue(target, model, targetToModel, modelToTarget)
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
@@ -336,16 +340,16 @@ object BeansViewBuilder {
                     val input = viewState.getWidgetFromViewState(fieldName) as Spinner
                     val target = WidgetProperties.spinnerSelection().observe(input)
                     val model = BeanProperties.value<T, Int>(fieldName).observe(viewState.currentItem)
-                    val targetToModel = UpdateValueStrategy<Int?, Int?>(UpdateValueStrategy.POLICY_UPDATE)
-                    val modelToTarget = UpdateValueStrategy<Int?, Int?>(UpdateValueStrategy.POLICY_UPDATE)
+                    val targetToModel = UpdateValueStrategy<Int?, Int?>(ApplicationData.defaultUpdatePolicy)
+                    val modelToTarget = UpdateValueStrategy<Int?, Int?>(ApplicationData.defaultUpdatePolicy)
                     val bindInput = viewState.dbc.bindValue<Int, Int>(target, model, targetToModel, modelToTarget)
                 }
                 ApplicationData.ViewDef.bool -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as Button
                     val target = WidgetProperties.buttonSelection().observe(input)
                     val model =  BeanProperties.value<T, Boolean>(fieldName).observe(viewState.currentItem)
-                    val targetToModel = UpdateValueStrategy<Boolean?, Boolean?>(UpdateValueStrategy.POLICY_UPDATE)
-                    val modelToTarget = UpdateValueStrategy<Boolean?, Boolean?>(UpdateValueStrategy.POLICY_UPDATE)
+                    val targetToModel = UpdateValueStrategy<Boolean?, Boolean?>(ApplicationData.defaultUpdatePolicy)
+                    val modelToTarget = UpdateValueStrategy<Boolean?, Boolean?>(ApplicationData.defaultUpdatePolicy)
                     val bindInput = viewState.dbc.bindValue<Boolean, Boolean>(target, model, targetToModel, modelToTarget)
                 }
                 ApplicationData.ViewDef.datetime -> {
@@ -353,8 +357,8 @@ object BeansViewBuilder {
                     val inputProperty: DateTimeSelectionProperty = DateTimeSelectionProperty()
                     val target = inputProperty.observe(input)
                     val model = BeanProperties.value<T, LocalDate>(fieldName).observe(viewState.currentItem)
-                    val targetToModel = UpdateValueStrategy<String?, LocalDate?>(UpdateValueStrategy.POLICY_UPDATE)
-                    val modelToTarget = UpdateValueStrategy<LocalDate?, String?>(UpdateValueStrategy.POLICY_UPDATE)
+                    val targetToModel = UpdateValueStrategy<String?, LocalDate?>(ApplicationData.defaultUpdatePolicy)
+                    val modelToTarget = UpdateValueStrategy<LocalDate?, String?>(ApplicationData.defaultUpdatePolicy)
                     val bindInput = viewState.dbc.bindValue(target, model)
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
                 }
@@ -364,8 +368,8 @@ object BeansViewBuilder {
                     val target: IObservableValue<LookupDetail> =
                             ViewerProperties.singleSelection<ComboViewer, LookupDetail>().observeDelayed(1, input)
                     val model = BeanProperties.value<T, String>(fieldName).observe(viewState.currentItem)
-                    val targetToModel = UpdateValueStrategy<LookupDetail, String>(UpdateValueStrategy.POLICY_UPDATE)
-                    val modelToTarget = UpdateValueStrategy<String?, LookupDetail>(UpdateValueStrategy.POLICY_UPDATE)
+                    val targetToModel = UpdateValueStrategy<LookupDetail, String>(ApplicationData.defaultUpdatePolicy)
+                    val modelToTarget = UpdateValueStrategy<String?, LookupDetail>(ApplicationData.defaultUpdatePolicy)
                     targetToModel.setConverter(Converters.convertFromLookup)
                     modelToTarget.setConverter(Converters.convertToLookup(comboSource))
                     val bindInput = viewState.dbc.bindValue<LookupDetail, String?>(target, model, targetToModel, modelToTarget)
@@ -390,6 +394,9 @@ object BeansViewBuilder {
             val targetSave = WidgetProperties.enabled<Button>().observe(btnSave)
             val modelDirty = BeanProperties.value<DirtyFlag, Boolean>("dirty").observe(viewState.dirtyFlag)
             val bindSave = viewState.dbc.bindValue(targetSave, modelDirty)
+
+            // needed if ApplicationData.defaultUpdatePolicy = UpdateValueStrategy.POLICY_ON_REQUEST
+            //viewState.dbc.updateTargets()
 
         }
     }
