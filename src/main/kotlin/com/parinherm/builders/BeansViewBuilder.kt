@@ -27,11 +27,13 @@ import org.eclipse.core.databinding.Binding
 import org.eclipse.core.databinding.UpdateValueStrategy
 import org.eclipse.core.databinding.ValidationStatusProvider
 import org.eclipse.core.databinding.beans.typed.BeanProperties
+import org.eclipse.core.databinding.conversion.IConverter
 import org.eclipse.core.databinding.conversion.text.NumberToStringConverter
 import org.eclipse.core.databinding.conversion.text.StringToNumberConverter
 import org.eclipse.core.databinding.observable.map.IObservableMap
 import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.core.databinding.property.value.IValueProperty
+import org.eclipse.core.runtime.IStatus
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
@@ -392,10 +394,22 @@ object BeansViewBuilder {
             val modelDirty = BeanProperties.value<DirtyFlag, Boolean>("dirty").observe(viewState.dirtyFlag)
             val bindSave = viewState.dbc.bindValue(targetSave, modelDirty)
 
+            //save button enabled only if valid
+            val targetToModel = UpdateValueStrategy<IStatus?, Boolean>(UpdateValueStrategy.POLICY_NEVER)
+            targetToModel.setConverter(IConverter.create {x: IStatus? ->
+                if (x != null) {
+                    x?.isOK
+                } else {
+                    false
+                }
+            })
+            //val bindSaveToValid = viewState.dbc.bindValue(validationObserver, targetSave, targetToModel, null)
+
             // needed if ApplicationData.defaultUpdatePolicy = UpdateValueStrategy.POLICY_ON_REQUEST
             //viewState.dbc.updateTargets()
 
         }
+
     }
 }
 
