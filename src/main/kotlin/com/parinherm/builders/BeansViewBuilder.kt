@@ -15,10 +15,10 @@
 
 package com.parinherm.builders
 
+//import com.parinherm.entity.BeanTest
 import com.parinherm.ApplicationData
 import com.parinherm.databinding.*
 import com.parinherm.databinding.Converters.bigDecimalValidator
-//import com.parinherm.entity.BeanTest
 import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.LookupDetail
@@ -27,14 +27,14 @@ import org.eclipse.core.databinding.Binding
 import org.eclipse.core.databinding.UpdateValueStrategy
 import org.eclipse.core.databinding.ValidationStatusProvider
 import org.eclipse.core.databinding.beans.typed.BeanProperties
-import org.eclipse.core.databinding.conversion.IConverter
 import org.eclipse.core.databinding.conversion.text.NumberToStringConverter
 import org.eclipse.core.databinding.conversion.text.StringToNumberConverter
 import org.eclipse.core.databinding.observable.map.IObservableMap
+import org.eclipse.core.databinding.observable.value.ComputedValue
 import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.core.databinding.property.value.IValueProperty
-import org.eclipse.core.runtime.IStatus
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
+import org.eclipse.jface.databinding.swt.ISWTObservableValue
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
@@ -90,7 +90,7 @@ object BeansViewBuilder {
                     val input = Text(editContainer, ApplicationData.swnone)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
                     viewState.addWidgetToViewState(fieldName, input)
-                    
+
                     /* column observables */
                     val observableColumn: IValueProperty<T, String> = BeanProperties.value<T, String>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
@@ -122,7 +122,7 @@ object BeansViewBuilder {
                     input.maximum = Integer.MAX_VALUE
                     GridDataFactory.fillDefaults().grab(false, false).applyTo(input)
                     viewState.addWidgetToViewState(fieldName, input)
-                    
+
                     /* column observables */
                     val observableColumn: IValueProperty<T, Int> = BeanProperties.value<T, Int>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
@@ -227,7 +227,7 @@ object BeansViewBuilder {
             viewState.dirtyFlag.dirty = false
             // debug the fields of the selected item
 
-            if(viewState.currentItem?.id == 0L){
+            if (viewState.currentItem?.id == 0L) {
                 viewState.currentItem?.id = (viewState.wl.size + 1L)
                 viewState.wl.add(viewState.currentItem)
                 listView.selection = StructuredSelection(viewState.currentItem)
@@ -258,9 +258,9 @@ object BeansViewBuilder {
 
 
     private fun getColumn(comparator: BeansViewerComparator, caption: String,
-                  viewer: TableViewer,
-                  layout: TableColumnLayout,
-                columnIndex: Int) : TableViewerColumn {
+                          viewer: TableViewer,
+                          layout: TableColumnLayout,
+                          columnIndex: Int) : TableViewerColumn {
         val column = TableViewerColumn(viewer, SWT.LEFT)
         val col = column.column
         col.text = caption
@@ -271,7 +271,7 @@ object BeansViewBuilder {
         return column
     }
 
-    private fun getSelectionAdapter (viewer: TableViewer, column: TableColumn, index: Int, comparator: BeansViewerComparator) : SelectionAdapter {
+    private fun getSelectionAdapter(viewer: TableViewer, column: TableColumn, index: Int, comparator: BeansViewerComparator) : SelectionAdapter {
        val selectionAdapter = (object: SelectionAdapter() {
            override fun widgetSelected(e: SelectionEvent?) {
                comparator.setColumn(index)
@@ -307,6 +307,7 @@ object BeansViewBuilder {
                     val modelToTarget = UpdateValueStrategy<String?, String?>(ApplicationData.defaultUpdatePolicy)
                     val targetToModel = UpdateValueStrategy<String?, String?>(ApplicationData.defaultUpdatePolicy)
                     if (item[ApplicationData.ViewDef.required] as Boolean) {
+                        // all validations should be added to list and passed as a CompositeValidator which supports multiple
                         targetToModel.setAfterConvertValidator(CompositeValidator(listOf(RequiredValidation(fieldTitle))))
                     }
                     val bindInput = viewState.dbc.bindValue(target, model, targetToModel, modelToTarget)
@@ -346,7 +347,7 @@ object BeansViewBuilder {
                 ApplicationData.ViewDef.bool -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as Button
                     val target = WidgetProperties.buttonSelection().observe(input)
-                    val model =  BeanProperties.value<T, Boolean>(fieldName).observe(viewState.currentItem)
+                    val model = BeanProperties.value<T, Boolean>(fieldName).observe(viewState.currentItem)
                     val targetToModel = UpdateValueStrategy<Boolean?, Boolean?>(ApplicationData.defaultUpdatePolicy)
                     val modelToTarget = UpdateValueStrategy<Boolean?, Boolean?>(ApplicationData.defaultUpdatePolicy)
                     val bindInput = viewState.dbc.bindValue<Boolean, Boolean>(target, model, targetToModel, modelToTarget)
@@ -392,18 +393,11 @@ object BeansViewBuilder {
             val btnSave = viewState.getWidgetFromViewState("btnSave") as Button
             val targetSave = WidgetProperties.enabled<Button>().observe(btnSave)
             val modelDirty = BeanProperties.value<DirtyFlag, Boolean>("dirty").observe(viewState.dirtyFlag)
-            val bindSave = viewState.dbc.bindValue(targetSave, modelDirty)
 
-            //save button enabled only if valid
-            val targetToModel = UpdateValueStrategy<IStatus?, Boolean>(UpdateValueStrategy.POLICY_NEVER)
-            targetToModel.setConverter(IConverter.create {x: IStatus? ->
-                if (x != null) {
-                    x?.isOK
-                } else {
-                    false
-                }
-            })
-            //val bindSaveToValid = viewState.dbc.bindValue(validationObserver, targetSave, targetToModel, null)
+            // ComputedValue is the critical piece in binding a single observable, say a button enabled
+            // to multiple model properties, say a dirty flag or validation status
+            val isValidationOk: IObservableValue<Boolean> = ComputedValue.create { validationObserver.value.isOK && modelDirty.value }
+            val bindSave = viewState.dbc.bindValue(targetSave, isValidationOk)
 
             // needed if ApplicationData.defaultUpdatePolicy = UpdateValueStrategy.POLICY_ON_REQUEST
             //viewState.dbc.updateTargets()
