@@ -1,5 +1,6 @@
 package com.parinherm
 
+import com.parinherm.server.SimpleHttpServer
 import org.eclipse.swt.widgets.Display
 import org.eclipse.core.databinding.observable.Realm
 import org.eclipse.jface.databinding.swt.DisplayRealm
@@ -7,7 +8,7 @@ import org.eclipse.jface.databinding.swt.DisplayRealm
 fun main(args: Array<String>) {
 
     // example of starting up http server
-    //SimpleHttpServer.start()
+    SimpleHttpServer.start()
 
     val display: Display = Display.getDefault()
     Realm.runWithDefault(DisplayRealm.getRealm(display)) {
@@ -24,7 +25,7 @@ fun main(args: Array<String>) {
     }
 
     // example http server
-    // SimpleHttpServer.stop()
+    SimpleHttpServer.stop()
 }
 
 

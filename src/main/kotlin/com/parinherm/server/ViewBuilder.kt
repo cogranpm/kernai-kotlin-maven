@@ -71,36 +71,29 @@ object ViewBuilder {
         return viewDefinitions
     }
 
-
-    // YIKES, these won't serialize property now, gone beyond simple primitives
-    // with lambdas
     fun makeSampleBean(): Map<String, Any> {
         val firstNameDef = mapOf(
                 ViewDef.fieldName to "name",
                 ViewDef.title to "First Name",
                 ViewDef.required to true,
-                ViewDef.fieldLabelConverter to {element: Any? -> "${(element as BeanTest).name}"},
                 ViewDef.fieldDataType to ViewDef.text)
 
         val incomeDef = mapOf(
                 ViewDef.fieldName to "income",
                 ViewDef.title to "Income",
                 ViewDef.required to true,
-                ViewDef.fieldLabelConverter to {element: Any? -> "${(element as BeanTest).income}"},
                 ViewDef.fieldDataType to ViewDef.money)
 
         val heightDef = mapOf(
                 ViewDef.fieldName to "height",
                 ViewDef.title to "Height",
                 ViewDef.required to true,
-                ViewDef.fieldLabelConverter to {element: Any? -> "${(element as BeanTest).height}"},
                 ViewDef.fieldDataType to ViewDef.float)
 
         val ageDef = mapOf(
                 ViewDef.fieldName to "age",
                 ViewDef.title to "Age",
                 ViewDef.required to true,
-                ViewDef.fieldLabelConverter to {element: Any? -> "${(element as BeanTest).age}"},
                 ViewDef.fieldDataType to ViewDef.int)
 
         val countryDef = mapOf(
@@ -108,10 +101,6 @@ object ViewBuilder {
                 ViewDef.title to "Country",
                 ViewDef.required to true,
                 ViewDef.fieldDataType to ViewDef.lookup,
-                ViewDef.fieldLabelConverter to {element: Any? ->
-                    val listItem = ApplicationData.countryList.find { it.code == (element as BeanTest).country }
-                    "${listItem?.label}"
-                },
                 ViewDef.lookupKey to ApplicationData.countryLookupKey
         )
 
@@ -119,7 +108,6 @@ object ViewBuilder {
                 ViewDef.fieldName to "enteredDate",
                 ViewDef.title to "Entered",
                 ViewDef.required to true,
-                ViewDef.fieldLabelConverter to {element: Any? -> "${(element as BeanTest).enteredDate}"},
                 ViewDef.fieldDataType to ViewDef.datetime
         )
 
@@ -128,9 +116,7 @@ object ViewBuilder {
                 ViewDef.fieldName to "deceased",
                 ViewDef.title to "Deceased",
                 ViewDef.required to true,
-                ViewDef.fieldDataType to ViewDef.bool,
-                ViewDef.fieldLabelConverter to {element: Any? -> "${(element as BeanTest).deceased}"})
-
+                ViewDef.fieldDataType to ViewDef.bool)
 
         val viewDef = mapOf(
                 ViewDef.viewid to ViewDef.beansBindingTestViewId,

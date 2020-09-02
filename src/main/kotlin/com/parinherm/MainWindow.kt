@@ -3,8 +3,11 @@ package com.parinherm
 //import org.eclipse.nebula.widgets.pshelf.*
 
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.parinherm.builders.BeansViewBuilder
 import com.parinherm.builders.BeansViewState
+import com.parinherm.builders.HttpClient
 import com.parinherm.builders.swtBuilder
 import com.parinherm.databinding.DataBindingView
 import com.parinherm.entity.BeanTest
@@ -21,6 +24,14 @@ import org.eclipse.swt.graphics.Point
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.*
 import java.io.IOException
+
+
+inline fun <reified T> Gson.fromJson(json: String) = fromJson<T>(json, object: TypeToken<T>() {}.type)
+
+fun getViewDefinitions(): Map<String, Any>{
+    val views = Gson().fromJson<Map<String, Any>>( HttpClient.getViews())
+    return views
+}
 
 
 class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
@@ -49,8 +60,9 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         val container = Composite(parent, SWT.NONE)
         container.layout = FillLayout()
         val folder = CTabFolder(container, SWT.TOP or SWT.BORDER)
-        val item = CTabItem(folder, SWT.CLOSE)
-        item.text = "&Map Binding Test"
+
+        //val item = CTabItem(folder, SWT.CLOSE)
+        //item.text = "&Map Binding Test"
 
         val beanBindingTestTab = CTabItem(folder, SWT.CLOSE)
         beanBindingTestTab.text = "Beans Binding Test"
@@ -61,12 +73,17 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         and then renderer takes care of constructing the widgets etc
          */
         //swtBuilder.renderTest()
-        val view = swtBuilder.renderView(TestData, folder, ApplicationData.ViewDef.bindingTestViewId)
-        item.control = view
+        //val view = swtBuilder.renderView(TestData, folder, ApplicationData.ViewDef.bindingTestViewId)
+        //item.control = view
         //DataBindingView(TestData.data).makeView(folder)
 
+       //load the views from the server
+        val viewDefinitions: Map<String, Any> = getViewDefinitions()
+
+        // render the test view
+        val testForm: Map<String, Any> = ApplicationData.getView(ApplicationData.ViewDef.beansBindingTestViewId, viewDefinitions)
         val viewState = BeansViewState<BeanTest>(BeansBindingTestData.data, BeansBindingTestData::make, BeanTest.Comparator())
-        val beansBindingView = BeansViewBuilder.renderView<BeanTest>(folder, viewState, ApplicationData.ViewDef.beansBindingTestViewId)
+        val beansBindingView = BeansViewBuilder.renderView<BeanTest>(folder, viewState, testForm)
         beanBindingTestTab.control = beansBindingView
 
         /* this messes up the layout here or

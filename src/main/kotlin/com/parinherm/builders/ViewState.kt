@@ -1,7 +1,6 @@
 package com.parinherm.builders
 
 import com.google.gson.Gson
-import com.parinherm.builders.swtBuilder.fromJson
 import com.parinherm.entity.DirtyFlag
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.observable.ChangeEvent
@@ -82,10 +81,13 @@ class ViewState (val data: List<Map<String, Any>>) {
        wl.addAll(data)
     }
 
+    /*
     fun getViewDefinitions(): Map<String, Any>{
         val views = Gson().fromJson<Map<String, Any>>( HttpClient.getViews())
         return views
     }
+
+     */
 
     fun addWidgetToViewState(widgetKey: String, widget: Any){
         widgets[widgetKey] = widget

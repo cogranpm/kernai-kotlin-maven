@@ -55,9 +55,9 @@ import java.time.LocalDate
 
 object BeansViewBuilder {
 
-    fun <T> renderView(parent: Composite, viewState: BeansViewState<T>, viewId: String): Composite where T : IBeanDataEntity {
+    fun <T> renderView(parent: Composite, viewState: BeansViewState<T>, viewDefinition: Map<String, Any>): Composite where T : IBeanDataEntity {
 
-        val form: Map<String, Any> = ApplicationData.getView(viewId)
+        //val form: Map<String, Any> = ApplicationData.getView(viewId)
         val composite = Composite(parent, ApplicationData.swnone)
         val sashForm = SashForm(composite, SWT.BORDER)
         val listContainer = Composite(sashForm, ApplicationData.swnone)
@@ -74,12 +74,9 @@ object BeansViewBuilder {
         // add it to the array below so it can be unpacked in one step outside the fields loop
         val columnLabelList: MutableList<IObservableMap<T, out Any>> = mutableListOf()
 
-        // need a list of converters for column label content, ie from domain entity property to a string
-        // ie from a Double to a String, this list is referenced by index when rendering the column label text
-        val labelConverterList: MutableList<(element: Any?) -> String> = mutableListOf()
-        var columnIndex = 0
+       var columnIndex = 0
 
-        val fields = form[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
+        val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
         fields.forEach { item: Map<String, Any> ->
             val label = Label(editContainer, ApplicationData.labelStyle)
             label.text = item[ApplicationData.ViewDef.title] as String
@@ -94,7 +91,6 @@ object BeansViewBuilder {
                     /* column observables */
                     val observableColumn: IValueProperty<T, String> = BeanProperties.value<T, String>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
-                    labelConverterList.add(item[ApplicationData.ViewDef.fieldLabelConverter] as (_: Any?) -> String)
                 }
                 ApplicationData.ViewDef.float -> {
                     val input = Text(editContainer, ApplicationData.swnone)
@@ -104,7 +100,6 @@ object BeansViewBuilder {
                     /* column observables */
                     val observableColumn: IValueProperty<T, Double> = BeanProperties.value<T, Double>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
-                    labelConverterList.add(item[ApplicationData.ViewDef.fieldLabelConverter] as (_: Any?) -> String)
                 }
                 ApplicationData.ViewDef.money -> {
                     val input = Text(editContainer, ApplicationData.swnone)
@@ -114,7 +109,6 @@ object BeansViewBuilder {
                     /* column observables */
                     val observableColumn: IValueProperty<T, BigDecimal> = BeanProperties.value<T, BigDecimal>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
-                    labelConverterList.add(item[ApplicationData.ViewDef.fieldLabelConverter] as (_: Any?) -> String)
                 }
                 ApplicationData.ViewDef.int -> {
                     val input = Spinner(editContainer, ApplicationData.swnone)
@@ -126,7 +120,6 @@ object BeansViewBuilder {
                     /* column observables */
                     val observableColumn: IValueProperty<T, Int> = BeanProperties.value<T, Int>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
-                    labelConverterList.add(item[ApplicationData.ViewDef.fieldLabelConverter] as (_: Any?) -> String)
                 }
                 ApplicationData.ViewDef.bool -> {
                     val input = Button(editContainer, SWT.CHECK)
@@ -136,7 +129,6 @@ object BeansViewBuilder {
                     /* column observables */
                     val observableColumn: IValueProperty<T, Boolean> = BeanProperties.value<T, Boolean>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
-                    labelConverterList.add(item[ApplicationData.ViewDef.fieldLabelConverter] as (_: Any?) -> String)
                 }
                 ApplicationData.ViewDef.datetime -> {
                     val input = DateTime(editContainer, SWT.DROP_DOWN or SWT.DATE)
@@ -145,7 +137,6 @@ object BeansViewBuilder {
                     /* column observables */
                     val observableColumn: IValueProperty<T, LocalDate> = BeanProperties.value<T, LocalDate>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
-                    labelConverterList.add(item[ApplicationData.ViewDef.fieldLabelConverter] as (_: Any?) -> String)
                 }
                 ApplicationData.ViewDef.lookup -> {
                     val input = ComboViewer(editContainer)
@@ -163,7 +154,6 @@ object BeansViewBuilder {
                     /* column observables */
                     val observableColumn: IValueProperty<T, String> = BeanProperties.value<T, String>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
-                    labelConverterList.add(item[ApplicationData.ViewDef.fieldLabelConverter] as (_: Any?) -> String)
                 }
                 else -> {
                 }
@@ -179,7 +169,9 @@ object BeansViewBuilder {
         val labelMaps = columnLabelList.toTypedArray()
         val labelProvider = (object: ObservableMapLabelProvider(labelMaps){
             override fun getColumnText(element: Any?, columnIndex: Int): String {
-                return "${labelConverterList[columnIndex](element)}"
+                val beanEntity = element as IBeanDataEntity
+                return beanEntity?.getColumnValueByIndex(columnIndex)
+                //return "${labelConverterList[columnIndex](element)}"
             }
 
             /*override fun getColumnImage(element: Any?, columnIndex: Int): Image {

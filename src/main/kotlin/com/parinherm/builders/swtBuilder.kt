@@ -55,7 +55,7 @@ using gson to parse the ui definitions into maps and list of maps etc
 object swtBuilder {
 
     // this is necessary because gson is a java library and has some weird kind of init thing
-    inline fun <reified T> Gson.fromJson(json: String) = fromJson<T>(json, object: TypeToken<T>() {}.type)
+
 
 
     fun renderView(data: IDataEntity, parent: Composite, viewId: String) : Composite {

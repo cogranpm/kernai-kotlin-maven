@@ -54,6 +54,22 @@ class BeanTest (override var id: Long = 0, name: String, income: BigDecimal, hei
 
     }
 
+    override fun getColumnValueByIndex(index: Int): String {
+        return when (index) {
+            0 -> this.name
+            1 -> "$income"
+            2 -> "$height"
+            3 -> "$age"
+            4 -> {
+                val listItem = ApplicationData.countryList.find { it.code == country }
+                "${listItem?.label}"
+            }
+            5 -> "$enteredDate"
+            6 -> "$deceased"
+            else -> ""
+        }
+    }
+
     override fun toString(): String {
         return "BeanTest(id=$id, name=$name, income=$income, height=$height, age=$age, country=$country, enteredDate=$enteredDate, deceased=$deceased)"
     }

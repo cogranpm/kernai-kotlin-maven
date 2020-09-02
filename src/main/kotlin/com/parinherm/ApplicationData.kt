@@ -42,6 +42,11 @@ object ApplicationData {
         return forms.first { it[ViewDef.viewid] == viewId }
     }
 
+    fun getView(viewId: String, viewDefinitions: Map<String, Any>): Map<String, Any>  {
+        val forms: List<Map<String, Any>> = viewDefinitions[ViewDef.forms] as List<Map<String, Any>>
+        return forms.first { it[ViewDef.viewid] == viewId }
+    }
+
     fun makeServerUrl(urlKey: String) : String = "$serverProtocol://$serverHost:$serverPort/${urls[urlKey]}"
 
     fun setupImages() {
