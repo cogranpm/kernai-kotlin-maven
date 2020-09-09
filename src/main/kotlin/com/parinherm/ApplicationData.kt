@@ -114,6 +114,8 @@ object ApplicationData {
         const val fieldLabelConverter = "fieldLabelConverter"
         const val required = "required"
 
+        const val childViews = "childViews"
+
 
     }
 

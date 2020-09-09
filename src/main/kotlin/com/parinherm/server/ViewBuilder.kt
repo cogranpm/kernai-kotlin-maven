@@ -118,6 +118,22 @@ object ViewBuilder {
                 ViewDef.required to true,
                 ViewDef.fieldDataType to ViewDef.bool)
 
+        /****************** child bean person details ****************/
+        val nicknameDef = mapOf(
+                ViewDef.fieldName to "nickname",
+                ViewDef.title to "Nickname",
+                ViewDef.required to true,
+                ViewDef.fieldDataType to ViewDef.text
+        )
+
+        val personDetailsDef = mapOf(
+                ViewDef.viewid to "persondetails",
+                ViewDef.title to "Person Details",
+                ViewDef.fields to listOf(nicknameDef)
+        )
+        /******************* end child bean *************************/
+
+
         val viewDef = mapOf(
                 ViewDef.viewid to ViewDef.beansBindingTestViewId,
                 ViewDef.title to "Beans Binding Test",
@@ -129,7 +145,9 @@ object ViewBuilder {
                         countryDef,
                         enteredDateDef,
                         isDeceasedDef
-                ))
+                ),
+                ViewDef.childViews to listOf(personDetailsDef)
+        )
         return viewDef
 
     }
