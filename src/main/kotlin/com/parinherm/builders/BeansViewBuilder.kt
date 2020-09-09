@@ -43,6 +43,8 @@ import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.TableColumnLayout
 import org.eclipse.jface.viewers.*
 import org.eclipse.swt.SWT
+import org.eclipse.swt.custom.CTabFolder
+import org.eclipse.swt.custom.CTabItem
 import org.eclipse.swt.custom.SashForm
 import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
@@ -61,7 +63,8 @@ object BeansViewBuilder {
         val composite = Composite(parent, ApplicationData.swnone)
         val sashForm = SashForm(composite, SWT.BORDER)
         val listContainer = Composite(sashForm, ApplicationData.swnone)
-        val editContainer = Composite(sashForm, ApplicationData.swnone)
+        val editContainer = getEditContainer(sashForm, viewDefinition)
+
         val listView = TableViewer(listContainer, ApplicationData.listViewStyle)
         val listTable = listView.table
         val tableLayout = TableColumnLayout(true)
@@ -248,6 +251,57 @@ object BeansViewBuilder {
         return composite
     }
 
+    private fun hasChildViews(viewDefinition: Map<String, Any>): Boolean{
+        if (viewDefinition.containsKey(ApplicationData.ViewDef.childViews)) {
+            val childDefs = viewDefinition[ApplicationData.ViewDef.childViews] as List<Map<String, Any>>
+            if (childDefs.size > 0) {
+                return true
+            }
+        }
+        return false
+    }
+
+
+    private fun getEditContainer(parent: Composite, viewDefinition: Map<String, Any>) : Composite {
+        /*
+        if we have master detail children then we need the edit container in horizontal sash form
+        with an edit composite up top and a tab control in the below
+         */
+        if (hasChildViews(viewDefinition)){
+            val editContainer = Composite(parent, ApplicationData.swnone)
+            editContainer.layout = FillLayout(SWT.VERTICAL)
+            val sashForm = SashForm(editContainer, SWT.BORDER or SWT.HORIZONTAL)
+            val fieldsContainer = Composite(sashForm, ApplicationData.swnone)
+            val childContainer = Composite(sashForm, ApplicationData.swnone)
+            childContainer.layout = FillLayout(SWT.VERTICAL)
+            sashForm.weights = intArrayOf(1, 1)
+            sashForm.sashWidth = 4
+            val childDefs = viewDefinition[ApplicationData.ViewDef.childViews] as List<Map<String, Any>>
+            val folder = CTabFolder(childContainer, SWT.TOP or SWT.BORDER)
+            childDefs.forEach{
+                val tab = CTabItem(folder, SWT.CLOSE)
+                tab.text = it[ApplicationData.ViewDef.title].toString()
+
+                // each child tab should just be a list with a header
+                // the header having delete, add, edit buttons
+                // each row should have double click handler to open up a new root level tab
+                // allowing user full editing experience of that entity
+                // duplicate the list of the child item, but limit it to the parent foreign key
+                // parent foreign key should be baked in and NEVER CHANGE no matter if calling tab
+                // changes it's selection, ie make the Tab completely stable with regards to the
+                // children parent relationship and not have it change underneath
+                // the double click / edit will just be like making a tab at top level window
+                // just pass in the view definition for the child
+            }
+            return fieldsContainer
+
+        } else {
+
+            val editContainer = Composite(parent, ApplicationData.swnone)
+            return editContainer
+        }
+    }
+
 
     private fun getColumn(comparator: BeansViewerComparator, caption: String,
                           viewer: TableViewer,
@@ -395,8 +449,9 @@ object BeansViewBuilder {
             //viewState.dbc.updateTargets()
 
         }
-
     }
+
+
 }
 
 
