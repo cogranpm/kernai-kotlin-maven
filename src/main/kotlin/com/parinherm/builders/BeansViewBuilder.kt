@@ -40,6 +40,8 @@ import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
 import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
 import org.eclipse.jface.layout.GridDataFactory
+import org.eclipse.jface.layout.GridLayoutFactory
+import org.eclipse.jface.layout.LayoutConstants
 import org.eclipse.jface.layout.TableColumnLayout
 import org.eclipse.jface.viewers.*
 import org.eclipse.swt.SWT
@@ -292,6 +294,15 @@ object BeansViewBuilder {
                 // children parent relationship and not have it change underneath
                 // the double click / edit will just be like making a tab at top level window
                 // just pass in the view definition for the child
+                val childComposite = Composite(folder, ApplicationData.swnone)
+                val buttonBar = Composite(childComposite, ApplicationData.swnone)
+                val btnAdd = Button(buttonBar, SWT.PUSH)
+                btnAdd.text = "Add"
+                val btnRemove = Button(buttonBar, SWT.PUSH)
+                btnRemove.text = "Remove"
+                GridLayoutFactory.fillDefaults().generateLayout(buttonBar)
+                GridLayoutFactory.fillDefaults().numColumns(1).margins(LayoutConstants.getMargins()).generateLayout(childComposite)
+
             }
             return fieldsContainer
 
