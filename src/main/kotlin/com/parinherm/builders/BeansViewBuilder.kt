@@ -52,7 +52,9 @@ import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.layout.FillLayout
+import org.eclipse.swt.layout.GridData
 import org.eclipse.swt.layout.GridLayout
+import org.eclipse.swt.layout.RowLayout
 import org.eclipse.swt.widgets.*
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -283,7 +285,6 @@ object BeansViewBuilder {
             childDefs.forEach{
                 val tab = CTabItem(folder, SWT.CLOSE)
                 tab.text = it[ApplicationData.ViewDef.title].toString()
-
                 // each child tab should just be a list with a header
                 // the header having delete, add, edit buttons
                 // each row should have double click handler to open up a new root level tab
@@ -295,13 +296,25 @@ object BeansViewBuilder {
                 // the double click / edit will just be like making a tab at top level window
                 // just pass in the view definition for the child
                 val childComposite = Composite(folder, ApplicationData.swnone)
+                childComposite.layout = GridLayout()
                 val buttonBar = Composite(childComposite, ApplicationData.swnone)
+                buttonBar.layout = RowLayout()
                 val btnAdd = Button(buttonBar, SWT.PUSH)
                 btnAdd.text = "Add"
                 val btnRemove = Button(buttonBar, SWT.PUSH)
                 btnRemove.text = "Remove"
-                GridLayoutFactory.fillDefaults().generateLayout(buttonBar)
+
+                val list = TableViewer(childComposite, ApplicationData.listViewStyle)
+
+
+                tab.control = childComposite
+
+                //GridLayoutFactory.fillDefaults().generateLayout(buttonBar)
                 GridLayoutFactory.fillDefaults().numColumns(1).margins(LayoutConstants.getMargins()).generateLayout(childComposite)
+                GridDataFactory.fillDefaults().grab(true, false).applyTo(buttonBar)
+                GridDataFactory.fillDefaults().grab(true, true).applyTo(list.table)
+                //GridDataFactory.swtDefaults().grab(true, true).applyTo(childComposite);
+
 
             }
             return fieldsContainer
