@@ -1,6 +1,5 @@
 package com.parinherm.builders
 
-import com.parinherm.entity.BeanTest
 import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.NewFlag
@@ -9,9 +8,6 @@ import org.eclipse.core.databinding.observable.ChangeEvent
 import org.eclipse.core.databinding.observable.IChangeListener
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.internal.databinding.swt.SWTObservableValueDecorator
-import org.eclipse.jface.layout.TableColumnLayout
-import org.eclipse.jface.viewers.*
-import org.eclipse.swt.SWT
 
 class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T, val comparator: BeansViewerComparator) where T: IBeanDataEntity {
     val wl = WritableList<T>()
