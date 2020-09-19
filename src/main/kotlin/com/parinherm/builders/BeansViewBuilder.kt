@@ -135,7 +135,6 @@ object BeansViewBuilder {
         val btnSave = Button(editContainer, SWT.PUSH)
         val btnNew = Button(editContainer, SWT.PUSH)
 
-        //listContainer.layout = GridLayout(1, true)
         editContainer.layout = GridLayout(2, false)
 
         sashForm.weights = intArrayOf(1, 2)
@@ -149,6 +148,7 @@ object BeansViewBuilder {
         viewState.addWidgetToViewState("btnNew", btnNew)
 
         viewState.createViewCommands(fields)
+        viewState.createListViewBindings()
         GridDataFactory.fillDefaults().span(2, 1).applyTo(lblErrors)
         composite.layout = FillLayout(SWT.VERTICAL)
         composite.layout()
@@ -230,8 +230,7 @@ object BeansViewBuilder {
        })
         listView.contentProvider = contentProvider
         listView.labelProvider = labelProvider
-        listView.input = viewState.wl
-        listView.comparator = viewState.comparator
+
         val listTable = listView.table
         listTable.headerVisible = true
         listTable.linesVisible = true
@@ -277,10 +276,7 @@ object BeansViewBuilder {
                 btnAdd.text = "Add"
                 val btnRemove = Button(buttonBar, SWT.PUSH)
                 btnRemove.text = "Remove"
-
                 val list = TableViewer(childComposite, ApplicationData.listViewStyle)
-
-
                 tab.control = childComposite
 
                 //GridLayoutFactory.fillDefaults().generateLayout(buttonBar)
@@ -326,127 +322,6 @@ object BeansViewBuilder {
            }
        })
         return selectionAdapter
-    }
-
-
-
-    private fun <T> createDataBindings(viewState: BeansViewState<T>, fields: List<Map<String, Any>>) where T: IBeanDataEntity {
-
-        viewState.dbc.dispose()
-        val bindings = viewState.dbc.validationStatusProviders
-        for (binding: ValidationStatusProvider in bindings) {
-            if (binding is Binding) {
-                viewState.dbc.removeBinding(binding)
-            }
-        }
-
-        fields.forEach { item: Map<String, Any> ->
-            val fieldTitle = item[ApplicationData.ViewDef.title] as String
-            val fieldName = item[ApplicationData.ViewDef.fieldName] as String
-            when (item[ApplicationData.ViewDef.fieldDataType]) {
-                ApplicationData.ViewDef.text -> {
-                    val input = viewState.getWidgetFromViewState(fieldName) as Text
-                    val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
-                    val model = BeanProperties.value<T, String>(fieldName).observe(viewState.currentItem)
-                    val modelToTarget = UpdateValueStrategy<String?, String?>(ApplicationData.defaultUpdatePolicy)
-                    val targetToModel = UpdateValueStrategy<String?, String?>(ApplicationData.defaultUpdatePolicy)
-                    if (item[ApplicationData.ViewDef.required] as Boolean) {
-                        // all validations should be added to list and passed as a CompositeValidator which supports multiple
-                        targetToModel.setAfterConvertValidator(CompositeValidator(listOf(RequiredValidation(fieldTitle))))
-                    }
-                    val bindInput = viewState.dbc.bindValue(target, model, targetToModel, modelToTarget)
-                    ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
-
-                }
-                ApplicationData.ViewDef.float -> {
-                    val input = viewState.getWidgetFromViewState(fieldName) as Text
-                    val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
-                    val model: IObservableValue<Double> = BeanProperties.value<T, Double>(fieldName).observe(viewState.currentItem)
-                    val targetToModel = UpdateValueStrategy<String?, Double?>(ApplicationData.defaultUpdatePolicy)
-                    val modelToTarget = UpdateValueStrategy<Double?, String?>(ApplicationData.defaultUpdatePolicy)
-                    targetToModel.setConverter(StringToNumberConverter.toDouble(true))
-                    targetToModel.setAfterGetValidator(FloatValidation(fieldTitle))
-                    modelToTarget.setConverter(NumberToStringConverter.fromDouble(true))
-                    val bindInput = viewState.dbc.bindValue<String, Double>(target, model, targetToModel, modelToTarget)
-                    ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
-                }
-                ApplicationData.ViewDef.money -> {
-                    val input = viewState.getWidgetFromViewState(fieldName) as Text
-                    val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
-                    val model: IObservableValue<BigDecimal> = BeanProperties.value<T, BigDecimal>(fieldName).observe(viewState.currentItem)
-                    val targetToModel = UpdateValueStrategy<String?, BigDecimal?>(ApplicationData.defaultUpdatePolicy)
-                    val modelToTarget = UpdateValueStrategy<BigDecimal?, String?>(ApplicationData.defaultUpdatePolicy)
-                    targetToModel.setAfterGetValidator(bigDecimalValidator)
-                    val bindInput = viewState.dbc.bindValue(target, model, targetToModel, modelToTarget)
-                    ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
-                }
-                ApplicationData.ViewDef.int -> {
-                    val input = viewState.getWidgetFromViewState(fieldName) as Spinner
-                    val target = WidgetProperties.spinnerSelection().observe(input)
-                    val model = BeanProperties.value<T, Int>(fieldName).observe(viewState.currentItem)
-                    val targetToModel = UpdateValueStrategy<Int?, Int?>(ApplicationData.defaultUpdatePolicy)
-                    val modelToTarget = UpdateValueStrategy<Int?, Int?>(ApplicationData.defaultUpdatePolicy)
-                    val bindInput = viewState.dbc.bindValue<Int, Int>(target, model, targetToModel, modelToTarget)
-                }
-                ApplicationData.ViewDef.bool -> {
-                    val input = viewState.getWidgetFromViewState(fieldName) as Button
-                    val target = WidgetProperties.buttonSelection().observe(input)
-                    val model = BeanProperties.value<T, Boolean>(fieldName).observe(viewState.currentItem)
-                    val targetToModel = UpdateValueStrategy<Boolean?, Boolean?>(ApplicationData.defaultUpdatePolicy)
-                    val modelToTarget = UpdateValueStrategy<Boolean?, Boolean?>(ApplicationData.defaultUpdatePolicy)
-                    val bindInput = viewState.dbc.bindValue<Boolean, Boolean>(target, model, targetToModel, modelToTarget)
-                }
-                ApplicationData.ViewDef.datetime -> {
-                    val input = viewState.getWidgetFromViewState(fieldName) as DateTime
-                    val inputProperty: DateTimeSelectionProperty = DateTimeSelectionProperty()
-                    val target = inputProperty.observe(input)
-                    val model = BeanProperties.value<T, LocalDate>(fieldName).observe(viewState.currentItem)
-                    val targetToModel = UpdateValueStrategy<String?, LocalDate?>(ApplicationData.defaultUpdatePolicy)
-                    val modelToTarget = UpdateValueStrategy<LocalDate?, String?>(ApplicationData.defaultUpdatePolicy)
-                    val bindInput = viewState.dbc.bindValue(target, model)
-                    ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
-                }
-                ApplicationData.ViewDef.lookup -> {
-                    val input = viewState.getWidgetFromViewState(fieldName) as ComboViewer
-                    val comboSource = ApplicationData.lookups.getOrDefault(item[ApplicationData.ViewDef.lookupKey] as String, listOf())
-                    val target: IObservableValue<LookupDetail> =
-                            ViewerProperties.singleSelection<ComboViewer, LookupDetail>().observeDelayed(1, input)
-                    val model = BeanProperties.value<T, String>(fieldName).observe(viewState.currentItem)
-                    val targetToModel = UpdateValueStrategy<LookupDetail, String>(ApplicationData.defaultUpdatePolicy)
-                    val modelToTarget = UpdateValueStrategy<String?, LookupDetail>(ApplicationData.defaultUpdatePolicy)
-                    targetToModel.setConverter(Converters.convertFromLookup)
-                    modelToTarget.setConverter(Converters.convertToLookup(comboSource))
-                    val bindInput = viewState.dbc.bindValue<LookupDetail, String?>(target, model, targetToModel, modelToTarget)
-                    ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
-                }
-                else -> {
-                }
-            }
-
-            viewState.dbc.bindings.forEach {
-                it.target.addChangeListener(viewState.listener)
-            }
-
-            val validationObserver = AggregateValidationStatus(viewState.dbc.bindings, AggregateValidationStatus.MAX_SEVERITY)
-            val errorObservable: IObservableValue<String> = WidgetProperties.text<Label>().observe(
-                    viewState.getWidgetFromViewState("lblErrors") as Label)
-            val allValidationBinding: Binding = viewState.dbc.bindValue(errorObservable, validationObserver, null, null)
-
-
-            //save button binding
-            val btnSave = viewState.getWidgetFromViewState("btnSave") as Button
-            val targetSave = WidgetProperties.enabled<Button>().observe(btnSave)
-            val modelDirty = BeanProperties.value<DirtyFlag, Boolean>("dirty").observe(viewState.dirtyFlag)
-
-            // ComputedValue is the critical piece in binding a single observable, say a button enabled
-            // to multiple model properties, say a dirty flag or validation status
-            val isValidationOk: IObservableValue<Boolean> = ComputedValue.create { validationObserver.value.isOK && modelDirty.value }
-            val bindSave = viewState.dbc.bindValue(targetSave, isValidationOk)
-
-            // needed if ApplicationData.defaultUpdatePolicy = UpdateValueStrategy.POLICY_ON_REQUEST
-            //viewState.dbc.updateTargets()
-
-        }
     }
 
 

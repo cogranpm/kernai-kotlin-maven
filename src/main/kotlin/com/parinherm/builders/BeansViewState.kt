@@ -28,7 +28,7 @@ import org.eclipse.swt.widgets.*
 import java.math.BigDecimal
 import java.time.LocalDate
 
-open class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T, val comparator: BeansViewerComparator) where T: IBeanDataEntity {
+abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T, val comparator: BeansViewerComparator) where T: IBeanDataEntity {
     val wl = WritableList<T>()
     val widgets = mutableMapOf<String, Any>()
     var selectingFlag = false
@@ -36,7 +36,10 @@ open class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T, val compar
     var dirtyFlag: DirtyFlag = DirtyFlag(false)
     var newFlag: NewFlag = NewFlag(false)
 
-    /* until the null handling is figured out, just default this to some value */
+    /* this is needed because the new button
+    needs to store an item before saving adding it to the
+    writable list
+     */
     var currentItem: T? = null
 
     init {
@@ -91,23 +94,44 @@ open class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T, val compar
         }
     }
 
+
+    fun createListViewBindings(){
+        val listView = getWidgetFromViewState("list") as TableViewer
+        listView.input = wl
+        listView.comparator = comparator
+    }
+
     // called by the view after the user interface elements have been created
     fun createViewCommands(fields: List<Map<String, Any>>) {
         val listView = getWidgetFromViewState("list") as TableViewer
+        listSelectionCommand(listView, fields)
+        val btnSave = getWidgetFromViewState("btnSave") as Button
+        saveCommand(listView, btnSave)
+        val btnNew = getWidgetFromViewState("btnNew") as Button
+        newCommand(btnNew, fields)
+        val composite = getWidgetFromViewState("composite") as Composite
+
+    }
+
+    /* default implementation of a list selection
+    binds the list selection to the edit form
+     */
+    private fun listSelectionCommand(listView: TableViewer, fields: List<Map<String, Any>>){
         listView.addSelectionChangedListener { _ ->
             selectingFlag = true
             val selection = listView.structuredSelection
             val selectedItem = selection.firstElement
+            // store the selected item in the list in the viewstate
             currentItem = selectedItem as T
             createDataBindings(fields, selectedItem as T)
             Display.getDefault().timerExec(100) {
                 selectingFlag = false
             }
         }
+    }
 
-        val btnSave = getWidgetFromViewState("btnSave") as Button
+    fun saveCommand(listView: TableViewer, btnSave: Button){
         btnSave.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
-
             // needed if ApplicationData.defaultUpdatePolicy = UpdateValueStrategy.POLICY_ON_REQUEST
             //viewState.dbc.updateModels()
             dirtyFlag.dirty = false
@@ -117,18 +141,19 @@ open class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T, val compar
                 listView.selection = StructuredSelection(currentItem)
             }
             //println(currentItem.toString())
-
         })
+    }
 
-        val btnNew = getWidgetFromViewState("btnNew") as Button
+    fun newCommand(btnNew: Button, fields: List<Map<String, Any>>) {
         btnNew.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
             // should probably just put ui into new mode
             val newItem = bean_maker()
             currentItem = newItem
-            createDataBindings( fields, newItem)
+            createDataBindings(fields, newItem)
         })
+    }
 
-        val composite = getWidgetFromViewState("composite") as Composite
+    fun closeCommand(composite: Composite){
         composite.addDisposeListener {
             println("I am being closed")
         }
@@ -136,7 +161,6 @@ open class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T, val compar
     }
 
     private fun createDataBindings(fields: List<Map<String, Any>>, currentItem: T){
-
         dbc.dispose()
         val bindings = dbc.validationStatusProviders
         for (binding: ValidationStatusProvider in bindings) {
