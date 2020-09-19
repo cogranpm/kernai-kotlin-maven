@@ -13,6 +13,7 @@ import com.parinherm.databinding.DataBindingView
 import com.parinherm.entity.BeanTest
 import com.parinherm.tests.BeansBindingTestData
 import com.parinherm.tests.TestData
+import com.parinherm.viewmodel.BeanTestViewModel
 import org.eclipse.jface.action.*
 import org.eclipse.jface.window.ApplicationWindow
 import org.eclipse.swt.SWT
@@ -82,7 +83,8 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
 
         // render the test view
         val testForm: Map<String, Any> = ApplicationData.getView(ApplicationData.ViewDef.beansBindingTestViewId, viewDefinitions)
-        val viewState = BeansViewState<BeanTest>(BeansBindingTestData.data, BeansBindingTestData::make, BeanTest.Comparator())
+        //val viewState = BeansViewState<BeanTest>(BeansBindingTestData.data, BeansBindingTestData::make, BeanTest.Comparator())
+        val viewState = BeanTestViewModel(BeansBindingTestData.data, BeansBindingTestData::make, BeanTest.Comparator())
         val beansBindingView = BeansViewBuilder.renderView<BeanTest>(folder, viewState, testForm)
         beanBindingTestTab.control = beansBindingView
 

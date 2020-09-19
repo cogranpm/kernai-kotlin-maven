@@ -65,10 +65,14 @@ object BeansViewBuilder {
 
         //val form: Map<String, Any> = ApplicationData.getView(viewId)
         val composite = Composite(parent, ApplicationData.swnone)
+        viewState.addWidgetToViewState("composite", composite)
+
         val sashForm = SashForm(composite, SWT.BORDER)
         val listContainer = Composite(sashForm, ApplicationData.swnone)
         val editContainer = getEditContainer(sashForm, viewDefinition)
+
         val listView = getListViewer<T>(listContainer, viewDefinition, viewState)
+        viewState.addWidgetToViewState("list", listView)
 
         val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
         fields.forEach { item: Map<String, Any> ->
@@ -169,6 +173,7 @@ object BeansViewBuilder {
         })
 
         btnNew.text = "New"
+        viewState.addWidgetToViewState("btnNew", btnNew)
         btnNew.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
             // should probably just put ui into new mode
             val newItem = viewState.bean_maker()
@@ -179,6 +184,8 @@ object BeansViewBuilder {
         composite.addDisposeListener {
             println("I am being closed")
         }
+
+        viewState.createViewCommands(fields)
         GridDataFactory.fillDefaults().span(2, 1).applyTo(lblErrors)
         composite.layout = FillLayout(SWT.VERTICAL)
         composite.layout()
@@ -360,7 +367,7 @@ object BeansViewBuilder {
 
 
 
-    fun <T> createDataBindings(viewState: BeansViewState<T>, fields: List<Map<String, Any>>) where T: IBeanDataEntity {
+    private fun <T> createDataBindings(viewState: BeansViewState<T>, fields: List<Map<String, Any>>) where T: IBeanDataEntity {
 
         viewState.dbc.dispose()
         val bindings = viewState.dbc.validationStatusProviders
