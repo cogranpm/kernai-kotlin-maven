@@ -141,49 +141,12 @@ object BeansViewBuilder {
         sashForm.weights = intArrayOf(1, 2)
         sashForm.sashWidth = 4
 
-        listView.addSelectionChangedListener { _ ->
-            viewState.selectingFlag = true
-            val selection = listView.structuredSelection
-            val selectedItem = selection.firstElement
-            viewState.currentItem = selectedItem as T
-            createDataBindings(viewState, fields)
-            Display.getDefault().timerExec(100) {
-                viewState.selectingFlag = false
-            }
-        }
-
         btnSave.text = "Save"
         viewState.addWidgetToViewState("btnSave", btnSave)
         btnSave.enabled = false
-        btnSave.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
-
-            // needed if ApplicationData.defaultUpdatePolicy = UpdateValueStrategy.POLICY_ON_REQUEST
-            //viewState.dbc.updateModels()
-
-            viewState.dirtyFlag.dirty = false
-            // debug the fields of the selected item
-
-            if (viewState.currentItem?.id == 0L) {
-                viewState.currentItem?.id = (viewState.wl.size + 1L)
-                viewState.wl.add(viewState.currentItem)
-                listView.selection = StructuredSelection(viewState.currentItem)
-            }
-            println(viewState.currentItem.toString())
-
-        })
 
         btnNew.text = "New"
         viewState.addWidgetToViewState("btnNew", btnNew)
-        btnNew.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
-            // should probably just put ui into new mode
-            val newItem = viewState.bean_maker()
-            viewState.currentItem = newItem
-            createDataBindings(viewState, fields)
-        })
-
-        composite.addDisposeListener {
-            println("I am being closed")
-        }
 
         viewState.createViewCommands(fields)
         GridDataFactory.fillDefaults().span(2, 1).applyTo(lblErrors)
