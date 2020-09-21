@@ -22,10 +22,9 @@ import java.time.LocalDate
 
 class ModelBinder <T> () {
 
-    val dbc = DataBindingContext()
 
-    private fun createDataBindings(fields: List<Map<String, Any>>, currentItem: T,
-    getWidgetFromViewState: (String) -> Any, stateChangeListener: IChangeListener, dirtyFlag: DirtyFlag){
+    fun createDataBindings(dbc: DataBindingContext, fields: List<Map<String, Any>>, currentItem: T,
+                getWidgetFromViewState: (a: String) -> Any?, stateChangeListener: IChangeListener, dirtyFlag: DirtyFlag){
         dbc.dispose()
         val bindings = dbc.validationStatusProviders
         for (binding: ValidationStatusProvider in bindings) {

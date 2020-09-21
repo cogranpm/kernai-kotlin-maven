@@ -30,7 +30,7 @@ import java.time.LocalDate
 
 abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
                                    val comparator: BeansViewerComparator,
-                                   val modelBinder: ModelBinder<*>) where T: IBeanDataEntity {
+                                   val modelBinder: ModelBinder<T>) where T: IBeanDataEntity {
 
 
     val wl = WritableList<T>()
@@ -59,7 +59,7 @@ abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
         widgets[widgetKey] = widget
     }
 
-    private fun getWidgetFromViewState(widgetKey: String) = widgets[widgetKey]
+    private fun getWidgetFromViewState(widgetKey: String) : Any? = widgets[widgetKey]
 
     private fun processStateChange(ce: ChangeEvent){
         if(isDirtyEventType(ce.source)) {
@@ -127,8 +127,8 @@ abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
             val selectedItem = selection.firstElement
             // store the selected item in the list in the viewstate
             currentItem = selectedItem as T
-            //modelBinder.createDataBindings()
-            createDataBindings(fields, selectedItem as T)
+            modelBinder.createDataBindings(dbc, fields, selectedItem, this::getWidgetFromViewState, listener, dirtyFlag)
+            //createDataBindings(fields, selectedItem as T)
             Display.getDefault().timerExec(100) {
                 selectingFlag = false
             }
