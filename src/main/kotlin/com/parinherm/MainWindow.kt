@@ -5,10 +5,7 @@ package com.parinherm
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.parinherm.builders.BeansViewBuilder
-import com.parinherm.builders.BeansViewState
-import com.parinherm.builders.HttpClient
-import com.parinherm.builders.swtBuilder
+import com.parinherm.builders.*
 import com.parinherm.databinding.DataBindingView
 import com.parinherm.entity.BeanTest
 import com.parinherm.tests.BeansBindingTestData
@@ -84,7 +81,8 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         // render the test view
         val testForm: Map<String, Any> = ApplicationData.getView(ApplicationData.ViewDef.beansBindingTestViewId, viewDefinitions)
         //val viewState = BeansViewState<BeanTest>(BeansBindingTestData.data, BeansBindingTestData::make, BeanTest.Comparator())
-        val viewState = BeanTestViewModel(BeansBindingTestData.data, BeansBindingTestData::make, BeanTest.Comparator())
+        val viewState = BeanTestViewModel(BeansBindingTestData.data, BeansBindingTestData::make,
+                BeanTest.Comparator(), ModelBinder<BeanTest>())
         val beansBindingView = BeansViewBuilder.renderView<BeanTest>(folder, viewState, testForm)
         beanBindingTestTab.control = beansBindingView
 

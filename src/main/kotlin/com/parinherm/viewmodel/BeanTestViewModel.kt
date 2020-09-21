@@ -11,9 +11,10 @@ package com.parinherm.viewmodel
 
 import com.parinherm.builders.BeansViewState
 import com.parinherm.builders.BeansViewerComparator
+import com.parinherm.builders.ModelBinder
 import com.parinherm.entity.BeanTest
 
 
-class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, comparator: BeansViewerComparator)
-    : BeansViewState<BeanTest> (data, bean_maker, comparator){
+class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, comparator: BeansViewerComparator, modelBinder: ModelBinder<BeanTest>)
+    : BeansViewState<BeanTest> (data, bean_maker, comparator, modelBinder){
 }

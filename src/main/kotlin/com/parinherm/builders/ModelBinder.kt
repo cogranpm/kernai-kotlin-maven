@@ -3,169 +3,29 @@ package com.parinherm.builders
 import com.parinherm.ApplicationData
 import com.parinherm.databinding.*
 import com.parinherm.entity.DirtyFlag
-import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.LookupDetail
-import com.parinherm.entity.NewFlag
 import org.eclipse.core.databinding.*
 import org.eclipse.core.databinding.beans.typed.BeanProperties
 import org.eclipse.core.databinding.conversion.text.NumberToStringConverter
 import org.eclipse.core.databinding.conversion.text.StringToNumberConverter
-import org.eclipse.core.databinding.observable.ChangeEvent
 import org.eclipse.core.databinding.observable.IChangeListener
-import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.core.databinding.observable.value.ComputedValue
 import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
-import org.eclipse.jface.internal.databinding.swt.SWTObservableValueDecorator
 import org.eclipse.jface.viewers.ComboViewer
-import org.eclipse.jface.viewers.StructuredSelection
-import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.swt.SWT
-import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.widgets.*
 import java.math.BigDecimal
 import java.time.LocalDate
 
-abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
-                                   val comparator: BeansViewerComparator,
-                                   val modelBinder: ModelBinder<*>) where T: IBeanDataEntity {
+class ModelBinder <T> () {
 
-
-    val wl = WritableList<T>()
-    val widgets = mutableMapOf<String, Any>()
-    var selectingFlag = false
     val dbc = DataBindingContext()
-    var dirtyFlag: DirtyFlag = DirtyFlag(false)
-    var newFlag: NewFlag = NewFlag(false)
 
-    /* this is needed because the new button
-    needs to store an item before saving adding it to the
-    writable list
-     */
-    var currentItem: T? = null
-
-    init {
-        wl.addAll(data)
-    }
-
-
-    val listener: IChangeListener = IChangeListener {
-        processStateChange(it)
-    }
-
-    fun addWidgetToViewState(widgetKey: String, widget: Any){
-        widgets[widgetKey] = widget
-    }
-
-    private fun getWidgetFromViewState(widgetKey: String) = widgets[widgetKey]
-
-    private fun processStateChange(ce: ChangeEvent){
-        if(isDirtyEventType(ce.source)) {
-
-            //debugging stuff
-            /****************************************
-            val source = ce.source
-            when (source) {
-            is SWTObservableValueDecorator<*> -> println(source.widget)
-            is SWTVetoableValueDecorator  -> {
-            println(source.widget)
-            }
-            is ViewerObservableValueDecorator<*> -> {
-            println(source.viewer)
-            }
-            }
-             ************************************************/
-            dirtyFlag.dirty = true
-        }
-    }
-
-    private fun isDirtyEventType(source: Any): Boolean {
-        /* clicking the save button triggers a state change on the dirty flag
-        therefore this should not trigger the dirtyflag to become true (chicken and egg)
-        also when changing items in the model list viewer, the state changes due to a
-        new entity loading, this should be ignored as well
-        hence the selecting flag in this class
-        checkign the widget that is the source of the binding event is the best
-        way i could figure out how to interrogate the source of data binding state change events
-         */
-        if (selectingFlag) return false
-        val btnSave = getWidgetFromViewState("btnSave")
-        return when (source){
-            is SWTObservableValueDecorator<*> -> source.widget != btnSave
-            else -> true
-        }
-    }
-
-
-    fun createListViewBindings(){
-        val listView = getWidgetFromViewState("list") as TableViewer
-        listView.input = wl
-        listView.comparator = comparator
-    }
-
-    // called by the view after the user interface elements have been created
-    fun createViewCommands(fields: List<Map<String, Any>>) {
-        val listView = getWidgetFromViewState("list") as TableViewer
-        listSelectionCommand(listView, fields)
-        val btnSave = getWidgetFromViewState("btnSave") as Button
-        saveCommand(listView, btnSave)
-        val btnNew = getWidgetFromViewState("btnNew") as Button
-        newCommand(btnNew, fields)
-        val composite = getWidgetFromViewState("composite") as Composite
-
-    }
-
-    /* default implementation of a list selection
-    binds the list selection to the edit form
-     */
-    private fun listSelectionCommand(listView: TableViewer, fields: List<Map<String, Any>>){
-        listView.addSelectionChangedListener { _ ->
-            selectingFlag = true
-            val selection = listView.structuredSelection
-            val selectedItem = selection.firstElement
-            // store the selected item in the list in the viewstate
-            currentItem = selectedItem as T
-            //modelBinder.createDataBindings()
-            createDataBindings(fields, selectedItem as T)
-            Display.getDefault().timerExec(100) {
-                selectingFlag = false
-            }
-        }
-    }
-
-    fun saveCommand(listView: TableViewer, btnSave: Button){
-        btnSave.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
-            // needed if ApplicationData.defaultUpdatePolicy = UpdateValueStrategy.POLICY_ON_REQUEST
-            //viewState.dbc.updateModels()
-            dirtyFlag.dirty = false
-            if (currentItem?.id == 0L) {
-                currentItem?.id = (wl.size + 1L)
-                wl.add(currentItem)
-                listView.selection = StructuredSelection(currentItem)
-            }
-            //println(currentItem.toString())
-        })
-    }
-
-    fun newCommand(btnNew: Button, fields: List<Map<String, Any>>) {
-        btnNew.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
-            // should probably just put ui into new mode
-            val newItem = bean_maker()
-            currentItem = newItem
-            createDataBindings(fields, newItem)
-        })
-    }
-
-    fun closeCommand(composite: Composite){
-        composite.addDisposeListener {
-            println("I am being closed")
-        }
-
-    }
-
-    private fun createDataBindings(fields: List<Map<String, Any>>, currentItem: T){
+    private fun createDataBindings(fields: List<Map<String, Any>>, currentItem: T,
+    getWidgetFromViewState: (String) -> Any, stateChangeListener: IChangeListener, dirtyFlag: DirtyFlag){
         dbc.dispose()
         val bindings = dbc.validationStatusProviders
         for (binding: ValidationStatusProvider in bindings) {
@@ -258,7 +118,7 @@ abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
             }
 
             dbc.bindings.forEach {
-                it.target.addChangeListener(listener)
+                it.target.addChangeListener(stateChangeListener)
             }
 
             val validationObserver = AggregateValidationStatus(dbc.bindings, AggregateValidationStatus.MAX_SEVERITY)
@@ -282,7 +142,5 @@ abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
 
         }
     }
-
-
 
 }
