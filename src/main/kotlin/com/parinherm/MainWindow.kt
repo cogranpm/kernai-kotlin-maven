@@ -83,6 +83,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         //val viewState = BeansViewState<BeanTest>(BeansBindingTestData.data, BeansBindingTestData::make, BeanTest.Comparator())
         val viewState = BeanTestViewModel(BeansBindingTestData.data, BeansBindingTestData::make,
                 BeanTest.Comparator(), ModelBinder<BeanTest>())
+        //probably change this to be viewmodel first, it triggers the view render
         val beansBindingView = BeansViewBuilder.renderView<BeanTest>(folder, viewState, testForm)
         beanBindingTestTab.control = beansBindingView
 
