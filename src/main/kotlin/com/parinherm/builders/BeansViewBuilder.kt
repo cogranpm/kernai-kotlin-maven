@@ -260,6 +260,7 @@ object BeansViewBuilder {
                 val btnRemove = Button(buttonBar, SWT.PUSH)
                 btnRemove.text = "Remove"
                 val list = TableViewer(childComposite, ApplicationData.listViewStyle)
+                //val list = getListViewer(childComposite, childDefs, null )
                 tab.control = childComposite
 
                 //GridLayoutFactory.fillDefaults().generateLayout(buttonBar)
