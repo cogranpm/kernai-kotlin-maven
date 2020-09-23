@@ -1,32 +1,17 @@
 package com.parinherm.builders
 
-import com.parinherm.ApplicationData
-import com.parinherm.databinding.*
 import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
-import com.parinherm.entity.LookupDetail
 import com.parinherm.entity.NewFlag
 import org.eclipse.core.databinding.*
-import org.eclipse.core.databinding.beans.typed.BeanProperties
-import org.eclipse.core.databinding.conversion.text.NumberToStringConverter
-import org.eclipse.core.databinding.conversion.text.StringToNumberConverter
 import org.eclipse.core.databinding.observable.ChangeEvent
 import org.eclipse.core.databinding.observable.IChangeListener
 import org.eclipse.core.databinding.observable.list.WritableList
-import org.eclipse.core.databinding.observable.value.ComputedValue
-import org.eclipse.core.databinding.observable.value.IObservableValue
-import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
-import org.eclipse.jface.databinding.swt.typed.WidgetProperties
-import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
 import org.eclipse.jface.internal.databinding.swt.SWTObservableValueDecorator
-import org.eclipse.jface.viewers.ComboViewer
 import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.jface.viewers.TableViewer
-import org.eclipse.swt.SWT
 import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.widgets.*
-import java.math.BigDecimal
-import java.time.LocalDate
 
 abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
                                    val comparator: BeansViewerComparator,
@@ -55,11 +40,11 @@ abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
         processStateChange(it)
     }
 
-    fun addWidgetToViewState(widgetKey: String, widget: Any){
+    fun addWidget(widgetKey: String, widget: Any){
         widgets[widgetKey] = widget
     }
 
-    private fun getWidgetFromViewState(widgetKey: String) : Any? = widgets[widgetKey]
+    private fun getWidget(widgetKey: String) : Any? = widgets[widgetKey]
 
     private fun processStateChange(ce: ChangeEvent){
         if(isDirtyEventType(ce.source)) {
@@ -91,7 +76,7 @@ abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
         way i could figure out how to interrogate the source of data binding state change events
          */
         if (selectingFlag) return false
-        val btnSave = getWidgetFromViewState("btnSave")
+        val btnSave = getWidget("btnSave")
         return when (source){
             is SWTObservableValueDecorator<*> -> source.widget != btnSave
             else -> true
@@ -100,20 +85,21 @@ abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
 
 
     fun createListViewBindings(){
-        val listView = getWidgetFromViewState("list") as TableViewer
+        val listView = getWidget("list") as TableViewer
         listView.input = wl
         listView.comparator = comparator
     }
 
     // called by the view after the user interface elements have been created
+    // need to think more about this, should this class setup the handlers?
     fun createViewCommands(fields: List<Map<String, Any>>) {
-        val listView = getWidgetFromViewState("list") as TableViewer
+        val listView = getWidget("list") as TableViewer
         listSelectionCommand(listView, fields)
-        val btnSave = getWidgetFromViewState("btnSave") as Button
+        val btnSave = getWidget("btnSave") as Button
         saveCommand(listView, btnSave)
-        val btnNew = getWidgetFromViewState("btnNew") as Button
+        val btnNew = getWidget("btnNew") as Button
         newCommand(btnNew, fields)
-        val composite = getWidgetFromViewState("composite") as Composite
+        val composite = getWidget("composite") as Composite
 
     }
 
@@ -127,7 +113,7 @@ abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
             val selectedItem = selection.firstElement
             // store the selected item in the list in the viewstate
             currentItem = selectedItem as T
-            modelBinder.createDataBindings(dbc, fields, selectedItem, this::getWidgetFromViewState, listener, dirtyFlag)
+            modelBinder.createDataBindings(dbc, fields, selectedItem, this::getWidget, listener, dirtyFlag)
             //createDataBindings(fields, selectedItem as T)
             Display.getDefault().timerExec(100) {
                 selectingFlag = false
@@ -154,7 +140,7 @@ abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
             // should probably just put ui into new mode
             val newItem = bean_maker()
             currentItem = newItem
-            modelBinder.createDataBindings(dbc, fields, newItem, this::getWidgetFromViewState, listener, dirtyFlag)
+            modelBinder.createDataBindings(dbc, fields, newItem, this::getWidget, listener, dirtyFlag)
         })
     }
 

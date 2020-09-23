@@ -17,28 +17,13 @@ package com.parinherm.builders
 
 //import com.parinherm.entity.BeanTest
 import com.parinherm.ApplicationData
-import com.parinherm.databinding.*
-import com.parinherm.databinding.Converters.bigDecimalValidator
-import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.LookupDetail
-import org.eclipse.core.databinding.AggregateValidationStatus
-import org.eclipse.core.databinding.Binding
-import org.eclipse.core.databinding.UpdateValueStrategy
-import org.eclipse.core.databinding.ValidationStatusProvider
 import org.eclipse.core.databinding.beans.typed.BeanProperties
-import org.eclipse.core.databinding.conversion.text.NumberToStringConverter
-import org.eclipse.core.databinding.conversion.text.StringToNumberConverter
 import org.eclipse.core.databinding.observable.map.IObservableMap
-import org.eclipse.core.databinding.observable.value.ComputedValue
-import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.core.databinding.property.value.IValueProperty
-import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
-import org.eclipse.jface.databinding.swt.ISWTObservableValue
-import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
-import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.GridLayoutFactory
 import org.eclipse.jface.layout.LayoutConstants
@@ -50,9 +35,7 @@ import org.eclipse.swt.custom.CTabItem
 import org.eclipse.swt.custom.SashForm
 import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
-import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.layout.FillLayout
-import org.eclipse.swt.layout.GridData
 import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.layout.RowLayout
 import org.eclipse.swt.widgets.*
@@ -65,14 +48,14 @@ object BeansViewBuilder {
 
         //val form: Map<String, Any> = ApplicationData.getView(viewId)
         val composite = Composite(parent, ApplicationData.swnone)
-        viewState.addWidgetToViewState("composite", composite)
+        viewState.addWidget("composite", composite)
 
         val sashForm = SashForm(composite, SWT.BORDER)
         val listContainer = Composite(sashForm, ApplicationData.swnone)
         val editContainer = getEditContainer(sashForm, viewDefinition)
 
         val listView = getListViewer<T>(listContainer, viewDefinition, viewState)
-        viewState.addWidgetToViewState("list", listView)
+        viewState.addWidget("list", listView)
 
         val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
         fields.forEach { item: Map<String, Any> ->
@@ -84,34 +67,34 @@ object BeansViewBuilder {
                 ApplicationData.ViewDef.text -> {
                     val input = Text(editContainer, ApplicationData.swnone)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
-                    viewState.addWidgetToViewState(fieldName, input)
+                    viewState.addWidget(fieldName, input)
                }
                 ApplicationData.ViewDef.float -> {
                     val input = Text(editContainer, ApplicationData.swnone)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
-                    viewState.addWidgetToViewState(fieldName, input)
+                    viewState.addWidget(fieldName, input)
                }
                 ApplicationData.ViewDef.money -> {
                     val input = Text(editContainer, ApplicationData.swnone)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
-                    viewState.addWidgetToViewState(fieldName, input)
+                    viewState.addWidget(fieldName, input)
                }
                 ApplicationData.ViewDef.int -> {
                     val input = Spinner(editContainer, ApplicationData.swnone)
                     input.minimum = Integer.MIN_VALUE
                     input.maximum = Integer.MAX_VALUE
                     GridDataFactory.fillDefaults().grab(false, false).applyTo(input)
-                    viewState.addWidgetToViewState(fieldName, input)
+                    viewState.addWidget(fieldName, input)
                }
                 ApplicationData.ViewDef.bool -> {
                     val input = Button(editContainer, SWT.CHECK)
                     GridDataFactory.fillDefaults().grab(false, false).applyTo(input)
-                    viewState.addWidgetToViewState(fieldName, input)
+                    viewState.addWidget(fieldName, input)
                }
                 ApplicationData.ViewDef.datetime -> {
                     val input = DateTime(editContainer, SWT.DROP_DOWN or SWT.DATE)
                     GridDataFactory.fillDefaults().grab(false, false).applyTo(input)
-                    viewState.addWidgetToViewState(fieldName, input)
+                    viewState.addWidget(fieldName, input)
                }
                 ApplicationData.ViewDef.lookup -> {
                     val input = ComboViewer(editContainer)
@@ -124,14 +107,14 @@ object BeansViewBuilder {
                     })
                     val comboSource = ApplicationData.lookups.getOrDefault(item[ApplicationData.ViewDef.lookupKey] as String, listOf())
                     input.input = comboSource
-                    viewState.addWidgetToViewState(fieldName, input)
+                    viewState.addWidget(fieldName, input)
                }
                 else -> {
                 }
             }
        }
         val lblErrors = Label(editContainer, ApplicationData.labelStyle)
-        viewState.addWidgetToViewState("lblErrors", lblErrors)
+        viewState.addWidget("lblErrors", lblErrors)
         val btnSave = Button(editContainer, SWT.PUSH)
         val btnNew = Button(editContainer, SWT.PUSH)
 
@@ -141,11 +124,11 @@ object BeansViewBuilder {
         sashForm.sashWidth = 4
 
         btnSave.text = "Save"
-        viewState.addWidgetToViewState("btnSave", btnSave)
+        viewState.addWidget("btnSave", btnSave)
         btnSave.enabled = false
 
         btnNew.text = "New"
-        viewState.addWidgetToViewState("btnNew", btnNew)
+        viewState.addWidget("btnNew", btnNew)
 
         viewState.createViewCommands(fields)
         viewState.createListViewBindings()
@@ -214,7 +197,7 @@ object BeansViewBuilder {
             }
 
             val column = getColumn(viewState.comparator, item[ApplicationData.ViewDef.title] as String, listView, tableLayout, columnIndex)
-            viewState.addWidgetToViewState(fieldName + "_column", column)
+            viewState.addWidget(fieldName + "_column", column)
             columnIndex++
         }
 

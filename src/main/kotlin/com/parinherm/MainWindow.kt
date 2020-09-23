@@ -79,8 +79,9 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         val viewDefinitions: Map<String, Any> = getViewDefinitions()
 
         // render the test view
+        //testForm is the pure data representation of a form
         val testForm: Map<String, Any> = ApplicationData.getView(ApplicationData.ViewDef.beansBindingTestViewId, viewDefinitions)
-        //val viewState = BeansViewState<BeanTest>(BeansBindingTestData.data, BeansBindingTestData::make, BeanTest.Comparator())
+        //presentation model - viewModel instance
         val viewState = BeanTestViewModel(BeansBindingTestData.data, BeansBindingTestData::make,
                 BeanTest.Comparator(), ModelBinder<BeanTest>())
         //probably change this to be viewmodel first, it triggers the view render
