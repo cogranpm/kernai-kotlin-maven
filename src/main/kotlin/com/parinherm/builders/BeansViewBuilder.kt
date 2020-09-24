@@ -254,27 +254,21 @@ object BeansViewBuilder {
                 val childComposite = Composite(folder, ApplicationData.swnone)
                 childComposite.layout = GridLayout()
                 val buttonBar = Composite(childComposite, ApplicationData.swnone)
+                val listComposite = Composite(childComposite, ApplicationData.swnone)
+                listComposite.layout = FillLayout()
                 buttonBar.layout = RowLayout()
                 val btnAdd = Button(buttonBar, SWT.PUSH)
                 btnAdd.text = "Add"
                 val btnRemove = Button(buttonBar, SWT.PUSH)
                 btnRemove.text = "Remove"
-
-                //val list = TableViewer(childComposite, ApplicationData.listViewStyle)
-
-                println(it)
-
                 // should each child entity have it's own viewstate
-                val list = getListViewer(childComposite, it, viewState )
+                val list = getListViewer(listComposite, it, viewState )
                 tab.control = childComposite
 
                 //GridLayoutFactory.fillDefaults().generateLayout(buttonBar)
                 GridLayoutFactory.fillDefaults().numColumns(1).margins(LayoutConstants.getMargins()).generateLayout(childComposite)
                 GridDataFactory.fillDefaults().grab(true, false).applyTo(buttonBar)
-                GridDataFactory.fillDefaults().grab(true, true).applyTo(list.table)
-                //GridDataFactory.swtDefaults().grab(true, true).applyTo(childComposite);
-
-
+                GridDataFactory.fillDefaults().grab(true, true).applyTo(listComposite)
             }
             return fieldsContainer
 
