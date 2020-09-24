@@ -197,7 +197,7 @@ object BeansViewBuilder {
             }
 
             val column = getColumn(viewState.comparator, item[ApplicationData.ViewDef.title] as String, listView, tableLayout, columnIndex)
-            viewState.addWidget(fieldName + "_column", column)
+            //viewState.addWidget(fieldName + "_column", column)
             columnIndex++
         }
 
