@@ -52,7 +52,7 @@ object BeansViewBuilder {
 
         val sashForm = SashForm(composite, SWT.BORDER)
         val listContainer = Composite(sashForm, ApplicationData.swnone)
-        val editContainer = getEditContainer(sashForm, viewDefinition)
+        val editContainer = getEditContainer(sashForm, viewDefinition, viewState)
 
         val listView = getListViewer<T>(listContainer, viewDefinition, viewState)
         viewState.addWidget("list", listView)
@@ -222,7 +222,7 @@ object BeansViewBuilder {
     }
 
 
-    private fun getEditContainer(parent: Composite, viewDefinition: Map<String, Any>) : Composite {
+    private fun <T> getEditContainer(parent: Composite, viewDefinition: Map<String, Any>, viewState: BeansViewState<T>) : Composite  where T : IBeanDataEntity {
         /*
         if we have master detail children then we need the edit container in horizontal sash form
         with an edit composite up top and a tab control in the below
@@ -259,8 +259,12 @@ object BeansViewBuilder {
                 btnAdd.text = "Add"
                 val btnRemove = Button(buttonBar, SWT.PUSH)
                 btnRemove.text = "Remove"
-                val list = TableViewer(childComposite, ApplicationData.listViewStyle)
-                //val list = getListViewer(childComposite, childDefs, null )
+
+                //val list = TableViewer(childComposite, ApplicationData.listViewStyle)
+
+
+                // should each child entity have it's own viewstate
+                val list = getListViewer(childComposite, it, viewState )
                 tab.control = childComposite
 
                 //GridLayoutFactory.fillDefaults().generateLayout(buttonBar)
