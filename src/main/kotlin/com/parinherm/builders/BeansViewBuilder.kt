@@ -262,6 +262,7 @@ object BeansViewBuilder {
 
                 //val list = TableViewer(childComposite, ApplicationData.listViewStyle)
 
+                println(it)
 
                 // should each child entity have it's own viewstate
                 val list = getListViewer(childComposite, it, viewState )
