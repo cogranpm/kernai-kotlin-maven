@@ -82,11 +82,12 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         //testForm is the pure data representation of a form
         val testForm: Map<String, Any> = ApplicationData.getView(ApplicationData.ViewDef.beansBindingTestViewId, viewDefinitions)
         //presentation model - viewModel instance
-        val viewState = BeanTestViewModel(BeansBindingTestData.data, BeansBindingTestData::make,
+        val viewModel = BeanTestViewModel(BeansBindingTestData.data, BeansBindingTestData::make,
                 BeanTest.Comparator(), ModelBinder<BeanTest>())
-        //probably change this to be viewmodel first, it triggers the view render
-        val beansBindingView = BeansViewBuilder.renderView<BeanTest>(folder, viewState, testForm)
-        beanBindingTestTab.control = beansBindingView
+
+
+        //val beansBindingView = BeansViewBuilder.renderView<BeanTest>(folder, viewState, testForm)
+        beanBindingTestTab.control = viewModel.render(folder, testForm)
 
         /* this messes up the layout here or
         in the toolbar manager override

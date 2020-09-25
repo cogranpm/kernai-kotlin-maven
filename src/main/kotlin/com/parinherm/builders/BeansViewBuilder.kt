@@ -46,7 +46,7 @@ object BeansViewBuilder {
 
 
     //fun <T> renderView(parent: Composite, viewState: BeansViewState<T>, viewDefinition: Map<String, Any>): Composite where T : IBeanDataEntity {
-    fun <T> renderView(parent: Composite, viewDefinition: Map<String, Any>): Composite where T : IBeanDataEntity {
+    fun <T> renderView(parent: Composite, viewDefinition: Map<String, Any>, comparator: BeansViewerComparator): Composite where T : IBeanDataEntity {
 
         //val form: Map<String, Any> = ApplicationData.getView(viewId)
         val composite = Composite(parent, ApplicationData.swnone)
@@ -56,7 +56,7 @@ object BeansViewBuilder {
         val listContainer = Composite(sashForm, ApplicationData.swnone)
         val editContainer = getEditContainer<T>(sashForm, viewDefinition)
 
-        //val listView = getListViewer<T>(listContainer, viewDefinition, null)
+        val listView = getListViewer<T>(listContainer, viewDefinition, comparator)
         //viewState.addWidget("list", listView)
 
         val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
@@ -265,6 +265,7 @@ object BeansViewBuilder {
                 val btnRemove = Button(buttonBar, SWT.PUSH)
                 btnRemove.text = "Remove"
                 // should each child entity have it's own viewstate
+                // needs it's own comparator somehow
                 //val list = getListViewer(listComposite, it, null )
                 tab.control = childComposite
 
@@ -310,6 +311,23 @@ object BeansViewBuilder {
         return selectionAdapter
     }
 
+
+    fun <T>  findChild(parent: Composite , id: String ) : T where T : Control {
+        val found: Control? = null;
+        val children = parent.children;
+        /*
+        for (int i = 0; i < children .length && found == null; i++) {
+            Control child = children[i];
+            if (id.equals(child.getData(ID)) {
+                        found = child;
+                    } else if (child instanceof Composite) {
+                found = findChild((Composite) child, id);
+            }
+        }
+
+         */
+        return found as T
+    }
 
 }
 
