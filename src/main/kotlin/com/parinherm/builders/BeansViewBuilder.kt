@@ -312,20 +312,24 @@ object BeansViewBuilder {
     }
 
 
+    /* TODO go over this for correctness
+    should find a component in the hierarchy by id
+     */
     fun <T>  findChild(parent: Composite , id: String ) : T where T : Control {
-        val found: Control? = null;
+        var found: Control? = null;
         val children = parent.children;
-        /*
-        for (int i = 0; i < children .length && found == null; i++) {
-            Control child = children[i];
-            if (id.equals(child.getData(ID)) {
-                        found = child;
-                    } else if (child instanceof Composite) {
-                found = findChild((Composite) child, id);
+
+        for (element in children) {
+            // this can't be right, double check
+            val elementId = element.getData(id) as String
+            if (id == elementId) {
+                        found = element;
+                    } else if (element is Composite) {
+                found = findChild(element, id);
             }
         }
 
-         */
+
         return found as T
     }
 
