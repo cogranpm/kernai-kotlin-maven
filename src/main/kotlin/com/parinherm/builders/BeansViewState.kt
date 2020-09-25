@@ -35,6 +35,10 @@ abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
         wl.addAll(data)
     }
 
+    fun render(parent: Composite, viewDefinition: Map<String, Any>) {
+        val composite = BeansViewBuilder.renderView<T>(parent, viewDefinition)
+    }
+
 
     val listener: IChangeListener = IChangeListener {
         processStateChange(it)
