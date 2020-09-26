@@ -1,5 +1,6 @@
 package com.parinherm.builders
 
+import com.parinherm.ApplicationData
 import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.NewFlag
@@ -10,6 +11,9 @@ import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.internal.databinding.swt.SWTObservableValueDecorator
 import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.jface.viewers.TableViewer
+import org.eclipse.jface.viewers.TableViewerColumn
+import org.eclipse.swt.events.SelectionAdapter
+import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.widgets.*
 
@@ -36,7 +40,12 @@ abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
     }
 
     fun render(parent: Composite, viewDefinition: Map<String, Any>): Composite {
-        val composite = BeansViewBuilder.renderView<T>(parent, viewDefinition, comparator)
+        val composite = BeansViewBuilder.renderView<T>(parent, viewDefinition,
+            comparator, this::addWidget)
+        // wire everthing up
+        createListViewBindings()
+        val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
+        createViewCommands(fields)
         return composite
     }
 
@@ -100,6 +109,7 @@ abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
     fun createViewCommands(fields: List<Map<String, Any>>) {
         val listView = getWidget("list") as TableViewer
         listSelectionCommand(listView, fields)
+        listHeaderSelection(listView, fields)
         val btnSave = getWidget("btnSave") as Button
         saveCommand(listView, btnSave)
         val btnNew = getWidget("btnNew") as Button
@@ -126,7 +136,30 @@ abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
         }
     }
 
-    fun saveCommand(listView: TableViewer, btnSave: Button){
+    private fun listHeaderSelection(listView: TableViewer, fields: List<Map<String, Any>>){
+        fields.forEachIndexed {index: Int, item: Map<String, Any> ->
+            val fieldName = item[ApplicationData.ViewDef.fieldName] as String
+            val column = widgets[fieldName + "_column"] as TableViewerColumn
+            column.column.addSelectionListener(getSelectionAdapter(listView, column.column, index, comparator))
+        }
+    }
+
+    private fun getSelectionAdapter(viewer: TableViewer, column: TableColumn, index: Int, comparator: BeansViewerComparator) : SelectionAdapter {
+        val selectionAdapter = (object: SelectionAdapter() {
+            override fun widgetSelected(e: SelectionEvent?) {
+                comparator.setColumn(index)
+                val dir = comparator.getDirection()
+                viewer.table.sortDirection = dir
+                viewer.table.sortColumn = column
+                viewer.refresh()
+            }
+        })
+        return selectionAdapter
+    }
+
+
+
+    private fun saveCommand(listView: TableViewer, btnSave: Button){
         btnSave.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
             // needed if ApplicationData.defaultUpdatePolicy = UpdateValueStrategy.POLICY_ON_REQUEST
             //viewState.dbc.updateModels()

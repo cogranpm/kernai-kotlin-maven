@@ -46,18 +46,19 @@ object BeansViewBuilder {
 
 
     //fun <T> renderView(parent: Composite, viewState: BeansViewState<T>, viewDefinition: Map<String, Any>): Composite where T : IBeanDataEntity {
-    fun <T> renderView(parent: Composite, viewDefinition: Map<String, Any>, comparator: BeansViewerComparator): Composite where T : IBeanDataEntity {
+    fun <T> renderView(parent: Composite, viewDefinition: Map<String, Any>,
+                       comparator: BeansViewerComparator, addWidget: (String, Any) -> Unit): Composite where T : IBeanDataEntity {
 
         //val form: Map<String, Any> = ApplicationData.getView(viewId)
         val composite = Composite(parent, ApplicationData.swnone)
-        //viewState.addWidget("composite", composite)
+        addWidget("composite", composite)
 
         val sashForm = SashForm(composite, SWT.BORDER)
         val listContainer = Composite(sashForm, ApplicationData.swnone)
-        val editContainer = getEditContainer<T>(sashForm, viewDefinition)
+        val editContainer = getEditContainer<T>(sashForm, viewDefinition, addWidget)
 
-        val listView = getListViewer<T>(listContainer, viewDefinition, comparator)
-        //viewState.addWidget("list", listView)
+        val listView = getListViewer<T>(listContainer, viewDefinition, addWidget)
+        addWidget("list", listView)
 
         val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
         fields.forEach { item: Map<String, Any> ->
@@ -69,34 +70,34 @@ object BeansViewBuilder {
                 ApplicationData.ViewDef.text -> {
                     val input = Text(editContainer, ApplicationData.swnone)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
-                    //viewState.addWidget(fieldName, input)
+                    addWidget(fieldName, input)
                }
                 ApplicationData.ViewDef.float -> {
                     val input = Text(editContainer, ApplicationData.swnone)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
-                    //viewState.addWidget(fieldName, input)
+                    addWidget(fieldName, input)
                }
                 ApplicationData.ViewDef.money -> {
                     val input = Text(editContainer, ApplicationData.swnone)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
-                    //viewState.addWidget(fieldName, input)
+                    addWidget(fieldName, input)
                }
                 ApplicationData.ViewDef.int -> {
                     val input = Spinner(editContainer, ApplicationData.swnone)
                     input.minimum = Integer.MIN_VALUE
                     input.maximum = Integer.MAX_VALUE
                     GridDataFactory.fillDefaults().grab(false, false).applyTo(input)
-                    //viewState.addWidget(fieldName, input)
+                    addWidget(fieldName, input)
                }
                 ApplicationData.ViewDef.bool -> {
                     val input = Button(editContainer, SWT.CHECK)
                     GridDataFactory.fillDefaults().grab(false, false).applyTo(input)
-                    //viewState.addWidget(fieldName, input)
+                    addWidget(fieldName, input)
                }
                 ApplicationData.ViewDef.datetime -> {
                     val input = DateTime(editContainer, SWT.DROP_DOWN or SWT.DATE)
                     GridDataFactory.fillDefaults().grab(false, false).applyTo(input)
-                    //viewState.addWidget(fieldName, input)
+                    addWidget(fieldName, input)
                }
                 ApplicationData.ViewDef.lookup -> {
                     val input = ComboViewer(editContainer)
@@ -109,14 +110,14 @@ object BeansViewBuilder {
                     })
                     val comboSource = ApplicationData.lookups.getOrDefault(item[ApplicationData.ViewDef.lookupKey] as String, listOf())
                     input.input = comboSource
-                    //viewState.addWidget(fieldName, input)
+                    addWidget(fieldName, input)
                }
                 else -> {
                 }
             }
        }
         val lblErrors = Label(editContainer, ApplicationData.labelStyle)
-        //viewState.addWidget("lblErrors", lblErrors)
+        addWidget("lblErrors", lblErrors)
         val btnSave = Button(editContainer, SWT.PUSH)
         val btnNew = Button(editContainer, SWT.PUSH)
 
@@ -126,11 +127,11 @@ object BeansViewBuilder {
         sashForm.sashWidth = 4
 
         btnSave.text = "Save"
-        //viewState.addWidget("btnSave", btnSave)
+        addWidget("btnSave", btnSave)
         btnSave.enabled = false
 
         btnNew.text = "New"
-        //viewState.addWidget("btnNew", btnNew)
+        addWidget("btnNew", btnNew)
 
         //viewState.createViewCommands(fields)
         //viewState.createListViewBindings()
@@ -150,8 +151,12 @@ object BeansViewBuilder {
         return false
     }
 
-    //private fun <T> getListViewer(parent: Composite, viewDefinition: Map<String, Any>, viewState: BeansViewState<T>) : TableViewer where T : IBeanDataEntity {
-    private fun <T> getListViewer(parent: Composite, viewDefinition: Map<String, Any>, comparator: BeansViewerComparator) : TableViewer where T : IBeanDataEntity {
+    /*private fun <T> getListViewer(parent: Composite, viewDefinition: Map<String, Any>, viewState: BeansViewState<T>) : TableViewer where T : IBeanDataEntity {
+    private fun <T> getListViewer(parent: Composite, viewDefinition: Map<String, Any>,
+                                  comparator: BeansViewerComparator, addWidget: (String, Any) -> Unit) */
+    private fun <T> getListViewer(parent: Composite, viewDefinition: Map<String, Any>,
+                                  addWidget: (String, Any) -> Unit)
+            : TableViewer where T : IBeanDataEntity {
         val listView = TableViewer(parent, ApplicationData.listViewStyle)
         val tableLayout = TableColumnLayout(true)
         val contentProvider = ObservableListContentProvider<T>()
@@ -160,10 +165,12 @@ object BeansViewBuilder {
         // two step operation, get observable on domain entity (BeanProperty)
         // then get the MapObservable via observeDetail on the observable
         // add it to the array below so it can be unpacked in one step outside the fields loop
+
+        // the following needs to move into the model view instance to get rid of the generic type
+        // from here
         val columnLabelList: MutableList<IObservableMap<T, out Any>> = mutableListOf()
-        var columnIndex = 0
         val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
-        fields.forEach { item: Map<String, Any> ->
+        fields.forEach{item: Map<String, Any> ->
            val fieldName = item[ApplicationData.ViewDef.fieldName] as String
             when (item[ApplicationData.ViewDef.fieldDataType]) {
                 ApplicationData.ViewDef.text -> {
@@ -199,9 +206,9 @@ object BeansViewBuilder {
             }
 
             //need to do this somewhere else
-            val column = getColumn(comparator, item[ApplicationData.ViewDef.title] as String, listView, tableLayout, columnIndex)
-            //viewState.addWidget(fieldName + "_column", column)
-            columnIndex++
+            //val column = getColumn(comparator, item[ApplicationData.ViewDef.title] as String, listView, tableLayout, columnIndex)
+            val column = getColumn(item[ApplicationData.ViewDef.title] as String, listView, tableLayout)
+            addWidget(fieldName + "_column", column)
         }
 
         //observable column support, but no control over the cell contents
@@ -225,7 +232,7 @@ object BeansViewBuilder {
     }
 
     //private fun <T> getEditContainer(parent: Composite, viewDefinition: Map<String, Any>, viewState: BeansViewState<T>) : Composite  where T : IBeanDataEntity {
-    private fun <T> getEditContainer(parent: Composite, viewDefinition: Map<String, Any>) : Composite  where T : IBeanDataEntity {
+    private fun <T> getEditContainer(parent: Composite, viewDefinition: Map<String, Any>, addWidget: (String, Any) -> Unit) : Composite  where T : IBeanDataEntity {
         /*
         if we have master detail children then we need the edit container in horizontal sash form
         with an edit composite up top and a tab control in the below
@@ -242,8 +249,11 @@ object BeansViewBuilder {
             val childDefs = viewDefinition[ApplicationData.ViewDef.childViews] as List<Map<String, Any>>
             val folder = CTabFolder(childContainer, SWT.TOP or SWT.BORDER)
             childDefs.forEach{
+                val childWidgetMap = mutableMapOf<String, Any>()
+                addWidget(it[ApplicationData.ViewDef.viewid] as String, childWidgetMap)
                 val tab = CTabItem(folder, SWT.CLOSE)
                 tab.text = it[ApplicationData.ViewDef.title].toString()
+                childWidgetMap["tab"] = tab
                 // each child tab should just be a list with a header
                 // the header having delete, add, edit buttons
                 // each row should have double click handler to open up a new root level tab
@@ -262,11 +272,15 @@ object BeansViewBuilder {
                 buttonBar.layout = RowLayout()
                 val btnAdd = Button(buttonBar, SWT.PUSH)
                 btnAdd.text = "Add"
+                childWidgetMap["btnAdd"] = btnAdd
                 val btnRemove = Button(buttonBar, SWT.PUSH)
                 btnRemove.text = "Remove"
-                // should each child entity have it's own viewstate
-                // needs it's own comparator somehow
-                //val list = getListViewer(listComposite, it, null )
+                childWidgetMap["btnRemove"] = btnRemove
+                //need to figure out how to set comparator later on
+                //oh oh, should not have the generic type here, it is unknown at this point
+                // move the stuff that needs it into the viewmodel for later processing
+                val list = getListViewer<T>(listComposite, it, addWidget)
+                childWidgetMap["list"] = list
                 tab.control = childComposite
 
                 //GridLayoutFactory.fillDefaults().generateLayout(buttonBar)
@@ -284,54 +298,19 @@ object BeansViewBuilder {
     }
 
 
-    private fun getColumn(comparator: BeansViewerComparator, caption: String,
+   private fun getColumn(caption: String,
                           viewer: TableViewer,
-                          layout: TableColumnLayout,
-                          columnIndex: Int) : TableViewerColumn {
+                          layout: TableColumnLayout) : TableViewerColumn
+    {
         val column = TableViewerColumn(viewer, SWT.LEFT)
         val col = column.column
         col.text = caption
         col.resizable = true
         col.moveable = true
         layout.setColumnData(col, ColumnWeightData(100))
-        col.addSelectionListener(getSelectionAdapter(viewer, col, columnIndex, comparator))
         return column
     }
 
-    private fun getSelectionAdapter(viewer: TableViewer, column: TableColumn, index: Int, comparator: BeansViewerComparator) : SelectionAdapter {
-       val selectionAdapter = (object: SelectionAdapter() {
-           override fun widgetSelected(e: SelectionEvent?) {
-               comparator.setColumn(index)
-               val dir = comparator.getDirection()
-               viewer.table.sortDirection = dir
-               viewer.table.sortColumn = column
-               viewer.refresh()
-           }
-       })
-        return selectionAdapter
-    }
-
-
-    /* TODO go over this for correctness
-    should find a component in the hierarchy by id
-     */
-    fun <T>  findChild(parent: Composite , id: String ) : T where T : Control {
-        var found: Control? = null;
-        val children = parent.children;
-
-        for (element in children) {
-            // this can't be right, double check
-            val elementId = element.getData(id) as String
-            if (id == elementId) {
-                        found = element;
-                    } else if (element is Composite) {
-                found = findChild(element, id);
-            }
-        }
-
-
-        return found as T
-    }
 
 }
 
