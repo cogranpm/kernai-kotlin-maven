@@ -139,7 +139,7 @@ abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
     private fun listHeaderSelection(listView: TableViewer, fields: List<Map<String, Any>>){
         fields.forEachIndexed {index: Int, item: Map<String, Any> ->
             val fieldName = item[ApplicationData.ViewDef.fieldName] as String
-            val column = widgets[fieldName + "_column"] as TableViewerColumn
+            val column = widgets[ApplicationData.ViewDef.makeColumnMapKey(fieldName)] as TableViewerColumn
             column.column.addSelectionListener(getSelectionAdapter(listView, column.column, index, comparator))
         }
     }

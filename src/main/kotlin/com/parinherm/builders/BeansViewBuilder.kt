@@ -33,8 +33,6 @@ import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.CTabFolder
 import org.eclipse.swt.custom.CTabItem
 import org.eclipse.swt.custom.SashForm
-import org.eclipse.swt.events.SelectionAdapter
-import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.layout.RowLayout
@@ -208,7 +206,7 @@ object BeansViewBuilder {
             //need to do this somewhere else
             //val column = getColumn(comparator, item[ApplicationData.ViewDef.title] as String, listView, tableLayout, columnIndex)
             val column = getColumn(item[ApplicationData.ViewDef.title] as String, listView, tableLayout)
-            addWidget(fieldName + "_column", column)
+            addWidget(ApplicationData.ViewDef.makeColumnMapKey(fieldName), column)
         }
 
         //observable column support, but no control over the cell contents

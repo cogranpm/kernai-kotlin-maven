@@ -116,6 +116,8 @@ object ApplicationData {
 
         const val childViews = "childViews"
 
+        fun makeColumnMapKey(fieldName: String) : String = fieldName + "_column"
+
 
     }
 
