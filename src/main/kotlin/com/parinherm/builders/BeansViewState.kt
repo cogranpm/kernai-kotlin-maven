@@ -5,9 +5,14 @@ import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.NewFlag
 import org.eclipse.core.databinding.*
+import org.eclipse.core.databinding.beans.typed.BeanProperties
 import org.eclipse.core.databinding.observable.ChangeEvent
 import org.eclipse.core.databinding.observable.IChangeListener
 import org.eclipse.core.databinding.observable.list.WritableList
+import org.eclipse.core.databinding.observable.map.IObservableMap
+import org.eclipse.core.databinding.property.value.IValueProperty
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
+import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
 import org.eclipse.jface.internal.databinding.swt.SWTObservableValueDecorator
 import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.jface.viewers.TableViewer
@@ -16,6 +21,8 @@ import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.widgets.*
+import java.math.BigDecimal
+import java.time.LocalDate
 
 abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
                                    val comparator: BeansViewerComparator,
@@ -43,8 +50,8 @@ abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
         val composite = BeansViewBuilder.renderView<T>(parent, viewDefinition,
             comparator, this::addWidget)
         // wire everthing up
-        createListViewBindings()
         val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
+        createListViewBindings(fields)
         createViewCommands(fields)
         return composite
     }
@@ -98,10 +105,64 @@ abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
     }
 
 
-    fun createListViewBindings(){
+    protected fun createListViewBindings(fields: List<Map<String, Any>>){
         val listView = getWidget("list") as TableViewer
-        listView.input = wl
+        // list of IObservableMap to make the tableviewer columns observable
+        // two step operation, get observable on domain entity (BeanProperty)
+        // then get the MapObservable via observeDetail on the observable
+        // add it to the array below so it can be unpacked in one step outside the fields loop
+        val columnLabelList: MutableList<IObservableMap<T, out Any>> = mutableListOf()
+       val contentProvider = ObservableListContentProvider<T>()
+        fields.forEach{item: Map<String, Any> ->
+            val fieldName = item[ApplicationData.ViewDef.fieldName] as String
+            when (item[ApplicationData.ViewDef.fieldDataType]) {
+                ApplicationData.ViewDef.text -> {
+                    val observableColumn: IValueProperty<T, String> = BeanProperties.value<T, String>(fieldName)
+                    columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
+                }
+                ApplicationData.ViewDef.float -> {
+                    val observableColumn: IValueProperty<T, Double> = BeanProperties.value<T, Double>(fieldName)
+                    columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
+                }
+                ApplicationData.ViewDef.money -> {
+                    val observableColumn: IValueProperty<T, BigDecimal> = BeanProperties.value<T, BigDecimal>(fieldName)
+                    columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
+                }
+                ApplicationData.ViewDef.int -> {
+                    val observableColumn: IValueProperty<T, Int> = BeanProperties.value<T, Int>(fieldName)
+                    columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
+                }
+                ApplicationData.ViewDef.bool -> {
+                    val observableColumn: IValueProperty<T, Boolean> = BeanProperties.value<T, Boolean>(fieldName)
+                    columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
+                }
+                ApplicationData.ViewDef.datetime -> {
+                    val observableColumn: IValueProperty<T, LocalDate> = BeanProperties.value<T, LocalDate>(fieldName)
+                    columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
+                }
+                ApplicationData.ViewDef.lookup -> {
+                    val observableColumn: IValueProperty<T, String> = BeanProperties.value<T, String>(fieldName)
+                    columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
+                }
+                else -> {
+                }
+            }
+        }
+
+        //observable column support, but no control over the cell contents
+        //ViewerSupport.bind(listView, viewState.wl, *(columnLabelList.toTypedArray()))
+        val labelMaps = columnLabelList.toTypedArray()
+        val labelProvider = (object: ObservableMapLabelProvider(labelMaps){
+            override fun getColumnText(element: Any?, columnIndex: Int): String {
+                val beanEntity = element as IBeanDataEntity
+                return beanEntity?.getColumnValueByIndex(columnIndex)
+            }
+        })
+        listView.contentProvider = contentProvider
+        listView.labelProvider = labelProvider
         listView.comparator = comparator
+        listView.input = wl
+
     }
 
     // called by the view after the user interface elements have been created
