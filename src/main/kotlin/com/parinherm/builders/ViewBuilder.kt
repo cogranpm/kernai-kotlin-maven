@@ -31,7 +31,7 @@ import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.layout.RowLayout
 import org.eclipse.swt.widgets.*
 
-object BeansViewBuilder {
+object ViewBuilder {
 
 
     fun renderView(parent: Composite, viewDefinition: Map<String, Any>, addWidget: (String, Any) -> Unit): Composite {

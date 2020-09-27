@@ -24,9 +24,9 @@ import org.eclipse.swt.widgets.*
 import java.math.BigDecimal
 import java.time.LocalDate
 
-abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
-                                   val comparator: BeansViewerComparator,
-                                   val modelBinder: ModelBinder<T>) where T: IBeanDataEntity {
+abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
+                              val comparator: BeansViewerComparator,
+                              val modelBinder: ModelBinder<T>) where T: IBeanDataEntity {
 
 
     val wl = WritableList<T>()
@@ -47,7 +47,7 @@ abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
     }
 
     fun render(parent: Composite, viewDefinition: Map<String, Any>): Composite {
-        val composite = BeansViewBuilder.renderView(parent, viewDefinition, this::addWidget)
+        val composite = ViewBuilder.renderView(parent, viewDefinition, this::addWidget)
         val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
         createListViewBindings(fields)
         createViewCommands(fields)
