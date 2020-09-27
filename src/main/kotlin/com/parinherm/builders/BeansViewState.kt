@@ -47,9 +47,7 @@ abstract class BeansViewState <T> (data: List<T>, val bean_maker: ()-> T,
     }
 
     fun render(parent: Composite, viewDefinition: Map<String, Any>): Composite {
-        val composite = BeansViewBuilder.renderView<T>(parent, viewDefinition,
-            comparator, this::addWidget)
-        // wire everthing up
+        val composite = BeansViewBuilder.renderView(parent, viewDefinition, this::addWidget)
         val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
         createListViewBindings(fields)
         createViewCommands(fields)
