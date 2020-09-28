@@ -189,12 +189,14 @@ abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
             // store the selected item in the list in the viewstate
             currentItem = selectedItem as T
             modelBinder.createDataBindings(dbc, fields, selectedItem, this::getWidget, listener, dirtyFlag)
-            //createDataBindings(fields, selectedItem as T)
+            afterListSelection(listView, currentItem!!)
             Display.getDefault().timerExec(100) {
                 selectingFlag = false
             }
         }
     }
+
+    abstract fun afterListSelection (listView: TableViewer, currentItem: T) : Unit
 
     private fun listHeaderSelection(listView: TableViewer, fields: List<Map<String, Any>>){
         fields.forEachIndexed {index: Int, item: Map<String, Any> ->

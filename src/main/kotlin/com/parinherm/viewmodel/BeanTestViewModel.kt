@@ -45,15 +45,17 @@ class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, compara
        val personDetailViewDef = childDefs[0]
        val fields = personDetailViewDef[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
        createListViewBindings<PersonDetail>(list, fields, PersonDetail.Comparator())
-
-       //set the input on the list, should be done on list select
-       personDetails.addAll(BeansBindingTestData.personDetails)
-       list.input = personDetails
-
-
         return composite
     }
 
+    override fun afterListSelection(listView: TableViewer, currentItem: BeanTest) {
+        personDetails.clear()
+        personDetails.addAll(BeansBindingTestData.personDetails)
+        val personDetailWidgetsMap: Map<String, Any> = getWidget(ApplicationData.ViewDef.personDetailsViewId) as Map<String, Any>
+        val list: TableViewer = personDetailWidgetsMap["list"] as TableViewer
+        list.input = personDetails
+
+    }
 
 
 }
