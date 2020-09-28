@@ -15,6 +15,8 @@ import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.builders.ModelBinder
 import com.parinherm.builders.ViewBuilder
 import com.parinherm.entity.BeanTest
+import com.parinherm.entity.PersonDetail
+import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.swt.custom.CTabItem
 import org.eclipse.swt.widgets.Button
@@ -24,6 +26,8 @@ import org.eclipse.swt.widgets.TabItem
 
 class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, comparator: BeansViewerComparator, modelBinder: ModelBinder<BeanTest>)
     : ViewModel<BeanTest> (data, bean_maker, comparator, modelBinder){
+
+   val personDetails = WritableList<PersonDetail>()
 
    override  fun render(parent: Composite, viewDefinition: Map<String, Any>): Composite {
         val composite = super.render(parent, viewDefinition)
@@ -38,7 +42,7 @@ class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, compara
        //change this to a filter on the list
        val personDetailViewDef = childDefs[0]
        val fields = personDetailViewDef[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
-       createListViewBindings(list, fields)
+       createListViewBindings<PersonDetail>(list, fields, PersonDetail.Comparator())
 
        //set the input on the list
         return composite

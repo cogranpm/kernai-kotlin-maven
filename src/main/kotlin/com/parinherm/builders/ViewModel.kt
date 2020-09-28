@@ -50,8 +50,9 @@ abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
         val composite = ViewBuilder.renderView(parent, viewDefinition, this::addWidget)
         val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
         val listView = getWidget("list") as TableViewer
-        createListViewBindings(listView, fields)
+        createListViewBindings<T>(listView, fields, comparator)
         createViewCommands(listView, fields)
+        listView.input = wl
         return composite
     }
 
@@ -104,43 +105,44 @@ abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
     }
 
 
-    protected open fun createListViewBindings(listView: TableViewer, fields: List<Map<String, Any>>){
+    //need to make this take a type variable
+    protected open fun <E>createListViewBindings(listView: TableViewer, fields: List<Map<String, Any>>, comparator: BeansViewerComparator){
 
         // list of IObservableMap to make the tableviewer columns observable
         // two step operation, get observable on domain entity (BeanProperty)
         // then get the MapObservable via observeDetail on the observable
         // add it to the array below so it can be unpacked in one step outside the fields loop
-        val columnLabelList: MutableList<IObservableMap<T, out Any>> = mutableListOf()
-       val contentProvider = ObservableListContentProvider<T>()
+        val columnLabelList: MutableList<IObservableMap<E, out Any>> = mutableListOf()
+       val contentProvider = ObservableListContentProvider<E>()
         fields.forEach{item: Map<String, Any> ->
             val fieldName = item[ApplicationData.ViewDef.fieldName] as String
             when (item[ApplicationData.ViewDef.fieldDataType]) {
                 ApplicationData.ViewDef.text -> {
-                    val observableColumn: IValueProperty<T, String> = BeanProperties.value<T, String>(fieldName)
+                    val observableColumn: IValueProperty<E, String> = BeanProperties.value<E, String>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                 }
                 ApplicationData.ViewDef.float -> {
-                    val observableColumn: IValueProperty<T, Double> = BeanProperties.value<T, Double>(fieldName)
+                    val observableColumn: IValueProperty<E, Double> = BeanProperties.value<E, Double>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                 }
                 ApplicationData.ViewDef.money -> {
-                    val observableColumn: IValueProperty<T, BigDecimal> = BeanProperties.value<T, BigDecimal>(fieldName)
+                    val observableColumn: IValueProperty<E, BigDecimal> = BeanProperties.value<E, BigDecimal>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                 }
                 ApplicationData.ViewDef.int -> {
-                    val observableColumn: IValueProperty<T, Int> = BeanProperties.value<T, Int>(fieldName)
+                    val observableColumn: IValueProperty<E, Int> = BeanProperties.value<E, Int>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                 }
                 ApplicationData.ViewDef.bool -> {
-                    val observableColumn: IValueProperty<T, Boolean> = BeanProperties.value<T, Boolean>(fieldName)
+                    val observableColumn: IValueProperty<E, Boolean> = BeanProperties.value<E, Boolean>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                 }
                 ApplicationData.ViewDef.datetime -> {
-                    val observableColumn: IValueProperty<T, LocalDate> = BeanProperties.value<T, LocalDate>(fieldName)
+                    val observableColumn: IValueProperty<E, LocalDate> = BeanProperties.value<E, LocalDate>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                 }
                 ApplicationData.ViewDef.lookup -> {
-                    val observableColumn: IValueProperty<T, String> = BeanProperties.value<T, String>(fieldName)
+                    val observableColumn: IValueProperty<E, String> = BeanProperties.value<E, String>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                 }
                 else -> {
@@ -160,7 +162,6 @@ abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
         listView.contentProvider = contentProvider
         listView.labelProvider = labelProvider
         listView.comparator = comparator
-        listView.input = wl
 
     }
 

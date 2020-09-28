@@ -3,6 +3,7 @@ package com.parinherm.tests
 import com.parinherm.entity.BeanTest
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.ModelObject
+import com.parinherm.entity.PersonDetail
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.LocalDate
@@ -18,6 +19,8 @@ object BeansBindingTestData {
     fun make(): BeanTest{
         return BeanTest(0, "", BigDecimal(0), 0.0, 0, LocalDate.now(), "Aus", false)
     }
+
+    val personDetails = listOf<PersonDetail>(PersonDetail(1, "Ralfie", 1))
 
 
 }
