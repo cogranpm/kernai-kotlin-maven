@@ -17,4 +17,11 @@ import com.parinherm.entity.BeanTest
 
 class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, comparator: BeansViewerComparator, modelBinder: ModelBinder<BeanTest>)
     : ViewModel<BeanTest> (data, bean_maker, comparator, modelBinder){
+
+    override fun createListViewBindings(fields: List<Map<String, Any>>){
+        super.createListViewBindings(fields)
+        // wire up the child bean list data bindings and click handlers
+
+        // get the widgets map
+    }
 }

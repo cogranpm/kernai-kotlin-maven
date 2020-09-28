@@ -103,7 +103,7 @@ abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
     }
 
 
-    protected fun createListViewBindings(fields: List<Map<String, Any>>){
+    protected open fun createListViewBindings(fields: List<Map<String, Any>>){
         val listView = getWidget("list") as TableViewer
         // list of IObservableMap to make the tableviewer columns observable
         // two step operation, get observable on domain entity (BeanProperty)
