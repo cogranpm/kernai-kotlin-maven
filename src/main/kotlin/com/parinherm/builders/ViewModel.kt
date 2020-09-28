@@ -181,7 +181,7 @@ abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
     /* default implementation of a list selection
     binds the list selection to the edit form
      */
-    private fun listSelectionCommand(listView: TableViewer, fields: List<Map<String, Any>>){
+     protected open fun listSelectionCommand(listView: TableViewer, fields: List<Map<String, Any>>){
         listView.addSelectionChangedListener { _ ->
             selectingFlag = true
             val selection = listView.structuredSelection

@@ -16,12 +16,14 @@ import com.parinherm.builders.ModelBinder
 import com.parinherm.builders.ViewBuilder
 import com.parinherm.entity.BeanTest
 import com.parinherm.entity.PersonDetail
+import com.parinherm.tests.BeansBindingTestData
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.swt.custom.CTabItem
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.TabItem
+import sun.jvm.hotspot.debugger.win32.coff.TestDebugInfo
 
 
 class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, comparator: BeansViewerComparator, modelBinder: ModelBinder<BeanTest>)
@@ -44,7 +46,11 @@ class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, compara
        val fields = personDetailViewDef[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
        createListViewBindings<PersonDetail>(list, fields, PersonDetail.Comparator())
 
-       //set the input on the list
+       //set the input on the list, should be done on list select
+       personDetails.addAll(BeansBindingTestData.personDetails)
+       list.input = personDetails
+
+
         return composite
     }
 

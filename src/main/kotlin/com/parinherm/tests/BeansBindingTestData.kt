@@ -20,7 +20,7 @@ object BeansBindingTestData {
         return BeanTest(0, "", BigDecimal(0), 0.0, 0, LocalDate.now(), "Aus", false)
     }
 
-    val personDetails = listOf<PersonDetail>(PersonDetail(1, "Ralfie", 1))
+    val personDetails = listOf<PersonDetail>(PersonDetail(1, "Ralfie", 1), PersonDetail(2, "Beans", 1))
 
 
 }
