@@ -13,7 +13,6 @@ import com.parinherm.ApplicationData
 import com.parinherm.builders.ViewModel
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.builders.ModelBinder
-import com.parinherm.builders.ViewBuilder
 import com.parinherm.entity.BeanTest
 import com.parinherm.entity.PersonDetail
 import com.parinherm.tests.BeansBindingTestData
@@ -22,8 +21,6 @@ import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.swt.custom.CTabItem
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
-import org.eclipse.swt.widgets.TabItem
-import sun.jvm.hotspot.debugger.win32.coff.TestDebugInfo
 
 
 class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, comparator: BeansViewerComparator, modelBinder: ModelBinder<BeanTest>)
