@@ -88,6 +88,7 @@ object ApplicationData {
 
         const val bindingTestViewId = "bindingtest"
         const val beansBindingTestViewId = "beansbinding"
+        const val personDetailsViewId = "persondetails"
         const val title = "title"
         const val version = "version"
         const val viewid = "viewid"

@@ -127,7 +127,7 @@ object ViewBuilder {
         )
 
         val personDetailsDef = mapOf(
-                ViewDef.viewid to "persondetails",
+                ViewDef.viewid to ApplicationData.ViewDef.personDetailsViewId,
                 ViewDef.title to "Person Details",
                 ViewDef.fields to listOf(nicknameDef)
         )
