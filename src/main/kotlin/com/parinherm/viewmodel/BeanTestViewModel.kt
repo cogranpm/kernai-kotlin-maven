@@ -41,16 +41,18 @@ class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, compara
        val list: TableViewer = personDetailWidgetsMap["list"] as TableViewer
 
        val childDefs = viewDefinition[ApplicationData.ViewDef.childViews] as List<Map<String, Any>>
-       //change this to a filter on the list
-       val personDetailViewDef = childDefs[0]
-       val fields = personDetailViewDef[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
-       createListViewBindings<PersonDetail>(list, fields, PersonDetail.Comparator())
+       // each child in turn wire up the lists and handlers
+       val personDetailViewDef = childDefs.find {  it[ApplicationData.ViewDef.viewid] == ApplicationData.ViewDef.personDetailsViewId  }
+       if (personDetailViewDef != null) {
+           val fields = personDetailViewDef[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
+           createListViewBindings<PersonDetail>(list, fields, PersonDetail.Comparator())
+       }
         return composite
     }
 
     override fun afterListSelection(listView: TableViewer, currentItem: BeanTest) {
         personDetails.clear()
-        personDetails.addAll(BeansBindingTestData.personDetails)
+        personDetails.addAll(BeansBindingTestData.personDetails.filter { it.beanTestId == currentItem.id })
         val personDetailWidgetsMap: Map<String, Any> = getWidget(ApplicationData.ViewDef.personDetailsViewId) as Map<String, Any>
         val list: TableViewer = personDetailWidgetsMap["list"] as TableViewer
         list.input = personDetails
