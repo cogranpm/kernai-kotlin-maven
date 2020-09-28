@@ -46,10 +46,11 @@ abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
         wl.addAll(data)
     }
 
-    fun render(parent: Composite, viewDefinition: Map<String, Any>): Composite {
+    open fun render(parent: Composite, viewDefinition: Map<String, Any>): Composite {
         val composite = ViewBuilder.renderView(parent, viewDefinition, this::addWidget)
         val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
-        createListViewBindings(fields)
+        val listView = getWidget("list") as TableViewer
+        createListViewBindings(listView, fields)
         createViewCommands(fields)
         return composite
     }
@@ -63,7 +64,7 @@ abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
         widgets[widgetKey] = widget
     }
 
-    private fun getWidget(widgetKey: String) : Any? = widgets[widgetKey]
+    protected fun getWidget(widgetKey: String) : Any? = widgets[widgetKey]
 
     private fun processStateChange(ce: ChangeEvent){
         if(isDirtyEventType(ce.source)) {
@@ -103,8 +104,8 @@ abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
     }
 
 
-    protected open fun createListViewBindings(fields: List<Map<String, Any>>){
-        val listView = getWidget("list") as TableViewer
+    protected open fun createListViewBindings(listView: TableViewer, fields: List<Map<String, Any>>){
+
         // list of IObservableMap to make the tableviewer columns observable
         // two step operation, get observable on domain entity (BeanProperty)
         // then get the MapObservable via observeDetail on the observable
