@@ -34,6 +34,12 @@ class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, compara
        val tab: CTabItem = personDetailWidgetsMap["tab"] as CTabItem
        val list: TableViewer = personDetailWidgetsMap["list"] as TableViewer
 
+       val childDefs = viewDefinition[ApplicationData.ViewDef.childViews] as List<Map<String, Any>>
+       //change this to a filter on the list
+       val personDetailViewDef = childDefs[0]
+       val fields = personDetailViewDef[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
+       createListViewBindings(list, fields)
+
        //set the input on the list
         return composite
     }

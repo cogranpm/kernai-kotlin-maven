@@ -51,7 +51,7 @@ abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
         val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
         val listView = getWidget("list") as TableViewer
         createListViewBindings(listView, fields)
-        createViewCommands(fields)
+        createViewCommands(listView, fields)
         return composite
     }
 
@@ -166,8 +166,7 @@ abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
 
     // called by the view after the user interface elements have been created
     // need to think more about this, should this class setup the handlers?
-    fun createViewCommands(fields: List<Map<String, Any>>) {
-        val listView = getWidget("list") as TableViewer
+    fun createViewCommands(listView: TableViewer, fields: List<Map<String, Any>>) {
         listSelectionCommand(listView, fields)
         listHeaderSelection(listView, fields)
         val btnSave = getWidget("btnSave") as Button
