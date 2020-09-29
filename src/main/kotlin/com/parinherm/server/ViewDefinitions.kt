@@ -65,10 +65,36 @@ object ViewDefinitions {
 
         val viewDefinitions = mapOf(
             ViewDef.version to 1,
-            ViewDef.forms to listOf(bindingTestDef, makeSampleBean())
+            ViewDef.forms to listOf(bindingTestDef, makeSampleBean(), makePersonDetailDef())
         )
 
         return viewDefinitions
+    }
+
+    fun makePersonDetailDef(): Map<String, Any> {
+        /****************** child bean person details ****************/
+        val nicknameDef = mapOf(
+                ViewDef.fieldName to "nickname",
+                ViewDef.title to "Nickname",
+                ViewDef.required to true,
+                ViewDef.fieldDataType to ViewDef.text
+        )
+
+        val petSpeciesDef = mapOf(
+                ViewDef.fieldName to "petSpecies",
+                ViewDef.title to "Pet",
+                ViewDef.required to true,
+                ViewDef.fieldDataType to ViewDef.lookup,
+                ViewDef.lookupKey to ApplicationData.speciesLookupKey
+        )
+
+        val personDetailsDef = mapOf(
+                ViewDef.viewid to ApplicationData.ViewDef.personDetailsViewId,
+                ViewDef.title to "Person Details",
+                ViewDef.fields to listOf(nicknameDef, petSpeciesDef)
+        )
+
+        return personDetailsDef
     }
 
     fun makeSampleBean(): Map<String, Any> {
@@ -118,30 +144,6 @@ object ViewDefinitions {
                 ViewDef.required to true,
                 ViewDef.fieldDataType to ViewDef.bool)
 
-        /****************** child bean person details ****************/
-        val nicknameDef = mapOf(
-                ViewDef.fieldName to "nickname",
-                ViewDef.title to "Nickname",
-                ViewDef.required to true,
-                ViewDef.fieldDataType to ViewDef.text
-        )
-
-        val petSpeciesDef = mapOf(
-                ViewDef.fieldName to "petSpecies",
-                ViewDef.title to "Pet",
-                ViewDef.required to true,
-                ViewDef.fieldDataType to ViewDef.lookup,
-                ViewDef.lookupKey to ApplicationData.speciesLookupKey
-        )
-
-
-        val personDetailsDef = mapOf(
-                ViewDef.viewid to ApplicationData.ViewDef.personDetailsViewId,
-                ViewDef.title to "Person Details",
-                ViewDef.fields to listOf(nicknameDef, petSpeciesDef)
-        )
-        /******************* end child bean *************************/
-
 
         val viewDef = mapOf(
                 ViewDef.viewid to ViewDef.beansBindingTestViewId,
@@ -155,7 +157,7 @@ object ViewDefinitions {
                         enteredDateDef,
                         isDeceasedDef
                 ),
-                ViewDef.childViews to listOf(personDetailsDef)
+                ViewDef.childViews to listOf(makePersonDetailDef())
         )
         return viewDef
 

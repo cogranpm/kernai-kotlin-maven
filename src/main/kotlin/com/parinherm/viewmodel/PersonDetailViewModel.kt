@@ -6,7 +6,7 @@ import com.parinherm.entity.BeanTest
 import com.parinherm.entity.PersonDetail
 import org.eclipse.jface.viewers.TableViewer
 
-class PersonDetailViewModel(data: List<PersonDetail>,
+class PersonDetailViewModel(val beanTestId: Long, data: List<PersonDetail>,
                             entity_maker: ()-> PersonDetail,
                             comparator: BeansViewerComparator,
                             modelBinder: ModelBinder<PersonDetail>

@@ -80,6 +80,10 @@ class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, compara
             the value cached in the viewmodel (this instance)
              */
             println("new person detail clicked, parent is $currentItem")
+            val newPersonDetail = PersonDetail(0, "", currentItem!!.id, "")
+            val data = BeansBindingTestData.personDetails.filter { it.beanTestId == currentItem!!.id }
+            val viewModel = PersonDetailViewModel(currentItem!!.id, data, PersonDetail.Factory::make, PersonDetail.Comparator(), ModelBinder<PersonDetail>())
+            ApplicationData.makeTab(viewModel, "Person Detail", ApplicationData.TAB_KEY_PERSONDETAIL, ApplicationData.ViewDef.personDetailsViewId)
         })
     }
 

@@ -30,6 +30,7 @@ object ApplicationData {
     const val IMAGES_PATH = "/images/"
 
     const val TAB_KEY_DATA_BINDING_TEST = "dbtest"
+    const val TAB_KEY_PERSONDETAIL = "persondetail"
 
 
     const val swnone = SWT.NONE
