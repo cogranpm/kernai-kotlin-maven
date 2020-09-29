@@ -10,14 +10,12 @@
 package com.parinherm.viewmodel
 
 import com.parinherm.ApplicationData
-import com.parinherm.builders.ViewModel
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.builders.ModelBinder
 import com.parinherm.entity.BeanTest
 import com.parinherm.entity.PersonDetail
 import com.parinherm.tests.BeansBindingTestData
 import org.eclipse.core.databinding.observable.list.WritableList
-import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.swt.custom.CTabItem
 import org.eclipse.swt.events.SelectionListener
@@ -26,7 +24,7 @@ import org.eclipse.swt.widgets.Composite
 
 
 class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, comparator: BeansViewerComparator, modelBinder: ModelBinder<BeanTest>)
-    : ViewModel<BeanTest> (data, bean_maker, comparator, modelBinder){
+    : ViewModel<BeanTest>(data, bean_maker, comparator, modelBinder){
 
    val personDetails = WritableList<PersonDetail>()
 

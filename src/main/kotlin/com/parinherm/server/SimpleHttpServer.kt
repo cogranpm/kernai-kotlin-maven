@@ -28,7 +28,7 @@ object SimpleHttpServer {
                 //transform to json for wire format
                 val gson = GsonBuilder().create()
                 PrintWriter(http.responseBody).use { out ->
-                    out.println(gson.toJson(ViewBuilder.makeDefinitions()))
+                    out.println(gson.toJson(ViewDefinitions.makeDefinitions()))
                 }
             }
             start()

@@ -4,7 +4,7 @@ import com.parinherm.ApplicationData
 import com.parinherm.ApplicationData.ViewDef
 import com.parinherm.entity.BeanTest
 
-object ViewBuilder {
+object ViewDefinitions {
 
     fun makeDefinitions(): Map<String, Any>  {
         // definition of data is something like a view is:
@@ -126,10 +126,19 @@ object ViewBuilder {
                 ViewDef.fieldDataType to ViewDef.text
         )
 
+        val petSpeciesDef = mapOf(
+                ViewDef.fieldName to "petSpecies",
+                ViewDef.title to "Pet",
+                ViewDef.required to true,
+                ViewDef.fieldDataType to ViewDef.lookup,
+                ViewDef.lookupKey to ApplicationData.speciesLookupKey
+        )
+
+
         val personDetailsDef = mapOf(
                 ViewDef.viewid to ApplicationData.ViewDef.personDetailsViewId,
                 ViewDef.title to "Person Details",
-                ViewDef.fields to listOf(nicknameDef)
+                ViewDef.fields to listOf(nicknameDef, petSpeciesDef)
         )
         /******************* end child bean *************************/
 

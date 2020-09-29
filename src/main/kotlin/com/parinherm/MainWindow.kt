@@ -36,6 +36,9 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
 
     lateinit var mainContainer: Composite
 
+    /* keeps all opened tabs in a list and remove them when closed */
+    var tabs: List<TabInstance> = listOf()
+
 
     val actionSave: Action = object : Action("&Save") {
         override fun run() {

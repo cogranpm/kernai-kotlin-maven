@@ -1,7 +1,7 @@
 package com.parinherm
 
 import com.parinherm.entity.LookupDetail
-import com.parinherm.server.ViewBuilder
+import com.parinherm.server.ViewDefinitions
 import org.eclipse.core.databinding.UpdateValueStrategy
 import org.eclipse.jface.resource.ImageDescriptor
 import org.eclipse.jface.resource.ImageRegistry
@@ -28,8 +28,9 @@ object ApplicationData {
     const val serverProtocol = "http"
     val urls = mapOf<String, String>("views" to "views")
 
-    val views = ViewBuilder.makeDefinitions()
+    val views = ViewDefinitions.makeDefinitions()
     const val countryLookupKey = "country"
+    const val speciesLookupKey = "species"
 
     val defaultUpdatePolicy = UpdateValueStrategy.POLICY_UPDATE  //UpdateValueStrategy.POLICY_ON_REQUEST
 
@@ -80,8 +81,20 @@ object ApplicationData {
         LookupDetail("SA", "South Africa")
     )
 
+    val speciesList: List<LookupDetail> = listOf(
+            LookupDetail("L", "Lizard"),
+            LookupDetail("C", "Cat"),
+            LookupDetail("D", "Dog"),
+            LookupDetail("E", "Elephant"),
+            LookupDetail("M", "Mongoose"),
+            LookupDetail("R", "Rabbit"),
+            LookupDetail("F", "Frog"),
+            LookupDetail("J", "Jackle")
+    )
+
     val lookups: Map<String, List<LookupDetail>> = mapOf(
-            countryLookupKey to countryList
+            countryLookupKey to countryList,
+            speciesLookupKey to speciesList
     )
 
     public object ViewDef{

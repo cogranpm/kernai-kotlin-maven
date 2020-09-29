@@ -1,11 +1,7 @@
 package com.parinherm.builders
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.reflect.TypeToken
 import com.parinherm.ApplicationData
 import com.parinherm.ApplicationData.ViewDef
-import com.parinherm.server.ViewBuilder
 import com.parinherm.ApplicationData.swnone
 import com.parinherm.ApplicationData.listViewStyle
 import com.parinherm.ApplicationData.labelStyle
@@ -19,9 +15,7 @@ import org.eclipse.core.databinding.beans.typed.BeanProperties
 import org.eclipse.core.databinding.conversion.text.NumberToStringConverter
 import org.eclipse.core.databinding.conversion.text.StringToNumberConverter
 import org.eclipse.core.databinding.observable.Observables
-import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.core.databinding.observable.map.WritableMap
-import org.eclipse.core.databinding.observable.masterdetail.MasterDetailObservables
 import org.eclipse.core.databinding.observable.set.IObservableSet
 import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.core.databinding.validation.IValidator
@@ -29,7 +23,6 @@ import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
 import org.eclipse.jface.databinding.swt.ISWTObservableValue
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
-import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
 import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.TableColumnLayout

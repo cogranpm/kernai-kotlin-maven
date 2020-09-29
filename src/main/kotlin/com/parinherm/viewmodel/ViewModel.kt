@@ -1,6 +1,9 @@
-package com.parinherm.builders
+package com.parinherm.viewmodel
 
 import com.parinherm.ApplicationData
+import com.parinherm.builders.BeansViewerComparator
+import com.parinherm.builders.ModelBinder
+import com.parinherm.builders.ViewBuilder
 import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.NewFlag
