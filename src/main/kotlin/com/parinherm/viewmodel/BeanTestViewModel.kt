@@ -80,7 +80,12 @@ class BeanTestViewModel(data: List<BeanTest>, comparator: BeansViewerComparator,
             val selectedItem = selection.firstElement
             // store the selected item in the list in the viewstate
             val currentPersonDetail = selectedItem as PersonDetail
-            println(currentPersonDetail)
+            val data = BeansBindingTestData.personDetails.filter { it.beanTestId == currentItem!!.id }
+            val viewModel = PersonDetailViewModel(currentItem!!.id,
+                    currentPersonDetail, ApplicationData.tabs[ApplicationData.TAB_KEY_DATA_BINDING_TEST],
+                    data, personDetailComparator,
+                    ModelBinder<PersonDetail>())
+            ApplicationData.makeTab(viewModel, "Person Detail", ApplicationData.TAB_KEY_PERSONDETAIL, ApplicationData.ViewDef.personDetailsViewId)
         }
 
         btnAdd.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
@@ -88,22 +93,15 @@ class BeanTestViewModel(data: List<BeanTest>, comparator: BeansViewerComparator,
             is it the selection on the parent list or
             the value cached in the viewmodel (this instance)
              */
-            println("new person detail clicked, parent is $currentItem")
-            val newPersonDetail = PersonDetail(0, "", currentItem!!.id, "")
             val data = BeansBindingTestData.personDetails.filter { it.beanTestId == currentItem!!.id }
-            val viewModel = PersonDetailViewModel(currentItem!!.id, data, personDetailComparator, ModelBinder<PersonDetail>())
+            val viewModel = PersonDetailViewModel(currentItem!!.id, null,
+                    ApplicationData.tabs[ApplicationData.TAB_KEY_DATA_BINDING_TEST],
+                    data, personDetailComparator, ModelBinder<PersonDetail>())
             ApplicationData.makeTab(viewModel, "Person Detail", ApplicationData.TAB_KEY_PERSONDETAIL, ApplicationData.ViewDef.personDetailsViewId)
         })
 
         listHeaderSelection(list, fields, personDetailComparator)
-        /*fields.forEachIndexed {index: Int, item: Map<String, Any> ->
-            val fieldName = item[ApplicationData.ViewDef.fieldName] as String
-            val column = widgets[ApplicationData.ViewDef.makeColumnMapKey(fieldName)] as TableViewerColumn
-            column.column.addSelectionListener(getSelectionAdapter(list, column.column, index, PersonDetail.Comparator()))
-        }
-
-         */
-    }
+   }
 
     override fun afterListSelection(listView: TableViewer, currentItem: BeanTest) {
         personDetails.clear()

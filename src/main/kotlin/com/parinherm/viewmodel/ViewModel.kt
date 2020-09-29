@@ -225,11 +225,14 @@ abstract class ViewModel <T> (data: List<T>,
 
     fun newCommand(btnNew: Button, fields: List<Map<String, Any>>) {
         btnNew.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
-            // should probably just put ui into new mode
-            val newItem = makeNewEntity()
-            currentItem = newItem
-            modelBinder.createDataBindings(dbc, fields, newItem, this::getWidget, listener, dirtyFlag)
+            applyNewCommand(fields)
         })
+    }
+
+    fun applyNewCommand(fields: List<Map<String, Any>>) {
+        val newItem = makeNewEntity()
+        currentItem = newItem
+        modelBinder.createDataBindings(dbc, fields, newItem, this::getWidget, listener, dirtyFlag)
     }
 
     abstract fun makeNewEntity() : T
