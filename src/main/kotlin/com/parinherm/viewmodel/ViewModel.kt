@@ -27,7 +27,7 @@ import org.eclipse.swt.widgets.*
 import java.math.BigDecimal
 import java.time.LocalDate
 
-abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
+abstract class ViewModel <T> (data: List<T>,
                               private val comparator: BeansViewerComparator,
                               private val modelBinder: ModelBinder<T>) where T: IBeanDataEntity {
 
@@ -226,11 +226,13 @@ abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
     fun newCommand(btnNew: Button, fields: List<Map<String, Any>>) {
         btnNew.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
             // should probably just put ui into new mode
-            val newItem = bean_maker()
+            val newItem = makeNewEntity()
             currentItem = newItem
             modelBinder.createDataBindings(dbc, fields, newItem, this::getWidget, listener, dirtyFlag)
         })
     }
+
+    abstract fun makeNewEntity() : T
 
 
     companion object Factory {

@@ -45,8 +45,8 @@ class PersonDetail (override var id: Long = 0, nickname: String, var beanTestId:
     }
 
     companion object Factory {
-        fun make() : PersonDetail {
-            return PersonDetail(0, "", 0, "")
+        fun make(beanTestId: Long) : PersonDetail {
+            return PersonDetail(0, "", beanTestId, ApplicationData.speciesList[0].code)
         }
     }
 }

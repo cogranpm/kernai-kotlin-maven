@@ -18,9 +18,6 @@ object BeansBindingTestData {
                 BeanTest(3, "Baumauris", BigDecimal(890.00), 6.4, 25, LocalDate.parse("2012-03-15"), "SA", true)
         )
 
-    fun make(): BeanTest{
-        return BeanTest(0, "", BigDecimal(0), 0.0, 0, LocalDate.now(), "Aus", false)
-    }
 
     val rand = Random(System.nanoTime())
     val rands = List(7) {rand.nextInt(0, ApplicationData.speciesList.size)}

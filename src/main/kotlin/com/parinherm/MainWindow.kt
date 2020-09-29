@@ -74,8 +74,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         //testForm is the pure data representation of a form
 
         //presentation model - viewModel instance
-        val viewModel = BeanTestViewModel(BeansBindingTestData.data, BeansBindingTestData::make,
-                BeanTest.Comparator(), ModelBinder<BeanTest>())
+        val viewModel = BeanTestViewModel(BeansBindingTestData.data, BeanTest.Comparator(), ModelBinder<BeanTest>())
 
         ApplicationData.makeTab(viewModel, "Databinding Test", ApplicationData.TAB_KEY_DATA_BINDING_TEST, ApplicationData.ViewDef.beansBindingTestViewId)
 

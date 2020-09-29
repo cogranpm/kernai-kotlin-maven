@@ -7,14 +7,17 @@ import com.parinherm.entity.PersonDetail
 import org.eclipse.jface.viewers.TableViewer
 
 class PersonDetailViewModel(val beanTestId: Long, data: List<PersonDetail>,
-                            entity_maker: ()-> PersonDetail,
                             comparator: BeansViewerComparator,
                             modelBinder: ModelBinder<PersonDetail>
-) : ViewModel<PersonDetail>(data, entity_maker, comparator, modelBinder) {
+) : ViewModel<PersonDetail>(data, comparator, modelBinder) {
 
 
     override fun afterListSelection(listView: TableViewer, currentItem: PersonDetail) {
 
+    }
+
+    override fun makeNewEntity(): PersonDetail {
+        return PersonDetail.make(beanTestId)
     }
 
 }

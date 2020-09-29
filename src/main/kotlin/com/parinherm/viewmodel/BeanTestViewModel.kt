@@ -22,21 +22,28 @@ import org.eclipse.swt.custom.CTabItem
 import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
+import java.math.BigDecimal
+import java.time.LocalDate
 
 
-class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, comparator: BeansViewerComparator, modelBinder: ModelBinder<BeanTest>)
-    : ViewModel<BeanTest>(data, bean_maker, comparator, modelBinder){
+class BeanTestViewModel(data: List<BeanTest>, comparator: BeansViewerComparator, modelBinder: ModelBinder<BeanTest>)
+    : ViewModel<BeanTest>(data, comparator, modelBinder){
 
    val personDetails = WritableList<PersonDetail>()
     val personDetailComparator = PersonDetail.Comparator()
 
-   override  fun render(parent: Composite, viewDefinition: Map<String, Any>): Composite {
+   override fun render(parent: Composite, viewDefinition: Map<String, Any>): Composite {
        val composite = super.render(parent, viewDefinition)
        val childDefs = viewDefinition[ApplicationData.ViewDef.childViews] as List<Map<String, Any>>
        // each child in turn wire up the lists and handlers
        wireChildren(childDefs)
        return composite
     }
+
+    override fun makeNewEntity(): BeanTest {
+        return BeanTest(0, "", BigDecimal(0), 0.0, 0, LocalDate.now(), "Aus", false)
+    }
+
 
     fun wireChildren(childDefs: List<Map<String, Any>>) : Unit {
 
@@ -84,7 +91,7 @@ class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, compara
             println("new person detail clicked, parent is $currentItem")
             val newPersonDetail = PersonDetail(0, "", currentItem!!.id, "")
             val data = BeansBindingTestData.personDetails.filter { it.beanTestId == currentItem!!.id }
-            val viewModel = PersonDetailViewModel(currentItem!!.id, data, PersonDetail.Factory::make, personDetailComparator, ModelBinder<PersonDetail>())
+            val viewModel = PersonDetailViewModel(currentItem!!.id, data, personDetailComparator, ModelBinder<PersonDetail>())
             ApplicationData.makeTab(viewModel, "Person Detail", ApplicationData.TAB_KEY_PERSONDETAIL, ApplicationData.ViewDef.personDetailsViewId)
         })
 
@@ -106,6 +113,7 @@ class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, compara
         list.input = personDetails
 
     }
+
 
 
 }
