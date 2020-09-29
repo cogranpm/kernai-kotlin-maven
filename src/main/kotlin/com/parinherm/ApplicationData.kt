@@ -92,6 +92,11 @@ object ApplicationData {
         const val title = "title"
         const val version = "version"
         const val viewid = "viewid"
+        const val btnRemove = "btnRemove"
+        const val btnAdd = "btnAdd"
+        const val list = "list"
+        const val tab = "tab"
+        const val add_caption = "Add"
 
         const val forms = "forms"
         const val fields = "fields"

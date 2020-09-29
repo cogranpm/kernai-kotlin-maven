@@ -167,7 +167,7 @@ abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
 
     // called by the view after the user interface elements have been created
     // need to think more about this, should this class setup the handlers?
-    fun createViewCommands(listView: TableViewer, fields: List<Map<String, Any>>) {
+    open protected fun createViewCommands(listView: TableViewer, fields: List<Map<String, Any>>) {
         listSelectionCommand(listView, fields)
         listHeaderSelection(listView, fields)
         val btnSave = getWidget("btnSave") as Button

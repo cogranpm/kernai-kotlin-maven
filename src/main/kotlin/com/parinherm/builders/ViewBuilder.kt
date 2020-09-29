@@ -201,14 +201,14 @@ object ViewBuilder {
         listComposite.layout = FillLayout()
         buttonBar.layout = RowLayout()
         val btnAdd = Button(buttonBar, SWT.PUSH)
-        btnAdd.text = "Add"
-        childWidgetMap["btnAdd"] = btnAdd
+        btnAdd.text = ApplicationData.ViewDef.add_caption
+        childWidgetMap[ApplicationData.ViewDef.btnAdd] = btnAdd
         val btnRemove = Button(buttonBar, SWT.PUSH)
         btnRemove.text = "Remove"
-        childWidgetMap["btnRemove"] = btnRemove
+        childWidgetMap[ApplicationData.ViewDef.btnRemove] = btnRemove
         val fields = childDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
         val list = getListViewer(listComposite, fields, addWidget)
-        childWidgetMap["list"] = list
+        childWidgetMap[ApplicationData.ViewDef.list] = list
         tab.control = childComposite
 
         //GridLayoutFactory.fillDefaults().generateLayout(buttonBar)
