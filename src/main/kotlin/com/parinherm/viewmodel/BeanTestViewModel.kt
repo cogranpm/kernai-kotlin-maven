@@ -17,6 +17,7 @@ import com.parinherm.entity.PersonDetail
 import com.parinherm.tests.BeansBindingTestData
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.TableViewer
+import org.eclipse.jface.viewers.TableViewerColumn
 import org.eclipse.swt.custom.CTabItem
 import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.widgets.Button
@@ -85,6 +86,12 @@ class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, compara
             val viewModel = PersonDetailViewModel(currentItem!!.id, data, PersonDetail.Factory::make, PersonDetail.Comparator(), ModelBinder<PersonDetail>())
             ApplicationData.makeTab(viewModel, "Person Detail", ApplicationData.TAB_KEY_PERSONDETAIL, ApplicationData.ViewDef.personDetailsViewId)
         })
+
+        fields.forEachIndexed {index: Int, item: Map<String, Any> ->
+            val fieldName = item[ApplicationData.ViewDef.fieldName] as String
+            val column = widgets[ApplicationData.ViewDef.makeColumnMapKey(fieldName)] as TableViewerColumn
+            column.column.addSelectionListener(getSelectionAdapter(list, column.column, index, comparator))
+        }
     }
 
     override fun afterListSelection(listView: TableViewer, currentItem: BeanTest) {

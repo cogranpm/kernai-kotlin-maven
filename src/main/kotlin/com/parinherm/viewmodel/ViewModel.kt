@@ -209,7 +209,7 @@ abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
         }
     }
 
-    private fun getSelectionAdapter(viewer: TableViewer, column: TableColumn, index: Int, comparator: BeansViewerComparator) : SelectionAdapter {
+    protected fun getSelectionAdapter(viewer: TableViewer, column: TableColumn, index: Int, comparator: BeansViewerComparator) : SelectionAdapter {
         val selectionAdapter = (object: SelectionAdapter() {
             override fun widgetSelected(e: SelectionEvent?) {
                 comparator.setColumn(index)
