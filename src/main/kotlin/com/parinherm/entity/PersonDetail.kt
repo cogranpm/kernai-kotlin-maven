@@ -32,7 +32,7 @@ class PersonDetail (override var id: Long = 0, nickname: String, var beanTestId:
             val entity2 = e2 as PersonDetail
             val rc = when(propertyIndex){
                 nickname_index -> entity1.nickname.compareTo(entity2.nickname)
-                petSpecies_index -> entity1.petSpecies.compareTo(entity2.petSpecies)
+                petSpecies_index -> compareLookups(entity1.petSpecies, entity2.petSpecies, ApplicationData.speciesList)
                else -> 0
             }
             return flipSortDirection(rc)

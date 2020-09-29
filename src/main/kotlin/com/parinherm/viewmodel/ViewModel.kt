@@ -28,8 +28,8 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
-                              val comparator: BeansViewerComparator,
-                              val modelBinder: ModelBinder<T>) where T: IBeanDataEntity {
+                              private val comparator: BeansViewerComparator,
+                              private val modelBinder: ModelBinder<T>) where T: IBeanDataEntity {
 
 
     val wl = WritableList<T>()
@@ -54,7 +54,7 @@ abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
         val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
         val listView = getWidget("list") as TableViewer
         createListViewBindings<T>(listView, fields, comparator)
-        createViewCommands(listView, fields)
+        createViewCommands(listView, fields, comparator)
         listView.input = wl
         return composite
     }
@@ -109,7 +109,7 @@ abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
 
 
     //need to make this take a type variable
-    protected open fun <E>createListViewBindings(listView: TableViewer, fields: List<Map<String, Any>>, comparator: BeansViewerComparator){
+    protected open fun <E>createListViewBindings(listView: TableViewer, fields: List<Map<String, Any>>, daComparator: BeansViewerComparator){
 
         // list of IObservableMap to make the tableviewer columns observable
         // two step operation, get observable on domain entity (BeanProperty)
@@ -164,15 +164,15 @@ abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
         })
         listView.contentProvider = contentProvider
         listView.labelProvider = labelProvider
-        listView.comparator = comparator
+        listView.comparator = daComparator
 
     }
 
     // called by the view after the user interface elements have been created
     // need to think more about this, should this class setup the handlers?
-    open protected fun createViewCommands(listView: TableViewer, fields: List<Map<String, Any>>) {
+    protected open fun createViewCommands(listView: TableViewer, fields: List<Map<String, Any>>, daComparator: BeansViewerComparator) {
         listSelectionCommand(listView, fields)
-        listHeaderSelection(listView, fields)
+        listHeaderSelection(listView, fields, daComparator)
         val btnSave = getWidget("btnSave") as Button
         saveCommand(listView, btnSave)
         val btnNew = getWidget("btnNew") as Button
@@ -201,28 +201,13 @@ abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
 
     abstract fun afterListSelection (listView: TableViewer, currentItem: T) : Unit
 
-    private fun listHeaderSelection(listView: TableViewer, fields: List<Map<String, Any>>){
+    protected fun listHeaderSelection(listView: TableViewer, fields: List<Map<String, Any>>, daComparator: BeansViewerComparator){
         fields.forEachIndexed {index: Int, item: Map<String, Any> ->
             val fieldName = item[ApplicationData.ViewDef.fieldName] as String
             val column = widgets[ApplicationData.ViewDef.makeColumnMapKey(fieldName)] as TableViewerColumn
-            column.column.addSelectionListener(getSelectionAdapter(listView, column.column, index, comparator))
+            column.column.addSelectionListener(getSelectionAdapter(listView, column.column, index, daComparator))
         }
     }
-
-    protected fun getSelectionAdapter(viewer: TableViewer, column: TableColumn, index: Int, comparator: BeansViewerComparator) : SelectionAdapter {
-        val selectionAdapter = (object: SelectionAdapter() {
-            override fun widgetSelected(e: SelectionEvent?) {
-                comparator.setColumn(index)
-                val dir = comparator.getDirection()
-                viewer.table.sortDirection = dir
-                viewer.table.sortColumn = column
-                viewer.refresh()
-            }
-        })
-        return selectionAdapter
-    }
-
-
 
     private fun saveCommand(listView: TableViewer, btnSave: Button){
         btnSave.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
@@ -247,10 +232,28 @@ abstract class ViewModel <T> (data: List<T>, val bean_maker: ()-> T,
         })
     }
 
-    fun closeCommand(composite: Composite){
-        composite.addDisposeListener {
-            println("I am being closed")
+
+    companion object Factory {
+
+        fun closeCommand(composite: Composite){
+            composite.addDisposeListener {
+                println("I am being closed")
+            }
         }
+
+        protected fun getSelectionAdapter(viewer: TableViewer, column: TableColumn, index: Int, daComparator: BeansViewerComparator) : SelectionAdapter {
+            val selectionAdapter = (object: SelectionAdapter() {
+                override fun widgetSelected(e: SelectionEvent?) {
+                    daComparator.setColumn(index)
+                    val dir = daComparator.getDirection()
+                    viewer.table.sortDirection = dir
+                    viewer.table.sortColumn = column
+                    viewer.refresh()
+                }
+            })
+            return selectionAdapter
+        }
+
 
     }
 

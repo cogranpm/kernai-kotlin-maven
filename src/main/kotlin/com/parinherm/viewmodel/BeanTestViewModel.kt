@@ -28,6 +28,7 @@ class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, compara
     : ViewModel<BeanTest>(data, bean_maker, comparator, modelBinder){
 
    val personDetails = WritableList<PersonDetail>()
+    val personDetailComparator = PersonDetail.Comparator()
 
    override  fun render(parent: Composite, viewDefinition: Map<String, Any>): Composite {
        val composite = super.render(parent, viewDefinition)
@@ -57,7 +58,7 @@ class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, compara
         val tab: CTabItem = personDetailWidgetsMap[ApplicationData.ViewDef.tab] as CTabItem
         val list: TableViewer = personDetailWidgetsMap[ApplicationData.ViewDef.list] as TableViewer
 
-        createListViewBindings<PersonDetail>(list, fields, PersonDetail.Comparator())
+        createListViewBindings<PersonDetail>(list, fields, personDetailComparator)
 
         // open and double click are same thing
         /* enter on an item generates the events
@@ -83,15 +84,18 @@ class BeanTestViewModel(data: List<BeanTest>, bean_maker: ()-> BeanTest, compara
             println("new person detail clicked, parent is $currentItem")
             val newPersonDetail = PersonDetail(0, "", currentItem!!.id, "")
             val data = BeansBindingTestData.personDetails.filter { it.beanTestId == currentItem!!.id }
-            val viewModel = PersonDetailViewModel(currentItem!!.id, data, PersonDetail.Factory::make, PersonDetail.Comparator(), ModelBinder<PersonDetail>())
+            val viewModel = PersonDetailViewModel(currentItem!!.id, data, PersonDetail.Factory::make, personDetailComparator, ModelBinder<PersonDetail>())
             ApplicationData.makeTab(viewModel, "Person Detail", ApplicationData.TAB_KEY_PERSONDETAIL, ApplicationData.ViewDef.personDetailsViewId)
         })
 
-        fields.forEachIndexed {index: Int, item: Map<String, Any> ->
+        listHeaderSelection(list, fields, personDetailComparator)
+        /*fields.forEachIndexed {index: Int, item: Map<String, Any> ->
             val fieldName = item[ApplicationData.ViewDef.fieldName] as String
             val column = widgets[ApplicationData.ViewDef.makeColumnMapKey(fieldName)] as TableViewerColumn
-            column.column.addSelectionListener(getSelectionAdapter(list, column.column, index, comparator))
+            column.column.addSelectionListener(getSelectionAdapter(list, column.column, index, PersonDetail.Comparator()))
         }
+
+         */
     }
 
     override fun afterListSelection(listView: TableViewer, currentItem: BeanTest) {
