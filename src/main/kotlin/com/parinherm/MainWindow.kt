@@ -35,18 +35,13 @@ fun getViewDefinitions(): Map<String, Any>{
 class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
 
     lateinit var mainContainer: Composite
-
-    /* keeps all opened tabs in a list and remove them when closed */
-    var tabs: List<TabInstance> = listOf()
-
+    lateinit var folder: CTabFolder
 
     val actionSave: Action = object : Action("&Save") {
         override fun run() {
            println("Saving")
         }
     }
-
-
 
     init {
         actionSave.accelerator = SWT.MOD1 or('S'.toInt())
@@ -56,17 +51,11 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
 
     }
 
-
     override fun createContents(parent: Composite?): Control {
-        val container = Composite(parent, SWT.NONE)
-        container.layout = FillLayout()
-        val folder = CTabFolder(container, SWT.TOP or SWT.BORDER)
+        mainContainer = Composite(parent, SWT.NONE)
+        mainContainer.layout = FillLayout()
+        folder = CTabFolder(mainContainer, SWT.TOP or SWT.BORDER)
 
-        //val item = CTabItem(folder, SWT.CLOSE)
-        //item.text = "&Map Binding Test"
-
-        val beanBindingTestTab = CTabItem(folder, SWT.CLOSE)
-        beanBindingTestTab.text = "Beans Binding Test"
 
         /* testing a load ui definitions from server
         scenario, so a api site would be running
@@ -79,18 +68,19 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         //DataBindingView(TestData.data).makeView(folder)
 
        //load the views from the server
-        val viewDefinitions: Map<String, Any> = getViewDefinitions()
+
 
         // render the test view
         //testForm is the pure data representation of a form
-        val testForm: Map<String, Any> = ApplicationData.getView(ApplicationData.ViewDef.beansBindingTestViewId, viewDefinitions)
+
         //presentation model - viewModel instance
         val viewModel = BeanTestViewModel(BeansBindingTestData.data, BeansBindingTestData::make,
                 BeanTest.Comparator(), ModelBinder<BeanTest>())
 
+        ApplicationData.makeTab(viewModel, "Databinding Test", ApplicationData.TAB_KEY_DATA_BINDING_TEST, ApplicationData.ViewDef.beansBindingTestViewId)
 
         //val beansBindingView = BeansViewBuilder.renderView<BeanTest>(folder, viewState, testForm)
-        beanBindingTestTab.control = viewModel.render(folder, testForm)
+
 
         /* this messes up the layout here or
         in the toolbar manager override
@@ -100,11 +90,9 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         toolBarManager.update(false)
 
          */
-
-
-        container.layout()
+        mainContainer.layout()
         //shell.pack()
-        return container
+        return mainContainer
     }
 
     override fun createMenuManager(): MenuManager {

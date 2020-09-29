@@ -1,22 +1,35 @@
 package com.parinherm
 
 import com.parinherm.entity.LookupDetail
+import com.parinherm.server.SimpleHttpServer
 import com.parinherm.server.ViewDefinitions
+import com.parinherm.viewmodel.ViewModel
 import org.eclipse.core.databinding.UpdateValueStrategy
+import org.eclipse.core.databinding.observable.Realm
+import org.eclipse.jface.databinding.swt.DisplayRealm
 import org.eclipse.jface.resource.ImageDescriptor
 import org.eclipse.jface.resource.ImageRegistry
 import org.eclipse.swt.SWT
+import org.eclipse.swt.custom.CTabItem
 import org.eclipse.swt.graphics.Image
+import org.eclipse.swt.widgets.Display
 
 object ApplicationData {
 
-    private val imageRegistry: ImageRegistry = ImageRegistry()
+    private lateinit var imageRegistry: ImageRegistry
+    private lateinit var mainWindow: MainWindow
+    private lateinit var viewDefinitions: Map<String, Any>
+    /* keeps all opened tabs in a list and remove them when closed */
+    var tabs: MutableMap<String, TabInstance> = mutableMapOf()
+
     const val  IMAGE_ACTVITY_SMALL = "activitysmall"
     const val IMAGE_ACTIVITY_LARGE = "activitylarge"
     const val  IMAGE_STOCK_INFO = "stock_info"
     const val IMAGE_STOCK_EXIT = "stock_exit"
     const val  IMAGE_GOUP = "goup"
     const val IMAGES_PATH = "/images/"
+
+    const val TAB_KEY_DATA_BINDING_TEST = "dbtest"
 
 
     const val swnone = SWT.NONE
@@ -37,6 +50,51 @@ object ApplicationData {
     init {
 
     }
+
+    fun start() : Unit {
+        SimpleHttpServer.start()
+        val display: Display = Display.getDefault()
+        Realm.runWithDefault(DisplayRealm.getRealm(display)) {
+            try {
+                viewDefinitions = getViewDefinitions()
+                imageRegistry = ImageRegistry()
+                mainWindow = MainWindow(null)
+                mainWindow.setBlockOnOpen(true)
+                mainWindow.open()
+                Display.getCurrent().dispose()
+            } catch (ex: Exception){
+                println (ex.message)
+            }
+        }
+        SimpleHttpServer.stop()
+    }
+
+    fun makeTab(viewModel: ViewModel<*>, caption: String, key: String, viewId: String) : Unit {
+        if (tabs.containsKey(key) && tabs[key] != null ) {
+            if (tabs[key]!!.isClosed){
+                // set it to open and create the tab
+                tabs[key] = createTab(viewModel, caption, key, viewId)
+            } else {
+                // set focus to existing tab somehow
+
+            }
+        } else {
+           tabs[key] = createTab(viewModel, caption, key, viewId)
+        }
+    }
+
+    private fun createTab(viewModel: ViewModel<*>, caption: String, key:String, viewId: String): TabInstance {
+        val formDef: Map<String, Any> = getView(viewId, viewDefinitions)
+        val tabItem = CTabItem(mainWindow.folder, SWT.CLOSE)
+        tabItem.text = caption
+        tabItem.control = viewModel.render(mainWindow.folder, formDef)
+        tabItem.addDisposeListener {
+            tabs[key]!!.isClosed = true
+        }
+        mainWindow.folder.selection = tabItem
+        return TabInstance(viewModel, tabItem, false)
+    }
+
 
     fun getView(viewId: String): Map<String, Any> {
         val forms: List<Map<String, Any>> = views[ViewDef.forms] as List<Map<String, Any>>
