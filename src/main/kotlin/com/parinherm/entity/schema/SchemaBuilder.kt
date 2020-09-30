@@ -1,0 +1,25 @@
+package com.parinherm.entity.schema
+
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.StdOutSqlLogger
+import org.jetbrains.exposed.sql.addLogger
+import org.jetbrains.exposed.sql.transactions.transaction
+
+object SchemaBuilder {
+
+    val db = Database.connect("jdbc:postgresql://kronmintdesktop/golangtest",
+        driver = "org.postgresql.Driver",
+        user="paulm",
+        password = "reddingo")
+
+
+    fun build() {
+        transaction {
+            addLogger(StdOutSqlLogger)
+
+            SchemaUtils.create(BeanTest, PersonDetail)
+        }
+
+    }
+}

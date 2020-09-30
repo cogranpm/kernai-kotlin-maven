@@ -1,6 +1,7 @@
 package com.parinherm
 
 import com.parinherm.entity.LookupDetail
+import com.parinherm.entity.schema.SchemaBuilder
 import com.parinherm.server.SimpleHttpServer
 import com.parinherm.server.ViewDefinitions
 import com.parinherm.viewmodel.ViewModel
@@ -59,14 +60,7 @@ object ApplicationData {
     fun start() : Unit {
         SimpleHttpServer.start()
 
-        val db = Database.connect("jdbc:pgsql://kronmintdesktop/golangtest",
-        driver = "org.postgresql.Driver",
-        user="paulm",
-        password = "reddingo")
-
-        transaction {
-            addLogger(StdOutSqlLogger)
-        }
+        SchemaBuilder.build()
 
         val display: Display = Display.getDefault()
         Realm.runWithDefault(DisplayRealm.getRealm(display)) {
