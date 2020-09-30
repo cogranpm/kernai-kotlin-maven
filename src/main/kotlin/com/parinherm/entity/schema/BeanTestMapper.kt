@@ -35,7 +35,7 @@ object BeanTestMapper : IMapper<BeanTest> {
         }
     }
 
-    override fun getAll(): List<BeanTest> {
+    override fun getAll(keys: Map<String, Long>): List<BeanTest> {
         val items: MutableList<BeanTest> = mutableListOf()
         transaction {
             addLogger(StdOutSqlLogger)

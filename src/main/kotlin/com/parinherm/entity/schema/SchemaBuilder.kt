@@ -34,6 +34,7 @@ object SchemaBuilder {
                 it[enteredDate] = LocalDate.now()
             }
 
+            /*
             val beansy = PersonDetails.insertAndGetId {
                 it[beanTestId] = test
                 it[nickname] = "beansy"
@@ -45,6 +46,8 @@ object SchemaBuilder {
                 it[nickname] = "Franko"
                 it[petSpecies] = "C"
             }
+
+             */
 
             val query: Query = BeanTests.selectAll()
             query.orderBy(BeanTests.enteredDate to SortOrder.ASC)

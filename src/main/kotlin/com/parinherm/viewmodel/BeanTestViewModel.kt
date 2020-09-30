@@ -15,6 +15,7 @@ import com.parinherm.builders.ModelBinder
 import com.parinherm.entity.BeanTest
 import com.parinherm.entity.PersonDetail
 import com.parinherm.entity.schema.BeanTestMapper
+import com.parinherm.entity.schema.PersonDetailMapper
 import com.parinherm.tests.BeansBindingTestData
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.TableViewer
@@ -106,7 +107,8 @@ class BeanTestViewModel(data: List<BeanTest>, comparator: BeansViewerComparator,
 
     override fun afterListSelection(listView: TableViewer, currentItem: BeanTest) {
         personDetails.clear()
-        personDetails.addAll(BeansBindingTestData.personDetails.filter { it.beanTestId == currentItem.id })
+        //personDetails.addAll(BeansBindingTestData.personDetails.filter { it.beanTestId == currentItem.id })
+        personDetails.addAll(PersonDetailMapper.getAll(mapOf("beanTestId" to currentItem.id)))
         val personDetailWidgetsMap: Map<String, Any> = getWidget(ApplicationData.ViewDef.personDetailsViewId) as Map<String, Any>
         val list: TableViewer = personDetailWidgetsMap["list"] as TableViewer
         list.input = personDetails

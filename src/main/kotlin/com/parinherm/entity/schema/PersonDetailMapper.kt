@@ -11,28 +11,28 @@ object PersonDetailMapper : IMapper<PersonDetail> {
         transaction {
             if (item.id == 0L) {
                 val id = PersonDetails.insertAndGetId {
-                    it[PersonDetails.nickname] = item.nickname
-                    //it[PersonDetails.beanTestId] = item.beanTestId
-                    it[PersonDetails.petSpecies] = item.petSpecies
+                    it[nickname] = item.nickname
+                    it[PersonDetails.beanTestId] = item.beanTestId
+                    it[petSpecies] = item.petSpecies
                }
                 item.id = id.value
             } else {
                 PersonDetails.update ({PersonDetails.id eq item.id}) {
                     it[nickname] = item.nickname
-                    //it[beanTestId] = item.beanTestId
+                    it[PersonDetails.beanTestId] = item.beanTestId
                     it[petSpecies] = item.petSpecies
                }
             }
         }
     }
 
-    override fun getAll(): List<PersonDetail> {
+    override fun getAll(keys: Map<String, Long>): List<PersonDetail> {
         val list: MutableList<PersonDetail> = mutableListOf()
         transaction {
             addLogger(StdOutSqlLogger)
-            val query: Query = PersonDetails.selectAll()
+            val query: Query = PersonDetails.select {PersonDetails.beanTestId eq keys["beanTestId"] as Long}
             query.orderBy(PersonDetails.nickname to SortOrder.ASC)
-           /* query.forEach {
+            query.forEach {
                 list.add(
                     PersonDetail(it[PersonDetails.id].value,
                     it[PersonDetails.nickname],
@@ -40,8 +40,6 @@ object PersonDetailMapper : IMapper<PersonDetail> {
                     it[PersonDetails.petSpecies])
                 )
             }
-
-            */
         }
         return list
     }
