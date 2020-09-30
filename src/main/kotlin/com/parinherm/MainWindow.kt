@@ -8,6 +8,7 @@ import com.google.gson.reflect.TypeToken
 import com.parinherm.builders.*
 import com.parinherm.databinding.DataBindingView
 import com.parinherm.entity.BeanTest
+import com.parinherm.entity.schema.BeanTestMapper
 import com.parinherm.tests.BeansBindingTestData
 import com.parinherm.tests.TestData
 import com.parinherm.viewmodel.BeanTestViewModel
@@ -74,8 +75,8 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         //testForm is the pure data representation of a form
 
         //presentation model - viewModel instance
-        val viewModel = BeanTestViewModel(BeansBindingTestData.data, BeanTest.Comparator(), ModelBinder<BeanTest>())
-
+        val data = BeanTestMapper.getAll() //BeansBindingTestData.data
+        val viewModel = BeanTestViewModel(data, BeanTest.Comparator(), ModelBinder<BeanTest>())
         ApplicationData.makeTab(viewModel, "Databinding Test", ApplicationData.TAB_KEY_DATA_BINDING_TEST, ApplicationData.ViewDef.beansBindingTestViewId)
 
         //val beansBindingView = BeansViewBuilder.renderView<BeanTest>(folder, viewState, testForm)

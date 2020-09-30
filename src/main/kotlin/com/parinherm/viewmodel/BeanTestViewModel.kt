@@ -14,6 +14,7 @@ import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.builders.ModelBinder
 import com.parinherm.entity.BeanTest
 import com.parinherm.entity.PersonDetail
+import com.parinherm.entity.schema.BeanTestMapper
 import com.parinherm.tests.BeansBindingTestData
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.TableViewer
@@ -27,7 +28,7 @@ import java.time.LocalDate
 
 
 class BeanTestViewModel(data: List<BeanTest>, comparator: BeansViewerComparator, modelBinder: ModelBinder<BeanTest>)
-    : ViewModel<BeanTest>(data, comparator, modelBinder){
+    : ViewModel<BeanTest>(data, comparator, modelBinder, BeanTestMapper){
 
    val personDetails = WritableList<PersonDetail>()
     val personDetailComparator = PersonDetail.Comparator()

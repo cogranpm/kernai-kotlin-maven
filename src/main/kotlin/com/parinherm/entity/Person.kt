@@ -1,3 +1,9 @@
+/* is it possible to have DAO entity with jetbrains exposed
+and also do the JFace databinding as well
+Not sure how and if it is worthwhile just to avoid the mapping
+code of the DSL stuff
+ */
+
 package com.parinherm.entity
 
 import com.parinherm.entity.schema.BeanTests

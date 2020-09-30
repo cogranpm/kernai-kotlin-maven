@@ -7,6 +7,8 @@ import com.parinherm.builders.ViewBuilder
 import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.NewFlag
+import com.parinherm.entity.schema.IMapper
+import com.parinherm.entity.schema.SchemaBuilder
 import org.eclipse.core.databinding.*
 import org.eclipse.core.databinding.beans.typed.BeanProperties
 import org.eclipse.core.databinding.observable.ChangeEvent
@@ -29,7 +31,9 @@ import java.time.LocalDate
 
 abstract class ViewModel <T> (data: List<T>,
                               private val comparator: BeansViewerComparator,
-                              private val modelBinder: ModelBinder<T>) where T: IBeanDataEntity {
+                              private val modelBinder: ModelBinder<T>,
+                              private val mapper: IMapper<T>
+                                ) where T: IBeanDataEntity {
 
 
     val wl = WritableList<T>()
@@ -215,9 +219,14 @@ abstract class ViewModel <T> (data: List<T>,
             //viewState.dbc.updateModels()
             dirtyFlag.dirty = false
             if (currentItem?.id == 0L) {
-                currentItem?.id = (wl.size + 1L)
+                //currentItem?.id = (wl.size + 1L)
+                mapper.save(currentItem as T)
                 wl.add(currentItem)
                 listView.selection = StructuredSelection(currentItem)
+            } else {
+                if (currentItem != null) {
+                    mapper.save(currentItem as T)
+                }
             }
             //println(currentItem.toString())
         })
