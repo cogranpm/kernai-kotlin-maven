@@ -20,7 +20,7 @@ object SchemaBuilder {
 
             SchemaUtils.create(BeanTest, PersonDetail)
 
-            val test = BeanTest.insert{
+            val test = BeanTest.insertAndGetId{
                 it[name] = "Fred Farquar"
                 it[income] = BigDecimal("1000.45")
                 it[age] = 33
@@ -28,21 +28,26 @@ object SchemaBuilder {
                 it[deceased] = true
                 it[country] = "Aus"
                 it[enteredDate] = LocalDate.now()
-            } get BeanTest.id
+            }
 
-            val beansy = PersonDetail.insert {
+            val beansy = PersonDetail.insertAndGetId {
                 it[beanTestId] = test
                 it[nickname] = "beansy"
                 it[petSpecies] = "M"
             }
 
-            val franko = PersonDetail.insert {
+            val franko = PersonDetail.insertAndGetId {
                 it[beanTestId] = test
                 it[nickname] = "Franko"
                 it[petSpecies] = "C"
             }
 
-            println(test)
+            val query: Query = BeanTest.selectAll()
+            query.orderBy(BeanTest.enteredDate to SortOrder.ASC)
+            query.forEach {
+                println(it[BeanTest.name])
+            }
+
         }
 
     }
