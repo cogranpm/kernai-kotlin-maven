@@ -14,6 +14,9 @@ import org.eclipse.swt.custom.CTabItem
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.widgets.Display
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.StdOutSqlLogger
+import org.jetbrains.exposed.sql.addLogger
+import org.jetbrains.exposed.sql.transactions.transaction
 
 object ApplicationData {
 
@@ -55,10 +58,15 @@ object ApplicationData {
 
     fun start() : Unit {
         SimpleHttpServer.start()
+
         val db = Database.connect("jdbc:pgsql://kronmintdesktop/golangtest",
         driver = "org.postgresql.Driver",
         user="paulm",
         password = "reddingo")
+
+        transaction {
+            addLogger(StdOutSqlLogger)
+        }
 
         val display: Display = Display.getDefault()
         Realm.runWithDefault(DisplayRealm.getRealm(display)) {
