@@ -84,9 +84,11 @@ class BeanTestViewModel(data: List<BeanTest>, comparator: BeansViewerComparator,
             val currentPersonDetail = selectedItem as PersonDetail
             val data = PersonDetailMapper.getAll(mapOf("beanTestId" to currentItem!!.id))
             val viewModel = PersonDetailViewModel(currentItem!!.id,
-                    currentPersonDetail, ApplicationData.tabs[ApplicationData.TAB_KEY_DATA_BINDING_TEST],
-                    data, personDetailComparator,
-                    ModelBinder<PersonDetail>())
+                currentPersonDetail,
+                ApplicationData.tabs[ApplicationData.TAB_KEY_DATA_BINDING_TEST],
+                data,
+                personDetailComparator,
+                ModelBinder<PersonDetail>())
             ApplicationData.makeTab(viewModel, "Person Detail", ApplicationData.TAB_KEY_PERSONDETAIL, ApplicationData.ViewDef.personDetailsViewId)
         }
 

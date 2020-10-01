@@ -192,14 +192,17 @@ abstract class ViewModel <T> (data: List<T>,
         listView.addSelectionChangedListener { _ ->
             selectingFlag = true
             val selection = listView.structuredSelection
-            val selectedItem = selection.firstElement
-            // store the selected item in the list in the viewstate
-            currentItem = selectedItem as T
-            modelBinder.createDataBindings(dbc, fields, selectedItem, this::getWidget, listener, dirtyFlag)
-            afterListSelection(listView, currentItem!!)
-            Display.getDefault().timerExec(100) {
-                selectingFlag = false
+            if (!selection.isEmpty){
+                val selectedItem = selection.firstElement
+                // store the selected item in the list in the viewstate
+                currentItem = selectedItem as T
+                modelBinder.createDataBindings(dbc, fields, selectedItem, this::getWidget, listener, dirtyFlag)
+                afterListSelection(listView, currentItem!!)
+                Display.getDefault().timerExec(100) {
+                    selectingFlag = false
+                }
             }
+
         }
     }
 
