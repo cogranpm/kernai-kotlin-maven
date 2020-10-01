@@ -25,7 +25,7 @@ class PersonDetailViewModel(val beanTestId: Long,
         val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
         if (selectedItem != null) {
             val listView = getWidget("list") as TableViewer
-            listView.selection = StructuredSelection(selectedItem)
+            listView.setSelection(StructuredSelection(selectedItem), true)
         } else {
             applyNewCommand(fields)
         }
