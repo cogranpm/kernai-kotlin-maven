@@ -82,7 +82,7 @@ class BeanTestViewModel(data: List<BeanTest>, comparator: BeansViewerComparator,
             val selectedItem = selection.firstElement
             // store the selected item in the list in the viewstate
             val currentPersonDetail = selectedItem as PersonDetail
-            val data = BeansBindingTestData.personDetails.filter { it.beanTestId == currentItem!!.id }
+            val data = PersonDetailMapper.getAll(mapOf("beanTestId" to currentItem!!.id))
             val viewModel = PersonDetailViewModel(currentItem!!.id,
                     currentPersonDetail, ApplicationData.tabs[ApplicationData.TAB_KEY_DATA_BINDING_TEST],
                     data, personDetailComparator,
@@ -95,7 +95,7 @@ class BeanTestViewModel(data: List<BeanTest>, comparator: BeansViewerComparator,
             is it the selection on the parent list or
             the value cached in the viewmodel (this instance)
              */
-            val data = BeansBindingTestData.personDetails.filter { it.beanTestId == currentItem!!.id }
+            val data = PersonDetailMapper.getAll(mapOf("beanTestId" to currentItem!!.id))
             val viewModel = PersonDetailViewModel(currentItem!!.id, null,
                     ApplicationData.tabs[ApplicationData.TAB_KEY_DATA_BINDING_TEST],
                     data, personDetailComparator, ModelBinder<PersonDetail>())
