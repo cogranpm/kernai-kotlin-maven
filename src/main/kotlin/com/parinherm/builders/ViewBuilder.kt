@@ -166,8 +166,14 @@ object ViewBuilder {
             sashForm.sashWidth = 4
             val childDefs = viewDefinition[ApplicationData.ViewDef.childViews] as List<Map<String, Any>>
             val folder = CTabFolder(childContainer, SWT.TOP or SWT.BORDER)
-            childDefs.forEach{
-                childDefinition: Map<String, Any> -> makeChildTab(folder, childDefinition, addWidget)
+            childDefs.forEachIndexed{
+                index: Int, childDefinition: Map<String, Any> ->
+                run {
+                    val tab = makeChildTab(folder, childDefinition, addWidget)
+                    if (index == 0) {
+                        folder.selection = tab
+                    }
+                }
             }
             return fieldsContainer
 
@@ -178,7 +184,7 @@ object ViewBuilder {
     }
 
 
-    private fun makeChildTab(folder: CTabFolder, childDefinition: Map<String, Any>, addWidget: (String, Any) -> Unit) : Unit {
+    private fun makeChildTab(folder: CTabFolder, childDefinition: Map<String, Any>, addWidget: (String, Any) -> Unit) : CTabItem{
         val childWidgetMap = mutableMapOf<String, Any>()
         addWidget(childDefinition[ApplicationData.ViewDef.viewid] as String, childWidgetMap)
         val tab = CTabItem(folder, SWT.CLOSE)
@@ -215,6 +221,7 @@ object ViewBuilder {
         GridLayoutFactory.fillDefaults().numColumns(1).margins(LayoutConstants.getMargins()).generateLayout(childComposite)
         GridDataFactory.fillDefaults().grab(true, false).applyTo(buttonBar)
         GridDataFactory.fillDefaults().grab(true, true).applyTo(listComposite)
+        return tab
     }
 
 

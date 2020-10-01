@@ -46,7 +46,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
 
     init {
         actionSave.accelerator = SWT.MOD1 or('S'.toInt())
-        addToolBar(SWT.FLAT or SWT.WRAP)
+        addToolBar(SWT.NONE) //SWT.FLAT or SWT.WRAP
         addMenuBar()
         addStatusLine()
 
@@ -58,40 +58,20 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         folder = CTabFolder(mainContainer, SWT.TOP or SWT.BORDER)
 
 
-        /* testing a load ui definitions from server
-        scenario, so a api site would be running
-        ui defs are put on wire format and downloaded
-        and then renderer takes care of constructing the widgets etc
-         */
-        //swtBuilder.renderTest()
-        //val view = swtBuilder.renderView(TestData, folder, ApplicationData.ViewDef.bindingTestViewId)
-        //item.control = view
-        //DataBindingView(TestData.data).makeView(folder)
-
-       //load the views from the server
-
-
-        // render the test view
-        //testForm is the pure data representation of a form
-
-        //presentation model - viewModel instance
         val data = BeanTestMapper.getAll(mapOf()) //BeansBindingTestData.data
         val viewModel = BeanTestViewModel(data, BeanTest.Comparator(), ModelBinder<BeanTest>())
-        ApplicationData.makeTab(viewModel, "Databinding Test", ApplicationData.TAB_KEY_DATA_BINDING_TEST, ApplicationData.ViewDef.beansBindingTestViewId)
-
-        //val beansBindingView = BeansViewBuilder.renderView<BeanTest>(folder, viewState, testForm)
-
+        ApplicationData.makeTab(viewModel, "Data binding Test", ApplicationData.TAB_KEY_DATA_BINDING_TEST, ApplicationData.ViewDef.beansBindingTestViewId)
 
         /* this messes up the layout here or
         in the toolbar manager override
-         *
+
         val save = ActionContributionItem(actionSave)
         toolBarManager.add(save)
         toolBarManager.update(false)
 
          */
+
         mainContainer.layout()
-        //shell.pack()
         return mainContainer
     }
 
@@ -158,12 +138,15 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
 
         menuManager.add(fileMenu)
         menuManager.add(actionMenu)
+        menuManager.updateAll(true)
         return menuManager
     }
 
     override fun createToolBarManager(style: Int): ToolBarManager {
         val toolBarManager = ToolBarManager(style);
-
+        val save = ActionContributionItem(actionSave)
+        toolBarManager.add(save)
+        toolBarManager.update(false)
         return toolBarManager
     }
 
@@ -176,6 +159,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
 
     override fun configureShell(shell: Shell?) {
         super.configureShell(shell)
+        shell?.maximized = true
         shell?.text = "Kernai Kotlin"
 
         ApplicationData.setupImages()
@@ -188,7 +172,10 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
 
 
     override fun getInitialSize(): Point {
-        //rreturn Point(900, 900)
+        return  getShellSize()
+    }
+
+    private fun getShellSize(): Point {
         val width = Display.getDefault().primaryMonitor.clientArea.width
         val height = Display.getDefault().primaryMonitor.clientArea.width
         return Point(width, height)
