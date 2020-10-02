@@ -47,7 +47,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
                 if (tabData != null) {
                     if(!tabData.isClosed) {
                         val viewModel = tabData.viewModel
-
+                        viewModel.save()
                     }
                 }
             }

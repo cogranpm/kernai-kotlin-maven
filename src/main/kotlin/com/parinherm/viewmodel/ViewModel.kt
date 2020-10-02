@@ -55,7 +55,8 @@ abstract class ViewModel <T> (data: List<T>,
 
 
     override fun save() : Unit {
-
+        val listView = getWidget("list") as TableViewer
+        onSave(listView)
     }
 
     override fun new() : Unit {
@@ -231,21 +232,24 @@ abstract class ViewModel <T> (data: List<T>,
 
     private fun saveCommand(listView: TableViewer, btnSave: Button){
         btnSave.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
-            // needed if ApplicationData.defaultUpdatePolicy = UpdateValueStrategy.POLICY_ON_REQUEST
-            //viewState.dbc.updateModels()
-            dirtyFlag.dirty = false
-            if (currentItem?.id == 0L) {
-                //currentItem?.id = (wl.size + 1L)
-                mapper.save(currentItem as T)
-                wl.add(currentItem)
-                listView.selection = StructuredSelection(currentItem)
-            } else {
-                if (currentItem != null) {
-                    mapper.save(currentItem as T)
-                }
-            }
-            //println(currentItem.toString())
+            onSave(listView)
         })
+    }
+
+    protected open fun onSave(listView: TableViewer){
+        // needed if ApplicationData.defaultUpdatePolicy = UpdateValueStrategy.POLICY_ON_REQUEST
+        //viewState.dbc.updateModels()
+        dirtyFlag.dirty = false
+        if (currentItem?.id == 0L) {
+            //currentItem?.id = (wl.size + 1L)
+            mapper.save(currentItem as T)
+            wl.add(currentItem)
+            listView.selection = StructuredSelection(currentItem)
+        } else {
+            if (currentItem != null) {
+                mapper.save(currentItem as T)
+            }
+        }
     }
 
     fun newCommand(btnNew: Button, fields: List<Map<String, Any>>) {
