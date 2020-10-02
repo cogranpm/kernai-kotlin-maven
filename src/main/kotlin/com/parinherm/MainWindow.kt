@@ -53,8 +53,25 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         }
     }
 
+
+    val actionNew: Action = object : Action("&New") {
+        override fun run() {
+            val selection = folder.selection
+            if(selection != null) {
+                val tabData = ApplicationData.tabs[selection.getData("key")]
+                if (tabData != null) {
+                    if(!tabData.isClosed) {
+                        val viewModel = tabData.viewModel
+                        viewModel.new()
+                    }
+                }
+            }
+        }
+    }
+
     init {
         actionSave.accelerator = SWT.MOD1 or('S'.toInt())
+        actionNew.accelerator = SWT.MOD1 or('N'.toInt())
         addToolBar(SWT.NONE) //SWT.FLAT or SWT.WRAP
         addMenuBar()
         addStatusLine()
@@ -138,6 +155,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         // file menus
         fileMenu.add(Separator())
         fileMenu.add(actionOpenFile)
+        fileMenu.add(actionNew)
         fileMenu.add(actionSave)
         fileMenu.add(actionQuit)
 
@@ -154,7 +172,9 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
     override fun createToolBarManager(style: Int): ToolBarManager {
         val toolBarManager = ToolBarManager(style);
         val save = ActionContributionItem(actionSave)
+        val new = ActionContributionItem(actionNew)
         toolBarManager.add(save)
+        toolBarManager.add(new)
         toolBarManager.update(false)
         return toolBarManager
     }
