@@ -100,6 +100,7 @@ object ApplicationData {
         tabItem.addDisposeListener {
             tabs[key]!!.isClosed = true
         }
+        tabItem.setData("key", key)
         mainWindow.folder.selection = tabItem
         return TabInstance(viewModel, tabItem, false)
     }

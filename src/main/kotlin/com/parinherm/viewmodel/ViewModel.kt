@@ -33,7 +33,7 @@ abstract class ViewModel <T> (data: List<T>,
                               private val comparator: BeansViewerComparator,
                               private val modelBinder: ModelBinder<T>,
                               private val mapper: IMapper<T>
-                                ) where T: IBeanDataEntity {
+                                ) : IViewModel where T: IBeanDataEntity {
 
 
     val wl = WritableList<T>()
@@ -51,6 +51,19 @@ abstract class ViewModel <T> (data: List<T>,
 
     init {
         wl.addAll(data)
+    }
+
+
+    override fun save() : Unit {
+
+    }
+
+    override fun new() : Unit {
+
+    }
+
+    override fun delete() : Unit {
+
     }
 
     open fun render(parent: Composite, viewDefinition: Map<String, Any>): Composite {

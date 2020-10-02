@@ -40,7 +40,17 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
 
     val actionSave: Action = object : Action("&Save") {
         override fun run() {
-           println("Saving")
+            println("Saving")
+            val selection = folder.selection
+            if(selection != null) {
+                val tabData = ApplicationData.tabs[selection.getData("key")]
+                if (tabData != null) {
+                    if(!tabData.isClosed) {
+                        val viewModel = tabData.viewModel
+
+                    }
+                }
+            }
         }
     }
 
