@@ -9,6 +9,7 @@ import com.parinherm.builders.*
 import com.parinherm.databinding.DataBindingView
 import com.parinherm.entity.BeanTest
 import com.parinherm.entity.schema.BeanTestMapper
+import com.parinherm.form.Form
 import com.parinherm.tests.BeansBindingTestData
 import com.parinherm.tests.TestData
 import com.parinherm.viewmodel.BeanTestViewModel
@@ -86,7 +87,8 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
 
         val data = BeanTestMapper.getAll(mapOf()) //BeansBindingTestData.data
         val viewModel = BeanTestViewModel(data, BeanTest.Comparator(), ModelBinder<BeanTest>())
-        ApplicationData.makeTab(viewModel, "Data binding Test", ApplicationData.TAB_KEY_DATA_BINDING_TEST, ApplicationData.ViewDef.beansBindingTestViewId)
+        ApplicationData.makeTab(viewModel, "Data binding Test", ApplicationData.TAB_KEY_DATA_BINDING_TEST,
+            ApplicationData.ViewDef.beansBindingTestViewId)
 
         /* this messes up the layout here or
         in the toolbar manager override
@@ -148,6 +150,19 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         }
         actionDataBinding.accelerator = SWT.MOD1 or ('B'.toInt())
 
+        val recipeAction: Action = object: Action("&Recipes") {
+            override fun run () {
+                clearComposite(mainContainer)
+                val formDef: Map<String, Any> =
+                    ApplicationData.getView(ApplicationData.ViewDef.beansBindingTestViewId,
+                        ApplicationData.viewDefinitions)
+                val form = Form(mainContainer, formDef)
+                mainContainer.layout()
+            }
+        }
+        recipeAction.accelerator = SWT.MOD1 or ('R'.toInt())
+
+
         val menuManager = MenuManager("")
         val fileMenu = MenuManager("&File")
         val actionMenu = MenuManager("&Action")
@@ -162,6 +177,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         // action menus
         actionMenu.add(actionChristmasTree)
         actionMenu.add(actionDataBinding)
+        actionMenu.add(recipeAction)
 
         menuManager.add(fileMenu)
         menuManager.add(actionMenu)

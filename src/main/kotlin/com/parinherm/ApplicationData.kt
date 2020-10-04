@@ -23,7 +23,7 @@ object ApplicationData {
 
     private lateinit var imageRegistry: ImageRegistry
     private lateinit var mainWindow: MainWindow
-    private lateinit var viewDefinitions: Map<String, Any>
+    lateinit var viewDefinitions: Map<String, Any>
     /* keeps all opened tabs in a list and remove them when closed */
     var tabs: MutableMap<String, TabInstance> = mutableMapOf()
 
