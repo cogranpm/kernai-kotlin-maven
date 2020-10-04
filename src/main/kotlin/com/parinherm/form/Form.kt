@@ -14,15 +14,15 @@ import org.eclipse.swt.widgets.Label
 data class Form (val parent: Composite, val viewDefinition: Map<String, Any>) {
 
     val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
-    val composite = Composite(parent, ApplicationData.swnone)
-    val sashForm = SashForm(composite, SWT.BORDER or SWT.VERTICAL)
+    val root = Composite(parent, ApplicationData.swnone)
+    val sashForm = SashForm(root, SWT.BORDER or SWT.VERTICAL)
     val listContainer = Composite(sashForm, ApplicationData.swnone)
     val tableLayout = TableColumnLayout(true)
     val listView = getListViewer(listContainer, tableLayout)
     val columns = makeColumns(listView, fields, tableLayout )
     val editContainer = Composite(sashForm, ApplicationData.swnone)
     val lblErrors = Label(editContainer, ApplicationData.labelStyle)
-
+    val formInputs = makeForm(fields, editContainer)
 
     init {
         lblErrors.text = "hello there"
@@ -31,8 +31,8 @@ data class Form (val parent: Composite, val viewDefinition: Map<String, Any>) {
         sashForm.sashWidth = 4
 
         GridDataFactory.fillDefaults().span(2, 1).applyTo(lblErrors)
-        composite.layout = FillLayout(SWT.VERTICAL)
-        composite.layout()
+        root.layout = FillLayout(SWT.VERTICAL)
+        root.layout()
 
     }
 

@@ -5,15 +5,12 @@ building a user interface
 package com.parinherm.form
 
 import com.parinherm.ApplicationData
-import com.parinherm.TabInstance
-import com.parinherm.builders.ViewBuilder
+import com.parinherm.entity.LookupDetail
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.GridLayoutFactory
 import org.eclipse.jface.layout.LayoutConstants
 import org.eclipse.jface.layout.TableColumnLayout
-import org.eclipse.jface.viewers.ColumnWeightData
-import org.eclipse.jface.viewers.TableViewer
-import org.eclipse.jface.viewers.TableViewerColumn
+import org.eclipse.jface.viewers.*
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.CTabFolder
 import org.eclipse.swt.custom.CTabItem
@@ -21,15 +18,8 @@ import org.eclipse.swt.custom.SashForm
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.layout.RowLayout
-import org.eclipse.swt.widgets.Button
-import org.eclipse.swt.widgets.Composite
+import org.eclipse.swt.widgets.*
 
-
-/* the world state so to speak
-a map of TabInstances
- */
-
-val tabInstances = mutableMapOf<String, TabInstance>()
 
 fun getListViewer(
     parent: Composite,
@@ -70,15 +60,101 @@ fun makeColumn(
     return column
 }
 
+fun makeForm(fields: List<Map<String, Any>>, parent: Composite)
+        : Map<String, FormWidget> {
 
-fun makeEditContainer(parent: Composite,
-                      viewDefinition: Map<String, Any>)
+    // transform list of field definitions into  a map of widgets
+    // with the fieldName as the key
+    return fields.map {
+        val label = makeInputLabel(parent, it[ApplicationData.ViewDef.title] as String)
+        val fieldType = it[ApplicationData.ViewDef.fieldDataType] as String
+        val control = makeInputWidget(
+            parent,
+            fieldType,
+            it
+        )
+        val fieldName = it[ApplicationData.ViewDef.fieldName] as String
+        control.setData("fieldName", fieldName)
+        applyLayoutToField(control)
+        // returning a map entry for each iteration
+        // generates a list of pairs
+        fieldName to FormWidget(fieldName, fieldType, label, control)
+    }.toMap()
+
+}
+
+fun makeInputLabel(parent: Composite, caption: String): Label {
+    val label = Label(parent, ApplicationData.labelStyle)
+    label.text = caption
+    GridDataFactory.fillDefaults().applyTo(label)
+    return label
+}
+
+fun makeInputWidget(
+    parent: Composite,
+    fieldType: String,
+    fieldDef: Map<String, Any>
+): Control {
+
+    when (fieldType) {
+        ApplicationData.ViewDef.text -> {
+            return Text(parent, ApplicationData.swnone)
+        }
+        ApplicationData.ViewDef.float -> {
+            return Text(parent, ApplicationData.swnone)
+        }
+        ApplicationData.ViewDef.money -> {
+            return Text(parent, ApplicationData.swnone)
+        }
+        ApplicationData.ViewDef.int -> {
+            val input = Spinner(parent, ApplicationData.swnone)
+            input.minimum = Integer.MIN_VALUE
+            input.maximum = Integer.MAX_VALUE
+            return input
+        }
+        ApplicationData.ViewDef.bool -> {
+            return Button(parent, SWT.CHECK)
+        }
+        ApplicationData.ViewDef.datetime -> {
+            return DateTime(parent, SWT.DROP_DOWN or SWT.DATE)
+        }
+        ApplicationData.ViewDef.lookup -> {
+            val input = ComboViewer(parent)
+            GridDataFactory.fillDefaults().grab(true, false).applyTo(input.combo)
+            input.contentProvider = ArrayContentProvider.getInstance()
+            input.labelProvider = (object : LabelProvider() {
+                override fun getText(element: Any): String {
+                    return (element as LookupDetail).label
+                }
+            })
+            val comboSource = ApplicationData.lookups.getOrDefault(
+                fieldDef[ApplicationData.ViewDef.lookupKey] as String, listOf()
+            )
+            input.input = comboSource
+            return input.control
+        }
+        else -> {
+            // just a dummy thing should never happen
+            return Label(null, SWT.NONE)
+        }
+    }
+}
+
+fun applyLayoutToField(widget: Control): Unit {
+    GridDataFactory.fillDefaults().grab(false, false).applyTo(widget)
+}
+
+
+fun makeEditContainer(
+    parent: Composite,
+    viewDefinition: Map<String, Any>
+)
         : Composite {
     /*
     if we have master detail children then we need the edit container in horizontal sash form
     with an edit composite up top and a tab control in the below
      */
-    if (hasChildViews(viewDefinition)){
+    if (hasChildViews(viewDefinition)) {
         val editContainer = Composite(parent, ApplicationData.swnone)
         editContainer.layout = FillLayout(SWT.VERTICAL)
         val sashForm = SashForm(editContainer, SWT.BORDER or SWT.HORIZONTAL)
@@ -89,8 +165,7 @@ fun makeEditContainer(parent: Composite,
         sashForm.sashWidth = 4
         val childDefs = viewDefinition[ApplicationData.ViewDef.childViews] as List<Map<String, Any>>
         val folder = CTabFolder(childContainer, SWT.TOP or SWT.BORDER)
-        childDefs.forEachIndexed{
-                index: Int, childDefinition: Map<String, Any> ->
+        childDefs.forEachIndexed { index: Int, childDefinition: Map<String, Any> ->
             run {
                 val tab = makeChildTab(folder, childDefinition)
                 if (index == 0) {
@@ -105,11 +180,11 @@ fun makeEditContainer(parent: Composite,
     }
 }
 
-fun makeChildTab(folder: CTabFolder, childDefinition: Map<String, Any>) : CTabItem {
+fun makeChildTab(folder: CTabFolder, childDefinition: Map<String, Any>): CTabItem {
     val tab = CTabItem(folder, SWT.CLOSE)
     tab.text = childDefinition[ApplicationData.ViewDef.title].toString()
 
-   val childComposite = Composite(folder, ApplicationData.swnone)
+    val childComposite = Composite(folder, ApplicationData.swnone)
     childComposite.layout = GridLayout()
 
     val buttonBar = Composite(childComposite, ApplicationData.swnone)
@@ -131,7 +206,7 @@ fun makeChildTab(folder: CTabFolder, childDefinition: Map<String, Any>) : CTabIt
     return tab
 }
 
-fun hasChildViews(viewDefinition: Map<String, Any>): Boolean{
+fun hasChildViews(viewDefinition: Map<String, Any>): Boolean {
     if (viewDefinition.containsKey(ApplicationData.ViewDef.childViews)) {
         val childDefs = viewDefinition[ApplicationData.ViewDef.childViews] as List<Map<String, Any>>
         return childDefs.isNotEmpty()
