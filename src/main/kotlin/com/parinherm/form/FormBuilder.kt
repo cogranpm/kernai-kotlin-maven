@@ -66,17 +66,19 @@ fun makeForm(fields: List<Map<String, Any>>, parent: Composite)
     // transform list of field definitions into  a map of widgets
     // with the fieldName as the key
     return fields.map {
-        val label = makeInputLabel(parent, it[ApplicationData.ViewDef.title] as String)
+
+        val fieldName = it[ApplicationData.ViewDef.fieldName] as String
         val fieldType = it[ApplicationData.ViewDef.fieldDataType] as String
+
+        val label = makeInputLabel(parent, it[ApplicationData.ViewDef.title] as String)
         val control = makeInputWidget(
             parent,
+            fieldName,
             fieldType,
             it
         )
-        val fieldName = it[ApplicationData.ViewDef.fieldName] as String
-        control.setData("fieldName", fieldName)
-        applyLayoutToField(control)
-        // returning a map entry for each iteration
+
+       // returning a map entry for each iteration
         // generates a list of pairs
         fieldName to FormWidget(fieldName, fieldType, label, control)
     }.toMap()
@@ -92,31 +94,32 @@ fun makeInputLabel(parent: Composite, caption: String): Label {
 
 fun makeInputWidget(
     parent: Composite,
+    fieldName: String,
     fieldType: String,
     fieldDef: Map<String, Any>
 ): Control {
 
-    when (fieldType) {
+    val control = when (fieldType) {
         ApplicationData.ViewDef.text -> {
-            return Text(parent, ApplicationData.swnone)
+            Text(parent, ApplicationData.swnone)
         }
         ApplicationData.ViewDef.float -> {
-            return Text(parent, ApplicationData.swnone)
+            Text(parent, ApplicationData.swnone)
         }
         ApplicationData.ViewDef.money -> {
-            return Text(parent, ApplicationData.swnone)
+            Text(parent, ApplicationData.swnone)
         }
         ApplicationData.ViewDef.int -> {
             val input = Spinner(parent, ApplicationData.swnone)
             input.minimum = Integer.MIN_VALUE
             input.maximum = Integer.MAX_VALUE
-            return input
+            input
         }
         ApplicationData.ViewDef.bool -> {
-            return Button(parent, SWT.CHECK)
+            Button(parent, SWT.CHECK)
         }
         ApplicationData.ViewDef.datetime -> {
-            return DateTime(parent, SWT.DROP_DOWN or SWT.DATE)
+            DateTime(parent, SWT.DROP_DOWN or SWT.DATE)
         }
         ApplicationData.ViewDef.lookup -> {
             val input = ComboViewer(parent)
@@ -131,13 +134,16 @@ fun makeInputWidget(
                 fieldDef[ApplicationData.ViewDef.lookupKey] as String, listOf()
             )
             input.input = comboSource
-            return input.control
+            input.control
         }
         else -> {
             // just a dummy thing should never happen
-            return Label(null, SWT.NONE)
+            Label(null, SWT.NONE)
         }
     }
+    control.setData("fieldName", fieldName)
+    applyLayoutToField(control)
+    return control
 }
 
 fun applyLayoutToField(widget: Control): Unit {
@@ -145,6 +151,7 @@ fun applyLayoutToField(widget: Control): Unit {
 }
 
 
+/* TODO - child tabs stuff */
 fun makeEditContainer(
     parent: Composite,
     viewDefinition: Map<String, Any>
