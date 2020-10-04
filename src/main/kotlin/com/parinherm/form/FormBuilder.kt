@@ -152,11 +152,11 @@ fun applyLayoutToField(widget: Control): Unit {
 
 
 /* TODO - child tabs stuff */
-fun makeEditContainer(
+fun makeChildForms(
     parent: Composite,
     viewDefinition: Map<String, Any>
 )
-        : Composite {
+        : List<ChildFormWidget> {
     /*
     if we have master detail children then we need the edit container in horizontal sash form
     with an edit composite up top and a tab control in the below
@@ -180,11 +180,11 @@ fun makeEditContainer(
                 }
             }
         }
-        return fieldsContainer
-
+        return listOf(ChildFormWidget(parent))
     } else {
-        return Composite(parent, ApplicationData.swnone)
+        return listOf<ChildFormWidget>()
     }
+
 }
 
 fun makeChildTab(folder: CTabFolder, childDefinition: Map<String, Any>): CTabItem {

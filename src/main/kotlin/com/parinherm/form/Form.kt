@@ -23,6 +23,7 @@ data class Form (val parent: Composite, val viewDefinition: Map<String, Any>) {
     val editContainer = Composite(sashForm, ApplicationData.swnone)
     val lblErrors = Label(editContainer, ApplicationData.labelStyle)
     val formInputs = makeForm(fields, editContainer)
+    val childForms = makeChildForms(editContainer, viewDefinition)
 
     init {
         lblErrors.text = "hello there"
