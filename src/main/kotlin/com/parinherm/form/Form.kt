@@ -42,7 +42,7 @@ data class Form (val parent: Composite, val viewDefinition: Map<String, Any>) {
         sashForm.weights = intArrayOf(1, 2)
         sashForm.sashWidth = 4
         if (formsContainer != null){
-            println("child forms")
+            println("child forms $formsContainer")
         }
 
         //GridDataFactory.fillDefaults().span(2, 1).applyTo(lblErrors)
