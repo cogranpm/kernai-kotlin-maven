@@ -1,5 +1,12 @@
 /* functional style file with functions for
 building a user interface
+
+idea is to return values from functions that enable all the important
+widgets to be exposed for further customization without using Maps, Keys and casting
+
+functions should be pure wherever possible, ie side effect free, but this is hard with a gui
+
+a view class will use functions to build up a form of widgets for display
  */
 
 package com.parinherm.form
@@ -181,20 +188,19 @@ fun makeEditContainer(hasChildViews: Boolean, parent: Composite): FormContainer 
     }
 }
 
-fun makeChildForm(parent: Composite, childDefs: List<Map<String, Any>>) {
+fun makeChildForm(parent: Composite, childDefs: List<Map<String, Any>>) : ChildForm {
     val folder = CTabFolder(parent, SWT.TOP or SWT.BORDER)
-    childDefs.forEachIndexed { index: Int, childDefinition: Map<String, Any> ->
-        run {
-            val tab = makeChildTab(folder, childDefinition)
-            if (index == 0) {
-                folder.selection = tab
-            }
+    val childTabs = childDefs.mapIndexed { index: Int, item: Map<String, Any> ->
+        val childTab = makeChildTab(folder, item)
+        if (index == 0) {
+            folder.selection = childTab.tab
         }
+        childTab
     }
-
+    return ChildForm(folder, childTabs)
 }
 
-fun makeChildTab(folder: CTabFolder, childDefinition: Map<String, Any>): CTabItem {
+fun makeChildTab(folder: CTabFolder, childDefinition: Map<String, Any>): ChildFormTab{
     val tab = CTabItem(folder, SWT.CLOSE)
     tab.text = childDefinition[ApplicationData.ViewDef.title].toString()
 
@@ -204,7 +210,7 @@ fun makeChildTab(folder: CTabFolder, childDefinition: Map<String, Any>): CTabIte
     val buttonBar = Composite(childComposite, ApplicationData.swnone)
 
     val listComposite = Composite(childComposite, ApplicationData.swnone)
-    listComposite.layout = FillLayout()
+    val tableLayout = TableColumnLayout(true)
 
     buttonBar.layout = RowLayout()
     val btnAdd = Button(buttonBar, SWT.PUSH)
@@ -214,10 +220,14 @@ fun makeChildTab(folder: CTabFolder, childDefinition: Map<String, Any>): CTabIte
 
     tab.control = childComposite
 
+    val fields = childDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
+    val listView = getListViewer(listComposite, tableLayout)
+    val columns = makeColumns(listView, fields, tableLayout)
+
     GridLayoutFactory.fillDefaults().numColumns(1).margins(LayoutConstants.getMargins()).generateLayout(childComposite)
     GridDataFactory.fillDefaults().grab(true, false).applyTo(buttonBar)
     GridDataFactory.fillDefaults().grab(true, true).applyTo(listComposite)
-    return tab
+    return ChildFormTab(tab, buttonBar, btnAdd, btnRemove, listComposite, listView, columns)
 }
 
 fun hasChildViews(viewDefinition: Map<String, Any>): Boolean {

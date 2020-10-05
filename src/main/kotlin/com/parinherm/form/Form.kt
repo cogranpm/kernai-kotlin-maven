@@ -1,3 +1,15 @@
+/*
+a base view class in the Model View ModelView paradigm
+rules for the view are:
+should wire up the events handlers to composable functions that are passed in
+when they can be customized
+actual behaviour of event handlers should not be defined here
+databinding logic??? here or in the view model
+the declarative stuff here perhaps and all else in viewmodel
+ie - map widget to domain object????
+
+ */
+
 package com.parinherm.form
 
 import com.parinherm.ApplicationData
@@ -32,7 +44,7 @@ data class Form (val parent: Composite, val viewDefinition: Map<String, Any>) {
         sashForm.sashWidth = 4
         if (hasChildViews){
             val childDefs = viewDefinition[ApplicationData.ViewDef.childViews] as List<Map<String, Any>>
-            makeChildForm(formsContainer.childContainer!!, childDefs)
+            val childForm = makeChildForm(formsContainer.childContainer!!, childDefs)
         }
 
         //GridDataFactory.fillDefaults().span(2, 1).applyTo(lblErrors)
