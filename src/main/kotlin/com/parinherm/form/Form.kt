@@ -41,8 +41,8 @@ data class Form (val parent: Composite, val viewDefinition: Map<String, Any>) {
 
         sashForm.weights = intArrayOf(1, 2)
         sashForm.sashWidth = 4
-        if (formsContainer != null){
-            println("child forms $formsContainer")
+        if (childFormsContainer != null){
+            println("child forms ${childFormsContainer?.folder}")
         }
 
         //GridDataFactory.fillDefaults().span(2, 1).applyTo(lblErrors)
@@ -52,11 +52,11 @@ data class Form (val parent: Composite, val viewDefinition: Map<String, Any>) {
     }
 
     fun getGetChildForms(formsContainer: FormContainer) : ChildFormContainer?{
-        if (hasChildViews){
+        return if (hasChildViews){
             val childDefs = viewDefinition[ApplicationData.ViewDef.childViews] as List<Map<String, Any>>
-            return makeChildFormContainer(formsContainer.childContainer!!, childDefs)
+            makeChildFormContainer(formsContainer.childContainer!!, childDefs)
         } else {
-            return null
+            null
         }
     }
 
