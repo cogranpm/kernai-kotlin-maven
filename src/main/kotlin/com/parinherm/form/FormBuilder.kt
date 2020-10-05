@@ -12,7 +12,6 @@ a view class will use functions to build up a form of widgets for display
 package com.parinherm.form
 
 import com.parinherm.ApplicationData
-import com.parinherm.builders.ViewBuilder
 import com.parinherm.entity.LookupDetail
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.GridLayoutFactory
@@ -188,7 +187,7 @@ fun makeEditContainer(hasChildViews: Boolean, parent: Composite): FormContainer 
     }
 }
 
-fun makeChildForm(parent: Composite, childDefs: List<Map<String, Any>>) : ChildForm {
+fun makeChildFormContainer(parent: Composite, childDefs: List<Map<String, Any>>) : ChildFormContainer {
     val folder = CTabFolder(parent, SWT.TOP or SWT.BORDER)
     val childTabs = childDefs.mapIndexed { index: Int, item: Map<String, Any> ->
         val childTab = makeChildTab(folder, item)
@@ -197,7 +196,7 @@ fun makeChildForm(parent: Composite, childDefs: List<Map<String, Any>>) : ChildF
         }
         childTab
     }
-    return ChildForm(folder, childTabs)
+    return ChildFormContainer(folder, childTabs)
 }
 
 fun makeChildTab(folder: CTabFolder, childDefinition: Map<String, Any>): ChildFormTab{
