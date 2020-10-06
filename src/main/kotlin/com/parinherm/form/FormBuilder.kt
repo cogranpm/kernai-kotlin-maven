@@ -92,6 +92,12 @@ fun makeForm(fields: List<Map<String, Any>>, parent: Composite)
 
 }
 
+fun makeErrorLabel(parent: Composite) : Label {
+    val lblErrors = Label(parent, ApplicationData.labelStyle)
+    GridDataFactory.fillDefaults().span(2, 1).applyTo(lblErrors)
+    return lblErrors
+}
+
 fun makeInputLabel(parent: Composite, caption: String): Label {
     val label = Label(parent, ApplicationData.labelStyle)
     label.text = caption
@@ -198,6 +204,16 @@ fun makeChildFormContainer(parent: Composite, childDefs: List<Map<String, Any>>)
     }
     return ChildFormContainer(folder, childTabs)
 }
+
+fun getGetChildForms(hasChildViews: Boolean, viewDefinition: Map<String, Any>, formsContainer: FormContainer) : ChildFormContainer?{
+    return if (hasChildViews){
+        val childDefs = viewDefinition[ApplicationData.ViewDef.childViews] as List<Map<String, Any>>
+        makeChildFormContainer(formsContainer.childContainer!!, childDefs)
+    } else {
+        null
+    }
+}
+
 
 fun makeChildTab(folder: CTabFolder, childDefinition: Map<String, Any>): ChildFormTab{
     val tab = CTabItem(folder, SWT.CLOSE)

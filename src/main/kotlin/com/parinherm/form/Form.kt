@@ -32,30 +32,20 @@ data class Form (val parent: Composite, val viewDefinition: Map<String, Any>) {
     val listView = getListViewer(listContainer, tableLayout)
     val columns = makeColumns(listView, fields, tableLayout )
     val formsContainer = makeEditContainer(hasChildViews, sashForm)
-    val childFormsContainer: ChildFormContainer? by lazy { getGetChildForms(formsContainer)}
-    //val lblErrors = Label(editContainer, ApplicationData.labelStyle)
+    val lblErrors = makeErrorLabel(formsContainer.editContainer)
+    val childFormsContainer: ChildFormContainer? = getGetChildForms(hasChildViews, viewDefinition, formsContainer)
     val formInputs = makeForm(fields, formsContainer.editContainer)
-    //val childForms = makeChildForms(editContainer, viewDefinition)
 
     init {
-
+        //needs to be done after content is added
         sashForm.weights = intArrayOf(1, 2)
         sashForm.sashWidth = 4
         childFormsContainer?.childTabs?.forEach {println(it.key)}
 
-        //GridDataFactory.fillDefaults().span(2, 1).applyTo(lblErrors)
         root.layout = FillLayout(SWT.VERTICAL)
         root.layout()
 
     }
 
-    fun getGetChildForms(formsContainer: FormContainer) : ChildFormContainer?{
-        return if (hasChildViews){
-            val childDefs = viewDefinition[ApplicationData.ViewDef.childViews] as List<Map<String, Any>>
-            makeChildFormContainer(formsContainer.childContainer!!, childDefs)
-        } else {
-            null
-        }
-    }
 
 }
