@@ -41,9 +41,7 @@ data class Form (val parent: Composite, val viewDefinition: Map<String, Any>) {
 
         sashForm.weights = intArrayOf(1, 2)
         sashForm.sashWidth = 4
-        if (childFormsContainer != null){
-            println("child forms ${childFormsContainer?.folder}")
-        }
+        childFormsContainer?.childTabs?.forEach {println(it.key)}
 
         //GridDataFactory.fillDefaults().span(2, 1).applyTo(lblErrors)
         root.layout = FillLayout(SWT.VERTICAL)

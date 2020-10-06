@@ -226,7 +226,8 @@ fun makeChildTab(folder: CTabFolder, childDefinition: Map<String, Any>): ChildFo
     GridLayoutFactory.fillDefaults().numColumns(1).margins(LayoutConstants.getMargins()).generateLayout(childComposite)
     GridDataFactory.fillDefaults().grab(true, false).applyTo(buttonBar)
     GridDataFactory.fillDefaults().grab(true, true).applyTo(listComposite)
-    return ChildFormTab(tab, buttonBar, btnAdd, btnRemove, listComposite, listView, columns)
+    val childKey = childDefinition[ApplicationData.ViewDef.viewid] as String
+    return ChildFormTab(childKey, tab, buttonBar, btnAdd, btnRemove, listComposite, listView, columns)
 }
 
 fun hasChildViews(viewDefinition: Map<String, Any>): Boolean {
