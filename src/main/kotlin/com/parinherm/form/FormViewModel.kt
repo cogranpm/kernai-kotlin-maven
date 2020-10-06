@@ -57,7 +57,7 @@ open class FormViewModel <T> (val view: View){
          */
         if (selectingFlag) return false
        return when (source){
-            is SWTObservableValueDecorator<*> -> !view.isValidSaveSource(source.widget)
+            is SWTObservableValueDecorator<*> -> source.widget != view.getSaveButton()
             else -> true
         }
     }

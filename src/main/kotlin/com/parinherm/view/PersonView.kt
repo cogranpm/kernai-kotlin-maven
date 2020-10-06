@@ -2,6 +2,8 @@ package com.parinherm.view
 
 import com.parinherm.form.Form
 import com.parinherm.viewmodel.PersonViewModel
+import org.eclipse.swt.SWT
+import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Widget
 
@@ -11,8 +13,7 @@ class PersonView (val parent: Composite, val viewDefinition: Map<String, Any>) :
     override fun refresh() {
     }
 
-    override fun isValidSaveSource(widget: Widget): Boolean {
-       //return widget == form.btnSav
-        return true
+    override fun getSaveButton(): Button{
+        return Button(null, SWT.NONE)
     }
 }
