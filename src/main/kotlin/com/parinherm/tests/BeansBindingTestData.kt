@@ -1,21 +1,18 @@
 package com.parinherm.tests
 
 import com.parinherm.ApplicationData
-import com.parinherm.entity.BeanTest
-import com.parinherm.entity.IBeanDataEntity
-import com.parinherm.entity.ModelObject
+import com.parinherm.entity.Person
 import com.parinherm.entity.PersonDetail
 import java.math.BigDecimal
-import java.math.BigInteger
 import java.time.LocalDate
 import kotlin.random.Random
 
 object BeansBindingTestData {
-    val data: List<BeanTest>
+    val data: List<Person>
         get() = listOf(
-                BeanTest(1, "Wayne", BigDecimal(78543.00), 5.9, 43, LocalDate.now(), "Aus", true),
-                BeanTest(2, "Belconnon", BigDecimal(44400.00), 4.9, 55, LocalDate.parse("1978-09-15"), "Can", false),
-                BeanTest(3, "Baumauris", BigDecimal(890.00), 6.4, 25, LocalDate.parse("2012-03-15"), "SA", true)
+                Person(1, "Wayne", BigDecimal(78543.00), 5.9, 43, LocalDate.now(), "Aus", true),
+                Person(2, "Belconnon", BigDecimal(44400.00), 4.9, 55, LocalDate.parse("1978-09-15"), "Can", false),
+                Person(3, "Baumauris", BigDecimal(890.00), 6.4, 25, LocalDate.parse("2012-03-15"), "SA", true)
         )
 
 

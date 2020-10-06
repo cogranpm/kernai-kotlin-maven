@@ -4,12 +4,10 @@ import com.parinherm.ApplicationData
 import com.parinherm.TabInstance
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.builders.ModelBinder
-import com.parinherm.entity.BeanTest
 import com.parinherm.entity.PersonDetail
 import com.parinherm.entity.schema.PersonDetailMapper
 import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.jface.viewers.TableViewer
-import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 
 class PersonDetailViewModel(val beanTestId: Long,

@@ -22,7 +22,6 @@ import org.eclipse.swt.widgets.Composite
 
 data class Form (val parent: Composite, val viewDefinition: Map<String, Any>) {
 
-
     val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
     val hasChildViews: Boolean = hasChildViews(viewDefinition)
     val root = Composite(parent, ApplicationData.swnone)

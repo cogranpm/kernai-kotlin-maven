@@ -2,7 +2,6 @@ package com.parinherm.server
 
 import com.parinherm.ApplicationData
 import com.parinherm.ApplicationData.ViewDef
-import com.parinherm.entity.BeanTest
 
 object ViewDefinitions {
 

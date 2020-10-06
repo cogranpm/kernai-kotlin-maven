@@ -12,14 +12,12 @@ package com.parinherm.viewmodel
 import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.builders.ModelBinder
-import com.parinherm.entity.BeanTest
+import com.parinherm.entity.Person
 import com.parinherm.entity.PersonDetail
 import com.parinherm.entity.schema.BeanTestMapper
 import com.parinherm.entity.schema.PersonDetailMapper
-import com.parinherm.tests.BeansBindingTestData
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.TableViewer
-import org.eclipse.jface.viewers.TableViewerColumn
 import org.eclipse.swt.custom.CTabItem
 import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.widgets.Button
@@ -28,8 +26,8 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 
-class BeanTestViewModel(data: List<BeanTest>, comparator: BeansViewerComparator, modelBinder: ModelBinder<BeanTest>)
-    : ViewModel<BeanTest>(data, comparator, modelBinder, BeanTestMapper){
+class BeanTestViewModel(data: List<Person>, comparator: BeansViewerComparator, modelBinder: ModelBinder<Person>)
+    : ViewModel<Person>(data, comparator, modelBinder, BeanTestMapper){
 
    val personDetails = WritableList<PersonDetail>()
     val personDetailComparator = PersonDetail.Comparator()
@@ -42,8 +40,8 @@ class BeanTestViewModel(data: List<BeanTest>, comparator: BeansViewerComparator,
        return composite
     }
 
-    override fun makeNewEntity(): BeanTest {
-        return BeanTest(0, "", BigDecimal(0), 0.0, 0, LocalDate.now(), "Aus", false)
+    override fun makeNewEntity(): Person {
+        return Person(0, "", BigDecimal(0), 0.0, 0, LocalDate.now(), "Aus", false)
     }
 
 
@@ -107,7 +105,7 @@ class BeanTestViewModel(data: List<BeanTest>, comparator: BeansViewerComparator,
         listHeaderSelection(list, fields, personDetailComparator)
    }
 
-    override fun afterListSelection(listView: TableViewer, currentItem: BeanTest) {
+    override fun afterListSelection(listView: TableViewer, currentItem: Person) {
         personDetails.clear()
         //personDetails.addAll(BeansBindingTestData.personDetails.filter { it.beanTestId == currentItem.id })
         personDetails.addAll(PersonDetailMapper.getAll(mapOf("beanTestId" to currentItem.id)))

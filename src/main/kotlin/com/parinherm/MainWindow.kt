@@ -7,18 +7,15 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.parinherm.builders.*
 import com.parinherm.databinding.DataBindingView
-import com.parinherm.entity.BeanTest
+import com.parinherm.entity.Person
 import com.parinherm.entity.schema.BeanTestMapper
-import com.parinherm.form.Form
-import com.parinherm.tests.BeansBindingTestData
 import com.parinherm.tests.TestData
+import com.parinherm.view.PersonView
 import com.parinherm.viewmodel.BeanTestViewModel
 import org.eclipse.jface.action.*
 import org.eclipse.jface.window.ApplicationWindow
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.CTabFolder
-import org.eclipse.swt.custom.CTabItem
-import org.eclipse.swt.custom.SashForm
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.graphics.Point
 import org.eclipse.swt.layout.FillLayout
@@ -86,7 +83,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
 
 
         val data = BeanTestMapper.getAll(mapOf()) //BeansBindingTestData.data
-        val viewModel = BeanTestViewModel(data, BeanTest.Comparator(), ModelBinder<BeanTest>())
+        val viewModel = BeanTestViewModel(data, Person.Comparator(), ModelBinder<Person>())
         ApplicationData.makeTab(viewModel, "Data binding Test", ApplicationData.TAB_KEY_DATA_BINDING_TEST,
             ApplicationData.ViewDef.beansBindingTestViewId)
 
@@ -156,7 +153,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
                 val formDef: Map<String, Any> =
                     ApplicationData.getView(ApplicationData.ViewDef.beansBindingTestViewId,
                         ApplicationData.viewDefinitions)
-                val form = Form(mainContainer, formDef)
+                val form = PersonView(mainContainer, formDef)
                 mainContainer.layout()
             }
         }

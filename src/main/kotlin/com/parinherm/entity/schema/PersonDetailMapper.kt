@@ -1,6 +1,5 @@
 package com.parinherm.entity.schema
 
-import com.parinherm.entity.BeanTest
 import com.parinherm.entity.PersonDetail
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction

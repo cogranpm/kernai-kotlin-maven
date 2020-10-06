@@ -1,14 +1,12 @@
 package com.parinherm.entity.schema
 
-import com.parinherm.entity.BeanTest
+import com.parinherm.entity.Person
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.math.BigDecimal
-import java.time.LocalDate
 
-object BeanTestMapper : IMapper<BeanTest> {
+object BeanTestMapper : IMapper<Person> {
 
-    override fun save(item: BeanTest) {
+    override fun save(item: Person) {
         transaction {
             if (item.id == 0L) {
                 val id = BeanTests.insertAndGetId {
@@ -35,14 +33,14 @@ object BeanTestMapper : IMapper<BeanTest> {
         }
     }
 
-    override fun getAll(keys: Map<String, Long>): List<BeanTest> {
-        val items: MutableList<BeanTest> = mutableListOf()
+    override fun getAll(keys: Map<String, Long>): List<Person> {
+        val items: MutableList<Person> = mutableListOf()
         transaction {
             addLogger(StdOutSqlLogger)
             val query: Query = BeanTests.selectAll()
             query.orderBy(BeanTests.enteredDate to SortOrder.ASC)
             query.forEach {
-                items.add(BeanTest(it[BeanTests.id].value,
+                items.add(Person(it[BeanTests.id].value,
                     it[BeanTests.name],
                 it[BeanTests.income],
                 it[BeanTests.height],
