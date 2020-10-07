@@ -2,6 +2,7 @@ package com.parinherm.form
 
 import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.NewFlag
+import com.parinherm.entity.schema.BeanTestMapper
 import com.parinherm.view.View
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.observable.ChangeEvent
@@ -11,7 +12,6 @@ import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.internal.databinding.swt.SWTObservableValueDecorator
 
 open class FormViewModel <T> (val view: View){
-    val wl = WritableList<T>()
     var selectingFlag = false
     val dbc = DataBindingContext()
     var dirtyFlag: DirtyFlag = DirtyFlag(false)
@@ -30,8 +30,17 @@ open class FormViewModel <T> (val view: View){
     }
 
 
+
+
+
     val listener: IChangeListener = IChangeListener {
         processStateChange(it)
+    }
+
+    fun setData(data: List<T>){
+        dataList.clear()
+        dataList.addAll(data)
+        view.form.listView.input = dataList
     }
 
     private fun processStateChange(ce: ChangeEvent){
