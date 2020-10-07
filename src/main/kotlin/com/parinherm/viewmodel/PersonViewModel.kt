@@ -23,19 +23,28 @@ import com.parinherm.view.PersonView
 import com.parinherm.view.View
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.observable.list.WritableList
+import org.eclipse.jface.viewers.TableViewer
+import org.eclipse.jface.viewers.TableViewerColumn
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
+import org.eclipse.swt.events.SelectionAdapter
+import org.eclipse.swt.events.SelectionEvent
+import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
+import org.eclipse.swt.widgets.Display
+import org.eclipse.swt.widgets.TableColumn
 import java.math.BigDecimal
 import java.time.LocalDate
+import kotlin.Comparator
 
-class PersonViewModel(val person: Person) : IBeanDataEntity, IFormViewModel {
+class PersonViewModel(var person: Person) : IBeanDataEntity, IFormViewModel {
 
     var selectingFlag = false
     val dbc = DataBindingContext()
     var dirtyFlag: DirtyFlag = DirtyFlag(false)
     var newFlag: NewFlag = NewFlag(false)
     val dataList = WritableList<PersonViewModel>()
+    val comparator = Comparator()
 
     // we have a reference to the view and control it's lifecycle
     // clients get to the view via this class
@@ -64,8 +73,62 @@ class PersonViewModel(val person: Person) : IBeanDataEntity, IFormViewModel {
 
         // should we call method on view passing data or just set the input directly?
         if (view != null) view!!.form.listView.input = dataList
+
+
+        // implement all the event handlers on the view
+        createCommands()
+
         return view!!.form.root
     }
+
+
+    fun createCommands() {
+        listSelectionCommand(view!!.form.listView)
+        listHeaderSelection(view!!.form.listView)
+    }
+
+
+    fun listSelectionCommand(listView: TableViewer){
+        listView.addSelectionChangedListener { _ ->
+            onListSelection()
+        }
+    }
+
+    fun onListSelection() {
+        selectingFlag = true
+        val selection = view!!.form.listView.structuredSelection
+        if (!selection.isEmpty){
+            val selectedItem = selection.firstElement
+            val selectedViewModel = selectedItem as PersonViewModel
+            person = selectedViewModel.person
+            //modelBinder.createDataBindings(dbc, fields, selectedItem, this::getWidget, listener, dirtyFlag)
+            Display.getDefault().timerExec(100) {
+                selectingFlag = false
+            }
+        }
+    }
+
+    fun listHeaderSelection(listView: TableViewer){
+        view!!.form.columns.forEachIndexed{index: Int, column: TableViewerColumn ->
+            column.column.addSelectionListener(getSelectionAdapter(listView, column.column, index, comparator))
+        }
+    }
+
+    /* this is a common function and should be moved out of here */
+    fun getSelectionAdapter(viewer: TableViewer, column: TableColumn, index: Int, comparator: BeansViewerComparator) : SelectionAdapter {
+        val selectionAdapter = (object: SelectionAdapter() {
+            override fun widgetSelected(e: SelectionEvent?) {
+                comparator.setColumn(index)
+                val dir = comparator.getDirection()
+                viewer.table.sortDirection = dir
+                viewer.table.sortColumn = column
+                viewer.refresh()
+            }
+        })
+        return selectionAdapter
+    }
+
+
 
     override fun new() {
         TODO("Not yet implemented")
@@ -80,6 +143,21 @@ class PersonViewModel(val person: Person) : IBeanDataEntity, IFormViewModel {
         get() =  person.id
         set(value) { person.id = value}
 
+    override fun getColumnValueByIndex(index: Int): String {
+        return when (index) {
+            0 -> person.name
+            1 -> "${person.income}"
+            2 -> "${person.height}"
+            3 -> "${person.age}"
+            4 -> {
+                val listItem = ApplicationData.countryList.find { it.code == person.country}
+                "${listItem?.label}"
+            }
+            5 -> "${person.enteredDate}"
+            6 -> "${person.deceased}"
+            else -> ""
+        }
+    }
 
     class Comparator : BeansViewerComparator(), IViewerComparator {
 
@@ -102,7 +180,7 @@ class PersonViewModel(val person: Person) : IBeanDataEntity, IFormViewModel {
                 age_index -> entity1.person.age.compareTo(entity2.person.age)
                 country_index -> compareLookups(entity1.person.country, entity2.person.country, ApplicationData.countryList)
                 enteredDate_index -> entity1.person.enteredDate.compareTo(entity2.person.enteredDate)
-                deceased_index -> if(entity1.person.deceased == entity2.person.deceased) 0 else 1
+                deceased_index -> entity1.person.deceased.compareTo(entity2.person.deceased)
                 else -> 0
             }
             return flipSortDirection(rc)
@@ -110,21 +188,6 @@ class PersonViewModel(val person: Person) : IBeanDataEntity, IFormViewModel {
 
     }
 
-    override fun getColumnValueByIndex(index: Int): String {
-        return when (index) {
-            0 -> person.name
-            1 -> "${person.income}"
-            2 -> "${person.height}"
-            3 -> "${person.age}"
-            4 -> {
-                val listItem = ApplicationData.countryList.find { it.code == person.country}
-                "${listItem?.label}"
-            }
-            5 -> "${person.enteredDate}"
-            6 -> "${person.deceased}"
-            else -> ""
-        }
-    }
 
 
 

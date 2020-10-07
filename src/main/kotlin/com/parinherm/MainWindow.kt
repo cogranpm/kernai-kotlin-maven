@@ -17,6 +17,7 @@ import org.eclipse.jface.action.*
 import org.eclipse.jface.window.ApplicationWindow
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.CTabFolder
+import org.eclipse.swt.custom.CTabItem
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.graphics.Point
 import org.eclipse.swt.layout.FillLayout
@@ -83,6 +84,13 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         mainContainer = Composite(parent, SWT.NONE)
         mainContainer.layout = FillLayout()
         folder = CTabFolder(mainContainer, SWT.TOP or SWT.BORDER)
+        folder.addDisposeListener { println("I am disposed")}
+
+
+        // is at least 1 tab required?
+        val homeTab = CTabItem(folder, SWT.NONE)
+        homeTab.text = "Home"
+        folder.selection = homeTab
 
 
         /*
@@ -155,7 +163,6 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
 
         val recipeAction: Action = object: Action("&Recipes") {
             override fun run () {
-                clearComposite(mainContainer)
                 val viewModel = PersonViewModel(Person(0, "", BigDecimal("0.0"), 4.5, 22, LocalDate.now(), "Aus", false))
                 ApplicationData.makeTab(viewModel, "Data binding Test", ApplicationData.TAB_KEY_PERSON)
                 //viewModel.render(mainContainer)
