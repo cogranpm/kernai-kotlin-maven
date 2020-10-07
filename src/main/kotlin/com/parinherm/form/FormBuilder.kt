@@ -89,6 +89,7 @@ fun <E> makeViewerLabelProvider (
     val labelProvider = (object: ObservableMapLabelProvider(labelMaps){
         override fun getColumnText(element: Any?, columnIndex: Int): String {
             val entity = element as IBeanDataEntity
+            println(entity)
             return entity?.getColumnValueByIndex(columnIndex)
         }
     })

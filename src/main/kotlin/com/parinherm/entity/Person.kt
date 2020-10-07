@@ -21,7 +21,7 @@ class Person (var id: Long = 0, name: String, income: BigDecimal, height: Double
 
 
     override fun toString(): String {
-        return "BeanTest(id=$id, name=$name, income=$income, height=$height, age=$age, country=$country, enteredDate=$enteredDate, deceased=$deceased)"
+        return "Person(id=$id, name=$name, income=$income, height=$height, age=$age, country=$country, enteredDate=$enteredDate, deceased=$deceased)"
     }
 }
 

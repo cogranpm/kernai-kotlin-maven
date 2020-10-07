@@ -102,15 +102,15 @@ class PersonViewModel(val person: Person) : IBeanDataEntity {
     override fun getColumnValueByIndex(index: Int): String {
         return when (index) {
             0 -> person.name
-            1 -> "$person.income"
-            2 -> "$person.height"
-            3 -> "$person.age"
+            1 -> "${person.income}"
+            2 -> "${person.height}"
+            3 -> "${person.age}"
             4 -> {
                 val listItem = ApplicationData.countryList.find { it.code == person.country}
                 "${listItem?.label}"
             }
-            5 -> "$person.enteredDate"
-            6 -> "$person.deceased"
+            5 -> "${person.enteredDate}"
+            6 -> "${person.deceased}"
             else -> ""
         }
     }
