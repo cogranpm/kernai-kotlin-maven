@@ -78,12 +78,13 @@ fun getPropertyFromFieldDef(fieldDef: Map<String, Any>, propertyKey: String) : S
 
 
 fun <E> makeViewerLabelProvider (
-    viewer: TableViewer,
     fields: List<Map<String, Any>>,
-    knownElements: IObservableSet<E>
+    knownElements: IObservableSet<E>,
+    domainPrefix: String
+
 ) : ObservableMapLabelProvider where E: IBeanDataEntity
 {
-    val observables = fields.map { makeColumnObservable(it, knownElements) }
+    val observables = fields.map { makeColumnObservable(it, knownElements, domainPrefix) }
     val labelMaps = observables.toTypedArray()
     val labelProvider = (object: ObservableMapLabelProvider(labelMaps){
         override fun getColumnText(element: Any?, columnIndex: Int): String {
@@ -95,9 +96,9 @@ fun <E> makeViewerLabelProvider (
 }
 
 
-fun <E> makeColumnObservable(fieldDef: Map<String, Any>, knownElements: IObservableSet<E>)
+fun <E> makeColumnObservable(fieldDef: Map<String, Any>, knownElements: IObservableSet<E>, domainPrefix: String)
         : IObservableMap<E, out Any> where E: IBeanDataEntity {
-    val fieldName = getPropertyFromFieldDef(fieldDef, ApplicationData.ViewDef.fieldName)
+    val fieldName = domainPrefix + "." + getPropertyFromFieldDef(fieldDef, ApplicationData.ViewDef.fieldName)
     val fieldType = getPropertyFromFieldDef(fieldDef, ApplicationData.ViewDef.fieldDataType)
     val observableColumn: IValueProperty<E, out Any> =
         when (fieldType) {

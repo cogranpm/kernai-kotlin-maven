@@ -1,37 +1,79 @@
 package com.parinherm.viewmodel
 
+import com.parinherm.ApplicationData
+import com.parinherm.builders.BeansViewerComparator
+import com.parinherm.builders.IViewerComparator
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.Person
 import com.parinherm.entity.schema.BeanTestMapper
 import com.parinherm.form.FormViewModel
 import com.parinherm.view.PersonView
 import com.parinherm.view.View
+import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.widgets.Composite
 import java.math.BigDecimal
 import java.time.LocalDate
 
-class PersonViewModel(parent: Composite) : IBeanDataEntity{
+class PersonViewModel(val person: Person) : IBeanDataEntity{
 
     // helper to do all the common stuff relating to viewmodel
-    val vm: FormViewModel<PersonViewModel> = FormViewModel(PersonView(parent))
+    var viewModel: FormViewModel<PersonViewModel>? = null
 
-    var entity: Person? = null
 
     init {
-        entity = Person(0, "", BigDecimal("0.0"), 4.5, 22, LocalDate.now(), "Aus", false)
+    }
+
+    fun render(parent: Composite) {
+        // view is instantiated
+        viewModel = FormViewModel(PersonView(parent))
+
+        val data = BeanTestMapper.getAll(mapOf())
+        val vmData = data.map { PersonViewModel(it) }
+
+        viewModel!!.dataList.clear()
+        viewModel!!.dataList.addAll(vmData)
+        viewModel!!.view.form.listView.input = viewModel!!.dataList
+        //viewModel.form.listView.input = dataList
     }
 
     override var id: Long
-        get() = return entity?.id
-        set(value) { entity?.id ?:  value}
+        get() =  person.id
+        set(value) { person.id = value}
 
     override fun getColumnValueByIndex(index: Int): String {
-        return if (entity != null) {
-            entity!!.getColumnValueByIndex(index)
-        } else {
-            ""
-        }
+        return person.getColumnValueByIndex(index)
     }
+
+
+    class Comparator : BeansViewerComparator(), IViewerComparator {
+
+        val name_index = 0
+        val income_index = 1
+        val height_index = 2
+        val age_index = 3
+        val country_index = 4
+        val enteredDate_index = 5
+        val deceased_index = 6
+
+
+        override fun compare(viewer: Viewer?, e1: Any?, e2: Any?): Int {
+            val entity1 = e1 as PersonViewModel
+            val entity2 = e2 as PersonViewModel
+            val rc = when(propertyIndex){
+                name_index -> entity1.person.name.compareTo(entity2.person.name)
+                income_index -> entity1.person.income.compareTo(entity2.person.income)
+                height_index -> entity1.person.height.compareTo(entity2.person.height)
+                age_index -> entity1.person.age.compareTo(entity2.person.age)
+                country_index -> compareLookups(entity1.person.country, entity2.person.country, ApplicationData.countryList)
+                enteredDate_index -> entity1.person.enteredDate.compareTo(entity2.person.enteredDate)
+                deceased_index -> if(entity1.person.deceased == entity2.person.deceased) 0 else 1
+                else -> 0
+            }
+            return flipSortDirection(rc)
+        }
+
+    }
+
 
 
 }

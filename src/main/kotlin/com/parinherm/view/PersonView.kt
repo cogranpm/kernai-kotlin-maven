@@ -16,7 +16,7 @@ class PersonView (val parent: Composite) : View {
                     ApplicationData.viewDefinitions)
     // this member has all of the widgets
     // it's a common object favour composition over inheritance
-    override val form: Form <PersonViewModel> = Form(parent, formDef, Person.Comparator())
+    override val form: Form <PersonViewModel> = Form(parent, formDef, PersonViewModel.Comparator(), "Person")
 
     init {
         refresh()

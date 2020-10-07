@@ -30,7 +30,8 @@ import org.eclipse.swt.widgets.Composite
 data class Form<T>(
     val parent: Composite,
     val viewDefinition: Map<String, Any>,
-    val comparator: BeansViewerComparator
+    val comparator: BeansViewerComparator,
+    val domainPrefix: String
 )
         where T : IBeanDataEntity {
 
@@ -56,7 +57,7 @@ data class Form<T>(
         sashForm.sashWidth = 4
         //childFormsContainer?.childTabs?.forEach {println(it.key)}
         listView.contentProvider = contentProvider
-        listView.labelProvider = makeViewerLabelProvider<T>(listView, fields, contentProvider.knownElements)
+        listView.labelProvider = makeViewerLabelProvider<T>(fields, contentProvider.knownElements, domainPrefix)
         listView.comparator = comparator
 
 

@@ -22,6 +22,8 @@ import org.eclipse.swt.graphics.Point
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.*
 import java.io.IOException
+import java.math.BigDecimal
+import java.time.LocalDate
 
 
 inline fun <reified T> Gson.fromJson(json: String) = fromJson<T>(json, object: TypeToken<T>() {}.type)
@@ -83,10 +85,13 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         folder = CTabFolder(mainContainer, SWT.TOP or SWT.BORDER)
 
 
+        /*
         val data = BeanTestMapper.getAll(mapOf()) //BeansBindingTestData.data
         val viewModel = BeanTestViewModel(data, Person.Comparator(), ModelBinder<Person>())
         ApplicationData.makeTab(viewModel, "Data binding Test", ApplicationData.TAB_KEY_DATA_BINDING_TEST,
             ApplicationData.ViewDef.beansBindingTestViewId)
+
+         */
 
         /* this messes up the layout here or
         in the toolbar manager override
@@ -151,8 +156,8 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         val recipeAction: Action = object: Action("&Recipes") {
             override fun run () {
                 clearComposite(mainContainer)
-                val viewModel = PersonViewModel(mainContainer)
-                //val form = PersonView(mainContainer, formDef)
+                val viewModel = PersonViewModel(Person(0, "", BigDecimal("0.0"), 4.5, 22, LocalDate.now(), "Aus", false))
+                viewModel.render(mainContainer)
                 mainContainer.layout()
             }
         }
