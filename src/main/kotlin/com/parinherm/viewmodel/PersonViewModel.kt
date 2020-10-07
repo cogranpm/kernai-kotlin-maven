@@ -60,7 +60,7 @@ class PersonViewModel(var person: Person) : IBeanDataEntity, IFormViewModel {
     override fun render(parent: CTabFolder) : Composite {
         // view is instantiated
         //viewModel = FormViewModel(PersonView(parent))
-        view = PersonView(parent)
+        view = PersonView(parent, comparator)
 
         val data = BeanTestMapper.getAll(mapOf())
         // transform domain entities into view model instances
