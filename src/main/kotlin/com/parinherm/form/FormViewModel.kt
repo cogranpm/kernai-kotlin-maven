@@ -29,10 +29,6 @@ open class FormViewModel <T> (val view: View){
 
     }
 
-
-
-
-
     val listener: IChangeListener = IChangeListener {
         processStateChange(it)
     }

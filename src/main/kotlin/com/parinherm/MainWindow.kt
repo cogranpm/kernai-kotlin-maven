@@ -12,6 +12,7 @@ import com.parinherm.entity.schema.BeanTestMapper
 import com.parinherm.tests.TestData
 import com.parinherm.view.PersonView
 import com.parinherm.viewmodel.BeanTestViewModel
+import com.parinherm.viewmodel.PersonViewModel
 import org.eclipse.jface.action.*
 import org.eclipse.jface.window.ApplicationWindow
 import org.eclipse.swt.SWT
@@ -150,10 +151,8 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         val recipeAction: Action = object: Action("&Recipes") {
             override fun run () {
                 clearComposite(mainContainer)
-                val formDef: Map<String, Any> =
-                    ApplicationData.getView(ApplicationData.ViewDef.beansBindingTestViewId,
-                        ApplicationData.viewDefinitions)
-                val form = PersonView(mainContainer, formDef)
+                val viewModel = PersonViewModel(mainContainer)
+                //val form = PersonView(mainContainer, formDef)
                 mainContainer.layout()
             }
         }

@@ -24,7 +24,9 @@ import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.Composite
 
 
-// view model type is the type argument
+// domain entity type is the type argument
+// should really be the view-model
+
 data class Form<T>(
     val parent: Composite,
     val viewDefinition: Map<String, Any>,
