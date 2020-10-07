@@ -1,5 +1,6 @@
 package com.parinherm.view
 
+import com.parinherm.entity.Person
 import com.parinherm.form.Form
 import com.parinherm.viewmodel.PersonViewModel
 import org.eclipse.swt.SWT
@@ -12,7 +13,7 @@ class PersonView (val parent: Composite, val viewDefinition: Map<String, Any>) :
 
     // this member has all of the widgets
     // it's a common object favour composition over inheritance
-    override val form: Form <PersonViewModel> = Form(parent, viewDefinition)
+    override val form: Form <Person> = Form(parent, viewDefinition, Person.Comparator())
 
     override fun refresh() {
         // when the lists should refresh themselves

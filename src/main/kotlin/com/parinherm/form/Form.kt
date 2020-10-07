@@ -13,6 +13,8 @@ ie - map widget to domain object????
 package com.parinherm.form
 
 import com.parinherm.ApplicationData
+import com.parinherm.builders.BeansViewerComparator
+import com.parinherm.entity.IBeanDataEntity
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.layout.TableColumnLayout
@@ -23,7 +25,12 @@ import org.eclipse.swt.widgets.Composite
 
 
 // view model type is the type argument
-data class Form <T> (val parent: Composite, val viewDefinition: Map<String, Any>) {
+data class Form<T>(
+    val parent: Composite,
+    val viewDefinition: Map<String, Any>,
+    val comparator: BeansViewerComparator
+)
+        where T : IBeanDataEntity {
 
     val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
     val hasChildViews: Boolean = hasChildViews(viewDefinition)
@@ -32,20 +39,24 @@ data class Form <T> (val parent: Composite, val viewDefinition: Map<String, Any>
     val listContainer = Composite(sashForm, ApplicationData.swnone)
     val tableLayout = TableColumnLayout(true)
     val listView = getListViewer(listContainer, tableLayout)
-    val columns = makeColumns(listView, fields, tableLayout )
-    val columnObservables = makeColumnObservables<T>(listView, fields)
+    val columns = makeColumns(listView, fields, tableLayout)
+    val contentProvider = ObservableListContentProvider<T>()
     val formsContainer = makeEditContainer(hasChildViews, sashForm)
     val lblErrors = makeErrorLabel(formsContainer.editContainer)
     val childFormsContainer: ChildFormContainer? = getGetChildForms(hasChildViews, viewDefinition, formsContainer)
     val formInputs = makeForm(fields, formsContainer.editContainer)
     val dbc = DataBindingContext()
-    val contentProvider = ObservableListContentProvider<T>()
+
 
     init {
         //needs to be done after content is added
         sashForm.weights = intArrayOf(1, 2)
         sashForm.sashWidth = 4
-        childFormsContainer?.childTabs?.forEach {println(it.key)}
+        //childFormsContainer?.childTabs?.forEach {println(it.key)}
+        listView.contentProvider = contentProvider
+        listView.labelProvider = makeViewerLabelProvider<T>(listView, fields, contentProvider.knownElements)
+        listView.comparator = comparator
+
 
         root.layout = FillLayout(SWT.VERTICAL)
         root.layout()

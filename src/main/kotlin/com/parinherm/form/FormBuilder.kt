@@ -12,9 +12,13 @@ a view class will use functions to build up a form of widgets for display
 package com.parinherm.form
 
 import com.parinherm.ApplicationData
+import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.LookupDetail
 import org.eclipse.core.databinding.beans.typed.BeanProperties
+import org.eclipse.core.databinding.observable.map.IObservableMap
+import org.eclipse.core.databinding.observable.set.IObservableSet
 import org.eclipse.core.databinding.property.value.IValueProperty
+import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.GridLayoutFactory
 import org.eclipse.jface.layout.LayoutConstants
@@ -28,6 +32,8 @@ import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.layout.GridLayout
 import org.eclipse.swt.layout.RowLayout
 import org.eclipse.swt.widgets.*
+import java.math.BigDecimal
+import java.time.LocalDate
 
 
 fun getListViewer(
@@ -71,21 +77,40 @@ fun makeColumn(
 fun getPropertyFromFieldDef(fieldDef: Map<String, Any>, propertyKey: String) : String  = fieldDef[propertyKey] as String
 
 
-fun <E> makeColumnObservables (
+fun <E> makeViewerLabelProvider (
     viewer: TableViewer,
-    fields: List<Map<String, Any>>
-)
+    fields: List<Map<String, Any>>,
+    knownElements: IObservableSet<E>
+) : ObservableMapLabelProvider where E: IBeanDataEntity
 {
-    val observables = fields.map { makeColumnObservable<E>(it) }
+    val observables = fields.map { makeColumnObservable(it, knownElements) }
+    val labelMaps = observables.toTypedArray()
+    val labelProvider = (object: ObservableMapLabelProvider(labelMaps){
+        override fun getColumnText(element: Any?, columnIndex: Int): String {
+            val entity = element as IBeanDataEntity
+            return entity?.getColumnValueByIndex(columnIndex)
+        }
+    })
+    return labelProvider
 }
 
 
-fun <E> makeColumnObservable(fieldDef: Map<String, Any>)
-        : IValueProperty<E, String> {
+fun <E> makeColumnObservable(fieldDef: Map<String, Any>, knownElements: IObservableSet<E>)
+        : IObservableMap<E, out Any> where E: IBeanDataEntity {
     val fieldName = getPropertyFromFieldDef(fieldDef, ApplicationData.ViewDef.fieldName)
-    val observableColumn: IValueProperty<E, String> =
-        BeanProperties.value<E, String>(fieldName)
-    return observableColumn
+    val fieldType = getPropertyFromFieldDef(fieldDef, ApplicationData.ViewDef.fieldDataType)
+    val observableColumn: IValueProperty<E, out Any> =
+        when (fieldType) {
+            ApplicationData.ViewDef.text  -> BeanProperties.value<E, String>(fieldName)
+            ApplicationData.ViewDef.float -> BeanProperties.value<E, Double>(fieldName)
+            ApplicationData.ViewDef.money -> BeanProperties.value<E, BigDecimal>(fieldName)
+            ApplicationData.ViewDef.int -> BeanProperties.value<E, Int>(fieldName)
+            ApplicationData.ViewDef.bool -> BeanProperties.value<E, Boolean>(fieldName)
+            ApplicationData.ViewDef.datetime -> BeanProperties.value<E, LocalDate>(fieldName)
+            ApplicationData.ViewDef.lookup -> BeanProperties.value<E, String>(fieldName)
+            else -> BeanProperties.value<E, String>(fieldName)
+        }
+    return observableColumn.observeDetail(knownElements)
 }
 
 fun makeForm(fields: List<Map<String, Any>>, parent: Composite)
