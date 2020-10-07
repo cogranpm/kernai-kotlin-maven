@@ -1,3 +1,12 @@
+/*
+viewmodel needs to wrap the domain entity and expose the properties etc
+it also contains a list of itself for lists
+the view should bind to properties on this class if needed for stuff like
+enabled state of buttons etc and bind to the domain entity wrapped by this class
+the wrapping of the domain entity saves the trouble of doing proxies for every single
+property on the domain object as we should do in a more enterprisey scenario
+ */
+
 package com.parinherm.viewmodel
 
 import com.parinherm.ApplicationData
@@ -25,6 +34,9 @@ class PersonViewModel(val person: Person) : IBeanDataEntity {
     var dirtyFlag: DirtyFlag = DirtyFlag(false)
     var newFlag: NewFlag = NewFlag(false)
     val dataList = WritableList<PersonViewModel>()
+
+    // we have a reference to the view and control it's lifecycle
+    // clients get to the view via this class
     var view: PersonView? = null
 
     // helper to do all the common stuff relating to viewmodel
@@ -40,21 +52,22 @@ class PersonViewModel(val person: Person) : IBeanDataEntity {
         view = PersonView(parent)
 
         val data = BeanTestMapper.getAll(mapOf())
+        // transform domain entities into view model instances
         val vmData = data.map { PersonViewModel(it) }
 
         dataList.clear()
+
+        // populate the binding collection
         dataList.addAll(vmData)
+
+        // should we call method on view passing data or just set the input directly?
         if (view != null) view!!.form.listView.input = dataList
-        //viewModel.form.listView.input = dataList
     }
 
+    // this is kind of a side effect
     override var id: Long
         get() =  person.id
         set(value) { person.id = value}
-
-    override fun getColumnValueByIndex(index: Int): String {
-        return person.getColumnValueByIndex(index)
-    }
 
 
     class Comparator : BeansViewerComparator(), IViewerComparator {
@@ -85,6 +98,23 @@ class PersonViewModel(val person: Person) : IBeanDataEntity {
         }
 
     }
+
+    override fun getColumnValueByIndex(index: Int): String {
+        return when (index) {
+            0 -> person.name
+            1 -> "$person.income"
+            2 -> "$person.height"
+            3 -> "$person.age"
+            4 -> {
+                val listItem = ApplicationData.countryList.find { it.code == person.country}
+                "${listItem?.label}"
+            }
+            5 -> "$person.enteredDate"
+            6 -> "$person.deceased"
+            else -> ""
+        }
+    }
+
 
 
 
