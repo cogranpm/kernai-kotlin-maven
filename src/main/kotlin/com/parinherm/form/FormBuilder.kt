@@ -59,18 +59,33 @@ fun makeColumn(
         viewer: TableViewer,
         layout: TableColumnLayout
 ): TableViewerColumn {
-    val caption = fieldDef[ApplicationData.ViewDef.title] as String
     val column = TableViewerColumn(viewer, SWT.LEFT)
     val col = column.column
-    col.text = caption
+    col.text = getPropertyFromFieldDef(fieldDef, ApplicationData.ViewDef.title)
     col.resizable = true
     col.moveable = true
     layout.setColumnData(col, ColumnWeightData(100))
     return column
 }
 
-fun <E> makeObservable() {
-    val observableColumn: IValueProperty<E, String> = BeanProperties.value<E, String>(fieldName)
+fun getPropertyFromFieldDef(fieldDef: Map<String, Any>, propertyKey: String) : String  = fieldDef[propertyKey] as String
+
+
+fun <E> makeColumnObservables (
+    viewer: TableViewer,
+    fields: List<Map<String, Any>>
+)
+{
+    val observables = fields.map { makeColumnObservable<E>(it) }
+}
+
+
+fun <E> makeColumnObservable(fieldDef: Map<String, Any>)
+        : IValueProperty<E, String> {
+    val fieldName = getPropertyFromFieldDef(fieldDef, ApplicationData.ViewDef.fieldName)
+    val observableColumn: IValueProperty<E, String> =
+        BeanProperties.value<E, String>(fieldName)
+    return observableColumn
 }
 
 fun makeForm(fields: List<Map<String, Any>>, parent: Composite)

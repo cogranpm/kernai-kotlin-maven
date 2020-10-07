@@ -5,7 +5,7 @@ import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Widget
 
 interface View {
-    val form: Form
+    val form: Form<*>
     fun refresh() : Unit
     // this needs more work, it's a toolbar now
     fun getSaveButton() : Button

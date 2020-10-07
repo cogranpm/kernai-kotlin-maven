@@ -33,6 +33,7 @@ data class Form <T> (val parent: Composite, val viewDefinition: Map<String, Any>
     val tableLayout = TableColumnLayout(true)
     val listView = getListViewer(listContainer, tableLayout)
     val columns = makeColumns(listView, fields, tableLayout )
+    val columnObservables = makeColumnObservables<T>(listView, fields)
     val formsContainer = makeEditContainer(hasChildViews, sashForm)
     val lblErrors = makeErrorLabel(formsContainer.editContainer)
     val childFormsContainer: ChildFormContainer? = getGetChildForms(hasChildViews, viewDefinition, formsContainer)

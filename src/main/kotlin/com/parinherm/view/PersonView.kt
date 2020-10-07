@@ -9,8 +9,14 @@ import org.eclipse.swt.widgets.Widget
 
 class PersonView (val parent: Composite, val viewDefinition: Map<String, Any>) : View {
     val viewModel = PersonViewModel(this)
+
+    // this member has all of the widgets
+    // it's a common object favour composition over inheritance
     override val form: Form <PersonViewModel> = Form(parent, viewDefinition)
+
     override fun refresh() {
+        // when the lists should refresh themselves
+        // say if a child tab adds a record
     }
 
     override fun getSaveButton(): Button{
