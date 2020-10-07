@@ -3,21 +3,32 @@ package com.parinherm.viewmodel
 import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.builders.IViewerComparator
+import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
+import com.parinherm.entity.NewFlag
 import com.parinherm.entity.Person
 import com.parinherm.entity.schema.BeanTestMapper
 import com.parinherm.form.FormViewModel
 import com.parinherm.view.PersonView
 import com.parinherm.view.View
+import org.eclipse.core.databinding.DataBindingContext
+import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.widgets.Composite
 import java.math.BigDecimal
 import java.time.LocalDate
 
-class PersonViewModel(val person: Person) : IBeanDataEntity{
+class PersonViewModel(val person: Person) : IBeanDataEntity {
+
+    var selectingFlag = false
+    val dbc = DataBindingContext()
+    var dirtyFlag: DirtyFlag = DirtyFlag(false)
+    var newFlag: NewFlag = NewFlag(false)
+    val dataList = WritableList<PersonViewModel>()
+    var view: PersonView? = null
 
     // helper to do all the common stuff relating to viewmodel
-    var viewModel: FormViewModel<PersonViewModel>? = null
+    //var viewModel: FormViewModel<PersonViewModel>? = null
 
 
     init {
@@ -25,14 +36,15 @@ class PersonViewModel(val person: Person) : IBeanDataEntity{
 
     fun render(parent: Composite) {
         // view is instantiated
-        viewModel = FormViewModel(PersonView(parent))
+        //viewModel = FormViewModel(PersonView(parent))
+        view = PersonView(parent)
 
         val data = BeanTestMapper.getAll(mapOf())
         val vmData = data.map { PersonViewModel(it) }
 
-        viewModel!!.dataList.clear()
-        viewModel!!.dataList.addAll(vmData)
-        viewModel!!.view.form.listView.input = viewModel!!.dataList
+        dataList.clear()
+        dataList.addAll(vmData)
+        if (view != null) view!!.form.listView.input = dataList
         //viewModel.form.listView.input = dataList
     }
 
