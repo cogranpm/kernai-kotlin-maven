@@ -157,8 +157,9 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
             override fun run () {
                 clearComposite(mainContainer)
                 val viewModel = PersonViewModel(Person(0, "", BigDecimal("0.0"), 4.5, 22, LocalDate.now(), "Aus", false))
-                viewModel.render(mainContainer)
-                mainContainer.layout()
+                ApplicationData.makeTab(viewModel, "Data binding Test", ApplicationData.TAB_KEY_PERSON)
+                //viewModel.render(mainContainer)
+                //mainContainer.layout()
             }
         }
         recipeAction.accelerator = SWT.MOD1 or ('R'.toInt())

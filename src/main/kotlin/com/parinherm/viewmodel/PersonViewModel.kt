@@ -18,16 +18,18 @@ import com.parinherm.entity.NewFlag
 import com.parinherm.entity.Person
 import com.parinherm.entity.schema.BeanTestMapper
 import com.parinherm.form.FormViewModel
+import com.parinherm.form.IFormViewModel
 import com.parinherm.view.PersonView
 import com.parinherm.view.View
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.Viewer
+import org.eclipse.swt.custom.CTabFolder
 import org.eclipse.swt.widgets.Composite
 import java.math.BigDecimal
 import java.time.LocalDate
 
-class PersonViewModel(val person: Person) : IBeanDataEntity {
+class PersonViewModel(val person: Person) : IBeanDataEntity, IFormViewModel {
 
     var selectingFlag = false
     val dbc = DataBindingContext()
@@ -46,7 +48,7 @@ class PersonViewModel(val person: Person) : IBeanDataEntity {
     init {
     }
 
-    fun render(parent: Composite) {
+    override fun render(parent: CTabFolder) : Composite {
         // view is instantiated
         //viewModel = FormViewModel(PersonView(parent))
         view = PersonView(parent)
@@ -62,6 +64,15 @@ class PersonViewModel(val person: Person) : IBeanDataEntity {
 
         // should we call method on view passing data or just set the input directly?
         if (view != null) view!!.form.listView.input = dataList
+        return view!!.form.root
+    }
+
+    override fun new() {
+        TODO("Not yet implemented")
+    }
+
+    override fun save() {
+        TODO("Not yet implemented")
     }
 
     // this is kind of a side effect

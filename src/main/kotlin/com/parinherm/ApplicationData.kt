@@ -2,6 +2,7 @@ package com.parinherm
 
 import com.parinherm.entity.LookupDetail
 import com.parinherm.entity.schema.SchemaBuilder
+import com.parinherm.form.IFormViewModel
 import com.parinherm.server.SimpleHttpServer
 import com.parinherm.server.ViewDefinitions
 import com.parinherm.viewmodel.ViewModel
@@ -34,7 +35,7 @@ object ApplicationData {
     const val  IMAGE_GOUP = "goup"
     const val IMAGES_PATH = "/images/"
 
-    const val TAB_KEY_DATA_BINDING_TEST = "dbtest"
+    const val TAB_KEY_PERSON = "person"
     const val TAB_KEY_PERSONDETAIL = "persondetail"
 
 
@@ -78,6 +79,36 @@ object ApplicationData {
         SimpleHttpServer.stop()
     }
 
+
+    /************************** new way ***************************************************/
+    fun makeTab(viewModel: IFormViewModel, caption: String, key: String) : Unit {
+        if (tabs.containsKey(key) && tabs[key] != null ) {
+            if (tabs[key]!!.isClosed){
+                // set it to open and create the tab
+                tabs[key] = createTab(viewModel, caption, key)
+            } else {
+                // set focus to existing tab somehow
+
+            }
+        } else {
+            tabs[key] = createTab(viewModel, caption, key)
+        }
+    }
+
+    private fun createTab(viewModel: IFormViewModel, caption: String, key:String): TabInstance {
+        val tabItem = CTabItem(mainWindow.folder, SWT.CLOSE)
+        tabItem.text = caption
+        tabItem.control = viewModel.render(mainWindow.folder)
+        tabItem.addDisposeListener {
+            tabs[key]!!.isClosed = true
+        }
+        tabItem.setData("key", key)
+        mainWindow.folder.selection = tabItem
+        return TabInstance(viewModel, tabItem, false)
+    }
+
+
+    /************************ old way **************************************************
     fun makeTab(viewModel: ViewModel<*>, caption: String, key: String, viewId: String) : Unit {
         if (tabs.containsKey(key) && tabs[key] != null ) {
             if (tabs[key]!!.isClosed){
@@ -104,6 +135,7 @@ object ApplicationData {
         mainWindow.folder.selection = tabItem
         return TabInstance(viewModel, tabItem, false)
     }
+    */
 
 
     fun getView(viewId: String): Map<String, Any> {
