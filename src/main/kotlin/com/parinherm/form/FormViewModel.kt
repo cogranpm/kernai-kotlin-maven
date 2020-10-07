@@ -7,6 +7,7 @@ import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.observable.ChangeEvent
 import org.eclipse.core.databinding.observable.IChangeListener
 import org.eclipse.core.databinding.observable.list.WritableList
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.internal.databinding.swt.SWTObservableValueDecorator
 
 open class FormViewModel <T> (val view: View){
@@ -16,11 +17,18 @@ open class FormViewModel <T> (val view: View){
     var dirtyFlag: DirtyFlag = DirtyFlag(false)
     var newFlag: NewFlag = NewFlag(false)
 
+
+    val dataList = WritableList<T>()
     /* this is needed because the new button
     needs to store an item before saving adding it to the
     writable list
      */
     var currentItem: T? = null
+
+    init {
+
+    }
+
 
     val listener: IChangeListener = IChangeListener {
         processStateChange(it)

@@ -13,6 +13,8 @@ ie - map widget to domain object????
 package com.parinherm.form
 
 import com.parinherm.ApplicationData
+import org.eclipse.core.databinding.DataBindingContext
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.layout.TableColumnLayout
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.SashForm
@@ -20,7 +22,8 @@ import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.Composite
 
 
-data class Form (val parent: Composite, val viewDefinition: Map<String, Any>) {
+// view model type is the type argument
+data class Form <T> (val parent: Composite, val viewDefinition: Map<String, Any>) {
 
     val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
     val hasChildViews: Boolean = hasChildViews(viewDefinition)
@@ -34,6 +37,8 @@ data class Form (val parent: Composite, val viewDefinition: Map<String, Any>) {
     val lblErrors = makeErrorLabel(formsContainer.editContainer)
     val childFormsContainer: ChildFormContainer? = getGetChildForms(hasChildViews, viewDefinition, formsContainer)
     val formInputs = makeForm(fields, formsContainer.editContainer)
+    val dbc = DataBindingContext()
+    val contentProvider = ObservableListContentProvider<T>()
 
     init {
         //needs to be done after content is added

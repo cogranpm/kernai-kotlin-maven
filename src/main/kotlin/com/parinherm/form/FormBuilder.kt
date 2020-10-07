@@ -13,6 +13,8 @@ package com.parinherm.form
 
 import com.parinherm.ApplicationData
 import com.parinherm.entity.LookupDetail
+import org.eclipse.core.databinding.beans.typed.BeanProperties
+import org.eclipse.core.databinding.property.value.IValueProperty
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.GridLayoutFactory
 import org.eclipse.jface.layout.LayoutConstants
@@ -65,6 +67,10 @@ fun makeColumn(
     col.moveable = true
     layout.setColumnData(col, ColumnWeightData(100))
     return column
+}
+
+fun <E> makeObservable() {
+    val observableColumn: IValueProperty<E, String> = BeanProperties.value<E, String>(fieldName)
 }
 
 fun makeForm(fields: List<Map<String, Any>>, parent: Composite)

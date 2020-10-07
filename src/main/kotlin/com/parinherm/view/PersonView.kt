@@ -9,7 +9,7 @@ import org.eclipse.swt.widgets.Widget
 
 class PersonView (val parent: Composite, val viewDefinition: Map<String, Any>) : View {
     val viewModel = PersonViewModel(this)
-    override val form: Form = Form(parent, viewDefinition)
+    override val form: Form <PersonViewModel> = Form(parent, viewDefinition)
     override fun refresh() {
     }
 
