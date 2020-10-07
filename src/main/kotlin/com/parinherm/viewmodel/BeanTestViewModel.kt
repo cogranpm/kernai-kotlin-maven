@@ -26,6 +26,8 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 
+/*
+
 class BeanTestViewModel(data: List<Person>, comparator: BeansViewerComparator, modelBinder: ModelBinder<Person>)
     : ViewModel<Person>(data, comparator, modelBinder, BeanTestMapper){
 
@@ -47,9 +49,6 @@ class BeanTestViewModel(data: List<Person>, comparator: BeansViewerComparator, m
 
     fun wireChildren(childDefs: List<Map<String, Any>>) : Unit {
 
-        /* do all the child entities here */
-
-        val personDetailViewDef = childDefs.find {  it[ApplicationData.ViewDef.viewid] == ApplicationData.ViewDef.personDetailsViewId  }
         if (personDetailViewDef != null) {
             wirePersonDetail(personDetailViewDef)
 
@@ -66,13 +65,6 @@ class BeanTestViewModel(data: List<Person>, comparator: BeansViewerComparator, m
         val list: TableViewer = personDetailWidgetsMap[ApplicationData.ViewDef.list] as TableViewer
 
         createListViewBindings<PersonDetail>(list, fields, personDetailComparator)
-
-        // open and double click are same thing
-        /* enter on an item generates the events
-        list.addDoubleClickListener {
-            println("double clicked an item")
-        }
-         */
 
         list.addOpenListener {
             // open up a tab to edit child entity
@@ -91,11 +83,7 @@ class BeanTestViewModel(data: List<Person>, comparator: BeansViewerComparator, m
         }
 
         btnAdd.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
-            /* what is best source of truth for the parent
-            is it the selection on the parent list or
-            the value cached in the viewmodel (this instance)
-             */
-            val data = PersonDetailMapper.getAll(mapOf("beanTestId" to currentItem!!.id))
+           val data = PersonDetailMapper.getAll(mapOf("beanTestId" to currentItem!!.id))
             val viewModel = PersonDetailViewModel(currentItem!!.id, null,
                     ApplicationData.tabs[ApplicationData.TAB_KEY_DATA_BINDING_TEST],
                     data, personDetailComparator, ModelBinder<PersonDetail>())
@@ -118,3 +106,6 @@ class BeanTestViewModel(data: List<Person>, comparator: BeansViewerComparator, m
 
 
 }
+
+
+ */

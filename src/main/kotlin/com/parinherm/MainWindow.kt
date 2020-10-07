@@ -11,7 +11,7 @@ import com.parinherm.entity.Person
 import com.parinherm.entity.schema.BeanTestMapper
 import com.parinherm.tests.TestData
 import com.parinherm.view.PersonView
-import com.parinherm.viewmodel.BeanTestViewModel
+//import com.parinherm.viewmodel.BeanTestViewModel
 import com.parinherm.viewmodel.PersonViewModel
 import org.eclipse.jface.action.*
 import org.eclipse.jface.window.ApplicationWindow
