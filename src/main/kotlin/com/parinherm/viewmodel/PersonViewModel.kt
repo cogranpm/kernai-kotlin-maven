@@ -30,13 +30,13 @@ import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.widgets.*
 
-class PersonViewModel(var person: Person) : ModelObject(), IBeanDataEntity, IFormViewModel {
+class PersonViewModel(var person: Person) : ModelObject(),  IFormViewModel {
 
     var selectingFlag = false
     val dbc = DataBindingContext()
     var dirtyFlag: DirtyFlag = DirtyFlag(false)
     var newFlag: NewFlag = NewFlag(false)
-    val dataList = WritableList<PersonViewModel>()
+    val dataList = WritableList<Person>()
     val comparator = Comparator()
     val entityNamePrefix = "person"
 
@@ -100,12 +100,12 @@ class PersonViewModel(var person: Person) : ModelObject(), IBeanDataEntity, IFor
 
         val data = BeanTestMapper.getAll(mapOf())
         // transform domain entities into view model instances
-        val vmData = data.map { PersonViewModel(it) }
+        //val vmData = data.map { PersonViewModel(it) }
 
         dataList.clear()
 
         // populate the binding collection
-        dataList.addAll(vmData)
+        dataList.addAll(data)
 
         // should we call method on view passing data or just set the input directly?
         if (view != null) view!!.form.listView.input = dataList
@@ -135,8 +135,9 @@ class PersonViewModel(var person: Person) : ModelObject(), IBeanDataEntity, IFor
         val selection = view!!.form.listView.structuredSelection
         if (!selection.isEmpty) {
             val selectedItem = selection.firstElement
-            val selectedViewModel = selectedItem as PersonViewModel
-            person = selectedViewModel.person
+            //val selectedViewModel = selectedItem as PersonViewModel
+            person = selectedItem as Person
+            //person = selectedViewModel.person
             /*
             val formBindings = makeFormBindings<PersonViewModel>(dbc,
                     entityNamePrefix,
@@ -188,7 +189,7 @@ class PersonViewModel(var person: Person) : ModelObject(), IBeanDataEntity, IFor
         TODO("Not yet implemented")
     }
 
-    // this is kind of a side effect
+    /* this is kind of a side effect
     override var id: Long
         get() = person.id
         set(value) {
@@ -211,6 +212,8 @@ class PersonViewModel(var person: Person) : ModelObject(), IBeanDataEntity, IFor
         }
     }
 
+     */
+
 
     class Comparator : BeansViewerComparator(), IViewerComparator {
 
@@ -222,7 +225,7 @@ class PersonViewModel(var person: Person) : ModelObject(), IBeanDataEntity, IFor
         val enteredDate_index = 5
         val deceased_index = 6
 
-
+        /*
         override fun compare(viewer: Viewer?, e1: Any?, e2: Any?): Int {
             val entity1 = e1 as PersonViewModel
             val entity2 = e2 as PersonViewModel
@@ -239,6 +242,23 @@ class PersonViewModel(var person: Person) : ModelObject(), IBeanDataEntity, IFor
             return flipSortDirection(rc)
         }
 
+         */
+
+        override fun compare(viewer: Viewer?, e1: Any?, e2: Any?): Int {
+            val entity1 = e1 as Person
+            val entity2 = e2 as Person
+            val rc = when (propertyIndex) {
+                name_index -> entity1.name.compareTo(entity2.name)
+                income_index -> entity1.income.compareTo(entity2.income)
+                height_index -> entity1.height.compareTo(entity2.height)
+                age_index -> entity1.age.compareTo(entity2.age)
+                country_index -> compareLookups(entity1.country, entity2.country, ApplicationData.countryList)
+                enteredDate_index -> entity1.enteredDate.compareTo(entity2.enteredDate)
+                deceased_index -> entity1.deceased.compareTo(entity2.deceased)
+                else -> 0
+            }
+            return flipSortDirection(rc)
+        }
     }
 
 

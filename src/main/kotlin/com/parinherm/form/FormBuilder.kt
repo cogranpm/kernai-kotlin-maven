@@ -99,7 +99,6 @@ fun <E> makeViewerLabelProvider(
     val labelProvider = (object : ObservableMapLabelProvider(labelMaps) {
         override fun getColumnText(element: Any?, columnIndex: Int): String {
             val entity = element as IBeanDataEntity
-            println(entity)
             return entity?.getColumnValueByIndex(columnIndex)
         }
     })
@@ -109,7 +108,8 @@ fun <E> makeViewerLabelProvider(
 
 fun <E> makeColumnObservable(fieldDef: Map<String, Any>, knownElements: IObservableSet<E>, domainPrefix: String)
         : IObservableMap<E, out Any> where E : IBeanDataEntity {
-    val fieldName = domainPrefix + "." + getPropertyFromFieldDef(fieldDef, ApplicationData.ViewDef.fieldName)
+    //val fieldName = domainPrefix + "." + getPropertyFromFieldDef(fieldDef, ApplicationData.ViewDef.fieldName)
+    val fieldName = getPropertyFromFieldDef(fieldDef, ApplicationData.ViewDef.fieldName)
     val fieldType = getPropertyFromFieldDef(fieldDef, ApplicationData.ViewDef.fieldDataType)
     val observableColumn: IValueProperty<E, out Any> =
             when (fieldType) {
@@ -253,7 +253,7 @@ fun <E> makeFormBindings(dbc: DataBindingContext,
     val formBindings = formWidgets.map {
         val formWidget = it.value
         //val fieldName = entityNamePrefix + "." + it.key
-        val fieldName = entityNamePrefix + "." + it.key
+        val fieldName =  it.key
         val fieldType = formWidget.fieldType
         makeInputBinding(dbc, fieldType, fieldName, formWidget, entity)
     }

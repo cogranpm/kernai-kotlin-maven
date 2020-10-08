@@ -8,7 +8,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import kotlin.properties.Delegates
 
-class Person (var id: Long = 0, name: String, income: BigDecimal, height: Double, age: Int, enteredDate: LocalDate, country: String, deceased: Boolean ) : ModelObject() {
+class Person (override var id: Long = 0, name: String, income: BigDecimal, height: Double, age: Int, enteredDate: LocalDate, country: String, deceased: Boolean ) : ModelObject(), IBeanDataEntity {
 
     var name: String by Delegates.observable(name, observer)
     var income: BigDecimal by Delegates.observable(income, observer)
@@ -18,6 +18,21 @@ class Person (var id: Long = 0, name: String, income: BigDecimal, height: Double
     var country: String by Delegates.observable(country, observer)
     var deceased: Boolean by Delegates.observable(deceased, observer)
 
+    override fun getColumnValueByIndex(index: Int): String {
+        return when (index) {
+            0 -> name
+            1 -> "${income}"
+            2 -> "${height}"
+            3 -> "${age}"
+            4 -> {
+                val listItem = ApplicationData.countryList.find { it.code == country }
+                "${listItem?.label}"
+            }
+            5 -> "${enteredDate}"
+            6 -> "${deceased}"
+            else -> ""
+        }
+    }
 
 
     override fun toString(): String {

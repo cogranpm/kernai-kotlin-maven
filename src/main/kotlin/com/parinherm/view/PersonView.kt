@@ -17,7 +17,8 @@ class PersonView (val parent: Composite, comparator: BeansViewerComparator) : Vi
                     ApplicationData.viewDefinitions)
     // this member has all of the widgets
     // it's a common object favour composition over inheritance
-    override val form: Form <PersonViewModel> = Form(parent, formDef, comparator, "Person")
+    //override val form: Form <PersonViewModel> = Form(parent, formDef, comparator, "Person")
+    override val form: Form <Person> = Form(parent, formDef, comparator, "Person")
 
     init {
         refresh()
