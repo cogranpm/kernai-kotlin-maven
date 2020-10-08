@@ -12,13 +12,26 @@ a view class will use functions to build up a form of widgets for display
 package com.parinherm.form
 
 import com.parinherm.ApplicationData
+import com.parinherm.databinding.*
+import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.LookupDetail
+import org.eclipse.core.databinding.AggregateValidationStatus
+import org.eclipse.core.databinding.Binding
+import org.eclipse.core.databinding.UpdateValueStrategy
+import org.eclipse.core.databinding.ValidationStatusProvider
 import org.eclipse.core.databinding.beans.typed.BeanProperties
+import org.eclipse.core.databinding.conversion.text.NumberToStringConverter
+import org.eclipse.core.databinding.conversion.text.StringToNumberConverter
 import org.eclipse.core.databinding.observable.map.IObservableMap
 import org.eclipse.core.databinding.observable.set.IObservableSet
+import org.eclipse.core.databinding.observable.value.ComputedValue
+import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.core.databinding.property.value.IValueProperty
+import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
+import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.GridLayoutFactory
 import org.eclipse.jface.layout.LayoutConstants
@@ -135,10 +148,11 @@ fun makeForm(fields: List<Map<String, Any>>, parent: Composite)
 
         // returning a map entry for each iteration
         // generates a list of pairs
-        fieldName to FormWidget(fieldName, fieldType, label, control)
+        fieldName to FormWidget(it, fieldName, fieldType, label, control)
     }.toMap()
 
 }
+
 
 fun makeErrorLabel(parent: Composite) : Label {
     val lblErrors = Label(parent, ApplicationData.labelStyle)
