@@ -9,27 +9,11 @@
 
 package com.parinherm.viewmodel
 
-import com.parinherm.ApplicationData
-import com.parinherm.builders.BeansViewerComparator
-import com.parinherm.builders.ModelBinder
-import com.parinherm.entity.Person
-import com.parinherm.entity.PersonDetail
-import com.parinherm.entity.schema.BeanTestMapper
-import com.parinherm.entity.schema.PersonDetailMapper
-import org.eclipse.core.databinding.observable.list.WritableList
-import org.eclipse.jface.viewers.TableViewer
-import org.eclipse.swt.custom.CTabItem
-import org.eclipse.swt.events.SelectionListener
-import org.eclipse.swt.widgets.Button
-import org.eclipse.swt.widgets.Composite
-import java.math.BigDecimal
-import java.time.LocalDate
-
 
 /*
 
 class BeanTestViewModel(data: List<Person>, comparator: BeansViewerComparator, modelBinder: ModelBinder<Person>)
-    : ViewModel<Person>(data, comparator, modelBinder, BeanTestMapper){
+    : ViewModel<Person>(data, comparator, modelBinder, PersonMapper){
 
    val personDetails = WritableList<PersonDetail>()
     val personDetailComparator = PersonDetail.Comparator()

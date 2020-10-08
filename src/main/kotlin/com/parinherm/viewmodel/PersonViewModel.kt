@@ -14,7 +14,7 @@ import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.builders.IViewerComparator
 import com.parinherm.builders.ModelBinder
 import com.parinherm.entity.*
-import com.parinherm.entity.schema.BeanTestMapper
+import com.parinherm.entity.schema.PersonMapper
 import com.parinherm.entity.schema.IMapper
 import com.parinherm.form.IFormViewModel
 import com.parinherm.form.makeFormBindings
@@ -43,7 +43,7 @@ class PersonViewModel(var person: Person) : ModelObject(),  IFormViewModel {
     val comparator = Comparator()
     val entityNamePrefix = "person"
     val modelBinder: ModelBinder<Person> = ModelBinder()
-    val mapper: IMapper<Person> = BeanTestMapper
+    val mapper: IMapper<Person> = PersonMapper
 
     // we have a reference to the view and control it's lifecycle
     // clients get to the view via this class
@@ -103,7 +103,7 @@ class PersonViewModel(var person: Person) : ModelObject(),  IFormViewModel {
         //viewModel = FormViewModel(PersonView(parent))
         view = PersonView(parent, comparator)
 
-        val data = BeanTestMapper.getAll(mapOf())
+        val data = PersonMapper.getAll(mapOf())
         // transform domain entities into view model instances
         //val vmData = data.map { PersonViewModel(it) }
 

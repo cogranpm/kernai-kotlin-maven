@@ -3,13 +3,11 @@ package com.parinherm.view
 import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.entity.Person
-import com.parinherm.entity.schema.BeanTestMapper
+import com.parinherm.entity.schema.PersonMapper
 import com.parinherm.form.Form
-import com.parinherm.viewmodel.PersonViewModel
 import org.eclipse.swt.SWT
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
-import org.eclipse.swt.widgets.Widget
 
 class PersonView (val parent: Composite, comparator: BeansViewerComparator) : View {
     val formDef: Map<String, Any> =
@@ -27,7 +25,7 @@ class PersonView (val parent: Composite, comparator: BeansViewerComparator) : Vi
     override fun refresh() {
         // when the lists should refresh themselves
         // say if a child tab adds a record
-        val data = BeanTestMapper.getAll(mapOf())
+        val data = PersonMapper.getAll(mapOf())
         //viewModel.setData(data)
     }
 

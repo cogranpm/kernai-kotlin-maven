@@ -2,13 +2,11 @@ package com.parinherm.form
 
 import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.NewFlag
-import com.parinherm.entity.schema.BeanTestMapper
 import com.parinherm.view.View
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.observable.ChangeEvent
 import org.eclipse.core.databinding.observable.IChangeListener
 import org.eclipse.core.databinding.observable.list.WritableList
-import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.internal.databinding.swt.SWTObservableValueDecorator
 
 open class FormViewModel <T> (val view: View){

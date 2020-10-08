@@ -8,9 +8,7 @@ import com.google.gson.reflect.TypeToken
 import com.parinherm.builders.*
 import com.parinherm.databinding.DataBindingView
 import com.parinherm.entity.Person
-import com.parinherm.entity.schema.BeanTestMapper
 import com.parinherm.tests.TestData
-import com.parinherm.view.PersonView
 //import com.parinherm.viewmodel.BeanTestViewModel
 import com.parinherm.viewmodel.PersonViewModel
 import org.eclipse.jface.action.*
@@ -94,7 +92,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
 
 
         /*
-        val data = BeanTestMapper.getAll(mapOf()) //BeansBindingTestData.data
+        val data = PersonMapper.getAll(mapOf()) //BeansBindingTestData.data
         val viewModel = BeanTestViewModel(data, Person.Comparator(), ModelBinder<Person>())
         ApplicationData.makeTab(viewModel, "Data binding Test", ApplicationData.TAB_KEY_DATA_BINDING_TEST,
             ApplicationData.ViewDef.beansBindingTestViewId)

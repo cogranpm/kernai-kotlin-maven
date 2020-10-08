@@ -4,7 +4,7 @@ import com.parinherm.entity.Person
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
-object BeanTestMapper : IMapper<Person> {
+object PersonMapper : IMapper<Person> {
 
     override fun save(item: Person) {
         transaction {
