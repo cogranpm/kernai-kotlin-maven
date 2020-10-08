@@ -137,11 +137,20 @@ class PersonViewModel(var person: Person) : ModelObject(), IBeanDataEntity, IFor
             val selectedItem = selection.firstElement
             val selectedViewModel = selectedItem as PersonViewModel
             person = selectedViewModel.person
-            //modelBinder.createDataBindings(dbc, fields, selectedItem, this::getWidget, listener, dirtyFlag)
+            /*
             val formBindings = makeFormBindings<PersonViewModel>(dbc,
                     entityNamePrefix,
                     view!!.form.formWidgets,
                     this,
+                    view!!.form.lblErrors,
+                    stateChangeListener)
+
+             */
+
+            val formBindings = makeFormBindings<Person>(dbc,
+                    entityNamePrefix,
+                    view!!.form.formWidgets,
+                    person,
                     view!!.form.lblErrors,
                     stateChangeListener)
             Display.getDefault().timerExec(100) {

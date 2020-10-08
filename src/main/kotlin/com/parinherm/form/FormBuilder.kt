@@ -16,7 +16,6 @@ import com.parinherm.databinding.*
 import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.LookupDetail
-import com.parinherm.viewmodel.PersonViewModel
 import org.eclipse.core.databinding.*
 import org.eclipse.core.databinding.beans.typed.BeanProperties
 import org.eclipse.core.databinding.conversion.text.NumberToStringConverter
@@ -253,6 +252,7 @@ fun <E> makeFormBindings(dbc: DataBindingContext,
 
     val formBindings = formWidgets.map {
         val formWidget = it.value
+        //val fieldName = entityNamePrefix + "." + it.key
         val fieldName = entityNamePrefix + "." + it.key
         val fieldType = formWidget.fieldType
         makeInputBinding(dbc, fieldType, fieldName, formWidget, entity)
