@@ -28,12 +28,11 @@ import org.eclipse.swt.widgets.Composite
 // should really be the view-model
 
 data class Form<T>(
-    val parent: Composite,
-    val viewDefinition: Map<String, Any>,
-    val comparator: BeansViewerComparator,
-    val domainPrefix: String
-)
-        where T : IBeanDataEntity {
+        val parent: Composite,
+        val viewDefinition: Map<String, Any>,
+        val comparator: BeansViewerComparator,
+        val domainPrefix: String
+) where T : IBeanDataEntity {
 
     val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
     val hasChildViews: Boolean = hasChildViews(viewDefinition)
@@ -59,11 +58,8 @@ data class Form<T>(
         listView.contentProvider = contentProvider
         listView.labelProvider = makeViewerLabelProvider<T>(fields, contentProvider.knownElements, domainPrefix)
         listView.comparator = comparator
-
-
         root.layout = FillLayout(SWT.VERTICAL)
         root.layout()
-
     }
 
 

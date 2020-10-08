@@ -12,18 +12,12 @@ package com.parinherm.viewmodel
 import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.builders.IViewerComparator
-import com.parinherm.builders.ModelBinder
 import com.parinherm.entity.*
 import com.parinherm.entity.schema.PersonMapper
-import com.parinherm.entity.schema.IMapper
+import com.parinherm.form.FormViewModel
 import com.parinherm.form.IFormViewModel
 import com.parinherm.form.makeFormBindings
 import com.parinherm.view.PersonView
-import org.eclipse.core.databinding.*
-import org.eclipse.core.databinding.observable.ChangeEvent
-import org.eclipse.core.databinding.observable.IChangeListener
-import org.eclipse.core.databinding.observable.list.WritableList
-import org.eclipse.jface.internal.databinding.swt.SWTObservableValueDecorator
 import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.jface.viewers.TableViewerColumn
@@ -35,77 +29,28 @@ import org.eclipse.swt.widgets.*
 import java.math.BigDecimal
 import java.time.LocalDate
 
-class PersonViewModel(var person: Person) : ModelObject(),  IFormViewModel {
+class PersonViewModel(var person: Person) : FormViewModel<Person>(PersonMapper), IFormViewModel {
 
-    var selectingFlag = false
-    val dbc = DataBindingContext()
-    var dirtyFlag: DirtyFlag = DirtyFlag(false)
-    var newFlag: NewFlag = NewFlag(false)
-    val dataList = WritableList<Person>()
     val comparator = Comparator()
     val entityNamePrefix = "person"
-    val modelBinder: ModelBinder<Person> = ModelBinder()
-    val mapper: IMapper<Person> = PersonMapper
 
     // we have a reference to the view and control it's lifecycle
     // clients get to the view via this class
+    // wish this could be a val
     var view: PersonView? = null
 
     // helper to do all the common stuff relating to viewmodel
-    //var viewModel: FormViewModel<PersonViewModel>? = null
+    // val viewModel: FormViewModel<PersonViewModel> = FormViewModel()
 
 
     init {
     }
 
-    val stateChangeListener: IChangeListener = IChangeListener {
-        processStateChange(it)
-    }
-
-
-    private fun processStateChange(ce: ChangeEvent) {
-        if (isDirtyEventType(ce.source)) {
-
-            //debugging stuff
-            /****************************************
-            val source = ce.source
-            when (source) {
-            is SWTObservableValueDecorator<*> -> println(source.widget)
-            is SWTVetoableValueDecorator  -> {
-            println(source.widget)
-            }
-            is ViewerObservableValueDecorator<*> -> {
-            println(source.viewer)
-            }
-            }
-             ************************************************/
-            dirtyFlag.dirty = true
-        }
-    }
-
-    private fun isDirtyEventType(source: Any): Boolean {
-        /* clicking the save button triggers a state change on the dirty flag
-        therefore this should not trigger the dirtyflag to become true (chicken and egg)
-        also when changing items in the model list viewer, the state changes due to a
-        new entity loading, this should be ignored as well
-        hence the selecting flag in this class
-        checkign the widget that is the source of the binding event is the best
-        way i could figure out how to interrogate the source of data binding state change events
-         */
-        if (selectingFlag) return false
-        return when (source) {
-            is SWTObservableValueDecorator<*> -> true //source.widget != view.getSaveButton()
-            else -> true
-        }
-    }
-
-
     override fun render(parent: CTabFolder): Composite {
         // view is instantiated
-        //viewModel = FormViewModel(PersonView(parent))
         view = PersonView(parent, comparator)
 
-        val data = PersonMapper.getAll(mapOf())
+        val data = mapper.getAll(mapOf())
         // transform domain entities into view model instances
         //val vmData = data.map { PersonViewModel(it) }
 
@@ -116,7 +61,6 @@ class PersonViewModel(var person: Person) : ModelObject(),  IFormViewModel {
 
         // should we call method on view passing data or just set the input directly?
         if (view != null) view!!.form.listView.input = dataList
-
 
         // implement all the event handlers on the view
         createCommands()
@@ -151,7 +95,7 @@ class PersonViewModel(var person: Person) : ModelObject(),  IFormViewModel {
     }
 
     fun changeSelection() {
-        val formBindings = makeFormBindings<Person>(dbc,
+        val formBindings = makeFormBindings(dbc,
                 entityNamePrefix,
                 view!!.form.formWidgets,
                 person,

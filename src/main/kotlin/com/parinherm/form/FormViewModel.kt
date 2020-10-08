@@ -2,43 +2,28 @@ package com.parinherm.form
 
 import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.NewFlag
-import com.parinherm.view.View
+import com.parinherm.entity.schema.IMapper
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.observable.ChangeEvent
 import org.eclipse.core.databinding.observable.IChangeListener
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.internal.databinding.swt.SWTObservableValueDecorator
 
-open class FormViewModel <T> (val view: View){
+open class FormViewModel <T> (val mapper: IMapper<T>){
+
     var selectingFlag = false
     val dbc = DataBindingContext()
     var dirtyFlag: DirtyFlag = DirtyFlag(false)
     var newFlag: NewFlag = NewFlag(false)
-
-
     val dataList = WritableList<T>()
-    /* this is needed because the new button
-    needs to store an item before saving adding it to the
-    writable list
-     */
-    var currentItem: T? = null
 
-    init {
 
-    }
-
-    val listener: IChangeListener = IChangeListener {
+    val stateChangeListener: IChangeListener = IChangeListener {
         processStateChange(it)
     }
 
-    fun setData(data: List<T>){
-        dataList.clear()
-        dataList.addAll(data)
-        view.form.listView.input = dataList
-    }
-
-    private fun processStateChange(ce: ChangeEvent){
-        if(isDirtyEventType(ce.source)) {
+    private fun processStateChange(ce: ChangeEvent) {
+        if (isDirtyEventType(ce.source)) {
 
             //debugging stuff
             /****************************************
@@ -67,8 +52,8 @@ open class FormViewModel <T> (val view: View){
         way i could figure out how to interrogate the source of data binding state change events
          */
         if (selectingFlag) return false
-       return when (source){
-            is SWTObservableValueDecorator<*> -> source.widget != view.getSaveButton()
+        return when (source) {
+            is SWTObservableValueDecorator<*> -> true //source.widget != view.getSaveButton()
             else -> true
         }
     }

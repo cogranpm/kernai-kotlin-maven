@@ -25,7 +25,7 @@ class PersonView (val parent: Composite, comparator: BeansViewerComparator) : Vi
     override fun refresh() {
         // when the lists should refresh themselves
         // say if a child tab adds a record
-        val data = PersonMapper.getAll(mapOf())
+        //val data = PersonMapper.getAll(mapOf())
         //viewModel.setData(data)
     }
 
