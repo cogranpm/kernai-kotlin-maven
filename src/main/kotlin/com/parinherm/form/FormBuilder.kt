@@ -13,7 +13,6 @@ package com.parinherm.form
 
 import com.parinherm.ApplicationData
 import com.parinherm.databinding.*
-import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.LookupDetail
 import org.eclipse.core.databinding.*
@@ -23,7 +22,6 @@ import org.eclipse.core.databinding.conversion.text.StringToNumberConverter
 import org.eclipse.core.databinding.observable.IChangeListener
 import org.eclipse.core.databinding.observable.map.IObservableMap
 import org.eclipse.core.databinding.observable.set.IObservableSet
-import org.eclipse.core.databinding.observable.value.ComputedValue
 import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.core.databinding.property.value.IValueProperty
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
@@ -238,7 +236,6 @@ fun makeInputWidget(
 
 
 fun <E> makeFormBindings(dbc: DataBindingContext,
-                         entityNamePrefix: String,
                          formWidgets: Map<String, FormWidget>,
                          entity: E,
                          lblErrors: Label, stateChangeListener: IChangeListener): List<Binding?> {

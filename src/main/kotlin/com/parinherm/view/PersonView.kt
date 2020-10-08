@@ -3,7 +3,6 @@ package com.parinherm.view
 import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.entity.Person
-import com.parinherm.entity.schema.PersonMapper
 import com.parinherm.form.Form
 import org.eclipse.swt.SWT
 import org.eclipse.swt.widgets.Button

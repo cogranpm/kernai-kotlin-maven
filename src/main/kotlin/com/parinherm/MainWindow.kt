@@ -151,7 +151,6 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
 
         val actionDataBinding: Action = object: Action("&Data Binding") {
             override fun run () {
-                println("here")
                 clearComposite(mainContainer)
                 val view: Composite = DataBindingView(TestData.data).makeView(mainContainer)
                 mainContainer.layout()
@@ -161,10 +160,8 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
 
         val recipeAction: Action = object: Action("&Recipes") {
             override fun run () {
-                val viewModel = PersonViewModel(Person(0, "", BigDecimal("0.0"), 4.5, 22, LocalDate.now(), "Aus", false))
-                ApplicationData.makeTab(viewModel, "Data binding Test", ApplicationData.TAB_KEY_PERSON)
-                //viewModel.render(mainContainer)
-                //mainContainer.layout()
+                val viewModel = PersonViewModel(folder)
+                ApplicationData.makeTab(viewModel, "Person", ApplicationData.TAB_KEY_PERSON)
             }
         }
         recipeAction.accelerator = SWT.MOD1 or ('R'.toInt())

@@ -5,7 +5,6 @@ import com.parinherm.entity.schema.SchemaBuilder
 import com.parinherm.form.IFormViewModel
 import com.parinherm.server.SimpleHttpServer
 import com.parinherm.server.ViewDefinitions
-import com.parinherm.viewmodel.ViewModel
 import org.eclipse.core.databinding.UpdateValueStrategy
 import org.eclipse.core.databinding.observable.Realm
 import org.eclipse.jface.databinding.swt.DisplayRealm
@@ -15,10 +14,6 @@ import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.CTabItem
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.widgets.Display
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.StdOutSqlLogger
-import org.jetbrains.exposed.sql.addLogger
-import org.jetbrains.exposed.sql.transactions.transaction
 
 object ApplicationData {
 
@@ -98,7 +93,7 @@ object ApplicationData {
     private fun createTab(viewModel: IFormViewModel, caption: String, key:String): TabInstance {
         val tabItem = CTabItem(mainWindow.folder, SWT.CLOSE)
         tabItem.text = caption
-        tabItem.control = viewModel.render(mainWindow.folder)
+        tabItem.control = viewModel.render()
         tabItem.addDisposeListener {
             tabs[key]!!.isClosed = true
         }
