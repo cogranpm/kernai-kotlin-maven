@@ -32,6 +32,8 @@ import org.eclipse.swt.custom.CTabFolder
 import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.widgets.*
+import java.math.BigDecimal
+import java.time.LocalDate
 
 class PersonViewModel(var person: Person) : ModelObject(),  IFormViewModel {
 
@@ -140,29 +142,21 @@ class PersonViewModel(var person: Person) : ModelObject(),  IFormViewModel {
         val selection = view!!.form.listView.structuredSelection
         if (!selection.isEmpty) {
             val selectedItem = selection.firstElement
-            //val selectedViewModel = selectedItem as PersonViewModel
             person = selectedItem as Person
-            //person = selectedViewModel.person
-            /*
-            val formBindings = makeFormBindings<PersonViewModel>(dbc,
-                    entityNamePrefix,
-                    view!!.form.formWidgets,
-                    this,
-                    view!!.form.lblErrors,
-                    stateChangeListener)
-
-             */
-
-            val formBindings = makeFormBindings<Person>(dbc,
-                    entityNamePrefix,
-                    view!!.form.formWidgets,
-                    person,
-                    view!!.form.lblErrors,
-                    stateChangeListener)
+            changeSelection()
             Display.getDefault().timerExec(100) {
                 selectingFlag = false
             }
         }
+    }
+
+    fun changeSelection() {
+        val formBindings = makeFormBindings<Person>(dbc,
+                entityNamePrefix,
+                view!!.form.formWidgets,
+                person,
+                view!!.form.lblErrors,
+                stateChangeListener)
     }
 
     fun listHeaderSelection(listView: TableViewer) {
@@ -187,7 +181,8 @@ class PersonViewModel(var person: Person) : ModelObject(),  IFormViewModel {
 
 
     override fun new() {
-        TODO("Not yet implemented")
+        person = Person(0L, "", BigDecimal("0.0"), 6.70, 20, LocalDate.now(), "Aus", false)
+        changeSelection()
     }
 
     override fun save() {
