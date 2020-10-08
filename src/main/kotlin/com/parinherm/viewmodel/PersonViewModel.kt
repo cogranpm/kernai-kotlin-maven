@@ -12,8 +12,10 @@ package com.parinherm.viewmodel
 import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.builders.IViewerComparator
+import com.parinherm.builders.ModelBinder
 import com.parinherm.entity.*
 import com.parinherm.entity.schema.BeanTestMapper
+import com.parinherm.entity.schema.IMapper
 import com.parinherm.form.IFormViewModel
 import com.parinherm.form.makeFormBindings
 import com.parinherm.view.PersonView
@@ -22,6 +24,7 @@ import org.eclipse.core.databinding.observable.ChangeEvent
 import org.eclipse.core.databinding.observable.IChangeListener
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.internal.databinding.swt.SWTObservableValueDecorator
+import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.jface.viewers.TableViewerColumn
 import org.eclipse.jface.viewers.Viewer
@@ -39,6 +42,8 @@ class PersonViewModel(var person: Person) : ModelObject(),  IFormViewModel {
     val dataList = WritableList<Person>()
     val comparator = Comparator()
     val entityNamePrefix = "person"
+    val modelBinder: ModelBinder<Person> = ModelBinder()
+    val mapper: IMapper<Person> = BeanTestMapper
 
     // we have a reference to the view and control it's lifecycle
     // clients get to the view via this class
@@ -186,7 +191,16 @@ class PersonViewModel(var person: Person) : ModelObject(),  IFormViewModel {
     }
 
     override fun save() {
-        TODO("Not yet implemented")
+        dirtyFlag.dirty = false
+        if (person?.id == 0L) {
+            mapper.save(person)
+            dataList.add(person)
+            view!!.form.listView.selection = StructuredSelection(person)
+        } else {
+            if (person != null) {
+                mapper.save(person)
+            }
+        }
     }
 
     /* this is kind of a side effect
