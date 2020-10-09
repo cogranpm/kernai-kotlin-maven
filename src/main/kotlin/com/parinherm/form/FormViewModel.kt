@@ -71,15 +71,18 @@ open class FormViewModel <T> (val view: View, val mapper: IMapper<T>, val entity
     }
 
     override fun render(): Composite {
-        val data = mapper.getAll(mapOf())
+
+        // implement all the event handlers on the view
+        createCommands()
+        return view.form.root
+    }
+
+    fun setData(data: List<T>) : Unit {
         dataList.clear()
         // populate the binding collection
         dataList.addAll(data)
         // should we call method on view passing data or just set the input directly?
         if (view != null) view.form.listView.input = dataList
-        // implement all the event handlers on the view
-        createCommands()
-        return view.form.root
     }
 
     private fun createCommands() {
@@ -107,7 +110,7 @@ open class FormViewModel <T> (val view: View, val mapper: IMapper<T>, val entity
         }
     }
 
-    fun changeSelection() {
+    open fun changeSelection() {
         val formBindings = makeFormBindings(dbc,
                 view.form.formWidgets,
                 currentEntity,

@@ -7,12 +7,30 @@ import com.parinherm.entity.PersonDetail
 import com.parinherm.entity.schema.PersonDetailMapper
 import com.parinherm.form.FormViewModel
 import com.parinherm.view.PersonDetailView
+import org.eclipse.jface.viewers.StructuredSelection
+import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
 
 class PersonDetailViewModel (val personId: Long, val selectedPersonDetail: PersonDetail?, parent: CTabFolder) :
         FormViewModel<PersonDetail>(PersonDetailView(parent, Comparator()),
-        PersonDetailMapper, {PersonDetail(0, "", personId, "")}) {
+        PersonDetailMapper, {PersonDetail(0, "", personId, ApplicationData.speciesList[0].code)}) {
+
+
+    init {
+        val data = mapper.getAll(mapOf("personId" to personId))
+        setData(data)
+
+
+        if (selectedPersonDetail!= null) {
+            val itemInWritableList = dataList.find { it.id == selectedPersonDetail.id }
+            if (itemInWritableList != null) {
+                view.form.listView.selection = StructuredSelection(itemInWritableList)
+            }
+        } else {
+            new()
+        }
+    }
 
 
 

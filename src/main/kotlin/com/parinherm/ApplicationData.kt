@@ -18,7 +18,7 @@ import org.eclipse.swt.widgets.Display
 object ApplicationData {
 
     private lateinit var imageRegistry: ImageRegistry
-    private lateinit var mainWindow: MainWindow
+    lateinit var mainWindow: MainWindow
     lateinit var viewDefinitions: Map<String, Any>
     /* keeps all opened tabs in a list and remove them when closed */
     var tabs: MutableMap<String, TabInstance> = mutableMapOf()
