@@ -64,7 +64,7 @@ object ViewDefinitions {
 
         val viewDefinitions = mapOf(
             ViewDef.version to 1,
-            ViewDef.forms to listOf(bindingTestDef, makeSampleBean(), makePersonDetailDef())
+            ViewDef.forms to listOf(bindingTestDef, makePersonMap(), makePersonDetailDef())
         )
 
         return viewDefinitions
@@ -96,7 +96,7 @@ object ViewDefinitions {
         return personDetailsDef
     }
 
-    fun makeSampleBean(): Map<String, Any> {
+    fun makePersonMap(): Map<String, Any> {
         val firstNameDef = mapOf(
                 ViewDef.fieldName to "name",
                 ViewDef.title to "First Name",

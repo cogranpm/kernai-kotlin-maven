@@ -57,7 +57,7 @@ class BeanTestViewModel(data: List<Persons>, comparator: BeansViewerComparator, 
             // store the selected item in the list in the viewstate
             val currentPersonDetail = selectedItem as PersonDetail
             val data = PersonDetailMapper.getAll(mapOf("beanTestId" to currentItem!!.id))
-            val viewModel = PersonDetailViewModel(currentItem!!.id,
+            val viewModel = PersonDetailViewModelOld(currentItem!!.id,
                 currentPersonDetail,
                 ApplicationData.tabs[ApplicationData.TAB_KEY_DATA_BINDING_TEST],
                 data,
@@ -68,7 +68,7 @@ class BeanTestViewModel(data: List<Persons>, comparator: BeansViewerComparator, 
 
         btnAdd.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
            val data = PersonDetailMapper.getAll(mapOf("beanTestId" to currentItem!!.id))
-            val viewModel = PersonDetailViewModel(currentItem!!.id, null,
+            val viewModel = PersonDetailViewModelOld(currentItem!!.id, null,
                     ApplicationData.tabs[ApplicationData.TAB_KEY_DATA_BINDING_TEST],
                     data, personDetailComparator, ModelBinder<PersonDetail>())
             ApplicationData.makeTab(viewModel, "Persons Detail", ApplicationData.TAB_KEY_PERSONDETAIL, ApplicationData.ViewDef.personDetailsViewId)

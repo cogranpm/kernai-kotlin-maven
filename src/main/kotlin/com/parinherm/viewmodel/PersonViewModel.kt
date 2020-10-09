@@ -64,7 +64,7 @@ class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(par
             val data = PersonDetailMapper.getAll(mapOf("personId" to currentEntity!!.id))
 
             /*
-            val viewModel = PersonDetailViewModel(currentEntity!!.id,
+            val viewModel = PersonDetailViewModelOld(currentEntity!!.id,
                 currentPersonDetail,
                 ApplicationData.tabs[ApplicationData.TAB_KEY_PERSON],
                 data,
@@ -79,7 +79,7 @@ class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(par
         childFormTab.btnAdd.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
             val data = PersonDetailMapper.getAll(mapOf("personId" to currentEntity!!.id))
             /*
-            val viewModel = PersonDetailViewModel(currentEntity!!.id, null,
+            val viewModel = PersonDetailViewModelOld(currentEntity!!.id, null,
                 ApplicationData.tabs[ApplicationData.TAB_KEY_PERSON],
                 data, personDetailComparator, ModelBinder<PersonDetail>())
             ApplicationData.makeTab(viewModel, "Persons Detail", ApplicationData.TAB_KEY_PERSONDETAIL, ApplicationData.ViewDef.personDetailsViewId)
