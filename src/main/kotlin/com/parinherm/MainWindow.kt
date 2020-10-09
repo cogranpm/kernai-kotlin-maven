@@ -93,7 +93,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
 
         /*
         val data = PersonMapper.getAll(mapOf()) //BeansBindingTestData.data
-        val viewModel = BeanTestViewModel(data, Person.Comparator(), ModelBinder<Person>())
+        val viewModel = BeanTestViewModel(data, Persons.Comparator(), ModelBinder<Persons>())
         ApplicationData.makeTab(viewModel, "Data binding Test", ApplicationData.TAB_KEY_DATA_BINDING_TEST,
             ApplicationData.ViewDef.beansBindingTestViewId)
 
@@ -161,7 +161,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         val recipeAction: Action = object: Action("&Recipes") {
             override fun run () {
                 val viewModel = PersonViewModel(folder)
-                ApplicationData.makeTab(viewModel, "Person", ApplicationData.TAB_KEY_PERSON)
+                ApplicationData.makeTab(viewModel, "Persons", ApplicationData.TAB_KEY_PERSON)
             }
         }
         recipeAction.accelerator = SWT.MOD1 or ('R'.toInt())

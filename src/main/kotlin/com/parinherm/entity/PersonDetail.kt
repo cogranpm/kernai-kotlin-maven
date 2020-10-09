@@ -6,7 +6,7 @@ import com.parinherm.builders.IViewerComparator
 import org.eclipse.jface.viewers.Viewer
 import kotlin.properties.Delegates
 
-class PersonDetail (override var id: Long = 0, nickname: String, var beanTestId: Long, petSpecies: String) : ModelObject(), IBeanDataEntity {
+class PersonDetail (override var id: Long = 0, nickname: String, var personId: Long, petSpecies: String) : ModelObject(), IBeanDataEntity {
 
     var nickname: String by Delegates.observable(nickname, observer)
     var petSpecies: String by Delegates.observable(petSpecies, observer)
@@ -41,7 +41,7 @@ class PersonDetail (override var id: Long = 0, nickname: String, var beanTestId:
 
 
     override fun toString(): String {
-        return "PersonDetail(id=$id, name=$nickname, petSpecies=$petSpecies, beanTestId=$beanTestId)"
+        return "PersonDetail(id=$id, name=$nickname, petSpecies=$petSpecies, beanTestId=$personId)"
     }
 
     companion object Factory {

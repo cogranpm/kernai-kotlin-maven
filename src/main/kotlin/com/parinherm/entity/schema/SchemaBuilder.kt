@@ -16,7 +16,7 @@ object SchemaBuilder {
     fun build() {
         transaction {
             addLogger(StdOutSqlLogger)
-            SchemaUtils.create(BeanTests, PersonDetails)
+            SchemaUtils.create(Persons, PersonDetails)
         }
     }
 
@@ -24,7 +24,7 @@ object SchemaBuilder {
 
         transaction {
             addLogger(StdOutSqlLogger)
-            val test = BeanTests.insertAndGetId {
+            val test = Persons.insertAndGetId {
                 it[name] = "Fred Farquar"
                 it[income] = BigDecimal("1000.45")
                 it[age] = 33
@@ -49,10 +49,10 @@ object SchemaBuilder {
 
              */
 
-            val query: Query = BeanTests.selectAll()
-            query.orderBy(BeanTests.enteredDate to SortOrder.ASC)
+            val query: Query = Persons.selectAll()
+            query.orderBy(Persons.enteredDate to SortOrder.ASC)
             query.forEach {
-                println(it[BeanTests.name])
+                println(it[Persons.name])
             }
         }
 

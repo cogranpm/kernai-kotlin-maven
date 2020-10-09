@@ -36,7 +36,7 @@ class Person (override var id: Long = 0, name: String, income: BigDecimal, heigh
 
 
     override fun toString(): String {
-        return "Person(id=$id, name=$name, income=$income, height=$height, age=$age, country=$country, enteredDate=$enteredDate, deceased=$deceased)"
+        return "Persons(id=$id, name=$name, income=$income, height=$height, age=$age, country=$country, enteredDate=$enteredDate, deceased=$deceased)"
     }
 }
 

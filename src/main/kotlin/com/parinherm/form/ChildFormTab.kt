@@ -7,6 +7,7 @@ import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 
 data class ChildFormTab(val key: String,
+                        val childDefinition: Map<String, Any>,
                         val tab: CTabItem,
                         val buttonBar: Composite,
                         val btnAdd: Button,

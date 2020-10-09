@@ -11,14 +11,14 @@ object PersonDetailMapper : IMapper<PersonDetail> {
             if (item.id == 0L) {
                 val id = PersonDetails.insertAndGetId {
                     it[nickname] = item.nickname
-                    it[PersonDetails.beanTestId] = item.beanTestId
+                    it[PersonDetails.personId] = item.personId
                     it[petSpecies] = item.petSpecies
                }
                 item.id = id.value
             } else {
                 PersonDetails.update ({PersonDetails.id eq item.id}) {
                     it[nickname] = item.nickname
-                    it[PersonDetails.beanTestId] = item.beanTestId
+                    it[PersonDetails.personId] = item.personId
                     it[petSpecies] = item.petSpecies
                }
             }
@@ -29,13 +29,13 @@ object PersonDetailMapper : IMapper<PersonDetail> {
         val list: MutableList<PersonDetail> = mutableListOf()
         transaction {
             addLogger(StdOutSqlLogger)
-            val query: Query = PersonDetails.select {PersonDetails.beanTestId eq keys["beanTestId"] as Long}
+            val query: Query = PersonDetails.select {PersonDetails.personId eq keys["personId"] as Long}
             query.orderBy(PersonDetails.nickname to SortOrder.ASC)
             query.forEach {
                 list.add(
                     PersonDetail(it[PersonDetails.id].value,
                     it[PersonDetails.nickname],
-                    it[PersonDetails.beanTestId],
+                    it[PersonDetails.personId],
                     it[PersonDetails.petSpecies])
                 )
             }

@@ -8,14 +8,17 @@ import org.eclipse.swt.SWT
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 
-class PersonView (val parent: Composite, comparator: BeansViewerComparator) : View {
+class PersonView(val parent: Composite, comparator: BeansViewerComparator) : View {
+
     val formDef: Map<String, Any> =
-            ApplicationData.getView(ApplicationData.ViewDef.beansBindingTestViewId,
-                    ApplicationData.viewDefinitions)
+        ApplicationData.getView(
+            ApplicationData.ViewDef.beansBindingTestViewId,
+            ApplicationData.viewDefinitions
+        )
+
     // this member has all of the widgets
     // it's a common object favour composition over inheritance
-    //override val form: Form <PersonViewModel> = Form(parent, formDef, comparator, "Person")
-    override val form: Form <Person> = Form(parent, formDef, comparator, "Person")
+    override val form: Form<Person> = Form(parent, formDef, comparator)
 
     init {
         refresh()
@@ -28,7 +31,7 @@ class PersonView (val parent: Composite, comparator: BeansViewerComparator) : Vi
         //viewModel.setData(data)
     }
 
-    override fun getSaveButton(): Button{
+    override fun getSaveButton(): Button {
         return Button(null, SWT.NONE)
     }
 }

@@ -9,7 +9,7 @@ object PersonMapper : IMapper<Person> {
     override fun save(item: Person) {
         transaction {
             if (item.id == 0L) {
-                val id = BeanTests.insertAndGetId {
+                val id = Persons.insertAndGetId {
                     it[name] = item.name
                     it[income] = item.income
                     it[age] = item.age
@@ -20,7 +20,7 @@ object PersonMapper : IMapper<Person> {
                 }
                 item.id = id.value
             } else {
-                BeanTests.update ({BeanTests.id eq item.id}) {
+                Persons.update ({Person.id eq item.id}) {
                     it[name] = item.name
                     it[income] = item.income
                     it[age] = item.age
@@ -37,17 +37,17 @@ object PersonMapper : IMapper<Person> {
         val items: MutableList<Person> = mutableListOf()
         transaction {
             addLogger(StdOutSqlLogger)
-            val query: Query = BeanTests.selectAll()
-            query.orderBy(BeanTests.enteredDate to SortOrder.ASC)
+            val query: Query = Persons.selectAll()
+            query.orderBy(Persons.enteredDate to SortOrder.ASC)
             query.forEach {
-                items.add(Person(it[BeanTests.id].value,
-                    it[BeanTests.name],
-                it[BeanTests.income],
-                it[BeanTests.height],
-                it[BeanTests.age],
-                it[BeanTests.enteredDate],
-                it[BeanTests.country],
-                it[BeanTests.deceased]))
+                items.add(Person(it[Person.id].value,
+                    it[Person.name],
+                it[Person.income],
+                it[Person.height],
+                it[Person.age],
+                it[Person.enteredDate],
+                it[Person.country],
+                it[Person.deceased]))
             }
         }
         return items

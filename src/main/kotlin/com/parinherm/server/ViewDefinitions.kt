@@ -89,7 +89,7 @@ object ViewDefinitions {
 
         val personDetailsDef = mapOf(
                 ViewDef.viewid to ApplicationData.ViewDef.personDetailsViewId,
-                ViewDef.title to "Person Details",
+                ViewDef.title to "Persons Details",
                 ViewDef.fields to listOf(nicknameDef, petSpeciesDef)
         )
 

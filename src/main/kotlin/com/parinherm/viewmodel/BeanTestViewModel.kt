@@ -12,8 +12,8 @@ package com.parinherm.viewmodel
 
 /*
 
-class BeanTestViewModel(data: List<Person>, comparator: BeansViewerComparator, modelBinder: ModelBinder<Person>)
-    : ViewModel<Person>(data, comparator, modelBinder, PersonMapper){
+class BeanTestViewModel(data: List<Persons>, comparator: BeansViewerComparator, modelBinder: ModelBinder<Persons>)
+    : ViewModel<Persons>(data, comparator, modelBinder, PersonMapper){
 
    val personDetails = WritableList<PersonDetail>()
     val personDetailComparator = PersonDetail.Comparator()
@@ -26,8 +26,8 @@ class BeanTestViewModel(data: List<Person>, comparator: BeansViewerComparator, m
        return composite
     }
 
-    override fun makeNewEntity(): Person {
-        return Person(0, "", BigDecimal(0), 0.0, 0, LocalDate.now(), "Aus", false)
+    override fun makeNewEntity(): Persons {
+        return Persons(0, "", BigDecimal(0), 0.0, 0, LocalDate.now(), "Aus", false)
     }
 
 
@@ -63,7 +63,7 @@ class BeanTestViewModel(data: List<Person>, comparator: BeansViewerComparator, m
                 data,
                 personDetailComparator,
                 ModelBinder<PersonDetail>())
-            ApplicationData.makeTab(viewModel, "Person Detail", ApplicationData.TAB_KEY_PERSONDETAIL, ApplicationData.ViewDef.personDetailsViewId)
+            ApplicationData.makeTab(viewModel, "Persons Detail", ApplicationData.TAB_KEY_PERSONDETAIL, ApplicationData.ViewDef.personDetailsViewId)
         }
 
         btnAdd.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
@@ -71,13 +71,13 @@ class BeanTestViewModel(data: List<Person>, comparator: BeansViewerComparator, m
             val viewModel = PersonDetailViewModel(currentItem!!.id, null,
                     ApplicationData.tabs[ApplicationData.TAB_KEY_DATA_BINDING_TEST],
                     data, personDetailComparator, ModelBinder<PersonDetail>())
-            ApplicationData.makeTab(viewModel, "Person Detail", ApplicationData.TAB_KEY_PERSONDETAIL, ApplicationData.ViewDef.personDetailsViewId)
+            ApplicationData.makeTab(viewModel, "Persons Detail", ApplicationData.TAB_KEY_PERSONDETAIL, ApplicationData.ViewDef.personDetailsViewId)
         })
 
         listHeaderSelection(list, fields, personDetailComparator)
    }
 
-    override fun afterListSelection(listView: TableViewer, currentItem: Person) {
+    override fun afterListSelection(listView: TableViewer, currentItem: Persons) {
         personDetails.clear()
         //personDetails.addAll(BeansBindingTestData.personDetails.filter { it.beanTestId == currentItem.id })
         personDetails.addAll(PersonDetailMapper.getAll(mapOf("beanTestId" to currentItem.id)))

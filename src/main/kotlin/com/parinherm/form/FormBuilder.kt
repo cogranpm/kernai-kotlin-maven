@@ -88,11 +88,9 @@ fun getPropertyFromFieldDef(fieldDef: Map<String, Any>, propertyKey: String): St
 
 fun <E> makeViewerLabelProvider(
         fields: List<Map<String, Any>>,
-        knownElements: IObservableSet<E>,
-        domainPrefix: String
-
+        knownElements: IObservableSet<E>
 ): ObservableMapLabelProvider where E : IBeanDataEntity {
-    val observables = fields.map { makeColumnObservable(it, knownElements, domainPrefix) }
+    val observables = fields.map { makeColumnObservable(it, knownElements) }
     val labelMaps = observables.toTypedArray()
     val labelProvider = (object : ObservableMapLabelProvider(labelMaps) {
         override fun getColumnText(element: Any?, columnIndex: Int): String {
@@ -104,9 +102,8 @@ fun <E> makeViewerLabelProvider(
 }
 
 
-fun <E> makeColumnObservable(fieldDef: Map<String, Any>, knownElements: IObservableSet<E>, domainPrefix: String)
+fun <E> makeColumnObservable(fieldDef: Map<String, Any>, knownElements: IObservableSet<E>)
         : IObservableMap<E, out Any> where E : IBeanDataEntity {
-    //val fieldName = domainPrefix + "." + getPropertyFromFieldDef(fieldDef, ApplicationData.ViewDef.fieldName)
     val fieldName = getPropertyFromFieldDef(fieldDef, ApplicationData.ViewDef.fieldName)
     val fieldType = getPropertyFromFieldDef(fieldDef, ApplicationData.ViewDef.fieldDataType)
     val observableColumn: IValueProperty<E, out Any> =
@@ -420,7 +417,7 @@ fun makeChildTab(folder: CTabFolder, childDefinition: Map<String, Any>): ChildFo
     GridDataFactory.fillDefaults().grab(true, false).applyTo(buttonBar)
     GridDataFactory.fillDefaults().grab(true, true).applyTo(listComposite)
     val childKey = childDefinition[ApplicationData.ViewDef.viewid] as String
-    return ChildFormTab(childKey, tab, buttonBar, btnAdd, btnRemove, listComposite, listView, columns)
+    return ChildFormTab(childKey, childDefinition, tab, buttonBar, btnAdd, btnRemove, listComposite, listView, columns)
 }
 
 fun hasChildViews(viewDefinition: Map<String, Any>): Boolean {
