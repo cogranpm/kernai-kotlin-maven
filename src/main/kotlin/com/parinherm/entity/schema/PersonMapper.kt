@@ -20,7 +20,7 @@ object PersonMapper : IMapper<Person> {
                 }
                 item.id = id.value
             } else {
-                Persons.update ({Person.id eq item.id}) {
+                Persons.update ({Persons.id eq item.id}) {
                     it[name] = item.name
                     it[income] = item.income
                     it[age] = item.age
@@ -40,14 +40,14 @@ object PersonMapper : IMapper<Person> {
             val query: Query = Persons.selectAll()
             query.orderBy(Persons.enteredDate to SortOrder.ASC)
             query.forEach {
-                items.add(Person(it[Person.id].value,
-                    it[Person.name],
-                it[Person.income],
-                it[Person.height],
-                it[Person.age],
-                it[Person.enteredDate],
-                it[Person.country],
-                it[Person.deceased]))
+                items.add(Person(it[Persons.id].value,
+                    it[Persons.name],
+                it[Persons.income],
+                it[Persons.height],
+                it[Persons.age],
+                it[Persons.enteredDate],
+                it[Persons.country],
+                it[Persons.deceased]))
             }
         }
         return items
