@@ -8,13 +8,14 @@ import org.eclipse.swt.SWT
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 
-class PersonView(val parent: Composite, comparator: BeansViewerComparator) : View {
+class PersonDetailView(val parent: Composite, comparator: BeansViewerComparator) : View {
+
 
     val formDef: Map<String, Any> =
-        ApplicationData.getView(
-            ApplicationData.ViewDef.personViewId,
-            ApplicationData.viewDefinitions
-        )
+            ApplicationData.getView(
+                    ApplicationData.ViewDef.personDetailsViewId,
+                    ApplicationData.viewDefinitions
+            )
 
     // this member has all of the widgets
     // it's a common object favour composition over inheritance

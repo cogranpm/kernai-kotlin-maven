@@ -84,7 +84,7 @@ open class FormViewModel <T> (val view: View, val mapper: IMapper<T>, val entity
 
     private fun createCommands() {
         listSelectionCommand(view.form.listView)
-        listHeaderSelection(view.form.listView)
+        listHeaderSelection(view.form.listView, view.form.columns, view.form.comparator)
     }
 
 
@@ -115,9 +115,9 @@ open class FormViewModel <T> (val view: View, val mapper: IMapper<T>, val entity
                 stateChangeListener)
     }
 
-    private fun listHeaderSelection(listView: TableViewer) {
-        view.form.columns.forEachIndexed { index: Int, column: TableViewerColumn ->
-            column.column.addSelectionListener(getSelectionAdapter(listView, column.column, index, view.form.comparator))
+    fun listHeaderSelection(listView: TableViewer, columns: List<TableViewerColumn>, comparator: BeansViewerComparator) {
+        columns.forEachIndexed { index: Int, column: TableViewerColumn ->
+            column.column.addSelectionListener(getSelectionAdapter(listView, column.column, index, comparator ))
         }
     }
 

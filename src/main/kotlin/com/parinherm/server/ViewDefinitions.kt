@@ -145,7 +145,7 @@ object ViewDefinitions {
 
 
         val viewDef = mapOf(
-                ViewDef.viewid to ViewDef.beansBindingTestViewId,
+                ViewDef.viewid to ViewDef.personViewId,
                 ViewDef.title to "Beans Binding Test",
                 ViewDef.fields to listOf(
                         firstNameDef,

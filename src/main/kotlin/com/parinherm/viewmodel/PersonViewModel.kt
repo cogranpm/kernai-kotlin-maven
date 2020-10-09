@@ -17,8 +17,10 @@ import com.parinherm.entity.schema.PersonDetailMapper
 import com.parinherm.entity.schema.PersonMapper
 import com.parinherm.form.ChildFormTab
 import com.parinherm.form.FormViewModel
+import com.parinherm.form.makeViewerLabelProvider
 import com.parinherm.view.PersonView
 import org.eclipse.core.databinding.observable.list.WritableList
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
 import org.eclipse.swt.events.SelectionListener
@@ -31,6 +33,7 @@ class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(par
 
     val personDetails = WritableList<PersonDetail>()
     val personDetailComparator = PersonDetail.Comparator()
+    val personDetailContentProvider = ObservableListContentProvider<PersonDetail>()
 
 
     init {
@@ -48,8 +51,9 @@ class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(par
     private fun wireChildEntity(childFormTab: ChildFormTab) : Unit {
         val fields = childFormTab.childDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
 
-
-        //createListViewBindings<PersonDetail>(list, fields, personDetailComparator)
+        childFormTab.listView.contentProvider = personDetailContentProvider
+        childFormTab.listView.labelProvider = makeViewerLabelProvider<PersonDetail>(fields, personDetailContentProvider.knownElements)
+        childFormTab.listView.comparator = personDetailComparator
 
         childFormTab.listView.addOpenListener {
             // open up a tab to edit child entity
@@ -83,7 +87,7 @@ class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(par
              */
         })
 
-        //listHeaderSelection(list, fields, personDetailComparator)
+        listHeaderSelection(childFormTab.listView, childFormTab.columns, personDetailComparator)
     }
 
     class Comparator : BeansViewerComparator(), IViewerComparator {

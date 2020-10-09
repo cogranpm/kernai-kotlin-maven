@@ -195,7 +195,7 @@ object ApplicationData {
     public object ViewDef{
 
         const val bindingTestViewId = "bindingtest"
-        const val beansBindingTestViewId = "beansbinding"
+        const val personViewId = "beansbinding"
         const val personDetailsViewId = "persondetails"
         const val title = "title"
         const val version = "version"
