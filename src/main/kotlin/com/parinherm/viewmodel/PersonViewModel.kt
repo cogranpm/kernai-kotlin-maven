@@ -37,6 +37,7 @@ class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(par
         if (view.form.childFormsContainer != null)
         {
             view.form.childFormsContainer!!.childTabs.forEach { childFormTab: ChildFormTab ->
+                wireChildEntity(childFormTab)
                 println(childFormTab.childDefinition)
                 // set up the label provider for the child lists
             }
@@ -44,7 +45,7 @@ class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(par
 
     }
 
-    private fun wirePersonDetail(childFormTab: ChildFormTab) : Unit {
+    private fun wireChildEntity(childFormTab: ChildFormTab) : Unit {
         val fields = childFormTab.childDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
 
 
