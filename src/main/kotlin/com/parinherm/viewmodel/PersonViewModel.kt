@@ -63,46 +63,35 @@ class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(par
             val selectedItem = selection.firstElement
             // store the selected item in the list in the viewstate
             val currentPersonDetail = selectedItem as PersonDetail
-            val viewModel = PersonDetailViewModel(currentEntity!!.id,
-                    currentPersonDetail,
-                    ApplicationData.mainWindow.folder)
-            ApplicationData.makeTab(viewModel, "Person Details", ApplicationData.TAB_KEY_PERSONDETAIL)
-            //val data = PersonDetailMapper.getAll(mapOf("personId" to currentEntity!!.id))
-
-            /*
-            val viewModel = PersonDetailViewModelOld(currentEntity!!.id,
-                currentPersonDetail,
-                ApplicationData.tabs[ApplicationData.TAB_KEY_PERSON],
-                data,
-                personDetailComparator,
-                ModelBinder<PersonDetail>())
-
-            ApplicationData.makeTab(viewModel, "Persons Detail", ApplicationData.TAB_KEY_PERSONDETAIL, ApplicationData.ViewDef.personDetailsViewId)
-
-             */
-        }
+            openTab(currentPersonDetail)
+       }
 
         childFormTab.btnAdd.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
             val data = PersonDetailMapper.getAll(mapOf("personId" to currentEntity!!.id))
-            val viewModel = PersonDetailViewModel(currentEntity!!.id,
-                    null,
-                    ApplicationData.mainWindow.folder)
-            ApplicationData.makeTab(viewModel, "Person Details", ApplicationData.TAB_KEY_PERSONDETAIL)
-            /*
-            val viewModel = PersonDetailViewModelOld(currentEntity!!.id, null,
-                ApplicationData.tabs[ApplicationData.TAB_KEY_PERSON],
-                data, personDetailComparator, ModelBinder<PersonDetail>())
-            ApplicationData.makeTab(viewModel, "Persons Detail", ApplicationData.TAB_KEY_PERSONDETAIL, ApplicationData.ViewDef.personDetailsViewId)
-
-             */
-        })
+            openTab(null)
+       })
 
         listHeaderSelection(childFormTab.listView, childFormTab.columns, personDetailComparator)
+    }
+
+    fun openTab(currentPersonDetail: PersonDetail?){
+        val viewModel = PersonDetailViewModel(currentEntity!!.id,
+                currentPersonDetail,
+                ApplicationData.TAB_KEY_PERSON,
+                ApplicationData.mainWindow.folder)
+        ApplicationData.makeTab(viewModel, "Person Details", ApplicationData.TAB_KEY_PERSONDETAIL)
     }
 
 
     override fun changeSelection(){
         val formBindings = super.changeSelection()
+        /* specific to child list */
+        personDetails.clear()
+        personDetails.addAll(PersonDetailMapper.getAll(mapOf("personId" to currentEntity!!.id)))
+    }
+
+    override fun refresh() {
+        super.refresh()
         personDetails.clear()
         personDetails.addAll(PersonDetailMapper.getAll(mapOf("personId" to currentEntity!!.id)))
     }

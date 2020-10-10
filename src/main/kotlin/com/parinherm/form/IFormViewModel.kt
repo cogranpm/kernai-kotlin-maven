@@ -7,4 +7,5 @@ interface IFormViewModel {
     fun render() : Composite
     fun new()
     fun save()
+    fun refresh()
 }

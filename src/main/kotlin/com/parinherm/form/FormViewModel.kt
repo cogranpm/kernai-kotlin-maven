@@ -145,6 +145,9 @@ open class FormViewModel <T> (val view: View<T>, val mapper: IMapper<T>, val ent
         }
     }
 
+    override fun refresh() {
+    }
+
     override fun new() {
         currentEntity = entityMaker()
         changeSelection()

@@ -8,11 +8,10 @@ import com.parinherm.entity.schema.PersonDetailMapper
 import com.parinherm.form.FormViewModel
 import com.parinherm.view.PersonDetailView
 import org.eclipse.jface.viewers.StructuredSelection
-import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
 
-class PersonDetailViewModel (val personId: Long, val selectedPersonDetail: PersonDetail?, parent: CTabFolder) :
+class PersonDetailViewModel (val personId: Long, val selectedPersonDetail: PersonDetail?, val openedFromTabId: String?,  parent: CTabFolder) :
         FormViewModel<PersonDetail>(PersonDetailView(parent, Comparator()),
         PersonDetailMapper, {PersonDetail(0, "", personId, ApplicationData.speciesList[0].code)}) {
 
@@ -29,8 +28,18 @@ class PersonDetailViewModel (val personId: Long, val selectedPersonDetail: Perso
         } else {
             new()
         }
+
     }
 
+    override fun save() {
+        super.save()
+        val tab = ApplicationData.tabs[openedFromTabId]
+        if (tab != null) {
+            if (!tab.isClosed){
+                tab.viewModel.refresh()
+            }
+        }
+    }
 
 
     class Comparator : BeansViewerComparator(), IViewerComparator {
