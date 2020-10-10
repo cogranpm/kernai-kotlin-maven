@@ -2,6 +2,7 @@ package com.parinherm.entity.schema
 
 import com.parinherm.entity.PersonDetail
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object PersonDetailMapper : IMapper<PersonDetail> {
@@ -11,19 +12,20 @@ object PersonDetailMapper : IMapper<PersonDetail> {
             if (item.id == 0L) {
                 val id = PersonDetails.insertAndGetId {
                     it[nickname] = item.nickname
-                    it[PersonDetails.personId] = item.personId
+                    it[personId] = item.personId
                     it[petSpecies] = item.petSpecies
                }
                 item.id = id.value
             } else {
                 PersonDetails.update ({PersonDetails.id eq item.id}) {
                     it[nickname] = item.nickname
-                    it[PersonDetails.personId] = item.personId
+                    it[personId] = item.personId
                     it[petSpecies] = item.petSpecies
                }
             }
         }
     }
+
 
     override fun getAll(keys: Map<String, Long>): List<PersonDetail> {
         val list: MutableList<PersonDetail> = mutableListOf()

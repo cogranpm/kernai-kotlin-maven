@@ -97,7 +97,7 @@ open class FormViewModel <T> (val view: View, val mapper: IMapper<T>, val entity
         }
     }
 
-    private fun onListSelection() {
+    protected fun onListSelection() {
         selectingFlag = true
         val selection = view.form.listView.structuredSelection
         if (!selection.isEmpty) {
