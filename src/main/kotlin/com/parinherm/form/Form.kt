@@ -16,11 +16,14 @@ import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.entity.IBeanDataEntity
 import org.eclipse.core.databinding.DataBindingContext
+import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.layout.TableColumnLayout
+import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.SashForm
 import org.eclipse.swt.layout.FillLayout
+import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 
 
@@ -31,11 +34,11 @@ data class Form<T>(
         val parent: Composite,
         val viewDefinition: Map<String, Any>,
         val comparator: BeansViewerComparator
-) where T : IBeanDataEntity {
+) : IForm<T> where T : IBeanDataEntity {
 
     val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
     val hasChildViews: Boolean = hasChildViews(viewDefinition)
-    val root = Composite(parent, ApplicationData.swnone)
+    override val root = Composite(parent, ApplicationData.swnone)
     val sashForm = SashForm(root, SWT.BORDER or SWT.VERTICAL)
     val listContainer = Composite(sashForm, ApplicationData.swnone)
     val tableLayout = TableColumnLayout(true)
@@ -61,6 +64,18 @@ data class Form<T>(
 
         root.layout = FillLayout(SWT.VERTICAL)
         root.layout()
+    }
+
+    override fun refresh(list: WritableList<T>) {
+        listView.input = list
+    }
+
+    override fun setSelection(selection: StructuredSelection) {
+        listView.selection = selection
+    }
+
+    override fun getSaveButton(): Button {
+        return Button(null, SWT.NONE)
     }
 
 

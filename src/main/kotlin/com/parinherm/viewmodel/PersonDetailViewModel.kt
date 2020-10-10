@@ -20,7 +20,6 @@ class PersonDetailViewModel (val personId: Long, val selectedPersonDetail: Perso
     init {
         val data = mapper.getAll(mapOf("personId" to personId))
         setData(data)
-
         if (selectedPersonDetail!= null) {
             val itemInWritableList = dataList.find { it.id == selectedPersonDetail.id }
             if (itemInWritableList != null) {

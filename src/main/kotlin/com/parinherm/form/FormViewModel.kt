@@ -20,7 +20,7 @@ import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.TableColumn
 
-open class FormViewModel <T> (val view: View, val mapper: IMapper<T>, val entityMaker: () -> T) : IFormViewModel where T : IBeanDataEntity{
+open class FormViewModel <T> (val view: View<T>, val mapper: IMapper<T>, val entityMaker: () -> T) : IFormViewModel where T : IBeanDataEntity{
 
     var selectingFlag = false
     val dbc = DataBindingContext()
@@ -30,7 +30,7 @@ open class FormViewModel <T> (val view: View, val mapper: IMapper<T>, val entity
     var currentEntity: T? = null
 
 
-    val stateChangeListener: IChangeListener = IChangeListener {
+    private val stateChangeListener: IChangeListener = IChangeListener {
         processStateChange(it)
     }
 
@@ -71,18 +71,14 @@ open class FormViewModel <T> (val view: View, val mapper: IMapper<T>, val entity
     }
 
     override fun render(): Composite {
-
-        // implement all the event handlers on the view
         createCommands()
         return view.form.root
     }
 
     fun setData(data: List<T>) : Unit {
         dataList.clear()
-        // populate the binding collection
         dataList.addAll(data)
-        // should we call method on view passing data or just set the input directly?
-        if (view != null) view.form.listView.input = dataList
+        view.form.refresh(dataList)
     }
 
     private fun createCommands() {
@@ -125,7 +121,7 @@ open class FormViewModel <T> (val view: View, val mapper: IMapper<T>, val entity
     }
 
     private fun getSelectionAdapter(viewer: TableViewer, column: TableColumn, index: Int, comparator: BeansViewerComparator): SelectionAdapter {
-        val selectionAdapter = (object : SelectionAdapter() {
+        return (object : SelectionAdapter() {
             override fun widgetSelected(e: SelectionEvent?) {
                 comparator.setColumn(index)
                 val dir = comparator.getDirection()
@@ -134,7 +130,6 @@ open class FormViewModel <T> (val view: View, val mapper: IMapper<T>, val entity
                 viewer.refresh()
             }
         })
-        return selectionAdapter
     }
 
     override fun save() {
@@ -142,7 +137,7 @@ open class FormViewModel <T> (val view: View, val mapper: IMapper<T>, val entity
         if (currentEntity?.id == 0L) {
             mapper.save(currentEntity!!)
             dataList.add(currentEntity)
-            view.form.listView.selection = StructuredSelection(currentEntity)
+            view.form.setSelection(StructuredSelection(currentEntity))
         } else {
             if (currentEntity != null) {
                 mapper.save(currentEntity!!)
