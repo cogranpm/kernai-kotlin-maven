@@ -13,4 +13,5 @@ interface IForm <T> where T: IBeanDataEntity{
     fun setSelection(selection: StructuredSelection)
     // this needs more work, it's a toolbar now
     fun getSaveButton() : Button
+    fun focusFirst()
 }

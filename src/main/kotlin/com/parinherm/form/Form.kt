@@ -20,11 +20,13 @@ import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.layout.TableColumnLayout
 import org.eclipse.jface.viewers.StructuredSelection
+import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.SashForm
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
+import org.eclipse.swt.widgets.Control
 
 
 // domain entity type is the type argument
@@ -77,6 +79,18 @@ data class Form<T>(
     override fun getSaveButton(): Button {
         return Button(null, SWT.NONE)
     }
+
+    override fun focusFirst(){
+        val firstWidget = formWidgets.values.first().widget
+        if (firstWidget != null) {
+            if (firstWidget is Control){
+                firstWidget.setFocus()
+            } else if (firstWidget is Viewer) {
+                firstWidget.control.setFocus()
+            }
+        }
+    }
+
 
 
 }

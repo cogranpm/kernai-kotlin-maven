@@ -132,6 +132,7 @@ open class FormViewModel <T> (val view: View<T>, val mapper: IMapper<T>, val ent
         })
     }
 
+
     override fun save() {
         dirtyFlag.dirty = false
         if (currentEntity?.id == 0L) {
@@ -151,6 +152,7 @@ open class FormViewModel <T> (val view: View<T>, val mapper: IMapper<T>, val ent
     override fun new() {
         currentEntity = entityMaker()
         changeSelection()
+        view.form.focusFirst()
     }
 
 
