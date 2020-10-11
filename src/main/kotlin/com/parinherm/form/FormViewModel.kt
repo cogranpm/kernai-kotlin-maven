@@ -20,7 +20,7 @@ import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.TableColumn
 
-open class FormViewModel <T> (val view: View<T>, val mapper: IMapper<T>, val entityMaker: () -> T) : IFormViewModel where T : IBeanDataEntity{
+abstract class FormViewModel <T> (val view: View<T>, val mapper: IMapper<T>, val entityMaker: () -> T) : IFormViewModel<T> where T : IBeanDataEntity{
 
     var selectingFlag = false
     val dbc = DataBindingContext()
@@ -75,9 +75,9 @@ open class FormViewModel <T> (val view: View<T>, val mapper: IMapper<T>, val ent
         return view.form.root
     }
 
-    fun setData(data: List<T>) : Unit {
+    override fun loadData(parameters: Map<String, Any>) : Unit {
         dataList.clear()
-        dataList.addAll(data)
+        dataList.addAll(getData(parameters))
         view.form.refresh(dataList)
     }
 
@@ -147,6 +147,10 @@ open class FormViewModel <T> (val view: View<T>, val mapper: IMapper<T>, val ent
     }
 
     override fun refresh() {
+    }
+
+    override fun getData(parameters: Map<String, Any>): List<T> {
+        return mapper.getAll(mapOf())
     }
 
     override fun new() {

@@ -17,8 +17,7 @@ class PersonDetailViewModel (val personId: Long, val selectedPersonDetail: Perso
 
 
     init {
-        val data = mapper.getAll(mapOf("personId" to personId))
-        setData(data)
+        loadData(mapOf("personId" to personId))
         if (selectedPersonDetail!= null) {
             val itemInWritableList = dataList.find { it.id == selectedPersonDetail.id }
             if (itemInWritableList != null) {
@@ -29,6 +28,10 @@ class PersonDetailViewModel (val personId: Long, val selectedPersonDetail: Perso
             new()
         }
 
+    }
+
+    override fun getData(parameters: Map<String, Any>): List<PersonDetail> {
+        return mapper.getAll(parameters as Map<String, Long>)
     }
 
     override fun save() {

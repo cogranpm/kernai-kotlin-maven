@@ -1,14 +1,10 @@
 package com.parinherm.viewmodel
 
-import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.builders.IViewerComparator
-import com.parinherm.entity.PersonDetail
 import com.parinherm.entity.Recipe
-import com.parinherm.entity.schema.PersonDetailMapper
 import com.parinherm.entity.schema.RecipeMapper
 import com.parinherm.form.FormViewModel
-import com.parinherm.view.PersonDetailView
 import com.parinherm.view.RecipeView
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
@@ -18,9 +14,9 @@ class RecipeViewModel(parent: CTabFolder) : FormViewModel<Recipe>(
     RecipeMapper, { Recipe.make() }) {
 
     init {
-        val data = mapper.getAll(mapOf())
-        setData(data)
+        loadData(mapOf())
     }
+
 
     class Comparator : BeansViewerComparator(), IViewerComparator {
 
@@ -38,5 +34,6 @@ class RecipeViewModel(parent: CTabFolder) : FormViewModel<Recipe>(
             return flipSortDirection(rc)
         }
     }
+
 
 }

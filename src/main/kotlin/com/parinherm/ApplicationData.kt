@@ -81,7 +81,7 @@ object ApplicationData {
 
 
     /************************** new way ***************************************************/
-    fun makeTab(viewModel: IFormViewModel, caption: String, key: String): Unit {
+    fun makeTab(viewModel: IFormViewModel<*>, caption: String, key: String): Unit {
         if (tabs.containsKey(key) && tabs[key] != null) {
             if (tabs[key]!!.isClosed) {
                 // set it to open and create the tab
@@ -95,7 +95,7 @@ object ApplicationData {
         }
     }
 
-    private fun createTab(viewModel: IFormViewModel, caption: String, key: String): TabInstance {
+    private fun createTab(viewModel: IFormViewModel<*>, caption: String, key: String): TabInstance {
         val tabItem = CTabItem(mainWindow.folder, SWT.CLOSE)
         tabItem.text = caption
         tabItem.control = viewModel.render()

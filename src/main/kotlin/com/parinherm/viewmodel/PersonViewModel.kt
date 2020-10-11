@@ -17,6 +17,7 @@ import com.parinherm.entity.schema.PersonDetailMapper
 import com.parinherm.entity.schema.PersonMapper
 import com.parinherm.form.ChildFormTab
 import com.parinherm.form.FormViewModel
+import com.parinherm.form.IFormViewModel
 import com.parinherm.form.makeViewerLabelProvider
 import com.parinherm.view.PersonView
 import org.eclipse.core.databinding.observable.list.WritableList
@@ -41,12 +42,9 @@ class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(par
         {
             view.form.childFormsContainer!!.childTabs.forEach { childFormTab: ChildFormTab ->
                 wireChildEntity(childFormTab)
-                println(childFormTab.childDefinition)
-                // set up the label provider for the child lists
             }
         }
-        val data = mapper.getAll(mapOf())
-        setData(data)
+        loadData(mapOf())
     }
 
     private fun wireChildEntity(childFormTab: ChildFormTab) : Unit {
@@ -75,7 +73,7 @@ class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(par
     }
 
     fun openTab(currentPersonDetail: PersonDetail?){
-        val viewModel = PersonDetailViewModel(currentEntity!!.id,
+        val viewModel: IFormViewModel<PersonDetail> = PersonDetailViewModel(currentEntity!!.id,
                 currentPersonDetail,
                 ApplicationData.TAB_KEY_PERSON,
                 ApplicationData.mainWindow.folder)
