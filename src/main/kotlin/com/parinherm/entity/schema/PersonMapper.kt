@@ -1,7 +1,11 @@
 package com.parinherm.entity.schema
 
 import com.parinherm.entity.Person
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.statements.InsertSelectStatement
+import org.jetbrains.exposed.sql.statements.InsertStatement
+import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object PersonMapper : IMapper<Person> {
@@ -10,27 +14,25 @@ object PersonMapper : IMapper<Person> {
         transaction {
             if (item.id == 0L) {
                 val id = Persons.insertAndGetId {
-                    it[name] = item.name
-                    it[income] = item.income
-                    it[age] = item.age
-                    it[height] = item.height
-                    it[deceased] = item.deceased
-                    it[country] = item.country
-                    it[enteredDate] = item.enteredDate
-                }
+                    mapItem(item, it)
+               }
                 item.id = id.value
             } else {
                 Persons.update ({Persons.id eq item.id}) {
-                    it[name] = item.name
-                    it[income] = item.income
-                    it[age] = item.age
-                    it[height] = item.height
-                    it[deceased] = item.deceased
-                    it[country] = item.country
-                    it[enteredDate] = item.enteredDate
-                }
+                    mapItem(item, it)
+               }
             }
         }
+    }
+
+      fun mapItem(item: Person, statement: UpdateBuilder<Int>) {
+        statement[Persons.name] = item.name
+        statement[Persons.income] = item.income
+        statement[Persons.age] = item.age
+        statement[Persons.height] = item.height
+        statement[Persons.deceased] = item.deceased
+        statement[Persons.country] = item.country
+        statement[Persons.enteredDate] = item.enteredDate
     }
 
     override fun getAll(keys: Map<String, Long>): List<Person> {
