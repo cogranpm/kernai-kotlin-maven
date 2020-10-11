@@ -9,6 +9,7 @@ object RecipeMapper : IMapper<Recipe> {
 
     override fun save(item: Recipe) {
         transaction {
+            addLogger(StdOutSqlLogger)
             if (item.id == 0L) {
                 val id = Recipes.insertAndGetId {
                     mapItem(item, it)
@@ -33,6 +34,7 @@ object RecipeMapper : IMapper<Recipe> {
         transaction {
             addLogger(StdOutSqlLogger)
             val query: Query = Recipes.selectAll()
+            query.orderBy(Recipes.name)
             query.forEach {
                 items.add(
                     Recipe(

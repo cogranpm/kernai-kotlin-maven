@@ -170,7 +170,7 @@ fun makeInputWidget(
             applyLayoutToField(input, true, false)
             input
         }
-        ApplicationData.ViewDef.text -> {
+        ApplicationData.ViewDef.memo -> {
             val input = Text(parent, SWT.MULTI or SWT.BORDER)
             input.setData("fieldName", fieldName)
             applyLayoutToField(input, true, true, 5 * input.lineHeight)
@@ -227,7 +227,7 @@ fun makeInputWidget(
         }
         else -> {
             // just a dummy thing should never happen
-            Label(null, SWT.NONE)
+            Label(parent, SWT.NONE)
         }
     }
 

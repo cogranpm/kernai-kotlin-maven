@@ -1,5 +1,6 @@
 package com.parinherm.entity
 
+import com.parinherm.ApplicationData
 import kotlin.properties.Delegates
 
 class Recipe(
@@ -31,7 +32,7 @@ class Recipe(
 
     companion object Factory {
         fun make(): Recipe {
-            return Recipe(0, "", "", "")
+            return Recipe(0, "", "", ApplicationData.recipeCategoryList[0].code)
         }
     }
 }
