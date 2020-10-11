@@ -126,10 +126,8 @@ fun makeForm(fields: List<Map<String, Any>>, parent: Composite)
     // transform list of field definitions into  a map of widgets
     // with the fieldName as the key
     return fields.map {
-
         val fieldName = it[ApplicationData.ViewDef.fieldName] as String
         val fieldType = it[ApplicationData.ViewDef.fieldDataType] as String
-
         val label = makeInputLabel(parent, it[ApplicationData.ViewDef.title] as String)
         val control = makeInputWidget(
                 parent,
@@ -137,7 +135,6 @@ fun makeForm(fields: List<Map<String, Any>>, parent: Composite)
                 fieldType,
                 it
         )
-
         // returning a map entry for each iteration
         // generates a list of pairs
         fieldName to FormWidget(it, fieldName, fieldType, label, control)
@@ -171,6 +168,12 @@ fun makeInputWidget(
             val input = Text(parent, ApplicationData.swnone)
             input.setData("fieldName", fieldName)
             applyLayoutToField(input, true, false)
+            input
+        }
+        ApplicationData.ViewDef.text -> {
+            val input = Text(parent, SWT.MULTI or SWT.BORDER)
+            input.setData("fieldName", fieldName)
+            applyLayoutToField(input, true, true, 5 * input.lineHeight)
             input
         }
         ApplicationData.ViewDef.float -> {
@@ -265,7 +268,7 @@ fun <E> makeFormBindings(dbc: DataBindingContext,
 
 fun <E> makeInputBinding(dbc: DataBindingContext, fieldType: String, fieldName: String, formWidget: FormWidget, entity: E): Binding? {
     return when (fieldType) {
-        ApplicationData.ViewDef.text -> {
+        ApplicationData.ViewDef.text, ApplicationData.ViewDef.memo  -> {
             val target = WidgetProperties.text<Text>(SWT.Modify).observe(formWidget.widget as Text)
             val model = BeanProperties.value<E, String>(fieldName).observe(entity)
             val modelToTarget = UpdateValueStrategy<String?, String?>(ApplicationData.defaultUpdatePolicy)
@@ -344,8 +347,14 @@ fun <E> makeInputBinding(dbc: DataBindingContext, fieldType: String, fieldName: 
     }
 }
 
-fun applyLayoutToField(widget: Control, stretchH: Boolean, stretchY: Boolean): Unit {
-    GridDataFactory.fillDefaults().grab(stretchH, stretchY).applyTo(widget)
+fun applyLayoutToField(widget: Control, stretchH: Boolean, stretchY: Boolean, heightHint: Int? = null): Unit {
+    var defaults = GridDataFactory.fillDefaults()
+    defaults = defaults.grab(stretchH, stretchY)
+    if (heightHint != null) {
+        defaults.hint(SWT.DEFAULT, heightHint)
+    }
+    defaults.applyTo(widget)
+
 }
 
 fun makeEditContainer(hasChildViews: Boolean, parent: Composite): FormContainer {

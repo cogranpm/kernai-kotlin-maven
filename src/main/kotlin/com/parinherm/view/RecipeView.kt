@@ -24,5 +24,4 @@ class RecipeView(val parent: Composite, comparator: BeansViewerComparator)
         }
 
 
-    }
 }

@@ -52,6 +52,8 @@ object ApplicationData {
 
     val defaultUpdatePolicy = UpdateValueStrategy.POLICY_UPDATE  //UpdateValueStrategy.POLICY_ON_REQUEST
 
+    const val lookupFieldLength : Int = 20
+
     init {
 
     }
@@ -200,6 +202,8 @@ object ApplicationData {
         const val float = "float"
         const val int = "int"
         const val text = "text"
+        // memo is long text
+        const val memo = "memo"
         const val lookup = "lookup"
         const val lookupKey = "lookupKey"
         const val bool = "bool"

@@ -1,9 +1,5 @@
 package com.parinherm.entity
 
-import com.parinherm.ApplicationData
-import com.parinherm.builders.BeansViewerComparator
-import com.parinherm.builders.IViewerComparator
-import org.eclipse.jface.viewers.Viewer
 import kotlin.properties.Delegates
 
 class Recipe(
@@ -16,7 +12,7 @@ class Recipe(
 
     var name: String by Delegates.observable(name, observer)
     var method: String by Delegates.observable(method, observer)
-    var category: String by Delegates.observable(method, observer)
+    var category: String by Delegates.observable(category, observer)
 
     override fun getColumnValueByIndex(index: Int): String {
         return when (index) {
@@ -30,7 +26,7 @@ class Recipe(
 
 
     override fun toString(): String {
-        return "Recipe(id=$id, name=$name, method=$method)"
+        return "Recipe(id=$id, name=$name, method=$method, category=$category)"
     }
 
     companion object Factory {

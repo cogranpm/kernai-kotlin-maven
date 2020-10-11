@@ -11,6 +11,7 @@ import com.parinherm.entity.Person
 import com.parinherm.tests.TestData
 //import com.parinherm.viewmodel.BeanTestViewModel
 import com.parinherm.viewmodel.PersonViewModel
+import com.parinherm.viewmodel.RecipeViewModel
 import org.eclipse.jface.action.*
 import org.eclipse.jface.window.ApplicationWindow
 import org.eclipse.swt.SWT
@@ -149,6 +150,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         }
         actionChristmasTree.accelerator = SWT.MOD1 or ('X'.toInt())
 
+        /*
         val actionDataBinding: Action = object: Action("&Data Binding") {
             override fun run () {
                 clearComposite(mainContainer)
@@ -158,10 +160,22 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         }
         actionDataBinding.accelerator = SWT.MOD1 or ('B'.toInt())
 
-        val recipeAction: Action = object: Action("&Recipes") {
+         */
+
+
+        val personAction: Action = object: Action("&People") {
             override fun run () {
                 val viewModel = PersonViewModel(folder)
-                ApplicationData.makeTab(viewModel, "Persons", ApplicationData.TAB_KEY_PERSON)
+                ApplicationData.makeTab(viewModel, "People", ApplicationData.TAB_KEY_PERSON)
+            }
+        }
+        personAction.accelerator = SWT.MOD1 or ('P'.toInt())
+
+
+        val recipeAction: Action = object: Action("&Recipes") {
+            override fun run () {
+                val viewModel = RecipeViewModel(folder)
+                ApplicationData.makeTab(viewModel, "Recipes", ApplicationData.TAB_KEY_RECIPE)
             }
         }
         recipeAction.accelerator = SWT.MOD1 or ('R'.toInt())
@@ -179,8 +193,9 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         fileMenu.add(actionQuit)
 
         // action menus
-        actionMenu.add(actionChristmasTree)
-        actionMenu.add(actionDataBinding)
+        //actionMenu.add(actionChristmasTree)
+        //actionMenu.add(actionDataBinding)
+        actionMenu.add(personAction)
         actionMenu.add(recipeAction)
 
         menuManager.add(fileMenu)

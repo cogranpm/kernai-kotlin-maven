@@ -6,13 +6,15 @@ import com.parinherm.builders.IViewerComparator
 import com.parinherm.entity.PersonDetail
 import com.parinherm.entity.Recipe
 import com.parinherm.entity.schema.PersonDetailMapper
+import com.parinherm.entity.schema.RecipeMapper
 import com.parinherm.form.FormViewModel
 import com.parinherm.view.PersonDetailView
+import com.parinherm.view.RecipeView
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
 
 class RecipeViewModel(parent: CTabFolder) : FormViewModel<Recipe>(
-    RecipeView(parent, RecipeViewModel.Comparator()),
+    RecipeView(parent, Comparator()),
     RecipeMapper, { Recipe.make() }) {
 
 
