@@ -17,6 +17,10 @@ class RecipeViewModel(parent: CTabFolder) : FormViewModel<Recipe>(
     RecipeView(parent, Comparator()),
     RecipeMapper, { Recipe.make() }) {
 
+    init {
+        val data = mapper.getAll(mapOf())
+        setData(data)
+    }
 
     class Comparator : BeansViewerComparator(), IViewerComparator {
 
