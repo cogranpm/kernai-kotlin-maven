@@ -32,7 +32,7 @@ class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(par
 
 
     val personDetails = WritableList<PersonDetail>()
-    val personDetailComparator = PersonDetail.Comparator()
+    val personDetailComparator = PersonDetailViewModel.Comparator()
     val personDetailContentProvider = ObservableListContentProvider<PersonDetail>()
 
 

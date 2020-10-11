@@ -11,19 +11,21 @@ object PersonDetailMapper : IMapper<PersonDetail> {
         transaction {
             if (item.id == 0L) {
                 val id = PersonDetails.insertAndGetId {
-                    it[nickname] = item.nickname
-                    it[personId] = item.personId
-                    it[petSpecies] = item.petSpecies
+                mapItem(item, it)
                }
                 item.id = id.value
             } else {
                 PersonDetails.update ({PersonDetails.id eq item.id}) {
-                    it[nickname] = item.nickname
-                    it[personId] = item.personId
-                    it[petSpecies] = item.petSpecies
+                    mapItem(item, it)
                }
             }
         }
+    }
+
+    fun mapItem(item: PersonDetail, statement: UpdateBuilder<Int>) {
+        statement[PersonDetails.nickname] = item.nickname
+        statement[PersonDetails.personId] = item.personId
+        statement[PersonDetails.petSpecies] = item.petSpecies
     }
 
 

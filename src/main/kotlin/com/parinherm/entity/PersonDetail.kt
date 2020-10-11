@@ -22,6 +22,7 @@ class PersonDetail (override var id: Long = 0, nickname: String, var personId: L
         }
     }
 
+    /*
     class Comparator : BeansViewerComparator(), IViewerComparator {
 
         val nickname_index = 0
@@ -38,6 +39,7 @@ class PersonDetail (override var id: Long = 0, nickname: String, var personId: L
             return flipSortDirection(rc)
         }
     }
+     */
 
 
     override fun toString(): String {
