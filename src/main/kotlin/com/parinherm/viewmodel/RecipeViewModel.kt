@@ -2,16 +2,28 @@ package com.parinherm.viewmodel
 
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.builders.IViewerComparator
+import com.parinherm.entity.Ingredient
 import com.parinherm.entity.Recipe
+import com.parinherm.entity.schema.Ingredients
 import com.parinherm.entity.schema.RecipeMapper
 import com.parinherm.form.FormViewModel
 import com.parinherm.view.RecipeView
+import org.eclipse.core.databinding.observable.list.WritableList
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
 
 class RecipeViewModel(parent: CTabFolder) : FormViewModel<Recipe>(
     RecipeView(parent, Comparator()),
     RecipeMapper, { Recipe.make() }) {
+
+
+
+    val ingredients = WritableList<Ingredients>()
+    val ingredientsComparator = IngredientViewModel.Comparator()
+    val ingredientsContentProvider = ObservableListContentProvider<Ingredient>()
+
+
 
     init {
         loadData(mapOf())

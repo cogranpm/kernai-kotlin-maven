@@ -189,6 +189,7 @@ object ApplicationData {
         const val personViewId = "beansbinding"
         const val personDetailsViewId = "persondetails"
         const val recipeViewId = "recipe"
+        const val ingredientViewId = "ingredients"
         const val title = "title"
         const val version = "version"
         const val viewid = "viewid"
