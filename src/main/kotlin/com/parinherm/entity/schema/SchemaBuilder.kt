@@ -15,7 +15,7 @@ object SchemaBuilder {
     fun build() {
         transaction {
             addLogger(StdOutSqlLogger)
-            SchemaUtils.create(Persons, PersonDetails, Recipes)
+            SchemaUtils.create(Persons, PersonDetails, Recipes, Ingredients)
         }
     }
 }

@@ -34,6 +34,7 @@ object ApplicationData {
     const val TAB_KEY_PERSON = "person"
     const val TAB_KEY_PERSONDETAIL = "persondetail"
     const val TAB_KEY_RECIPE = "recipe"
+    const val TAB_KEY_INGREDIENT = "ingredient"
 
 
     const val swnone = SWT.NONE
@@ -178,9 +179,10 @@ object ApplicationData {
 
 
     val lookups: Map<String, List<LookupDetail>> = mapOf(
-        countryLookupKey to countryList,
-        speciesLookupKey to speciesList,
-        recipeCategoryLookupKey to recipeCategoryList
+            countryLookupKey to countryList,
+            speciesLookupKey to speciesList,
+            recipeCategoryLookupKey to recipeCategoryList,
+            unitLookupKey to unitList
     )
 
     object ViewDef {

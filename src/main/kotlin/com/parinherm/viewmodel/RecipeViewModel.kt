@@ -1,17 +1,25 @@
 package com.parinherm.viewmodel
 
+import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.builders.IViewerComparator
 import com.parinherm.entity.Ingredient
+import com.parinherm.entity.PersonDetail
 import com.parinherm.entity.Recipe
+import com.parinherm.entity.schema.IngredientMapper
 import com.parinherm.entity.schema.Ingredients
+import com.parinherm.entity.schema.PersonDetailMapper
 import com.parinherm.entity.schema.RecipeMapper
+import com.parinherm.form.ChildFormTab
 import com.parinherm.form.FormViewModel
+import com.parinherm.form.IFormViewModel
+import com.parinherm.form.makeViewerLabelProvider
 import com.parinherm.view.RecipeView
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
+import org.eclipse.swt.events.SelectionListener
 
 class RecipeViewModel(parent: CTabFolder) : FormViewModel<Recipe>(
     RecipeView(parent, Comparator()),
@@ -19,15 +27,70 @@ class RecipeViewModel(parent: CTabFolder) : FormViewModel<Recipe>(
 
 
 
-    val ingredients = WritableList<Ingredients>()
+    val ingredients = WritableList<Ingredient>()
     val ingredientsComparator = IngredientViewModel.Comparator()
     val ingredientsContentProvider = ObservableListContentProvider<Ingredient>()
 
 
 
     init {
+        if (view.form.childFormsContainer != null)
+        {
+            view.form.childFormsContainer!!.childTabs.forEach { childFormTab: ChildFormTab ->
+                wireChildEntity(childFormTab)
+            }
+        }
         loadData(mapOf())
     }
+
+
+    private fun wireChildEntity(childFormTab: ChildFormTab) : Unit {
+        val fields = childFormTab.childDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
+
+        childFormTab.listView.contentProvider = ingredientsContentProvider
+        childFormTab.listView.labelProvider = makeViewerLabelProvider<Ingredient>(fields, ingredientsContentProvider.knownElements)
+        childFormTab.listView.comparator = ingredientsComparator
+        childFormTab.listView.input = ingredients
+
+        childFormTab.listView.addOpenListener {
+            // open up a tab to edit child entity
+            val selection = childFormTab.listView.structuredSelection
+            val selectedItem = selection.firstElement
+            // store the selected item in the list in the viewstate
+            val currentIngredient = selectedItem as Ingredient
+            openTab(currentIngredient)
+        }
+
+        childFormTab.btnAdd.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
+            val data = PersonDetailMapper.getAll(mapOf("personId" to currentEntity!!.id))
+            openTab(null)
+        })
+
+        listHeaderSelection(childFormTab.listView, childFormTab.columns, ingredientsComparator)
+    }
+
+    fun openTab(currentIngredient: Ingredient?){
+        val viewModel: IFormViewModel<Ingredient> = IngredientViewModel(currentEntity!!.id,
+                currentIngredient,
+                ApplicationData.TAB_KEY_INGREDIENT,
+                ApplicationData.mainWindow.folder)
+        ApplicationData.makeTab(viewModel, "Person Details", ApplicationData.TAB_KEY_INGREDIENT)
+    }
+
+
+    override fun changeSelection(){
+        val formBindings = super.changeSelection()
+        /* specific to child list */
+        ingredients.clear()
+        ingredients.addAll(IngredientMapper.getAll(mapOf("recipeId" to currentEntity!!.id)))
+    }
+
+    override fun refresh() {
+        super.refresh()
+        ingredients.clear()
+        ingredients.addAll(IngredientMapper.getAll(mapOf("personId" to currentEntity!!.id)))
+    }
+
 
 
     class Comparator : BeansViewerComparator(), IViewerComparator {

@@ -34,7 +34,7 @@ object ViewDefinitions {
 
         val unitDef = mapOf(
                 ViewDef.fieldName to "unit",
-                ViewDef.title to "unit",
+                ViewDef.title to "Unit",
                 ViewDef.required to true,
                 ViewDef.fieldDataType to ViewDef.lookup,
                 ViewDef.lookupKey to ApplicationData.unitLookupKey
