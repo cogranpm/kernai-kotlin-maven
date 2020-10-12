@@ -46,9 +46,6 @@ object ApplicationData {
     val urls = mapOf<String, String>("views" to "views")
 
     val views = ViewDefinitions.makeDefinitions()
-    const val countryLookupKey = "country"
-    const val speciesLookupKey = "species"
-    const val recipeCategoryLookupKey = "recipecat"
 
     val defaultUpdatePolicy = UpdateValueStrategy.POLICY_UPDATE  //UpdateValueStrategy.POLICY_ON_REQUEST
 
@@ -143,6 +140,11 @@ object ApplicationData {
         return this.imageRegistry.get(name)
     }
 
+    const val countryLookupKey = "country"
+    const val speciesLookupKey = "species"
+    const val recipeCategoryLookupKey = "recipecat"
+    const val unitLookupKey = "unit"
+
     val countryList: List<LookupDetail> = listOf(
         LookupDetail("Aus", "Australia"),
         LookupDetail("Can", "Canada"),
@@ -166,6 +168,14 @@ object ApplicationData {
         LookupDetail("dessert", "Dessert"),
         LookupDetail("soup", "Soup")
     )
+
+    val unitList: List<LookupDetail> = listOf(
+            LookupDetail("cup", "Cup"),
+            LookupDetail("tbl", "Tablespoon"),
+            LookupDetail("tsp", "Teaspoon"),
+            LookupDetail("SA", "South Africa")
+    )
+
 
     val lookups: Map<String, List<LookupDetail>> = mapOf(
         countryLookupKey to countryList,
