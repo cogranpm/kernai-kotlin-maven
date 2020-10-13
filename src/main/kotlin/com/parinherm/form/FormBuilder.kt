@@ -167,6 +167,7 @@ fun makeInputWidget(
         ApplicationData.ViewDef.text -> {
             val input = Text(parent, ApplicationData.swnone)
             input.setData("fieldName", fieldName)
+            input.addListener(SWT.FocusOut) { input.selectAll() }
             applyLayoutToField(input, true, false)
             input
         }
@@ -178,12 +179,14 @@ fun makeInputWidget(
         }
         ApplicationData.ViewDef.float -> {
             val input = Text(parent, ApplicationData.swnone)
+            input.addListener(SWT.FocusOut) { input.selectAll() }
             applyLayoutToField(input, true, false)
             input.setData("fieldName", fieldName)
             input
         }
         ApplicationData.ViewDef.money -> {
             val input = Text(parent, ApplicationData.swnone)
+            input.addListener(SWT.FocusOut) { input.selectAll() }
             applyLayoutToField(input, true, false)
             input.setData("fieldName", fieldName)
             input
