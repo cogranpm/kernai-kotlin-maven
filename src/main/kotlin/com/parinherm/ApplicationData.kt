@@ -145,6 +145,7 @@ object ApplicationData {
     const val speciesLookupKey = "species"
     const val recipeCategoryLookupKey = "recipecat"
     const val unitLookupKey = "unit"
+    const val techLanguageLookupKey = "techlang"
 
     val countryList: List<LookupDetail> = listOf(
             LookupDetail("Aus", "Australia"),
@@ -180,12 +181,19 @@ object ApplicationData {
     )
 
 
+    val techLanguage: List<LookupDetail> = listOf(
+            LookupDetail("kot", "Kotlin")
+    )
+
+
     val lookups: Map<String, List<LookupDetail>> = mapOf(
             countryLookupKey to countryList,
             speciesLookupKey to speciesList,
             recipeCategoryLookupKey to recipeCategoryList,
-            unitLookupKey to unitList
+            unitLookupKey to unitList,
+            techLanguageLookupKey to techLanguage
     )
+
 
     object ViewDef {
 
@@ -194,6 +202,7 @@ object ApplicationData {
         const val personDetailsViewId = "persondetails"
         const val recipeViewId = "recipe"
         const val ingredientViewId = "ingredients"
+        const val techSnippetsViewId = "techsnip"
         const val title = "title"
         const val version = "version"
         const val viewid = "viewid"

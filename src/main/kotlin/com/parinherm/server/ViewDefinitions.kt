@@ -17,6 +17,48 @@ object ViewDefinitions {
         )
     }
 
+
+    fun makeTechSnippetsMap(): Map<String, Any> {
+        val nameDef = mapOf(
+                ViewDef.fieldName to "name",
+                ViewDef.title to "Name",
+                ViewDef.required to true,
+                ViewDef.fieldDataType to ViewDef.text
+        )
+
+        val langDef = mapOf(
+                ViewDef.fieldName to "language",
+                ViewDef.title to "Language",
+                ViewDef.required to true,
+                ViewDef.fieldDataType to ViewDef.lookup,
+                ViewDef.lookupKey to ApplicationData.techLanguageLookupKey
+        )
+
+        val descDef = mapOf(
+                ViewDef.fieldName to "desc",
+                ViewDef.title to "Description",
+                ViewDef.required to true,
+                ViewDef.fieldDataType to ViewDef.memo
+        )
+
+        val bodyDef = mapOf(
+                ViewDef.fieldName to "body",
+                ViewDef.title to "Body",
+                ViewDef.required to true,
+                ViewDef.fieldDataType to ViewDef.memo
+        )
+
+
+        val viewDef = mapOf(
+                ViewDef.viewid to ApplicationData.ViewDef.techSnippetsViewId,
+                ViewDef.title to "Snippets",
+                ViewDef.fields to listOf(nameDef, langDef, descDef, bodyDef)
+        )
+
+        return viewDef
+
+    }
+
     fun makeIngredientsMap(): Map<String, Any> {
         val nameDef = mapOf(
                 ViewDef.fieldName to "name",
