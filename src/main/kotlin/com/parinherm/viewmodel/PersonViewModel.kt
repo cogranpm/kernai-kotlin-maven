@@ -49,6 +49,7 @@ class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(par
 
     private fun wireChildEntity(childFormTab: ChildFormTab) : Unit {
         val fields = childFormTab.childDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
+        val title = childFormTab.childDefinition[ApplicationData.ViewDef.title] as String
 
         childFormTab.listView.contentProvider = personDetailContentProvider
         childFormTab.listView.labelProvider = makeViewerLabelProvider<PersonDetail>(fields, personDetailContentProvider.knownElements)
@@ -61,18 +62,18 @@ class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(par
             val selectedItem = selection.firstElement
             // store the selected item in the list in the viewstate
             val currentPersonDetail = selectedItem as PersonDetail
-            openTab(currentPersonDetail)
+            openTab(currentPersonDetail, title)
        }
 
         childFormTab.btnAdd.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
             val data = PersonDetailMapper.getAll(mapOf("personId" to currentEntity!!.id))
-            openTab(null)
+            openTab(null, title)
        })
 
         listHeaderSelection(childFormTab.listView, childFormTab.columns, personDetailComparator)
     }
 
-    fun openTab(currentPersonDetail: PersonDetail?){
+    fun openTab(currentPersonDetail: PersonDetail?, title: String){
         val viewModel: IFormViewModel<PersonDetail> = PersonDetailViewModel(currentEntity!!.id,
                 currentPersonDetail,
                 ApplicationData.TAB_KEY_PERSON,

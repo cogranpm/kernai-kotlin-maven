@@ -25,13 +25,9 @@ class RecipeViewModel(parent: CTabFolder) : FormViewModel<Recipe>(
     RecipeView(parent, Comparator()),
     RecipeMapper, { Recipe.make() }) {
 
-
-
     val ingredients = WritableList<Ingredient>()
     val ingredientsComparator = IngredientViewModel.Comparator()
     val ingredientsContentProvider = ObservableListContentProvider<Ingredient>()
-
-
 
     init {
         if (view.form.childFormsContainer != null)
@@ -46,11 +42,13 @@ class RecipeViewModel(parent: CTabFolder) : FormViewModel<Recipe>(
 
     private fun wireChildEntity(childFormTab: ChildFormTab) : Unit {
         val fields = childFormTab.childDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
+        val title = childFormTab.childDefinition[ApplicationData.ViewDef.title] as String
 
         childFormTab.listView.contentProvider = ingredientsContentProvider
         childFormTab.listView.labelProvider = makeViewerLabelProvider<Ingredient>(fields, ingredientsContentProvider.knownElements)
         childFormTab.listView.comparator = ingredientsComparator
         childFormTab.listView.input = ingredients
+
 
         childFormTab.listView.addOpenListener {
             // open up a tab to edit child entity
@@ -58,23 +56,22 @@ class RecipeViewModel(parent: CTabFolder) : FormViewModel<Recipe>(
             val selectedItem = selection.firstElement
             // store the selected item in the list in the viewstate
             val currentIngredient = selectedItem as Ingredient
-            openTab(currentIngredient)
+            openIngredientsTab(currentIngredient, title)
         }
 
         childFormTab.btnAdd.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
-            val data = PersonDetailMapper.getAll(mapOf("personId" to currentEntity!!.id))
-            openTab(null)
+            openIngredientsTab(null, title)
         })
 
         listHeaderSelection(childFormTab.listView, childFormTab.columns, ingredientsComparator)
     }
 
-    fun openTab(currentIngredient: Ingredient?){
+    fun openIngredientsTab(currentIngredient: Ingredient?, title: String){
         val viewModel: IFormViewModel<Ingredient> = IngredientViewModel(currentEntity!!.id,
                 currentIngredient,
-                ApplicationData.TAB_KEY_INGREDIENT,
+                ApplicationData.TAB_KEY_RECIPE,
                 ApplicationData.mainWindow.folder)
-        ApplicationData.makeTab(viewModel, "Person Details", ApplicationData.TAB_KEY_INGREDIENT)
+        ApplicationData.makeTab(viewModel, title, ApplicationData.TAB_KEY_INGREDIENT)
     }
 
 
@@ -88,7 +85,7 @@ class RecipeViewModel(parent: CTabFolder) : FormViewModel<Recipe>(
     override fun refresh() {
         super.refresh()
         ingredients.clear()
-        ingredients.addAll(IngredientMapper.getAll(mapOf("personId" to currentEntity!!.id)))
+        ingredients.addAll(IngredientMapper.getAll(mapOf("recipeId" to currentEntity!!.id)))
     }
 
 

@@ -174,7 +174,7 @@ object ApplicationData {
             LookupDetail("cup", "Cup"),
             LookupDetail("tbl", "Tablespoon"),
             LookupDetail("tsp", "Teaspoon"),
-            LookupDetail("SA", "South Africa")
+            LookupDetail("whl", "Whole")
     )
 
 

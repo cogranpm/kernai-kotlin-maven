@@ -10,21 +10,22 @@ object IngredientMapper : IMapper<Ingredient> {
         transaction {
             if (item.id == 0L) {
                 val id = Ingredients.insertAndGetId {
-                    IngredientMapper.mapItem(item, it)
+                    mapItem(item, it)
                 }
                 item.id = id.value
             } else {
                 Ingredients.update({ Ingredients.id eq item.id }) {
-                    IngredientMapper.mapItem(item, it)
+                    mapItem(item, it)
                 }
             }
         }
     }
 
-    fun mapItem(item: Ingredient, statement: UpdateBuilder<Int>) {
+    private fun mapItem(item: Ingredient, statement: UpdateBuilder<Int>) {
         statement[Ingredients.name] = item.name
         statement[Ingredients.quantity] = item.quantity
         statement[Ingredients.unit] = item.unit
+        statement[Ingredients.recipeId] = item.recipeId
     }
 
     override fun getAll(keys: Map<String, Long>): List<Ingredient> {
