@@ -12,7 +12,8 @@ object ViewDefinitions {
                         makePersonMap(),
                         makePersonDetailDef(),
                         makeRecipesMap(),
-                        makeIngredientsMap()
+                        makeIngredientsMap(),
+                        makeTechSnippetsMap()
                 )
         )
     }

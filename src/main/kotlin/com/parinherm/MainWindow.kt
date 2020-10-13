@@ -12,6 +12,7 @@ import com.parinherm.tests.TestData
 //import com.parinherm.viewmodel.BeanTestViewModel
 import com.parinherm.viewmodel.PersonViewModel
 import com.parinherm.viewmodel.RecipeViewModel
+import com.parinherm.viewmodel.SnippetViewModel
 import org.eclipse.jface.action.*
 import org.eclipse.jface.window.ApplicationWindow
 import org.eclipse.swt.SWT
@@ -180,6 +181,15 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         }
         recipeAction.accelerator = SWT.MOD1 or ('R'.toInt())
 
+        val snippetsAction: Action = object: Action("&Snippets") {
+            override fun run () {
+                val viewModel = SnippetViewModel(folder)
+                ApplicationData.makeTab(viewModel, "Snippets", ApplicationData.TAB_KEY_SNIPPET)
+            }
+        }
+        snippetsAction.accelerator = SWT.MOD1 or ('E'.toInt())
+
+
 
         val menuManager = MenuManager("")
         val fileMenu = MenuManager("&File")
@@ -197,6 +207,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         //actionMenu.add(actionDataBinding)
         actionMenu.add(personAction)
         actionMenu.add(recipeAction)
+        actionMenu.add(snippetsAction)
 
         menuManager.add(fileMenu)
         menuManager.add(actionMenu)

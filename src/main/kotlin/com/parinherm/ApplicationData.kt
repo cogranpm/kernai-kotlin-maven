@@ -35,7 +35,7 @@ object ApplicationData {
     const val TAB_KEY_PERSONDETAIL = "persondetail"
     const val TAB_KEY_RECIPE = "recipe"
     const val TAB_KEY_INGREDIENT = "ingredient"
-
+    const val TAB_KEY_SNIPPET = "snippet"
 
     const val swnone = SWT.NONE
     const val labelStyle = SWT.BORDER

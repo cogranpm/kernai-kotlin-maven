@@ -10,7 +10,7 @@ import org.eclipse.swt.widgets.Composite
 class SnippetView (val parent: Composite, comparator: BeansViewerComparator) : View <Snippet>{
     val formDef: Map<String, Any> =
             ApplicationData.getView(
-                    ApplicationData.ViewDef.recipeViewId,
+                    ApplicationData.ViewDef.techSnippetsViewId,
                     ApplicationData.viewDefinitions
             )
 
