@@ -18,8 +18,8 @@ class Recipe(
     override fun getColumnValueByIndex(index: Int): String {
         return when (index) {
             0 -> name
-            1 -> method
-            2 -> category
+            //1 -> method
+            1 -> category
             else -> ""
         }
     }

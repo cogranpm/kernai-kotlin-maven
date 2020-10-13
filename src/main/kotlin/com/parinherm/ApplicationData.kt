@@ -50,7 +50,7 @@ object ApplicationData {
 
     val defaultUpdatePolicy = UpdateValueStrategy.POLICY_UPDATE  //UpdateValueStrategy.POLICY_ON_REQUEST
 
-    const val lookupFieldLength : Int = 20
+    const val lookupFieldLength: Int = 20
 
     init {
 
@@ -147,33 +147,35 @@ object ApplicationData {
     const val unitLookupKey = "unit"
 
     val countryList: List<LookupDetail> = listOf(
-        LookupDetail("Aus", "Australia"),
-        LookupDetail("Can", "Canada"),
-        LookupDetail("Bra", "Brazil"),
-        LookupDetail("SA", "South Africa")
+            LookupDetail("Aus", "Australia"),
+            LookupDetail("Can", "Canada"),
+            LookupDetail("Bra", "Brazil"),
+            LookupDetail("SA", "South Africa")
     )
 
     val speciesList: List<LookupDetail> = listOf(
-        LookupDetail("L", "Lizard"),
-        LookupDetail("C", "Cat"),
-        LookupDetail("D", "Dog"),
-        LookupDetail("E", "Elephant"),
-        LookupDetail("M", "Mongoose"),
-        LookupDetail("R", "Rabbit"),
-        LookupDetail("F", "Frog"),
-        LookupDetail("J", "Jackle")
+            LookupDetail("L", "Lizard"),
+            LookupDetail("C", "Cat"),
+            LookupDetail("D", "Dog"),
+            LookupDetail("E", "Elephant"),
+            LookupDetail("M", "Mongoose"),
+            LookupDetail("R", "Rabbit"),
+            LookupDetail("F", "Frog"),
+            LookupDetail("J", "Jackle")
     )
 
     val recipeCategoryList = listOf(
-        LookupDetail("main", "Main Course"),
-        LookupDetail("dessert", "Dessert"),
-        LookupDetail("soup", "Soup")
+            LookupDetail("instant", "Instant Pot"),
+            LookupDetail("main", "Main Course"),
+            LookupDetail("dessert", "Dessert"),
+            LookupDetail("soup", "Soup")
     )
 
     val unitList: List<LookupDetail> = listOf(
             LookupDetail("cup", "Cup"),
             LookupDetail("tbl", "Tablespoon"),
             LookupDetail("tsp", "Teaspoon"),
+            LookupDetail("can", "Can"),
             LookupDetail("whl", "Whole")
     )
 
@@ -215,6 +217,7 @@ object ApplicationData {
         const val float = "float"
         const val int = "int"
         const val text = "text"
+
         // memo is long text
         const val memo = "memo"
         const val lookup = "lookup"

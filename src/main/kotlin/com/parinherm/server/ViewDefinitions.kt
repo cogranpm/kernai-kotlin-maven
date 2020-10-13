@@ -20,7 +20,7 @@ object ViewDefinitions {
     fun makeIngredientsMap(): Map<String, Any> {
         val nameDef = mapOf(
                 ViewDef.fieldName to "name",
-                ViewDef.title to "name",
+                ViewDef.title to "Name",
                 ViewDef.required to true,
                 ViewDef.fieldDataType to ViewDef.text
         )
@@ -52,7 +52,7 @@ object ViewDefinitions {
     fun makeRecipesMap(): Map<String, Any> {
         val nameDef = mapOf(
                 ViewDef.fieldName to "name",
-                ViewDef.title to "name",
+                ViewDef.title to "Name",
                 ViewDef.required to true,
                 ViewDef.fieldDataType to ViewDef.text
         )
@@ -161,7 +161,7 @@ object ViewDefinitions {
 
         val viewDef = mapOf(
                 ViewDef.viewid to ViewDef.personViewId,
-                ViewDef.title to "Beans Binding Test",
+                ViewDef.title to "People",
                 ViewDef.fields to listOf(
                         firstNameDef,
                         incomeDef,

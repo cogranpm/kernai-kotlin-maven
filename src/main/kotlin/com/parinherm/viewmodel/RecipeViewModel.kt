@@ -93,14 +93,15 @@ class RecipeViewModel(parent: CTabFolder) : FormViewModel<Recipe>(
     class Comparator : BeansViewerComparator(), IViewerComparator {
 
         val name_index = 0
-        val method_index = 1
+        //val method_index = 1
+        val category_index = 1
 
         override fun compare(viewer: Viewer?, e1: Any?, e2: Any?): Int {
             val entity1 = e1 as Recipe
             val entity2 = e2 as Recipe
             val rc = when (propertyIndex) {
                 name_index -> entity1.name.compareTo(entity2.name)
-                method_index -> entity1.method.compareTo(entity2.method)
+                category_index -> compareLookups(entity1.category, entity2.category, ApplicationData.recipeCategoryList)
                 else -> 0
             }
             return flipSortDirection(rc)

@@ -65,7 +65,9 @@ fun makeColumns(
         layout: TableColumnLayout
 )
         : List<TableViewerColumn> {
-    return fields.map { makeColumn(it, viewer, layout) }
+    return fields
+            .filter { it[ApplicationData.ViewDef.fieldDataType] as String != ApplicationData.ViewDef.memo}
+            .map { makeColumn(it, viewer, layout) }
 }
 
 

@@ -20,7 +20,10 @@ class Ingredient(
             return when (index) {
                 0 -> name
                 1 -> "$quantity"
-                2 -> unit
+                2 -> {
+                    val listItem = ApplicationData.unitList.find { it.code == unit}
+                    "${listItem?.label}"
+                }
                 else -> ""
             }
         }
