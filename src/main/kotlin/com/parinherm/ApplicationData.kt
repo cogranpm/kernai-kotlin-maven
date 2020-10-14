@@ -146,52 +146,104 @@ object ApplicationData {
     const val recipeCategoryLookupKey = "recipecat"
     const val unitLookupKey = "unit"
     const val techLanguageLookupKey = "techlang"
+    const val snippetCategoryKey = "cat"
+    const val snippetTopicKey = "topic"
+    const val snippetTypeKey = "type"
+    const val passwordMasterKey = "password_master"
+    const val loginCategoryKey = "logcat"
 
     val countryList: List<LookupDetail> = listOf(
-            LookupDetail("Aus", "Australia"),
-            LookupDetail("Can", "Canada"),
-            LookupDetail("Bra", "Brazil"),
-            LookupDetail("SA", "South Africa")
+        LookupDetail("Aus", "Australia"),
+        LookupDetail("Can", "Canada"),
+        LookupDetail("Bra", "Brazil"),
+        LookupDetail("SA", "South Africa")
     )
 
     val speciesList: List<LookupDetail> = listOf(
-            LookupDetail("L", "Lizard"),
-            LookupDetail("C", "Cat"),
-            LookupDetail("D", "Dog"),
-            LookupDetail("E", "Elephant"),
-            LookupDetail("M", "Mongoose"),
-            LookupDetail("R", "Rabbit"),
-            LookupDetail("F", "Frog"),
-            LookupDetail("J", "Jackle")
+        LookupDetail("L", "Lizard"),
+        LookupDetail("C", "Cat"),
+        LookupDetail("D", "Dog"),
+        LookupDetail("E", "Elephant"),
+        LookupDetail("M", "Mongoose"),
+        LookupDetail("R", "Rabbit"),
+        LookupDetail("F", "Frog"),
+        LookupDetail("J", "Jackle")
     )
 
     val recipeCategoryList = listOf(
-            LookupDetail("instant", "Instant Pot"),
-            LookupDetail("main", "Main Course"),
-            LookupDetail("dessert", "Dessert"),
-            LookupDetail("soup", "Soup")
+        LookupDetail("instant", "Instant Pot"),
+        LookupDetail("main", "Main Course"),
+        LookupDetail("dessert", "Dessert"),
+        LookupDetail("soup", "Soup")
     )
 
     val unitList: List<LookupDetail> = listOf(
-            LookupDetail("cup", "Cup"),
-            LookupDetail("tbl", "Tablespoon"),
-            LookupDetail("tsp", "Teaspoon"),
-            LookupDetail("can", "Can"),
-            LookupDetail("whl", "Whole")
+        LookupDetail("cup", "Cup"),
+        LookupDetail("tbl", "Tablespoon"),
+        LookupDetail("tsp", "Teaspoon"),
+        LookupDetail("can", "Can"),
+        LookupDetail("whl", "Whole")
     )
 
 
     val techLanguage: List<LookupDetail> = listOf(
-            LookupDetail("kot", "Kotlin")
+        LookupDetail("kot", "Kotlin")
+    )
+
+    val snippetCategory: List<LookupDetail> = listOf(
+        LookupDetail("gen", "General"),
+        LookupDetail("book", "Books"),
+        LookupDetail("stdlib", "Standard Library")
+    )
+
+    val snippetTopic: List<LookupDetail> = listOf(
+        LookupDetail("o", "Other"),
+        LookupDetail("func", "Functional Programming"),
+        LookupDetail("db", "Database")
+    )
+
+    val snippetType: List<LookupDetail> = listOf(
+        LookupDetail("eg", "Example"),
+        LookupDetail("tr", "Training")
+    )
+
+    val passwordMaster: List<LookupDetail> = listOf(
+        LookupDetail("rd", "red dog"),
+        LookupDetail("rd123", "red dog 123"),
+        LookupDetail("rd123!", "red dog 123!"),
+        LookupDetail("rd!23", "red dog !23"),
+        LookupDetail("1xpq", "1xp  q"),
+        LookupDetail("1xpm", "1xp  m"),
+        LookupDetail("1xp0", "1xp  0"),
+        LookupDetail("mediacom", "Mediacom!"),
+        LookupDetail("emmers", "emmers2425"),
+        LookupDetail("emmett", "Emmett2425"),
+        LookupDetail("mystery", "Mystery5570"),
+        LookupDetail("n/a", "Not Applicable"),
+        LookupDetail("cambridge", "cambridge")
+
+    )
+
+    val loginCategoryList = listOf(
+        LookupDetail("gen", "General"),
+        LookupDetail("fin", "Financial"),
+        LookupDetail("gov", "Government"),
+        LookupDetail("tra", "Travel"),
+        LookupDetail("misc", "Misc")
     )
 
 
     val lookups: Map<String, List<LookupDetail>> = mapOf(
-            countryLookupKey to countryList,
-            speciesLookupKey to speciesList,
-            recipeCategoryLookupKey to recipeCategoryList,
-            unitLookupKey to unitList,
-            techLanguageLookupKey to techLanguage
+        countryLookupKey to countryList,
+        speciesLookupKey to speciesList,
+        recipeCategoryLookupKey to recipeCategoryList,
+        unitLookupKey to unitList,
+        techLanguageLookupKey to techLanguage,
+        snippetCategoryKey to snippetCategory,
+        snippetTopicKey to snippetTopic,
+        snippetTypeKey to snippetType,
+        passwordMasterKey to passwordMaster,
+        loginCategoryKey to loginCategoryList
     )
 
 
@@ -203,6 +255,7 @@ object ApplicationData {
         const val recipeViewId = "recipe"
         const val ingredientViewId = "ingredients"
         const val techSnippetsViewId = "techsnip"
+        const val loginViewId = "login"
         const val title = "title"
         const val version = "version"
         const val viewid = "viewid"

@@ -3,34 +3,53 @@ package com.parinherm.entity
 import com.parinherm.ApplicationData
 import kotlin.properties.Delegates
 
-class Snippet(override var id: Long = 0,
-              name: String,
-              language: String,
-              desc: String,
-              body: String) : ModelObject(), IBeanDataEntity {
+class Snippet(
+    override var id: Long = 0,
+    name: String,
+    language: String,
+    category: String,
+    topic: String,
+    type: String,
+    desc: String,
+    body: String
+) : ModelObject(), IBeanDataEntity {
 
     var name: String by Delegates.observable(name, observer)
     var language: String by Delegates.observable(language, observer)
+    var category: String by Delegates.observable(category, observer)
+    var topic: String by Delegates.observable(topic, observer)
+    var type: String by Delegates.observable(type, observer)
     var desc: String by Delegates.observable(desc, observer)
     var body: String by Delegates.observable(body, observer)
 
     override fun getColumnValueByIndex(index: Int): String {
         return when (index) {
             0 -> name
-            1 -> "${ApplicationData.techLanguage.find { it.code == language}?.code}"
+            1 -> "${ApplicationData.techLanguage.find { it.code == language }?.code}"
+            2 -> "${ApplicationData.snippetCategory.find { it.code == category }?.code}"
+            3 -> "${ApplicationData.snippetTopic.find { it.code == topic }?.code}"
+            4 -> "${ApplicationData.snippetType.find { it.code == type }?.code}"
             else -> ""
         }
     }
 
 
-
     override fun toString(): String {
-        return "Snippets(id=$id, name=$name, language=$language, desc=$desc)"
+        return "Snippets(id=$id, name=$name, language=$language, category=$category, topic=$topic, type=$type, desc=$desc)"
     }
 
     companion object Factory {
-        fun make(): Snippet{
-            return Snippet(0, "", ApplicationData.techLanguage[0].code, "", "")
+        fun make(): Snippet {
+            return Snippet(
+                0,
+                "",
+                ApplicationData.techLanguage[0].code,
+                ApplicationData.snippetCategory[0].code,
+                ApplicationData.snippetTopic[0].code,
+                ApplicationData.snippetType[0].code,
+                "",
+                ""
+            )
         }
     }
 }

@@ -5,7 +5,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.transaction
 
-object SnippetMapper  : IMapper<Snippet> {
+object SnippetMapper : IMapper<Snippet> {
 
     override fun save(item: Snippet) {
         transaction {
@@ -23,9 +23,12 @@ object SnippetMapper  : IMapper<Snippet> {
         }
     }
 
-    fun mapItem(item: Snippet, statement: UpdateBuilder<Int>) {
+    private fun mapItem(item: Snippet, statement: UpdateBuilder<Int>) {
         statement[Snippets.name] = item.name
         statement[Snippets.language] = item.language
+        statement[Snippets.category] = item.category
+        statement[Snippets.topic] = item.topic
+        statement[Snippets.type] = item.type
         statement[Snippets.desc] = item.desc
         statement[Snippets.body] = item.body
     }
@@ -38,13 +41,16 @@ object SnippetMapper  : IMapper<Snippet> {
             query.orderBy(Snippets.name)
             query.forEach {
                 items.add(
-                        Snippet(
-                                it[Snippets.id].value,
-                                it[Snippets.name],
-                                it[Snippets.language],
-                                it[Snippets.desc],
-                                it[Snippets.body]
-                        )
+                    Snippet(
+                        it[Snippets.id].value,
+                        it[Snippets.name],
+                        it[Snippets.language],
+                        it[Snippets.category],
+                        it[Snippets.topic],
+                        it[Snippets.type],
+                        it[Snippets.desc],
+                        it[Snippets.body]
+                    )
                 )
             }
         }

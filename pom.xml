@@ -273,6 +273,13 @@
         </dependency>
 
 
+        <!-- https://mvnrepository.com/artifact/org.graalvm.js/js -->
+        <dependency>
+            <groupId>org.graalvm.js</groupId>
+            <artifactId>js</artifactId>
+            <version>20.2.0</version>
+        </dependency>
+
 <!--        try out the scripting stuff
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
