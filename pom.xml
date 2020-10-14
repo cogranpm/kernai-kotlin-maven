@@ -273,14 +273,13 @@
         </dependency>
 
 
-<!--        try out the scripting stuff-->
+<!--        try out the scripting stuff
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-script-runtime</artifactId>
             <version>1.4.10</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-compiler-embeddable -->
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-compiler-embeddable</artifactId>
@@ -288,20 +287,13 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-script-util -->
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-script-util</artifactId>
             <version>1.4.10</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-scripting-compiler-embeddable -->
-        <!--<dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-scripting-compiler-embeddable</artifactId>
-            <version>1.4.10</version>
-            <scope>runtime</scope>
-        </dependency>-->
+-->
 
 
 

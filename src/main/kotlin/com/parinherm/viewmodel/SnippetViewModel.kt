@@ -10,11 +10,8 @@ import com.parinherm.view.SnippetView
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
 
-
-//import org.jetbrains.kotlin.config.KotlinCompilerVersion
-//import org.jetbrains.kotlin.daemon.common.threadCpuTime
-//import org.jetbrains.kotlin.cli.common.environment.setIdeaIoUseFallback
-import javax.script.*
+import org.graalvm.polyglot.*;
+import org.graalvm.polyglot.proxy.*;
 
 class SnippetViewModel (parent: CTabFolder)  : FormViewModel<Snippet>(
         SnippetView(parent, SnippetViewModel.Comparator()),
@@ -23,16 +20,9 @@ class SnippetViewModel (parent: CTabFolder)  : FormViewModel<Snippet>(
     init {
         loadData(mapOf())
         try {
-            val factory = ScriptEngineManager().getEngineByExtension("kts").factory
-            println(factory.engineName)
-            //val engine = factory!!.scriptEngine
-            //val bindings = engine.createBindings()
-            //val res1 = engine.eval("val x = 3")
-            val engine = ScriptEngineManager().getEngineByExtension("kts")!!
-            //val res1 = engine.eval("val x = 3")
-
-            //println(res1)
-        } catch(e: Exception) {
+            val context = Context.create()
+            context.eval("js", "print('Hello JavaScript!');" )
+       } catch(e: Exception) {
             println(e)
         }
     }
