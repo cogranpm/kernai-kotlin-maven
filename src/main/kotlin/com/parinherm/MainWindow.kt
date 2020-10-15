@@ -9,6 +9,7 @@ import com.parinherm.builders.*
 import com.parinherm.databinding.DataBindingView
 import com.parinherm.entity.Person
 import com.parinherm.tests.TestData
+import com.parinherm.viewmodel.LoginViewModel
 //import com.parinherm.viewmodel.BeanTestViewModel
 import com.parinherm.viewmodel.PersonViewModel
 import com.parinherm.viewmodel.RecipeViewModel
@@ -189,6 +190,14 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         }
         snippetsAction.accelerator = SWT.MOD1 or ('E'.toInt())
 
+        val loginAction: Action = object: Action("&Logins") {
+            override fun run () {
+                val viewModel = LoginViewModel(folder)
+                ApplicationData.makeTab(viewModel, "Logins", ApplicationData.TAB_KEY_LOGINS)
+            }
+        }
+        loginAction.accelerator = SWT.MOD1 or ('L'.toInt())
+
 
 
         val menuManager = MenuManager("")
@@ -208,6 +217,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         actionMenu.add(personAction)
         actionMenu.add(recipeAction)
         actionMenu.add(snippetsAction)
+        actionMenu.add(loginAction)
 
         menuManager.add(fileMenu)
         menuManager.add(actionMenu)

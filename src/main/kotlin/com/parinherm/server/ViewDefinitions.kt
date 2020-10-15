@@ -47,7 +47,8 @@ object ViewDefinitions {
             ViewDef.fieldName to "password",
             ViewDef.title to "Password",
             ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.text
+            ViewDef.fieldDataType to ViewDef.lookup,
+            ViewDef.lookupKey to ApplicationData.passwordMasterKey
         )
 
         val urlDef = mapOf(
