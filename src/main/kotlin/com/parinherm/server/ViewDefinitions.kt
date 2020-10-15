@@ -54,21 +54,21 @@ object ViewDefinitions {
         val urlDef = mapOf(
             ViewDef.fieldName to "url",
             ViewDef.title to "URL",
-            ViewDef.required to true,
+            ViewDef.required to false,
             ViewDef.fieldDataType to ViewDef.text
         )
 
         val notesDef = mapOf(
             ViewDef.fieldName to "notes",
             ViewDef.title to "Notes",
-            ViewDef.required to true,
+            ViewDef.required to false,
             ViewDef.fieldDataType to ViewDef.memo
         )
 
         val otherDef = mapOf(
             ViewDef.fieldName to "other",
             ViewDef.title to "Other",
-            ViewDef.required to true,
+            ViewDef.required to false,
             ViewDef.fieldDataType to ViewDef.memo
         )
 

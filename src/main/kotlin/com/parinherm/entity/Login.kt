@@ -14,8 +14,8 @@ class Login(
     other: String
 ) : ModelObject(), IBeanDataEntity {
 
-    val name: String by Delegates.observable(name, observer)
-    val category: String by Delegates.observable(category, observer)
+    var name: String by Delegates.observable(name, observer)
+    var category: String by Delegates.observable(category, observer)
     var userName: String by Delegates.observable(userName, observer)
     var password: String by Delegates.observable(password, observer)
     var url: String by Delegates.observable(url, observer)
@@ -25,16 +25,17 @@ class Login(
     override fun getColumnValueByIndex(index: Int): String {
         return when (index) {
             0 -> name
-            1 -> "${ApplicationData.loginCategoryList.find { it.code == category}?.code}"
+            1 -> "${ApplicationData.loginCategoryList.find { it.code == category}?.label}"
             2 -> userName
-            3 -> password
+            3 -> "${ApplicationData.passwordMaster.find { it.code == password}?.label}"
+            4 -> url
             else -> ""
         }
     }
 
 
     override fun toString(): String {
-        return "Snippets(id=$id, name=$name category=$category, userName=$userName, url=$url)"
+        return "Login(id=$id, name=$name category=$category, userName=$userName, url=$url)"
     }
 
     companion object Factory {

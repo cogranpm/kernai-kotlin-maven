@@ -25,10 +25,10 @@ class Snippet(
     override fun getColumnValueByIndex(index: Int): String {
         return when (index) {
             0 -> name
-            1 -> "${ApplicationData.techLanguage.find { it.code == language }?.code}"
-            2 -> "${ApplicationData.snippetCategory.find { it.code == category }?.code}"
-            3 -> "${ApplicationData.snippetTopic.find { it.code == topic }?.code}"
-            4 -> "${ApplicationData.snippetType.find { it.code == type }?.code}"
+            1 -> "${ApplicationData.techLanguage.find { it.code == language }?.label}"
+            2 -> "${ApplicationData.snippetCategory.find { it.code == category }?.label}"
+            3 -> "${ApplicationData.snippetTopic.find { it.code == topic }?.label}"
+            4 -> "${ApplicationData.snippetType.find { it.code == type }?.label}"
             else -> ""
         }
     }

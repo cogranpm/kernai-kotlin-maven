@@ -216,6 +216,7 @@ object ApplicationData {
         LookupDetail("1xpq", "1xp  q"),
         LookupDetail("1xpm", "1xp  m"),
         LookupDetail("1xp0", "1xp  0"),
+        LookupDetail("1xpM0q", "1xp q (no punctuation)" ),
         LookupDetail("mediacom", "Mediacom!"),
         LookupDetail("emmers", "emmers2425"),
         LookupDetail("emmett", "Emmett2425"),

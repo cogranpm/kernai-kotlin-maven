@@ -11,7 +11,7 @@ import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
 
 class LoginViewModel (parent: CTabFolder)  : FormViewModel<Login>(
-    LoginView(parent, LoginViewModel.Comparator()),
+    LoginView(parent, Comparator()),
     LoginMapper, { Login.make() }) {
 
     init {
