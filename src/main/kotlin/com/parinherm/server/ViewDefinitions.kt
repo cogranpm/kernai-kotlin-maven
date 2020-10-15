@@ -14,9 +14,35 @@ object ViewDefinitions {
                 makeRecipesMap(),
                 makeIngredientsMap(),
                 makeTechSnippetsMap(),
-                makeLoginsMap()
+                makeLoginsMap(),
+                makeNotebooksMap()
             )
         )
+    }
+
+    fun makeNotebooksMap(): Map<String, Any> {
+
+        val nameDef = mapOf(
+            ViewDef.fieldName to "name",
+            ViewDef.title to "Name",
+            ViewDef.required to true,
+            ViewDef.fieldDataType to ViewDef.text
+        )
+
+        val commentsDef = mapOf(
+            ViewDef.fieldName to "comments",
+            ViewDef.title to "Comments",
+            ViewDef.required to true,
+            ViewDef.fieldDataType to ViewDef.memo
+        )
+
+        val viewDef = mapOf(
+            ViewDef.viewid to ApplicationData.ViewDef.notebookViewId,
+            ViewDef.title to "Notebooks",
+            ViewDef.fields to listOf(nameDef, commentsDef)
+        )
+
+        return viewDef
     }
 
     fun makeLoginsMap(): Map<String, Any> {

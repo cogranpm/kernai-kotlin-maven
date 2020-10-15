@@ -9,11 +9,8 @@ import com.parinherm.builders.*
 import com.parinherm.databinding.DataBindingView
 import com.parinherm.entity.Person
 import com.parinherm.tests.TestData
-import com.parinherm.viewmodel.LoginViewModel
+import com.parinherm.viewmodel.*
 //import com.parinherm.viewmodel.BeanTestViewModel
-import com.parinherm.viewmodel.PersonViewModel
-import com.parinherm.viewmodel.RecipeViewModel
-import com.parinherm.viewmodel.SnippetViewModel
 import org.eclipse.jface.action.*
 import org.eclipse.jface.window.ApplicationWindow
 import org.eclipse.swt.SWT
@@ -198,6 +195,15 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         }
         loginAction.accelerator = SWT.MOD1 or ('L'.toInt())
 
+        val notebookAction: Action = object: Action("&Notebooks") {
+            override fun run () {
+                val viewModel = NotebookViewModel(folder)
+                ApplicationData.makeTab(viewModel, "Notebooks", ApplicationData.TAB_KEY_NOTEBOOK)
+            }
+        }
+        loginAction.accelerator = SWT.MOD1 or ('B'.toInt())
+
+
 
 
         val menuManager = MenuManager("")
@@ -218,6 +224,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         actionMenu.add(recipeAction)
         actionMenu.add(snippetsAction)
         actionMenu.add(loginAction)
+        actionMenu.add(notebookAction)
 
         menuManager.add(fileMenu)
         menuManager.add(actionMenu)
