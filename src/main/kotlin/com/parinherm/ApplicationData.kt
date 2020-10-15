@@ -213,6 +213,7 @@ object ApplicationData {
         LookupDetail("rd123", "red dog 123"),
         LookupDetail("rd123!", "red dog 123!"),
         LookupDetail("rd!23", "red dog !23"),
+        LookupDetail("Rd!23", "Red dog !23"),
         LookupDetail("1xpq", "1xp  q"),
         LookupDetail("1xpm", "1xp  m"),
         LookupDetail("1xp0", "1xp  0"),
