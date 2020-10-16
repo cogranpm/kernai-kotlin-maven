@@ -8,8 +8,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 object RecipeMapper : IMapper<Recipe> {
 
     override fun save(item: Recipe) {
+        MapperHelper.save(item, Recipes, RecipeMapper::mapItem)
+        /*
         transaction {
-            addLogger(StdOutSqlLogger)
             if (item.id == 0L) {
                 val id = Recipes.insertAndGetId {
                     mapItem(item, it)
@@ -21,6 +22,8 @@ object RecipeMapper : IMapper<Recipe> {
                 }
             }
         }
+
+         */
     }
 
     fun mapItem(item: Recipe, statement: UpdateBuilder<Int>) {
@@ -32,9 +35,8 @@ object RecipeMapper : IMapper<Recipe> {
     override fun getAll(keys: Map<String, Long>): List<Recipe> {
         val items: MutableList<Recipe> = mutableListOf()
         transaction {
-            addLogger(StdOutSqlLogger)
             val query: Query = Recipes.selectAll()
-            query.orderBy(Recipes.name)
+            query.orderBy(Recipes.name to SortOrder.ASC)
             query.forEach {
                 items.add(
                     Recipe(

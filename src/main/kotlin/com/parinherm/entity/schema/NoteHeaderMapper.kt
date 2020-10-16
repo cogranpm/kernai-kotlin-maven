@@ -11,6 +11,8 @@ import org.jetbrains.exposed.sql.transactions.transaction
 object NoteHeaderMapper : IMapper<NoteHeader> {
 
     override fun save(item: NoteHeader) {
+        MapperHelper.save(item, NoteHeaders, NoteHeaderMapper::mapItem)
+        /*
         transaction {
             if (item.id == 0L) {
                 val id = NoteHeaders.insertAndGetId {
@@ -23,6 +25,8 @@ object NoteHeaderMapper : IMapper<NoteHeader> {
                 }
             }
         }
+
+         */
     }
 
     private fun mapItem(item: NoteHeader, statement: UpdateBuilder<Int>) {
@@ -32,9 +36,23 @@ object NoteHeaderMapper : IMapper<NoteHeader> {
     }
 
     override fun getAll(keys: Map<String, Long>): List<NoteHeader> {
+        return MapperHelper.getAll(keys,
+            NoteHeaders,
+            NoteHeaders.notebookId eq keys["notebookId"] as Long,
+            NoteHeaders.name to SortOrder.ASC
+
+        ) { r: ResultRow ->
+            NoteHeader(
+                r[NoteHeaders.id].value,
+                r[NoteHeaders.notebookId],
+                r[NoteHeaders.name],
+                r[NoteHeaders.comments]
+            )
+        }
+
+        /*
         val list: MutableList<NoteHeader> = mutableListOf()
         transaction {
-            addLogger(StdOutSqlLogger)
             val query: Query = NoteHeaders.select { NoteHeaders.notebookId eq keys["notebookId"] as Long }
             query.orderBy(NoteHeaders.name to SortOrder.ASC)
             query.forEach {
@@ -48,5 +66,7 @@ object NoteHeaderMapper : IMapper<NoteHeader> {
             }
         }
         return list
+
+         */
     }
 }

@@ -6,9 +6,12 @@ import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object LoginMapper : IMapper<Login> {
-    override fun save(item: Login) {
+
+
+    override fun save(item: Login) : Unit {
+        MapperHelper.save(item, Logins, LoginMapper::mapItem)
+        /*
         transaction {
-            addLogger(StdOutSqlLogger)
             if (item.id == 0L) {
                 val id = Logins.insertAndGetId {
                     mapItem(item, it)
@@ -20,10 +23,11 @@ object LoginMapper : IMapper<Login> {
                 }
             }
         }
+         */
 
     }
 
-    private fun mapItem(item: Login, statement: UpdateBuilder<Int>) {
+    fun mapItem(item: Login, statement: UpdateBuilder<Int>) : Unit {
         statement[Logins.name] = item.name
         statement[Logins.category] = item.category
         statement[Logins.userName] = item.userName
@@ -37,9 +41,8 @@ object LoginMapper : IMapper<Login> {
     override fun getAll(keys: Map<String, Long>): List<Login> {
         val items: MutableList<Login> = mutableListOf()
         transaction {
-            addLogger(StdOutSqlLogger)
             val query: Query = Logins.selectAll()
-            query.orderBy(Logins.name)
+            query.orderBy(Logins.name to SortOrder.DESC)
             query.forEach {
                 items.add(
                     Login(

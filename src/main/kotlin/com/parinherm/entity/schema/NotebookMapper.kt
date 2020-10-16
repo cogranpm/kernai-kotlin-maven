@@ -7,6 +7,8 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 object NotebookMapper : IMapper<Notebook> {
     override fun save(item: Notebook) {
+        MapperHelper.save(item, Notebooks, NotebookMapper::mapItem)
+        /*
         transaction {
             addLogger(StdOutSqlLogger)
             if (item.id == 0L) {
@@ -20,6 +22,8 @@ object NotebookMapper : IMapper<Notebook> {
                 }
             }
         }
+
+         */
     }
 
     private fun mapItem(item: Notebook, statement: UpdateBuilder<Int>) {
@@ -32,7 +36,7 @@ object NotebookMapper : IMapper<Notebook> {
         transaction {
             addLogger(StdOutSqlLogger)
             val query: Query = Notebooks.selectAll()
-            query.orderBy(Notebooks.name)
+            query.orderBy(Notebooks.name to SortOrder.ASC)
             query.forEach {
                 items.add(
                     Notebook(

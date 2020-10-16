@@ -221,14 +221,14 @@ object ViewDefinitions {
         val descDef = mapOf(
             ViewDef.fieldName to "desc",
             ViewDef.title to "Description",
-            ViewDef.required to true,
+            ViewDef.required to false,
             ViewDef.fieldDataType to ViewDef.memo
         )
 
         val bodyDef = mapOf(
             ViewDef.fieldName to "body",
             ViewDef.title to "Body",
-            ViewDef.required to true,
+            ViewDef.required to false,
             ViewDef.fieldDataType to ViewDef.memo
         )
 

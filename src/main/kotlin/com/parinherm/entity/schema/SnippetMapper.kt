@@ -8,20 +8,8 @@ import org.jetbrains.exposed.sql.transactions.transaction
 object SnippetMapper : IMapper<Snippet> {
 
     override fun save(item: Snippet) {
-        transaction {
-            addLogger(StdOutSqlLogger)
-            if (item.id == 0L) {
-                val id = Snippets.insertAndGetId {
-                    mapItem(item, it)
-                }
-                item.id = id.value
-            } else {
-                Snippets.update({ Snippets.id eq item.id }) {
-                    mapItem(item, it)
-                }
-            }
-        }
-    }
+        MapperHelper.save(item, Snippets, SnippetMapper::mapItem)
+   }
 
     private fun mapItem(item: Snippet, statement: UpdateBuilder<Int>) {
         statement[Snippets.name] = item.name
@@ -36,9 +24,8 @@ object SnippetMapper : IMapper<Snippet> {
     override fun getAll(keys: Map<String, Long>): List<Snippet> {
         val items: MutableList<Snippet> = mutableListOf()
         transaction {
-            addLogger(StdOutSqlLogger)
             val query: Query = Snippets.selectAll()
-            query.orderBy(Snippets.name)
+            query.orderBy(Snippets.name to SortOrder.ASC)
             query.forEach {
                 items.add(
                     Snippet(
