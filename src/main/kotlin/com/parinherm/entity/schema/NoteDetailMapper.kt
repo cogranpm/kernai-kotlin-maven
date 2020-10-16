@@ -1,11 +1,10 @@
 package com.parinherm.entity.schema
 
-import com.parinherm.entity.Ingredient
 import com.parinherm.entity.NoteDetail
-import org.jetbrains.exposed.sql.*
+import com.parinherm.entity.NoteHeader
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
-import org.jetbrains.exposed.sql.transactions.transaction
 
 object NoteDetailMapper : IMapper<NoteDetail> {
 
@@ -32,6 +31,14 @@ object NoteDetailMapper : IMapper<NoteDetail> {
                 it[table.body],
                 it[table.comments])
         }
+    }
+
+    fun delete(parent: NoteHeader) {
+        MapperHelper.delete(table, table.noteHeaderId eq parent.id)
+    }
+
+    override fun delete(item: NoteDetail) {
+        MapperHelper.delete(table, table.id eq item.id)
     }
 
 }

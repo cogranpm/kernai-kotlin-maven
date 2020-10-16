@@ -54,4 +54,11 @@ object MapperHelper {
         return list
     }
 
+    fun delete(table: LongIdTable, whereClause: Op<Boolean>) {
+        transaction {
+            table.deleteWhere {  whereClause }
+        }
+    }
+
+
 }

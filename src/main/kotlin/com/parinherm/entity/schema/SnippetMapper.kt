@@ -2,6 +2,7 @@ package com.parinherm.entity.schema
 
 import com.parinherm.entity.Snippet
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 
 object SnippetMapper : IMapper<Snippet> {
@@ -42,5 +43,9 @@ object SnippetMapper : IMapper<Snippet> {
                 it[table.body]
             )
         }
+    }
+
+    override fun delete(item: Snippet) {
+        MapperHelper.delete(table, table.id eq item.id)
     }
 }

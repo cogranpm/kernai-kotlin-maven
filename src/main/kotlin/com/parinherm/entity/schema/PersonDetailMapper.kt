@@ -1,10 +1,10 @@
 package com.parinherm.entity.schema
 
+import com.parinherm.entity.Person
 import com.parinherm.entity.PersonDetail
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
-import org.jetbrains.exposed.sql.transactions.transaction
 
 object PersonDetailMapper : IMapper<PersonDetail> {
 
@@ -28,5 +28,13 @@ object PersonDetailMapper : IMapper<PersonDetail> {
                 it[table.personId],
                 it[table.petSpecies])
         }
+    }
+
+    fun delete(parent: Person) {
+        MapperHelper.delete(table, table.personId eq parent.id)
+    }
+
+    override fun delete(item: PersonDetail) {
+        MapperHelper.delete(table, table.id eq item.id)
     }
 }

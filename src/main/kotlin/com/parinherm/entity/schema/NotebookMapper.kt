@@ -1,9 +1,9 @@
 package com.parinherm.entity.schema
 
 import com.parinherm.entity.Notebook
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
-import org.jetbrains.exposed.sql.transactions.transaction
 
 object NotebookMapper : IMapper<Notebook> {
 
@@ -27,6 +27,11 @@ object NotebookMapper : IMapper<Notebook> {
            )
        }
 
+    }
+
+    override fun delete(item: Notebook) {
+        NoteHeaderMapper.delete(item)
+        MapperHelper.delete(table, table.id eq item.id)
     }
 
 }

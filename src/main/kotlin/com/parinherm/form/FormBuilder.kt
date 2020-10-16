@@ -28,6 +28,7 @@ import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
 import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
+import org.eclipse.jface.dialogs.MessageDialog
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.GridLayoutFactory
 import org.eclipse.jface.layout.LayoutConstants
@@ -442,5 +443,10 @@ fun hasChildViews(viewDefinition: Map<String, Any>): Boolean {
         return false
     }
 }
+
+fun confirmDelete() : Boolean {
+    return MessageDialog.openConfirm(Display.getDefault().activeShell, "Delete", "Delete, are you sure?")
+}
+
 
 

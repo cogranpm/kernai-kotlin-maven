@@ -2,6 +2,7 @@ package com.parinherm.entity.schema
 
 import com.parinherm.entity.Recipe
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -28,5 +29,10 @@ object RecipeMapper : IMapper<Recipe> {
                 it[table.category]
             )
         }
+    }
+
+    override fun delete(item: Recipe) {
+        IngredientMapper.delete(item)
+        MapperHelper.delete(table, table.id eq item.id)
     }
 }

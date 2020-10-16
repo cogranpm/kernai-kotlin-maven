@@ -2,6 +2,7 @@ package com.parinherm.entity.schema
 
 import com.parinherm.entity.Login
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.transaction
 
@@ -36,5 +37,9 @@ object LoginMapper : IMapper<Login> {
                 it[table.notes],
                 it[table.other])
         }
+    }
+
+    override fun delete(item: Login) {
+        MapperHelper.delete(table, table.id eq item.id)
     }
 }
