@@ -16,7 +16,6 @@ object MapperHelper {
         fnMap: (entity: T, statement: UpdateBuilder<Int>) -> Unit
     ): Unit where T : IBeanDataEntity {
         transaction {
-            addLogger(StdOutSqlLogger)
             if (item.id == 0L) {
                 val id = table.insertAndGetId {
                     fnMap(item, it)
