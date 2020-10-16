@@ -174,7 +174,7 @@ fun makeInputWidget(
             input
         }
         ApplicationData.ViewDef.memo -> {
-            val input = Text(parent, SWT.MULTI or SWT.BORDER)
+            val input = Text(parent, SWT.MULTI or SWT.BORDER or SWT.V_SCROLL or SWT.H_SCROLL)
             input.setData("fieldName", fieldName)
             applyLayoutToField(input, true, true, 5 * input.lineHeight)
             input

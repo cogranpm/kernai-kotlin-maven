@@ -35,14 +35,14 @@ object NoteHeaderMapper : IMapper<NoteHeader> {
         val list: MutableList<NoteHeader> = mutableListOf()
         transaction {
             addLogger(StdOutSqlLogger)
-            val query: Query = NoteHeaders.select { NoteDetails.noteHeaderId eq keys["noteHeaderId"] as Long }
+            val query: Query = NoteHeaders.select { NoteHeaders.notebookId eq keys["notebookId"] as Long }
             query.orderBy(NoteHeaders.name to SortOrder.ASC)
             query.forEach {
                 list.add(
                     NoteHeader(it[NoteHeaders.id].value,
                         it[NoteHeaders.notebookId],
-                        it[NoteDetails.name],
-                        it[NoteDetails.comments]
+                        it[NoteHeaders.name],
+                        it[NoteHeaders.comments]
                     )
                 )
             }

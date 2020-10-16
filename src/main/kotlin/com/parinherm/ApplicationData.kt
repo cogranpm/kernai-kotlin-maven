@@ -38,6 +38,8 @@ object ApplicationData {
     const val TAB_KEY_SNIPPET = "snippet"
     const val TAB_KEY_LOGINS = "logins"
     const val TAB_KEY_NOTEBOOK = "notebook"
+    const val TAB_KEY_NOTEHEADER = "noteheader"
+    const val TAB_KEY_NOTEDETAIL = "notedetail"
 
     const val swnone = SWT.NONE
     const val labelStyle = SWT.BORDER
@@ -261,6 +263,8 @@ object ApplicationData {
         const val techSnippetsViewId = "techsnip"
         const val loginViewId = "login"
         const val notebookViewId = "notebook"
+        const val noteheaderViewId = "noteheader"
+        const val noteDetailViewId = "notedetail"
         const val title = "title"
         const val version = "version"
         const val viewid = "viewid"

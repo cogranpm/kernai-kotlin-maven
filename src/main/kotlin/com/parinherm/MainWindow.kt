@@ -201,10 +201,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
                 ApplicationData.makeTab(viewModel, "Notebooks", ApplicationData.TAB_KEY_NOTEBOOK)
             }
         }
-        loginAction.accelerator = SWT.MOD1 or ('B'.toInt())
-
-
-
+        notebookAction.accelerator = SWT.MOD1 or ('B'.toInt())
 
         val menuManager = MenuManager("")
         val fileMenu = MenuManager("&File")

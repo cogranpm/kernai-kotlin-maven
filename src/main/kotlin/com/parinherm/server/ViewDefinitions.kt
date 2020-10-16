@@ -15,7 +15,9 @@ object ViewDefinitions {
                 makeIngredientsMap(),
                 makeTechSnippetsMap(),
                 makeLoginsMap(),
-                makeNotebooksMap()
+                makeNotebooksMap(),
+                makeNoteHeaderMap(),
+                makeNoteDetailMap()
             )
         )
     }
@@ -32,14 +34,80 @@ object ViewDefinitions {
         val commentsDef = mapOf(
             ViewDef.fieldName to "comments",
             ViewDef.title to "Comments",
-            ViewDef.required to true,
+            ViewDef.required to false,
             ViewDef.fieldDataType to ViewDef.memo
         )
 
         val viewDef = mapOf(
             ViewDef.viewid to ApplicationData.ViewDef.notebookViewId,
             ViewDef.title to "Notebooks",
-            ViewDef.fields to listOf(nameDef, commentsDef)
+            ViewDef.fields to listOf(nameDef, commentsDef),
+            ViewDef.childViews to listOf(makeNoteHeaderMap())
+        )
+
+        return viewDef
+    }
+
+    fun makeNoteHeaderMap(): Map<String, Any> {
+
+        val nameDef = mapOf(
+            ViewDef.fieldName to "name",
+            ViewDef.title to "Name",
+            ViewDef.required to true,
+            ViewDef.fieldDataType to ViewDef.text
+        )
+
+        val commentsDef = mapOf(
+            ViewDef.fieldName to "comments",
+            ViewDef.title to "Comments",
+            ViewDef.required to false,
+            ViewDef.fieldDataType to ViewDef.memo
+        )
+
+        val viewDef = mapOf(
+            ViewDef.viewid to ApplicationData.ViewDef.noteheaderViewId,
+            ViewDef.title to "Note Header",
+            ViewDef.fields to listOf(nameDef, commentsDef),
+            ViewDef.childViews to listOf(makeNoteDetailMap())
+        )
+
+        return viewDef
+    }
+
+    fun makeNoteDetailMap(): Map<String, Any> {
+
+        val nameDef = mapOf(
+            ViewDef.fieldName to "name",
+            ViewDef.title to "Name",
+            ViewDef.required to true,
+            ViewDef.fieldDataType to ViewDef.text
+        )
+
+        val bodyDef = mapOf(
+            ViewDef.fieldName to "body",
+            ViewDef.title to "Body",
+            ViewDef.required to false,
+            ViewDef.fieldDataType to ViewDef.memo
+        )
+
+        val sourceCodeDef = mapOf(
+            ViewDef.fieldName to "sourceCode",
+            ViewDef.title to "Source",
+            ViewDef.required to false,
+            ViewDef.fieldDataType to ViewDef.memo
+        )
+
+        val commentsDef = mapOf(
+            ViewDef.fieldName to "comments",
+            ViewDef.title to "Comments",
+            ViewDef.required to false,
+            ViewDef.fieldDataType to ViewDef.memo
+        )
+
+        val viewDef = mapOf(
+            ViewDef.viewid to ApplicationData.ViewDef.noteDetailViewId,
+            ViewDef.title to "Note Detail",
+            ViewDef.fields to listOf(nameDef, bodyDef, sourceCodeDef, commentsDef)
         )
 
         return viewDef
