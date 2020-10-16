@@ -7,43 +7,30 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 object RecipeMapper : IMapper<Recipe> {
 
-    override fun save(item: Recipe) {
-        MapperHelper.save(item, Recipes, RecipeMapper::mapItem)
-        /*
-        transaction {
-            if (item.id == 0L) {
-                val id = Recipes.insertAndGetId {
-                    mapItem(item, it)
-                }
-                item.id = id.value
-            } else {
-                Recipes.update({ Recipes.id eq item.id }) {
-                    mapItem(item, it)
-                }
-            }
-        }
+    val table = Recipes
 
-         */
+    override fun save(item: Recipe) {
+        MapperHelper.save(item, table, RecipeMapper::mapItem)
     }
 
     fun mapItem(item: Recipe, statement: UpdateBuilder<Int>) {
-        statement[Recipes.name] = item.name
-        statement[Recipes.method] = item.method
-        statement[Recipes.category] = item.category
+        statement[table.name] = item.name
+        statement[table.method] = item.method
+        statement[table.category] = item.category
     }
 
     override fun getAll(keys: Map<String, Long>): List<Recipe> {
         val items: MutableList<Recipe> = mutableListOf()
         transaction {
-            val query: Query = Recipes.selectAll()
-            query.orderBy(Recipes.name to SortOrder.ASC)
+            val query: Query = table.selectAll()
+            query.orderBy(table.name to SortOrder.ASC)
             query.forEach {
                 items.add(
                     Recipe(
-                        it[Recipes.id].value,
-                        it[Recipes.name],
-                        it[Recipes.method],
-                        it[Recipes.category]
+                        it[table.id].value,
+                        it[table.name],
+                        it[table.method],
+                        it[table.category]
                     )
                 )
             }

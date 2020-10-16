@@ -7,48 +7,36 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 object PersonMapper : IMapper<Person> {
 
+    val table = Persons
+
     override fun save(item: Person) {
-        MapperHelper.save(item, Persons, PersonMapper::mapItem)
-        /*
-        transaction {
-            if (item.id == 0L) {
-                val id = Persons.insertAndGetId {
-                    mapItem(item, it)
-               }
-                item.id = id.value
-            } else {
-                Persons.update ({Persons.id eq item.id}) {
-                    mapItem(item, it)
-               }
-            }
-        }
-         */
+        MapperHelper.save(item, table, PersonMapper::mapItem)
     }
 
       fun mapItem(item: Person, statement: UpdateBuilder<Int>) {
-        statement[Persons.name] = item.name
-        statement[Persons.income] = item.income
-        statement[Persons.age] = item.age
-        statement[Persons.height] = item.height
-        statement[Persons.deceased] = item.deceased
-        statement[Persons.country] = item.country
-        statement[Persons.enteredDate] = item.enteredDate
+        statement[table.name] = item.name
+        statement[table.income] = item.income
+        statement[table.age] = item.age
+        statement[table.height] = item.height
+        statement[table.deceased] = item.deceased
+        statement[table.country] = item.country
+        statement[table.enteredDate] = item.enteredDate
     }
 
     override fun getAll(keys: Map<String, Long>): List<Person> {
         val items: MutableList<Person> = mutableListOf()
         transaction {
-            val query: Query = Persons.selectAll()
-            query.orderBy(Persons.enteredDate to SortOrder.ASC)
+            val query: Query = table.selectAll()
+            query.orderBy(table.enteredDate to SortOrder.ASC)
             query.forEach {
-                items.add(Person(it[Persons.id].value,
-                    it[Persons.name],
-                it[Persons.income],
-                it[Persons.height],
-                it[Persons.age],
-                it[Persons.enteredDate],
-                it[Persons.country],
-                it[Persons.deceased]))
+                items.add(Person(it[table.id].value,
+                    it[table.name],
+                it[table.income],
+                it[table.height],
+                it[table.age],
+                it[table.enteredDate],
+                it[table.country],
+                it[table.deceased]))
             }
         }
         return items

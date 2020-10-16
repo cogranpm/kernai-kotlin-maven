@@ -6,29 +6,32 @@ import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object IngredientMapper : IMapper<Ingredient> {
+
+    val table = Ingredients
+
     override fun save(item: Ingredient) {
-        MapperHelper.save(item, Ingredients, IngredientMapper::mapItem)
+        MapperHelper.save(item, table, IngredientMapper::mapItem)
    }
 
     private fun mapItem(item: Ingredient, statement: UpdateBuilder<Int>) {
-        statement[Ingredients.name] = item.name
-        statement[Ingredients.quantity] = item.quantity
-        statement[Ingredients.unit] = item.unit
-        statement[Ingredients.recipeId] = item.recipeId
+        statement[table.name] = item.name
+        statement[table.quantity] = item.quantity
+        statement[table.unit] = item.unit
+        statement[table.recipeId] = item.recipeId
     }
 
     override fun getAll(keys: Map<String, Long>): List<Ingredient> {
         val list: MutableList<Ingredient> = mutableListOf()
         transaction {
-            val query: Query = Ingredients.select { Ingredients.recipeId eq keys["recipeId"] as Long }
-            query.orderBy(Ingredients.name to SortOrder.ASC)
+            val query: Query = table.select { table.recipeId eq keys["recipeId"] as Long }
+            query.orderBy(table.name to SortOrder.ASC)
             query.forEach {
                 list.add(
-                        Ingredient(it[Ingredients.id].value,
-                                it[Ingredients.name],
-                                it[Ingredients.quantity],
-                                it[Ingredients.unit],
-                                it[Ingredients.recipeId]
+                        Ingredient(it[table.id].value,
+                                it[table.name],
+                                it[table.quantity],
+                                it[table.unit],
+                                it[table.recipeId]
                         )
                 )
             }

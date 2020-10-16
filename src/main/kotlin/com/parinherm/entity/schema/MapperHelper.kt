@@ -33,13 +33,17 @@ object MapperHelper {
     fun <T> getAll(
         keys: Map<String, Long>,
         table: LongIdTable,
-        whereClause: Op<Boolean>,
+        whereClause: Op<Boolean>?,
         orderBy: Pair<Expression<*>, SortOrder>,
         entityMaker: (ResultRow) -> T
     ): List<T> where T : IBeanDataEntity {
         val list: MutableList<T> = mutableListOf()
         transaction {
-            val query: Query = table.select { whereClause }
+            val query: Query = if (whereClause != null) {
+                table.select { whereClause }
+            } else {
+                table.selectAll()
+            }
             query.orderBy(orderBy)
             query.forEach {
                 list.add(

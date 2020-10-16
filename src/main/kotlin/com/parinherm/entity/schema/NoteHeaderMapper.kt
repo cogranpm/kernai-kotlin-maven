@@ -10,63 +10,31 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 object NoteHeaderMapper : IMapper<NoteHeader> {
 
-    override fun save(item: NoteHeader) {
-        MapperHelper.save(item, NoteHeaders, NoteHeaderMapper::mapItem)
-        /*
-        transaction {
-            if (item.id == 0L) {
-                val id = NoteHeaders.insertAndGetId {
-                    mapItem(item, it)
-                }
-                item.id = id.value
-            } else {
-                NoteHeaders.update({ NoteHeaders.id eq item.id }) {
-                    mapItem(item, it)
-                }
-            }
-        }
+    val table = NoteHeaders
 
-         */
+    override fun save(item: NoteHeader) {
+        MapperHelper.save(item, table, ::mapItem)
     }
 
     private fun mapItem(item: NoteHeader, statement: UpdateBuilder<Int>) {
-        statement[NoteHeaders.name] = item.name
-        statement[NoteHeaders.comments] = item.comments
-        statement[NoteHeaders.notebookId] = item.notebookId
+        statement[table.name] = item.name
+        statement[table.comments] = item.comments
+        statement[table.notebookId] = item.notebookId
     }
 
     override fun getAll(keys: Map<String, Long>): List<NoteHeader> {
         return MapperHelper.getAll(keys,
-            NoteHeaders,
-            NoteHeaders.notebookId eq keys["notebookId"] as Long,
-            NoteHeaders.name to SortOrder.ASC
+            table,
+            table.notebookId eq keys["notebookId"] as Long,
+            table.name to SortOrder.ASC
 
         ) { r: ResultRow ->
             NoteHeader(
-                r[NoteHeaders.id].value,
-                r[NoteHeaders.notebookId],
-                r[NoteHeaders.name],
-                r[NoteHeaders.comments]
+                r[table.id].value,
+                r[table.notebookId],
+                r[table.name],
+                r[table.comments]
             )
         }
-
-        /*
-        val list: MutableList<NoteHeader> = mutableListOf()
-        transaction {
-            val query: Query = NoteHeaders.select { NoteHeaders.notebookId eq keys["notebookId"] as Long }
-            query.orderBy(NoteHeaders.name to SortOrder.ASC)
-            query.forEach {
-                list.add(
-                    NoteHeader(it[NoteHeaders.id].value,
-                        it[NoteHeaders.notebookId],
-                        it[NoteHeaders.name],
-                        it[NoteHeaders.comments]
-                    )
-                )
-            }
-        }
-        return list
-
-         */
     }
 }

@@ -3,44 +3,44 @@ package com.parinherm.entity.schema
 import com.parinherm.entity.Snippet
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
-import org.jetbrains.exposed.sql.transactions.transaction
 
 object SnippetMapper : IMapper<Snippet> {
 
+    val table = Snippets
+
     override fun save(item: Snippet) {
-        MapperHelper.save(item, Snippets, SnippetMapper::mapItem)
+        MapperHelper.save(item, table, ::mapItem)
    }
 
     private fun mapItem(item: Snippet, statement: UpdateBuilder<Int>) {
-        statement[Snippets.name] = item.name
-        statement[Snippets.language] = item.language
-        statement[Snippets.category] = item.category
-        statement[Snippets.topic] = item.topic
-        statement[Snippets.type] = item.type
-        statement[Snippets.desc] = item.desc
-        statement[Snippets.body] = item.body
+        statement[table.name] = item.name
+        statement[table.language] = item.language
+        statement[table.category] = item.category
+        statement[table.topic] = item.topic
+        statement[table.type] = item.type
+        statement[table.desc] = item.desc
+        statement[table.body] = item.body
     }
 
     override fun getAll(keys: Map<String, Long>): List<Snippet> {
-        val items: MutableList<Snippet> = mutableListOf()
-        transaction {
-            val query: Query = Snippets.selectAll()
-            query.orderBy(Snippets.name to SortOrder.ASC)
-            query.forEach {
-                items.add(
-                    Snippet(
-                        it[Snippets.id].value,
-                        it[Snippets.name],
-                        it[Snippets.language],
-                        it[Snippets.category],
-                        it[Snippets.topic],
-                        it[Snippets.type],
-                        it[Snippets.desc],
-                        it[Snippets.body]
-                    )
-                )
-            }
+        return MapperHelper.getAll(
+            keys,
+            table,
+            null,
+            table.name to SortOrder.ASC,
+
+        )
+        {
+            Snippet(
+                it[table.id].value,
+                it[table.name],
+                it[table.language],
+                it[table.category],
+                it[table.topic],
+                it[table.type],
+                it[table.desc],
+                it[table.body]
+            )
         }
-        return items
     }
 }
