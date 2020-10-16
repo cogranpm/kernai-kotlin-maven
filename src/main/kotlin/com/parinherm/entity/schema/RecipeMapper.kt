@@ -20,21 +20,13 @@ object RecipeMapper : IMapper<Recipe> {
     }
 
     override fun getAll(keys: Map<String, Long>): List<Recipe> {
-        val items: MutableList<Recipe> = mutableListOf()
-        transaction {
-            val query: Query = table.selectAll()
-            query.orderBy(table.name to SortOrder.ASC)
-            query.forEach {
-                items.add(
-                    Recipe(
-                        it[table.id].value,
-                        it[table.name],
-                        it[table.method],
-                        it[table.category]
-                    )
-                )
-            }
+        return MapperHelper.getAll(keys, table, null, table.name to SortOrder.ASC) {
+            Recipe(
+                it[table.id].value,
+                it[table.name],
+                it[table.method],
+                it[table.category]
+            )
         }
-        return items
     }
 }

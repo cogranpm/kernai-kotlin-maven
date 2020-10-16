@@ -25,25 +25,16 @@ object LoginMapper : IMapper<Login> {
 
 
     override fun getAll(keys: Map<String, Long>): List<Login> {
-        val items: MutableList<Login> = mutableListOf()
-        transaction {
-            val query: Query = table.selectAll()
-            query.orderBy(table.name to SortOrder.DESC)
-            query.forEach {
-                items.add(
-                    Login(
-                        it[table.id].value,
-                        it[table.name],
-                        it[table.category],
-                        it[table.userName],
-                        it[table.password],
-                        it[table.url],
-                        it[table.notes],
-                        it[table.other]
-                    )
-                )
-            }
+        return MapperHelper.getAll(keys, table, null, table.name to SortOrder.DESC) {
+            Login(
+                it[table.id].value,
+                it[table.name],
+                it[table.category],
+                it[table.userName],
+                it[table.password],
+                it[table.url],
+                it[table.notes],
+                it[table.other])
         }
-        return items
     }
 }

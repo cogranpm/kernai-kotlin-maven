@@ -24,23 +24,14 @@ object NoteDetailMapper : IMapper<NoteDetail> {
     }
 
     override fun getAll(keys: Map<String, Long>): List<NoteDetail> {
-        val list: MutableList<NoteDetail> = mutableListOf()
-        transaction {
-            val query: Query = table.select { table.noteHeaderId eq keys["noteHeaderId"] as Long }
-            query.orderBy(table.name to SortOrder.ASC)
-            query.forEach {
-                list.add(
-                    NoteDetail(it[table.id].value,
-                        it[table.noteHeaderId],
-                        it[table.name],
-                        it[table.sourceCode],
-                        it[table.body],
-                        it[table.comments]
-                    )
-                )
-            }
+        return MapperHelper.getAll(keys, table, table.noteHeaderId eq keys["noteHeaderId"] as Long, table.name to SortOrder.ASC ) {
+            NoteDetail(it[table.id].value,
+                it[table.noteHeaderId],
+                it[table.name],
+                it[table.sourceCode],
+                it[table.body],
+                it[table.comments])
         }
-        return list
     }
 
 }

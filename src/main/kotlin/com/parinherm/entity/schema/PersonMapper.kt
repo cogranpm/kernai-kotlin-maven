@@ -24,21 +24,15 @@ object PersonMapper : IMapper<Person> {
     }
 
     override fun getAll(keys: Map<String, Long>): List<Person> {
-        val items: MutableList<Person> = mutableListOf()
-        transaction {
-            val query: Query = table.selectAll()
-            query.orderBy(table.enteredDate to SortOrder.ASC)
-            query.forEach {
-                items.add(Person(it[table.id].value,
-                    it[table.name],
+        return MapperHelper.getAll(keys, table, null, table.enteredDate to SortOrder.ASC) {
+            Person(it[table.id].value,
+                it[table.name],
                 it[table.income],
                 it[table.height],
                 it[table.age],
                 it[table.enteredDate],
                 it[table.country],
-                it[table.deceased]))
-            }
+                it[table.deceased])
         }
-        return items
     }
 }

@@ -19,22 +19,14 @@ object NotebookMapper : IMapper<Notebook> {
     }
 
     override fun getAll(keys: Map<String, Long>): List<Notebook> {
-        val items: MutableList<Notebook> = mutableListOf()
-        transaction {
-            addLogger(StdOutSqlLogger)
-            val query: Query = table.selectAll()
-            query.orderBy(table.name to SortOrder.ASC)
-            query.forEach {
-                items.add(
-                    Notebook(
-                        it[table.id].value,
-                        it[table.name],
-                        it[table.comments]
-                    )
-                )
-            }
-        }
-        return items
+       return MapperHelper.getAll(keys, table, null, table.name to SortOrder.ASC) {
+           Notebook(
+               it[table.id].value,
+               it[table.name],
+               it[table.comments]
+           )
+       }
+
     }
 
 }
