@@ -26,7 +26,7 @@ object LoginMapper : IMapper<Login> {
 
 
     override fun getAll(keys: Map<String, Long>): List<Login> {
-        return MapperHelper.getAll(keys, table, null, table.name to SortOrder.DESC) {
+        return MapperHelper.getAll(keys, table, null, table.name to SortOrder.ASC) {
             Login(
                 it[table.id].value,
                 it[table.name],

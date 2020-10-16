@@ -38,6 +38,7 @@ object MapperHelper {
     ): List<T> where T : IBeanDataEntity {
         val list: MutableList<T> = mutableListOf()
         transaction {
+            addLogger(StdOutSqlLogger)
             val query: Query = if (whereClause != null) {
                 table.select { whereClause }
             } else {
