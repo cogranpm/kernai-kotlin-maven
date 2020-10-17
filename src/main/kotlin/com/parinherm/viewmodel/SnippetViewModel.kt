@@ -21,10 +21,14 @@ class SnippetViewModel (parent: CTabFolder)  : FormViewModel<Snippet>(
         loadData(mapOf())
         try {
             val context = Context.create()
-            context.eval("js", "print('Hello JavaScript!');" )
+            context.eval("js", loadScript()  )
        } catch(e: Exception) {
             println(e)
         }
+    }
+
+    fun loadScript() : String {
+        return "print('Hello JavaScript!');"
     }
 
     class Comparator : BeansViewerComparator(), IViewerComparator {
