@@ -33,9 +33,9 @@ import org.eclipse.swt.widgets.Control
 // should really be the view-model
 
 data class Form<T>(
-        val parent: Composite,
-        val viewDefinition: Map<String, Any>,
-        val comparator: BeansViewerComparator
+    val parent: Composite,
+    val viewDefinition: Map<String, Any>,
+    val comparator: BeansViewerComparator
 ) : IForm<T> where T : IBeanDataEntity {
 
     val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
@@ -62,7 +62,7 @@ data class Form<T>(
         listView.contentProvider = contentProvider
         listView.labelProvider = makeViewerLabelProvider<T>(fields, contentProvider.knownElements)
         listView.comparator = comparator
-
+        enable(false)
 
         root.layout = FillLayout(SWT.VERTICAL)
         root.layout()
@@ -80,10 +80,10 @@ data class Form<T>(
         return Button(null, SWT.NONE)
     }
 
-    override fun focusFirst(){
+    override fun focusFirst() {
         val firstWidget = formWidgets.values.first().widget
         if (firstWidget != null) {
-            if (firstWidget is Control){
+            if (firstWidget is Control) {
                 firstWidget.setFocus()
             } else if (firstWidget is Viewer) {
                 firstWidget.control.setFocus()
@@ -91,6 +91,20 @@ data class Form<T>(
         }
     }
 
+    override fun enable(flag: Boolean) {
+        formWidgets.forEach {
+            when (it.value.fieldType) {
+                ApplicationData.ViewDef.text,
+                ApplicationData.ViewDef.memo,
+                ApplicationData.ViewDef.int,
+                ApplicationData.ViewDef.float,
+                ApplicationData.ViewDef.money,
+                ApplicationData.ViewDef.bool,
+                ApplicationData.ViewDef.datetime -> (it.value.widget as Control).enabled = flag
+                ApplicationData.ViewDef.lookup -> (it.value.widget as Viewer).control.enabled = flag
+            }
+        }
+    }
 
 
 }

@@ -180,6 +180,7 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
             view.form.lblErrors,
             stateChangeListener
         )
+        view.form.enable(true)
     }
 
     fun listHeaderSelection(
@@ -221,6 +222,7 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
                 mapper.save(currentEntity!!)
             }
         }
+        view.form.enable(false)
     }
 
     override fun refresh() {
@@ -245,6 +247,7 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
                 dataList.remove(selectedItem as T)
                 currentEntity == null
                 changeSelection()
+                view.form.enable(false)
             }
         }
     }

@@ -14,4 +14,5 @@ interface IForm <T> where T: IBeanDataEntity{
     // this needs more work, it's a toolbar now
     fun getSaveButton() : Button
     fun focusFirst()
+    fun enable(flag: Boolean)
 }
