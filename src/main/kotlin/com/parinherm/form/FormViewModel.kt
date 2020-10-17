@@ -222,7 +222,6 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
                 mapper.save(currentEntity!!)
             }
         }
-        view.form.enable(false)
     }
 
     override fun refresh() {
