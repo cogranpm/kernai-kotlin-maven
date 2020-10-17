@@ -254,6 +254,7 @@ object ApplicationData {
     )
 
 
+
     object ViewDef {
 
         const val bindingTestViewId = "bindingtest"
