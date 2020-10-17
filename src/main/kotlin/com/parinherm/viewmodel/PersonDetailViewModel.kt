@@ -18,16 +18,7 @@ class PersonDetailViewModel (val personId: Long, val selectedPersonDetail: Perso
 
     init {
         loadData(mapOf("personId" to personId))
-        if (selectedPersonDetail!= null) {
-            val itemInWritableList = dataList.find { it.id == selectedPersonDetail.id }
-            if (itemInWritableList != null) {
-                view.form.listView.setSelection(StructuredSelection(itemInWritableList), true)
-                onListSelection()
-            }
-        } else {
-            new()
-        }
-
+        onLoad(selectedPersonDetail)
     }
 
     override fun getData(parameters: Map<String, Any>): List<PersonDetail> {
@@ -36,12 +27,7 @@ class PersonDetailViewModel (val personId: Long, val selectedPersonDetail: Perso
 
     override fun save() {
         super.save()
-        val tab = ApplicationData.tabs[openedFromTabId]
-        if (tab != null) {
-            if (!tab.isClosed){
-                tab.viewModel.refresh()
-            }
-        }
+        afterSave(openedFromTabId)
     }
 
 

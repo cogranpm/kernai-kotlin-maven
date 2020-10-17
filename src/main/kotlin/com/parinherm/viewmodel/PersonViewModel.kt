@@ -12,75 +12,43 @@ package com.parinherm.viewmodel
 import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.builders.IViewerComparator
-import com.parinherm.entity.*
+import com.parinherm.entity.Person
+import com.parinherm.entity.PersonDetail
 import com.parinherm.entity.schema.PersonDetailMapper
 import com.parinherm.entity.schema.PersonMapper
 import com.parinherm.form.ChildFormTab
 import com.parinherm.form.FormViewModel
 import com.parinherm.form.IFormViewModel
-import com.parinherm.form.makeViewerLabelProvider
 import com.parinherm.view.PersonView
 import org.eclipse.core.databinding.observable.list.WritableList
-import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
-import org.eclipse.swt.events.SelectionListener
 import java.math.BigDecimal
 import java.time.LocalDate
 
 class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(parent, Comparator()), PersonMapper,
         {Person(0L, "", BigDecimal("0.0"), 6.70, 20, LocalDate.now(), "Aus", false)}) {
 
-
     val personDetails = WritableList<PersonDetail>()
     val personDetailComparator = PersonDetailViewModel.Comparator()
-    val personDetailContentProvider = ObservableListContentProvider<PersonDetail>()
-
 
     init {
         if (view.form.childFormsContainer != null)
         {
             view.form.childFormsContainer!!.childTabs.forEach { childFormTab: ChildFormTab ->
-                wireChildEntity(childFormTab)
+                wireChildTab(childFormTab, ApplicationData.TAB_KEY_PERSONDETAIL, personDetailComparator, personDetails, ::makePersonDetailsViewModel)
             }
         }
         loadData(mapOf())
     }
 
-    private fun wireChildEntity(childFormTab: ChildFormTab) : Unit {
-        val fields = childFormTab.childDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
-        val title = childFormTab.childDefinition[ApplicationData.ViewDef.title] as String
-
-        childFormTab.listView.contentProvider = personDetailContentProvider
-        childFormTab.listView.labelProvider = makeViewerLabelProvider<PersonDetail>(fields, personDetailContentProvider.knownElements)
-        childFormTab.listView.comparator = personDetailComparator
-        childFormTab.listView.input = personDetails
-
-        childFormTab.listView.addOpenListener {
-            // open up a tab to edit child entity
-            val selection = childFormTab.listView.structuredSelection
-            val selectedItem = selection.firstElement
-            // store the selected item in the list in the viewstate
-            val currentPersonDetail = selectedItem as PersonDetail
-            openTab(currentPersonDetail, title)
-       }
-
-        childFormTab.btnAdd.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
-            val data = PersonDetailMapper.getAll(mapOf("personId" to currentEntity!!.id))
-            openTab(null, title)
-       })
-
-        listHeaderSelection(childFormTab.listView, childFormTab.columns, personDetailComparator)
+    private fun makePersonDetailsViewModel(currentChild: PersonDetail?) : IFormViewModel<PersonDetail> {
+        return PersonDetailViewModel(
+            currentEntity!!.id,
+            currentChild,
+            ApplicationData.TAB_KEY_PERSON,
+            ApplicationData.mainWindow.folder)
     }
-
-    fun openTab(currentPersonDetail: PersonDetail?, title: String){
-        val viewModel: IFormViewModel<PersonDetail> = PersonDetailViewModel(currentEntity!!.id,
-                currentPersonDetail,
-                ApplicationData.TAB_KEY_PERSON,
-                ApplicationData.mainWindow.folder)
-        ApplicationData.makeTab(viewModel, "Person Details", ApplicationData.TAB_KEY_PERSONDETAIL)
-    }
-
 
     override fun changeSelection(){
         val formBindings = super.changeSelection()

@@ -18,16 +18,7 @@ class IngredientViewModel (val recipeId: Long, val selectedIngredient: Ingredien
 
     init {
         loadData(mapOf("recipeId" to recipeId))
-        if (selectedIngredient != null) {
-            val itemInWritableList = dataList.find { it.id == selectedIngredient.id }
-            if (itemInWritableList != null) {
-                view.form.listView.setSelection(StructuredSelection(itemInWritableList), true)
-                onListSelection()
-            }
-        } else {
-            new()
-        }
-
+        onLoad(selectedIngredient)
     }
 
     override fun getData(parameters: Map<String, Any>): List<Ingredient> {
@@ -36,12 +27,7 @@ class IngredientViewModel (val recipeId: Long, val selectedIngredient: Ingredien
 
     override fun save() {
         super.save()
-        val tab = ApplicationData.tabs[openedFromTabId]
-        if (tab != null) {
-            if (!tab.isClosed){
-                tab.viewModel.refresh()
-            }
-        }
+        afterSave(openedFromTabId)
     }
 
 

@@ -1,5 +1,6 @@
 package com.parinherm.form
 
+import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
@@ -10,17 +11,20 @@ import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.observable.ChangeEvent
 import org.eclipse.core.databinding.observable.IChangeListener
 import org.eclipse.core.databinding.observable.list.WritableList
+import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.internal.databinding.swt.SWTObservableValueDecorator
 import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.jface.viewers.TableViewerColumn
 import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
+import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.TableColumn
 
-abstract class FormViewModel <T> (val view: View<T>, val mapper: IMapper<T>, val entityMaker: () -> T) : IFormViewModel<T> where T : IBeanDataEntity{
+abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val entityMaker: () -> T) :
+    IFormViewModel<T> where T : IBeanDataEntity {
 
     var selectingFlag = false
     val dbc = DataBindingContext()
@@ -29,6 +33,68 @@ abstract class FormViewModel <T> (val view: View<T>, val mapper: IMapper<T>, val
     val dataList = WritableList<T>()
     var currentEntity: T? = null
 
+    /* if a viewmodel has a parent this will be called in the init
+    to initialize the state according to what the parent passed in either
+    a click on new or an edit of existing item
+     */
+    fun onLoad(selectedItem: T?) {
+        if (selectedItem != null) {
+            val itemInWritableList = dataList.find { it.id == selectedItem.id }
+            if (itemInWritableList != null) {
+                view.form.listView.setSelection(StructuredSelection(itemInWritableList), true)
+                onListSelection()
+            }
+        } else {
+            new()
+        }
+    }
+
+    /* if viewmodel has a parent this is called after the save to update the
+    child lists contained in the parent, the implementing viewmodel will
+    trigger the call
+     */
+    fun afterSave(parentTabId: String?) {
+        val tab = ApplicationData.tabs[parentTabId]
+        if (tab != null) {
+            if (!tab.isClosed) {
+                tab.viewModel.refresh()
+            }
+        }
+    }
+
+    fun <E> wireChildTab(
+        childFormTab: ChildFormTab,
+        childTabId: String,
+        comparator: BeansViewerComparator,
+        input: WritableList<E>,
+        childViewModelMaker: (E?) -> IFormViewModel<E>
+    ) where E : IBeanDataEntity {
+        val fields = childFormTab.childDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
+        val title = childFormTab.childDefinition[ApplicationData.ViewDef.title] as String
+
+        val contentProvider = ObservableListContentProvider<E>()
+        childFormTab.listView.contentProvider = contentProvider
+        childFormTab.listView.labelProvider = makeViewerLabelProvider<E>(fields, contentProvider.knownElements)
+        childFormTab.listView.comparator = comparator
+        childFormTab.listView.input = input
+
+        childFormTab.listView.addOpenListener {
+            val selection = childFormTab.listView.structuredSelection
+            val selectedItem = selection.firstElement
+            val currentItem = selectedItem as E
+            openTab(childViewModelMaker(currentItem), title, childTabId)
+        }
+
+        childFormTab.btnAdd.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
+            openTab(childViewModelMaker(null), title, childTabId)
+        })
+        listHeaderSelection(childFormTab.listView, childFormTab.columns, comparator)
+    }
+
+
+    private fun <E> openTab(viewModel: IFormViewModel<E>, title: String, tabKey: String) where E : IBeanDataEntity {
+        ApplicationData.makeTab(viewModel, title, tabKey)
+    }
 
     private val stateChangeListener: IChangeListener = IChangeListener {
         processStateChange(it)
@@ -75,7 +141,7 @@ abstract class FormViewModel <T> (val view: View<T>, val mapper: IMapper<T>, val
         return view.form.root
     }
 
-    override fun loadData(parameters: Map<String, Any>) : Unit {
+    override fun loadData(parameters: Map<String, Any>): Unit {
         dataList.clear()
         dataList.addAll(getData(parameters))
         view.form.refresh(dataList)
@@ -107,20 +173,31 @@ abstract class FormViewModel <T> (val view: View<T>, val mapper: IMapper<T>, val
     }
 
     open fun changeSelection() {
-        val formBindings = makeFormBindings(dbc,
-                view.form.formWidgets,
-                currentEntity,
-                view.form.lblErrors,
-                stateChangeListener)
+        val formBindings = makeFormBindings(
+            dbc,
+            view.form.formWidgets,
+            currentEntity,
+            view.form.lblErrors,
+            stateChangeListener
+        )
     }
 
-    fun listHeaderSelection(listView: TableViewer, columns: List<TableViewerColumn>, comparator: BeansViewerComparator) {
+    fun listHeaderSelection(
+        listView: TableViewer,
+        columns: List<TableViewerColumn>,
+        comparator: BeansViewerComparator
+    ) {
         columns.forEachIndexed { index: Int, column: TableViewerColumn ->
-            column.column.addSelectionListener(getSelectionAdapter(listView, column.column, index, comparator ))
+            column.column.addSelectionListener(getSelectionAdapter(listView, column.column, index, comparator))
         }
     }
 
-    private fun getSelectionAdapter(viewer: TableViewer, column: TableColumn, index: Int, comparator: BeansViewerComparator): SelectionAdapter {
+    private fun getSelectionAdapter(
+        viewer: TableViewer,
+        column: TableColumn,
+        index: Int,
+        comparator: BeansViewerComparator
+    ): SelectionAdapter {
         return (object : SelectionAdapter() {
             override fun widgetSelected(e: SelectionEvent?) {
                 comparator.setColumn(index)

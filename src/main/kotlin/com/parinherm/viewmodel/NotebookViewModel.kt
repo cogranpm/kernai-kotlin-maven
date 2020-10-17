@@ -3,77 +3,42 @@ package com.parinherm.viewmodel
 import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.builders.IViewerComparator
-import com.parinherm.entity.Ingredient
 import com.parinherm.entity.NoteHeader
 import com.parinherm.entity.Notebook
-import com.parinherm.entity.schema.IngredientMapper
 import com.parinherm.entity.schema.NoteHeaderMapper
 import com.parinherm.entity.schema.NotebookMapper
 import com.parinherm.form.ChildFormTab
 import com.parinherm.form.FormViewModel
 import com.parinherm.form.IFormViewModel
-import com.parinherm.form.makeViewerLabelProvider
 import com.parinherm.view.NotebookView
 import org.eclipse.core.databinding.observable.list.WritableList
-import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
-import org.eclipse.swt.events.SelectionListener
 
 class NotebookViewModel  (parent: CTabFolder)  : FormViewModel<Notebook>(
     NotebookView(parent, NotebookViewModel.Comparator()),
     NotebookMapper, { Notebook.make() })  {
 
-    val noteHeaders = WritableList<NoteHeader>()
+    private val noteHeaders = WritableList<NoteHeader>()
     val noteHeaderComparator = NoteHeaderViewModel.Comparator()
-    val noteHeaderContentProvider = ObservableListContentProvider<NoteHeader>()
 
 
     init {
         if (view.form.childFormsContainer != null)
         {
             view.form.childFormsContainer!!.childTabs.forEach { childFormTab: ChildFormTab ->
-                wireChildEntity(childFormTab)
+                wireChildTab(childFormTab, ApplicationData.TAB_KEY_NOTEHEADER, noteHeaderComparator, noteHeaders, ::makeNoteHeader )
             }
         }
         loadData(mapOf())
     }
 
-
-    private fun wireChildEntity(childFormTab: ChildFormTab) : Unit {
-        val fields = childFormTab.childDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
-        val title = childFormTab.childDefinition[ApplicationData.ViewDef.title] as String
-
-        childFormTab.listView.contentProvider = noteHeaderContentProvider
-        childFormTab.listView.labelProvider = makeViewerLabelProvider<NoteHeader>(fields, noteHeaderContentProvider.knownElements)
-        childFormTab.listView.comparator = noteHeaderComparator
-        childFormTab.listView.input = noteHeaders
-
-
-        childFormTab.listView.addOpenListener {
-            // open up a tab to edit child entity
-            val selection = childFormTab.listView.structuredSelection
-            val selectedItem = selection.firstElement
-            // store the selected item in the list in the viewstate
-            val currentNoteHeader = selectedItem as NoteHeader
-            openNoteHeaderTab(currentNoteHeader, title)
-        }
-
-        childFormTab.btnAdd.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
-            openNoteHeaderTab(null, title)
-        })
-
-        listHeaderSelection(childFormTab.listView, childFormTab.columns, noteHeaderComparator)
-    }
-
-    fun openNoteHeaderTab(noteHeader: NoteHeader?, title: String){
-        val viewModel: IFormViewModel<NoteHeader> = NoteHeaderViewModel(currentEntity!!.id,
-            noteHeader,
-            ApplicationData.TAB_KEY_NOTEHEADER,
+    private fun makeNoteHeader(currentChild: NoteHeader?) : IFormViewModel<NoteHeader> {
+        return NoteHeaderViewModel(currentEntity!!.id,
+            currentChild,
+            ApplicationData.TAB_KEY_NOTEBOOK,
             ApplicationData.mainWindow.folder)
-        ApplicationData.makeTab(viewModel, title, ApplicationData.TAB_KEY_NOTEHEADER)
     }
-
 
     override fun changeSelection(){
         val formBindings = super.changeSelection()

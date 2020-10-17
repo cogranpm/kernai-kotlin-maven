@@ -18,22 +18,17 @@ class NoteDetailViewModel(val noteHeaderId: Long, val selectedNoteDetail: NoteDe
 
     init {
         loadData(mapOf("noteHeaderId" to noteHeaderId))
-        if (selectedNoteDetail != null) {
-            val itemInWritableList = dataList.find { it.id == selectedNoteDetail.id }
-            if (itemInWritableList != null) {
-                view.form.listView.setSelection(StructuredSelection(itemInWritableList), true)
-                onListSelection()
-            }
-        } else {
-            new()
-        }
-
+        onLoad(selectedNoteDetail)
     }
 
     override fun getData(parameters: Map<String, Any>): List<NoteDetail> {
         return mapper.getAll(parameters as Map<String, Long>)
     }
 
+    override fun save() {
+        super.save()
+        afterSave(openedFromTabId)
+    }
 
     class Comparator : BeansViewerComparator(), IViewerComparator {
         val name_index = 0
