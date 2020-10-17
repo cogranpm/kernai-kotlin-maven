@@ -251,23 +251,5 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
             }
         }
     }
-/*
-
-btnDelete = ControlsFactory.button(buttonsBar, "&Delete"){
-        def confirm = ControlsFactory.runConfirm("Delete Question", "Delete Question, are you sure?")
-        if (!confirm) { return}
-        cache.db.delete(model)
-        wl.remove(model)
-        value.setValue(null)
-        model = null
-        updateUserInterface(Optional.ofNullable(model))
-    }
-    btnDelete.enabled = false
-
-static Boolean runConfirm(String title, String prompt) {
-    Boolean confirm = MessageDialog.openConfirm(Display.getDefault().getActiveShell(), title, prompt)
-    confirm
-}     */
-
 
 }
