@@ -186,7 +186,8 @@ object ApplicationData {
         LookupDetail("tbl", "Tablespoon"),
         LookupDetail("tsp", "Teaspoon"),
         LookupDetail("can", "Can"),
-        LookupDetail("whl", "Whole")
+        LookupDetail("whl", "Whole"),
+        LookupDetail("pnd", "Pound")
     )
 
 
