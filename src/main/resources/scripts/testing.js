@@ -14,5 +14,9 @@ var  MainWin = Java.extend(ApplicationWindow, { createContents(parent) { return 
 var theWin = new MainWin(null);
 theWin.setBlockOnOpen(true)
 theWin.open()
-print(theWin);
-print('hello javascript, number');
+
+
+// check some javascript features
+const the_best = "the best"
+let the_worst = "the worst"
+print('hello javascript, number ' + the_best + ' ' + the_worst);

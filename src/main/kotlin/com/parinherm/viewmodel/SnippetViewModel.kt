@@ -8,22 +8,43 @@ import com.parinherm.entity.schema.SnippetMapper
 import com.parinherm.form.FormViewModel
 import com.parinherm.view.SnippetView
 import org.eclipse.jface.viewers.Viewer
+import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.CTabFolder
+import org.eclipse.swt.events.SelectionAdapter
+import org.eclipse.swt.events.SelectionEvent
+import org.eclipse.swt.layout.RowLayout
+import org.eclipse.swt.widgets.Button
+import org.eclipse.swt.widgets.Composite
 
 import org.graalvm.polyglot.*;
 import org.graalvm.polyglot.proxy.*;
 
 class SnippetViewModel (parent: CTabFolder)  : FormViewModel<Snippet>(
-        SnippetView(parent, SnippetViewModel.Comparator()),
+        SnippetView(parent, Comparator()),
         SnippetMapper, { Snippet.make() }) {
 
     init {
         loadData(mapOf())
+
+        /* custom stuff to test out graal vm javascript */
+        val editContainer = view.form.formsContainer.editContainer
+        val toolbar = Composite(editContainer, SWT.BORDER)
+        toolbar.layout = RowLayout()
+        val testScriptButton = Button(toolbar, SWT.PUSH)
+        testScriptButton.text = "Test Script"
+        testScriptButton.addSelectionListener(object : SelectionAdapter() {
+            override fun widgetSelected(e: SelectionEvent?) {
+                testScript()
+            }
+        })
+    }
+
+    fun testScript(){
         try {
             val context = Context.newBuilder().allowAllAccess(true).build()
             //val context = Context.create()
             context.eval("js", loadScript()  )
-       } catch(e: Exception) {
+        } catch(e: Exception) {
             println(e)
         }
     }
