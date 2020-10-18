@@ -17,11 +17,11 @@ import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 
 import org.graalvm.polyglot.*;
-import org.graalvm.polyglot.proxy.*;
 
-class SnippetViewModel (parent: CTabFolder)  : FormViewModel<Snippet>(
-        SnippetView(parent, Comparator()),
-        SnippetMapper, { Snippet.make() }) {
+
+class SnippetViewModel(parent: CTabFolder)  : FormViewModel<Snippet>(
+    SnippetView(parent, Comparator()),
+    SnippetMapper, { Snippet.make() }) {
 
     init {
         loadData(mapOf())
@@ -41,21 +41,24 @@ class SnippetViewModel (parent: CTabFolder)  : FormViewModel<Snippet>(
 
     fun testScript(){
         try {
-            val context =Context.newBuilder("js").allowAllAccess(true).allowHostClassLookup { _ -> true }.build()
+            val context =Context.newBuilder("js").allowAllAccess(true).allowHostClassLookup { _ -> true }.allowIO(true).build()
             context.use {
+                val mainSource = Source.newBuilder("js", loadScript(), "name").buildLiteral() // .bu.mimeType("application/javascript+module")
                 val bindings = context.getBindings("js")
                 bindings.putMember("foo", ApplicationData)
-                it.eval("js", loadScript())
+                it.eval(mainSource)
+                //it.eval("js", loadScript())
+
                 val funcShowWindow = context.getBindings("js").getMember("showWindow")
                 funcShowWindow.execute()
             }
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             println(e)
         }
     }
 
     fun loadScript() : String {
-        val script = this::class.java.getResource("/scripts/testing.js")
+        val script = this::class.java.getResource("/scripts/testing.mjs")
         return script?.readText(Charsets.UTF_8) ?: ""
     }
 

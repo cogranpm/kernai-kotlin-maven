@@ -1,8 +1,14 @@
+// test of javascript module import
+//import * as module from './utils.mjs'; // import everything that the module exports
+//var sq = module.square(11);
+//var dg = module.diag(3, 4);
+//var st = module.sqrt(121);
+
+
 // testing the use of bindings
 // can pass in objects from the graal context
 // foo is a global object in the script passed from the context
 print(foo)
-
 
 // use a java object by first putting type declaration in a variable
 var BigDecimal = Java.type('java.math.BigDecimal');
