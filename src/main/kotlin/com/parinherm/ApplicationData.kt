@@ -178,7 +178,8 @@ object ApplicationData {
         LookupDetail("instant", "Instant Pot"),
         LookupDetail("main", "Main Course"),
         LookupDetail("dessert", "Dessert"),
-        LookupDetail("soup", "Soup")
+        LookupDetail("soup", "Soup"),
+        LookupDetail("mama", "Ma Ma")
     )
 
     val unitList: List<LookupDetail> = listOf(
@@ -187,7 +188,14 @@ object ApplicationData {
         LookupDetail("tsp", "Teaspoon"),
         LookupDetail("can", "Can"),
         LookupDetail("whl", "Whole"),
-        LookupDetail("pnd", "Pound")
+        LookupDetail("pnd", "Pound"),
+        LookupDetail("pch", "Pinch"),
+        LookupDetail("oz", "Ounce"),
+        LookupDetail("dp", "Drop"),
+        LookupDetail("hnt", "Hint"),
+        LookupDetail("prt", "Part"),
+        LookupDetail("jar", "Jar"),
+        LookupDetail("pkt", "Packet")
     )
 
 

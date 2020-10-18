@@ -283,12 +283,6 @@ object ViewDefinitions {
             ViewDef.fieldDataType to ViewDef.text
         )
 
-        val methodDef = mapOf(
-            ViewDef.fieldName to "method",
-            ViewDef.title to "Method",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.memo
-        )
         val categoryDef = mapOf(
             ViewDef.fieldName to "category",
             ViewDef.title to "Category",
@@ -296,6 +290,14 @@ object ViewDefinitions {
             ViewDef.fieldDataType to ViewDef.lookup,
             ViewDef.lookupKey to ApplicationData.recipeCategoryLookupKey
         )
+
+        val methodDef = mapOf(
+            ViewDef.fieldName to "method",
+            ViewDef.title to "Method",
+            ViewDef.required to true,
+            ViewDef.fieldDataType to ViewDef.memo
+        )
+
 
         val recipesDef = mapOf(
             ViewDef.viewid to ApplicationData.ViewDef.recipeViewId,
