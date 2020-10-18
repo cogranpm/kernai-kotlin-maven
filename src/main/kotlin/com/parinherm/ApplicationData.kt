@@ -234,6 +234,7 @@ object ApplicationData {
         LookupDetail("emmers", "emmers2425"),
         LookupDetail("emmett", "Emmett2425"),
         LookupDetail("mystery", "Mystery5570"),
+        LookupDetail("Mystery5570!", "Mystery5570!"),
         LookupDetail("n/a", "Not Applicable"),
         LookupDetail("cambridge", "cambridge")
 
