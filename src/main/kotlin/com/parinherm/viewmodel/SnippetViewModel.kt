@@ -41,9 +41,13 @@ class SnippetViewModel (parent: CTabFolder)  : FormViewModel<Snippet>(
 
     fun testScript(){
         try {
-            val context = Context.newBuilder().allowAllAccess(true).build()
-            //val context = Context.create()
-            context.eval("js", loadScript()  )
+            val context =Context.newBuilder("js").allowAllAccess(true).build()
+            context.use {
+                val bindings = context.getBindings("js")
+                bindings.putMember("foo", ApplicationData)
+
+                it.eval("js", loadScript())
+            }
         } catch(e: Exception) {
             println(e)
         }
