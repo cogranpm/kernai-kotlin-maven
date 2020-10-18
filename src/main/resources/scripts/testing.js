@@ -16,6 +16,39 @@ var MyIterator = Java.extend(java.util.Iterator, { hasNext() { return true; }, n
 var iter = new MyIterator();
 print(iter.next());
 
+// java maps
+var HashMap = Java.type('java.util.HashMap');
+var map = new HashMap();
+map.put(1, "a");
+map.get(1);
+
+// iterate map
+for (var key in map) {
+    print(key);
+    print(map.get(key));
+}
+
+
+//In GraalVM JavaScript you can create and access Java Lists, e.g. java.util.ArrayList.
+var ArrayList = Java.type('java.util.ArrayList');
+var list = new ArrayList();
+list.add(42);
+list.add("23");
+list.add({});
+
+for (var idx in list) {
+    print(idx);
+    print(list.get(idx));
+}
+
+//Exceptions thrown in Java code can be caught in JavaScript code. They are represented as Java objects.
+
+try {
+    Java.type('java.lang.Class').forName("nonexistent");
+} catch (e) {
+    print(e.getMessage());
+}
+
 // testing some swt stuff
 var Display = Java.type('org.eclipse.swt.widgets.Display');
 var Default = Display.getDefault();
@@ -23,9 +56,6 @@ var SWT = Java.type('org.eclipse.swt.SWT')
 var ApplicationWindow = Java.type('org.eclipse.jface.window.ApplicationWindow')
 var Composite = Java.type('org.eclipse.swt.widgets.Composite');
 var  MainWin = Java.extend(ApplicationWindow, { createContents(parent) { return new Composite(parent, SWT.NONE); }});
-var theWin = new MainWin(null);
-theWin.setBlockOnOpen(true)
-theWin.open()
 
 
 // check some javascript features
@@ -40,6 +70,12 @@ class Rectangle {
 }
 
 const rect = new Rectangle(500, 400)
-print(rect.height)
+
+// define a member function that java client can execute
+function showWindow() {
+    var theWin = new MainWin(null);
+    theWin.setBlockOnOpen(true)
+    theWin.open()
+}
 
 print('hello javascript, number ' + the_best + ' ' + the_worst);
