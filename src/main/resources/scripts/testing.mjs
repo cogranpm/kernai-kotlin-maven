@@ -1,8 +1,9 @@
 // test of javascript module import
-//import * as module from './utils.mjs'; // import everything that the module exports
-//var sq = module.square(11);
-//var dg = module.diag(3, 4);
-//var st = module.sqrt(121);
+// only way I can figure out so far is to load the library script utils.mjs
+// via the Source polyglot graaljs object before loading the main script
+// it makes the functions in utils.mjs available in this script as globals
+var sq = square(11);
+print(sq)
 
 
 // testing the use of bindings

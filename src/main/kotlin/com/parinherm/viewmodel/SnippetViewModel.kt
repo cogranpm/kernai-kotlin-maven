@@ -43,7 +43,9 @@ class SnippetViewModel(parent: CTabFolder)  : FormViewModel<Snippet>(
         try {
             val context =Context.newBuilder("js").allowAllAccess(true).allowHostClassLookup { _ -> true }.allowIO(true).build()
             context.use {
-                val mainSource = Source.newBuilder("js", loadScript(), "name").buildLiteral() // .bu.mimeType("application/javascript+module")
+                val utilsSource = Source.newBuilder("js", loadScript("utils.mjs"), "utils").buildLiteral()
+                it.eval(utilsSource)
+                val mainSource = Source.newBuilder("js", loadScript("testing.mjs"), "testing").buildLiteral() // .bu.mimeType("application/javascript+module")
                 val bindings = context.getBindings("js")
                 bindings.putMember("foo", ApplicationData)
                 it.eval(mainSource)
@@ -57,8 +59,8 @@ class SnippetViewModel(parent: CTabFolder)  : FormViewModel<Snippet>(
         }
     }
 
-    fun loadScript() : String {
-        val script = this::class.java.getResource("/scripts/testing.mjs")
+    fun loadScript(fileName: String) : String {
+        val script = this::class.java.getResource("/scripts/$fileName")
         return script?.readText(Charsets.UTF_8) ?: ""
     }
 
