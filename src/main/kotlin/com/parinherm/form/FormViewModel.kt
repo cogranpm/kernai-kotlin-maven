@@ -2,7 +2,6 @@ package com.parinherm.form
 
 import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
-import com.parinherm.databinding.Converters
 import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.NewFlag
@@ -10,7 +9,6 @@ import com.parinherm.entity.schema.IMapper
 import com.parinherm.view.View
 import org.eclipse.core.databinding.AggregateValidationStatus
 import org.eclipse.core.databinding.DataBindingContext
-import org.eclipse.core.databinding.UpdateValueStrategy
 import org.eclipse.core.databinding.beans.typed.BeanProperties
 import org.eclipse.core.databinding.observable.ChangeEvent
 import org.eclipse.core.databinding.observable.IChangeListener
@@ -29,10 +27,10 @@ import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.events.SelectionListener
-import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.TableColumn
+import org.eclipse.swt.widgets.ToolItem
 
 abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val entityMaker: () -> T) :
     IFormViewModel<T> where T : IBeanDataEntity {
@@ -189,38 +187,13 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
             view.form.formWidgets,
             currentEntity,
             view.form.lblErrors,
+            this.dirtyFlag,
+            view.form,
             stateChangeListener
         )
 
-        /* experiment with the dirty binding */
-        val targetSave = WidgetProperties.enabled<Button>().observe(view.form.btnDummySave)
-        val modelDirty = BeanProperties.value<DirtyFlag, Boolean>("dirty").observe(dirtyFlag)
-
-        // ComputedValue is the critical piece in binding a single observable, say a button enabled
-        // to multiple model properties, say a dirty flag or validation status
-        val validationObserver = formBindings["validation"]?.model as AggregateValidationStatus
-        val isValidationOk: IObservableValue<Boolean> = ComputedValue.create { validationObserver.value.isOK && modelDirty.value }
-        val bindSave = dbc.bindValue(targetSave, isValidationOk)
-
-        bindSave.target.addChangeListener() {
-            //println("enabled of save has changed ${view.form.btnDummySave.enabled}")
-            ApplicationData.mainWindow.actionSave.isEnabled = view.form.btnDummySave.enabled
-        }
-
-
-
-//delete button binding
-        val deleteItemTarget = WidgetProperties.enabled<Button>().observe(view.form.btnDummyDelete)
-        // don't know how to get rid of the overload ambiguity on the observe call below other than put in an observeDelayed
-        val selectedEntity: IViewerObservableValue<T?> = ViewerProperties.singleSelection<Viewer, T?>().observeDelayed(1, view.form.listView)// as IViewerObservableValue<T?>
-        //a binding that sets delete toolitem to disabled based on whether item in list is selected
-        val deleteBinding = dbc.bindValue(deleteItemTarget, selectedEntity, UpdateValueStrategy(UpdateValueStrategy.POLICY_NEVER), Converters.booleanNullConverter)
-        //a listener on above binding that makes sure action enabled is set set toolitem changes, ie can't databind the enbabled of an action
-        deleteBinding.target.addChangeListener() {
-            println("changed the delete")
-            ApplicationData.mainWindow.actionDelete.isEnabled = view.form.btnDummyDelete.enabled
-        }
-
+        // sucks to have to do this, but the databing change event listener is not working
+        ApplicationData.mainWindow.actionDelete.isEnabled = true
         view.form.enable(true)
     }
 

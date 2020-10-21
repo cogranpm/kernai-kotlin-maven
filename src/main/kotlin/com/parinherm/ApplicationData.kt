@@ -14,6 +14,7 @@ import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.CTabItem
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.widgets.Display
+import org.eclipse.swt.widgets.ToolItem
 
 object ApplicationData {
 
@@ -262,6 +263,19 @@ object ApplicationData {
         loginCategoryKey to loginCategoryList
     )
 
+    fun getSaveToolbarButton() : ToolItem{
+        return mainWindow.toolBarManager.control.getItem(0)
+    }
+
+
+    fun getNewToolbarButton() : ToolItem{
+        return mainWindow.toolBarManager.control.getItem(1)
+    }
+
+
+    fun getDeleteToolbarButton() : ToolItem{
+        return mainWindow.toolBarManager.control.getItem(2)
+    }
 
 
     object ViewDef {

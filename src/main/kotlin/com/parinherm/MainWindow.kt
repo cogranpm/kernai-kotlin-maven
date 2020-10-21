@@ -1,16 +1,10 @@
 package com.parinherm
 
-//import org.eclipse.nebula.widgets.pshelf.*
-
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.parinherm.builders.*
-import com.parinherm.databinding.DataBindingView
-import com.parinherm.entity.Person
-import com.parinherm.tests.TestData
+import com.parinherm.builders.HttpClient
 import com.parinherm.viewmodel.*
-//import com.parinherm.viewmodel.BeanTestViewModel
 import org.eclipse.jface.action.*
 import org.eclipse.jface.window.ApplicationWindow
 import org.eclipse.swt.SWT
@@ -21,8 +15,6 @@ import org.eclipse.swt.graphics.Point
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.*
 import java.io.IOException
-import java.math.BigDecimal
-import java.time.LocalDate
 
 
 inline fun <reified T> Gson.fromJson(json: String) = fromJson<T>(json, object: TypeToken<T>() {}.type)

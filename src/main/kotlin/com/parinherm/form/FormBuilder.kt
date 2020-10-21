@@ -13,6 +13,7 @@ package com.parinherm.form
 
 import com.parinherm.ApplicationData
 import com.parinherm.databinding.*
+import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.LookupDetail
 import org.eclipse.core.databinding.*
@@ -22,11 +23,13 @@ import org.eclipse.core.databinding.conversion.text.StringToNumberConverter
 import org.eclipse.core.databinding.observable.IChangeListener
 import org.eclipse.core.databinding.observable.map.IObservableMap
 import org.eclipse.core.databinding.observable.set.IObservableSet
+import org.eclipse.core.databinding.observable.value.ComputedValue
 import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.core.databinding.property.value.IValueProperty
 import org.eclipse.jface.action.Action
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
+import org.eclipse.jface.databinding.viewers.IViewerObservableValue
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
 import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
 import org.eclipse.jface.dialogs.MessageDialog
@@ -146,22 +149,6 @@ fun makeForm(fields: List<Map<String, Any>>, parent: Composite)
 
 }
 
-fun makeDummySaveButton(parent: Composite): Button {
-    val button = Button(parent, SWT.PUSH)
-    GridDataFactory.fillDefaults().span(2, 1).applyTo(button)
-    button.text = "Save"
-    button.enabled = false
-    return button
-}
-
-fun makeDummyDeleteButton(parent: Composite): Button {
-    val button = Button(parent, SWT.PUSH)
-    GridDataFactory.fillDefaults().span(2, 1).applyTo(button)
-    button.text = "Delete"
-    button.enabled = false
-    return button
-}
-
 
 fun makeErrorLabel(parent: Composite): Label {
     val lblErrors = Label(parent, ApplicationData.labelStyle)
@@ -261,7 +248,10 @@ fun makeInputWidget(
 fun <E> makeFormBindings(dbc: DataBindingContext,
                          formWidgets: Map<String, FormWidget>,
                          entity: E,
-                         lblErrors: Label, stateChangeListener: IChangeListener): Map<String, Binding?> {
+                         lblErrors: Label,
+                         dirtyFlag: DirtyFlag,
+                         form: Form<*>,
+                         stateChangeListener: IChangeListener): Map<String, Binding?> {
     dbc.dispose()
     val bindings = dbc.validationStatusProviders
     for (binding: ValidationStatusProvider in bindings) {
@@ -289,6 +279,33 @@ fun <E> makeFormBindings(dbc: DataBindingContext,
     val errorObservable: IObservableValue<String> = WidgetProperties.text<Label>().observe(lblErrors)
     val allValidationBinding: Binding = dbc.bindValue(errorObservable, validationObserver, null, null)
     formBindings["validation"] = allValidationBinding
+
+
+    /*********** save binding ************************/
+    val targetSave = WidgetProperties.enabled<ToolItem>().observe(ApplicationData.getSaveToolbarButton())
+    val modelDirty = BeanProperties.value<DirtyFlag, Boolean>("dirty").observe(dirtyFlag)
+    val isValidationOk: IObservableValue<Boolean> = ComputedValue.create { validationObserver.value.isOK && modelDirty.value }
+    val bindSave = dbc.bindValue(targetSave, isValidationOk)
+    bindSave.target.addChangeListener() {
+        ApplicationData.mainWindow.actionSave.isEnabled = ApplicationData.getSaveToolbarButton().enabled
+    }
+
+    /**************** delete binding *******************************/
+    val toolDelete = ApplicationData.getDeleteToolbarButton()
+    val deleteItemTarget = WidgetProperties.enabled<ToolItem>().observe(toolDelete)
+    // cast to Viewer is to get rid of overload ambiguity from kotlin compiler
+    val selectedEntity: IViewerObservableValue<E?> = ViewerProperties.singleSelection<TableViewer, E?>().observe(form.listView as Viewer)
+    val isEntitySelected = ComputedValue.create { if (selectedEntity.value == null) false else true}
+    //a binding that sets delete toolitem to disabled based on whether item in list is selected
+    val bindDelete = dbc.bindValue(deleteItemTarget, isEntitySelected)
+
+    // this is not firing, is supposed to update the Action based on ToolItem update
+    // because a tool item affects just toolbar, and not the action which toolbar AND menu item are based on
+    // in the iterim putting a forced enable of action in the change event of the tableviewer which is done in the FormViewModel base class
+    bindDelete.target.addChangeListener{
+        ApplicationData.mainWindow.actionDelete.isEnabled = ApplicationData.getDeleteToolbarButton().enabled
+    }
+
     return formBindings
 }
 
@@ -359,7 +376,7 @@ fun <E> makeInputBinding(dbc: DataBindingContext, fieldType: String, fieldName: 
         ApplicationData.ViewDef.lookup -> {
             val comboSource = ApplicationData.lookups.getOrDefault(formWidget.fieldDef[ApplicationData.ViewDef.lookupKey] as String, listOf())
             val target: IObservableValue<LookupDetail> =
-                    ViewerProperties.singleSelection<ComboViewer, LookupDetail>().observeDelayed(1, formWidget.widget as ComboViewer)
+                    ViewerProperties.singleSelection<ComboViewer, LookupDetail>().observe(formWidget.widget as Viewer)
             val model = BeanProperties.value<E, String>(fieldName).observe(entity)
             val targetToModel = UpdateValueStrategy<LookupDetail, String>(ApplicationData.defaultUpdatePolicy)
             val modelToTarget = UpdateValueStrategy<String?, LookupDetail>(ApplicationData.defaultUpdatePolicy)
