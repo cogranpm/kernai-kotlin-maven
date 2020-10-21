@@ -272,6 +272,7 @@ fun <E> makeFormBindings(dbc: DataBindingContext,
     val validationObserver = AggregateValidationStatus(dbc.bindings, AggregateValidationStatus.MAX_SEVERITY)
     val errorObservable: IObservableValue<String> = WidgetProperties.text<Label>().observe(lblErrors)
     val allValidationBinding: Binding = dbc.bindValue(errorObservable, validationObserver, null, null)
+    //formBindings["validation"] = allValidationBinding
     return formBindings
 }
 
