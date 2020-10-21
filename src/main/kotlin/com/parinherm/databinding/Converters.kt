@@ -7,6 +7,7 @@ import org.eclipse.core.databinding.conversion.text.StringToNumberConverter
 import java.math.BigDecimal
 import org.eclipse.core.databinding.conversion.Converter
 import org.eclipse.core.databinding.conversion.IConverter
+import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.core.databinding.validation.ValidationStatus
 import org.eclipse.core.runtime.IStatus
 import java.time.LocalDate
@@ -29,51 +30,65 @@ object Converters {
 
     //these need to be deleted, hard wires the Strategy to the converter
     val updToDouble = UpdateValueStrategy<String, Double>(UpdateValueStrategy.POLICY_UPDATE).setConverter(
-        StringToNumberConverter.toDouble(true))
+        StringToNumberConverter.toDouble(true)
+    )
     val updFromDouble = UpdateValueStrategy<Double, String>(UpdateValueStrategy.POLICY_UPDATE).setConverter(
-        NumberToStringConverter.fromDouble(true))
+        NumberToStringConverter.fromDouble(true)
+    )
 
-    val updToInt = UpdateValueStrategy<String, Int>(UpdateValueStrategy.POLICY_UPDATE).setConverter(StringToNumberConverter.toInteger(true))
-    val updFromInt = UpdateValueStrategy<Int, String>(UpdateValueStrategy.POLICY_UPDATE).setConverter(NumberToStringConverter.fromInteger(true))
+    val updToInt = UpdateValueStrategy<String, Int>(UpdateValueStrategy.POLICY_UPDATE).setConverter(
+        StringToNumberConverter.toInteger(true)
+    )
+    val updFromInt = UpdateValueStrategy<Int, String>(UpdateValueStrategy.POLICY_UPDATE).setConverter(
+        NumberToStringConverter.fromInteger(true)
+    )
 
-    val updToBigDecimal = UpdateValueStrategy<String, BigDecimal>(UpdateValueStrategy.POLICY_UPDATE).setConverter(StringToNumberConverter.toBigDecimal())
-    val updFromBigDecimal = UpdateValueStrategy<BigDecimal, String>(UpdateValueStrategy.POLICY_UPDATE).setConverter(NumberToStringConverter.fromBigDecimal())
+    val updToBigDecimal =
+        UpdateValueStrategy<String, BigDecimal>(UpdateValueStrategy.POLICY_UPDATE).setConverter(StringToNumberConverter.toBigDecimal())
+    val updFromBigDecimal =
+        UpdateValueStrategy<BigDecimal, String>(UpdateValueStrategy.POLICY_UPDATE).setConverter(NumberToStringConverter.fromBigDecimal())
 
-    val numberValidator = {x: String? ->
+
+    val convertToBoolean: IConverter<Any, Boolean> = IConverter.create {  if (it == null) false else true }
+    val booleanNullConverter = UpdateValueStrategy<Any, Boolean?>(UpdateValueStrategy.POLICY_UPDATE).setConverter(
+        convertToBoolean
+    )
+
+
+    val numberValidator = { x: String? ->
         val regex = "^[+-]?(\\d+(,\\d{3})*)$".toRegex()
-        if(regex.matches(x.toString())){
+        if (regex.matches(x.toString())) {
             ValidationStatus.ok()
-        }else {
+        } else {
             ValidationStatus.error("Invalid number entered")
         }
     }
 
     val floatValidator = { x: String? ->
         val regex = "[0-9]+(\\.){0,1}[0-9]*".toRegex()
-        if(regex.matches(x.toString())){
+        if (regex.matches(x.toString())) {
             ValidationStatus.ok()
-        }else {
+        } else {
             ValidationStatus.error("Invalid number entered")
         }
     }
 
-    val bigDecimalValidator = {x: String? ->
+    val bigDecimalValidator = { x: String? ->
         try {
             val format = DecimalFormat("", DecimalFormatSymbols(Locale.ENGLISH))
                 .parse(x)
             ValidationStatus.ok()
-        } catch(e: ParseException){
+        } catch (e: ParseException) {
             ValidationStatus.error("Invalid number entered")
         }
     }
 
 
-
     //converting from a combo lookup to a field type, say string
-    val convertFromLookup: IConverter<LookupDetail, String?> = IConverter.create<LookupDetail, String?> {it.code }
-    fun convertToLookup( list: List<LookupDetail>) : IConverter<String?, LookupDetail> {
-        return IConverter.create<String, LookupDetail>{
-            item: String -> list.find { it.code == item }
+    val convertFromLookup: IConverter<LookupDetail, String?> = IConverter.create<LookupDetail, String?> { it.code }
+    fun convertToLookup(list: List<LookupDetail>): IConverter<String?, LookupDetail> {
+        return IConverter.create<String, LookupDetail> { item: String ->
+            list.find { it.code == item }
         }
     }
 
@@ -84,15 +99,15 @@ object Converters {
 }
 
 
-class DateTimeSelectionProperty () : WidgetValueProperty<Widget, Any> (SWT.Selection) {
+class DateTimeSelectionProperty() : WidgetValueProperty<Widget, Any>(SWT.Selection) {
 
     val MONTH_MAPPING_VALUE = 1
 
-    override fun getValueType() : Any {
+    override fun getValueType(): Any {
         return TemporalAccessor::class.java as Any
     }
 
-    override fun doGetValue(source: Widget) : Any {
+    override fun doGetValue(source: Widget): Any {
         val dateTime: DateTime = source as DateTime
         if ((dateTime.style and SWT.TIME) != 0) {
             return LocalTime.of(dateTime.hours, dateTime.minutes, dateTime.seconds) as Any
@@ -105,10 +120,12 @@ class DateTimeSelectionProperty () : WidgetValueProperty<Widget, Any> (SWT.Selec
         val dateTime: DateTime = source as DateTime
         val ta = getTemporalAccessor(value) ?: throw IllegalArgumentException()
 
-        if((dateTime.style and SWT.TIME) != 0) {
-            dateTime.setTime(ta.get(ChronoField.HOUR_OF_DAY),
+        if ((dateTime.style and SWT.TIME) != 0) {
+            dateTime.setTime(
+                ta.get(ChronoField.HOUR_OF_DAY),
                 ta.get(ChronoField.MINUTE_OF_HOUR),
-                ta.get(ChronoField.SECOND_OF_MINUTE))
+                ta.get(ChronoField.SECOND_OF_MINUTE)
+            )
         } else {
             dateTime.setDate(
                 ta.get(ChronoField.YEAR),
@@ -121,11 +138,11 @@ class DateTimeSelectionProperty () : WidgetValueProperty<Widget, Any> (SWT.Selec
     private fun getTemporalAccessor(value: Any): TemporalAccessor? {
         if (value is Date) {
             return LocalDateTime.from((value as Date).toInstant())
-        } else if(value is TemporalAccessor){
+        } else if (value is TemporalAccessor) {
             return value as TemporalAccessor
-        } else if(value is Calendar) {
+        } else if (value is Calendar) {
             return LocalDateTime.from((value as Calendar).toInstant())
-        }else {
+        } else {
             return null
         }
     }

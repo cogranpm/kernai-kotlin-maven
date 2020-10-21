@@ -2,6 +2,7 @@ package com.parinherm.form
 
 import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
+import com.parinherm.databinding.Converters
 import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.NewFlag
@@ -210,11 +211,13 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
 
 //delete button binding
         val deleteItemTarget = WidgetProperties.enabled<Button>().observe(view.form.btnDummyDelete)
-        val selectedEntity: IViewerObservableValue<T?> = ViewerProperties.singleSelection<Viewer, T?>().observe(view.form.listView) as IViewerObservableValue<T?>
+        // don't know how to get rid of the overload ambiguity on the observe call below other than put in an observeDelayed
+        val selectedEntity: IViewerObservableValue<T?> = ViewerProperties.singleSelection<Viewer, T?>().observeDelayed(1, view.form.listView)// as IViewerObservableValue<T?>
         //a binding that sets delete toolitem to disabled based on whether item in list is selected
-        val deleteBinding = dbc.bindValue(deleteItemTarget, selectedEntity,  UpdateValueStrategy(UpdateValueStrategy.POLICY_NEVER), BooleanNullConverter())
+        val deleteBinding = dbc.bindValue(deleteItemTarget, selectedEntity, UpdateValueStrategy(UpdateValueStrategy.POLICY_NEVER), Converters.booleanNullConverter)
         //a listener on above binding that makes sure action enabled is set set toolitem changes, ie can't databind the enbabled of an action
         deleteBinding.target.addChangeListener() {
+            println("changed the delete")
             ApplicationData.mainWindow.actionDelete.isEnabled = view.form.btnDummyDelete.enabled
         }
 

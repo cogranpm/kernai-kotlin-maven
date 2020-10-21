@@ -150,6 +150,7 @@ fun makeDummySaveButton(parent: Composite): Button {
     val button = Button(parent, SWT.PUSH)
     GridDataFactory.fillDefaults().span(2, 1).applyTo(button)
     button.text = "Save"
+    button.enabled = false
     return button
 }
 
@@ -157,6 +158,7 @@ fun makeDummyDeleteButton(parent: Composite): Button {
     val button = Button(parent, SWT.PUSH)
     GridDataFactory.fillDefaults().span(2, 1).applyTo(button)
     button.text = "Delete"
+    button.enabled = false
     return button
 }
 
