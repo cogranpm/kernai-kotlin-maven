@@ -50,6 +50,7 @@ data class Form<T>(
     val formsContainer = makeEditContainer(hasChildViews, sashForm)
     val lblErrors = makeErrorLabel(formsContainer.editContainer)
     val btnDummySave = makeDummySaveButton(formsContainer.editContainer)
+    val btnDummyDelete = makeDummyDeleteButton(formsContainer.editContainer)
     val childFormsContainer: ChildFormContainer? = getGetChildForms(hasChildViews, viewDefinition, formsContainer)
     val formWidgets = makeForm(fields, formsContainer.editContainer)
     val dbc = DataBindingContext()

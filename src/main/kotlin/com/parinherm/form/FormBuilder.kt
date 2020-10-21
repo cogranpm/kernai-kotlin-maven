@@ -153,6 +153,13 @@ fun makeDummySaveButton(parent: Composite): Button {
     return button
 }
 
+fun makeDummyDeleteButton(parent: Composite): Button {
+    val button = Button(parent, SWT.PUSH)
+    GridDataFactory.fillDefaults().span(2, 1).applyTo(button)
+    button.text = "Delete"
+    return button
+}
+
 
 fun makeErrorLabel(parent: Composite): Label {
     val lblErrors = Label(parent, ApplicationData.labelStyle)

@@ -9,6 +9,7 @@ import com.parinherm.entity.schema.IMapper
 import com.parinherm.view.View
 import org.eclipse.core.databinding.AggregateValidationStatus
 import org.eclipse.core.databinding.DataBindingContext
+import org.eclipse.core.databinding.UpdateValueStrategy
 import org.eclipse.core.databinding.beans.typed.BeanProperties
 import org.eclipse.core.databinding.observable.ChangeEvent
 import org.eclipse.core.databinding.observable.IChangeListener
@@ -16,11 +17,14 @@ import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.core.databinding.observable.value.ComputedValue
 import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
+import org.eclipse.jface.databinding.viewers.IViewerObservableValue
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
+import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
 import org.eclipse.jface.internal.databinding.swt.SWTObservableValueDecorator
 import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.jface.viewers.TableViewerColumn
+import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.events.SelectionListener
@@ -200,6 +204,18 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
         bindSave.target.addChangeListener() {
             //println("enabled of save has changed ${view.form.btnDummySave.enabled}")
             ApplicationData.mainWindow.actionSave.isEnabled = view.form.btnDummySave.enabled
+        }
+
+
+
+//delete button binding
+        val deleteItemTarget = WidgetProperties.enabled<Button>().observe(view.form.btnDummyDelete)
+        val selectedEntity: IViewerObservableValue<T?> = ViewerProperties.singleSelection<Viewer, T?>().observe(view.form.listView) as IViewerObservableValue<T?>
+        //a binding that sets delete toolitem to disabled based on whether item in list is selected
+        val deleteBinding = dbc.bindValue(deleteItemTarget, selectedEntity,  UpdateValueStrategy(UpdateValueStrategy.POLICY_NEVER), BooleanNullConverter())
+        //a listener on above binding that makes sure action enabled is set set toolitem changes, ie can't databind the enbabled of an action
+        deleteBinding.target.addChangeListener() {
+            ApplicationData.mainWindow.actionDelete.isEnabled = view.form.btnDummyDelete.enabled
         }
 
         view.form.enable(true)
