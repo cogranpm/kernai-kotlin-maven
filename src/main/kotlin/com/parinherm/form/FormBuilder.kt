@@ -146,6 +146,13 @@ fun makeForm(fields: List<Map<String, Any>>, parent: Composite)
 
 }
 
+fun makeDummySaveButton(parent: Composite): Button {
+    val button = Button(parent, SWT.PUSH)
+    GridDataFactory.fillDefaults().span(2, 1).applyTo(button)
+    button.text = "Save"
+    return button
+}
+
 
 fun makeErrorLabel(parent: Composite): Label {
     val lblErrors = Label(parent, ApplicationData.labelStyle)
@@ -261,7 +268,7 @@ fun <E> makeFormBindings(dbc: DataBindingContext,
         val fieldType = formWidget.fieldType
         fieldName to makeInputBinding(dbc, fieldType, fieldName, formWidget, entity)
         //makeInputBinding(dbc, fieldType, fieldName, formWidget, entity)
-    }.toMap()
+    }.toMap().toMutableMap()
 
 
 
@@ -272,7 +279,7 @@ fun <E> makeFormBindings(dbc: DataBindingContext,
     val validationObserver = AggregateValidationStatus(dbc.bindings, AggregateValidationStatus.MAX_SEVERITY)
     val errorObservable: IObservableValue<String> = WidgetProperties.text<Label>().observe(lblErrors)
     val allValidationBinding: Binding = dbc.bindValue(errorObservable, validationObserver, null, null)
-    //formBindings["validation"] = allValidationBinding
+    formBindings["validation"] = allValidationBinding
     return formBindings
 }
 

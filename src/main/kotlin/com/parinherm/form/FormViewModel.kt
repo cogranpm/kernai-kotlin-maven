@@ -186,17 +186,16 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
             stateChangeListener
         )
 
-        /* experiment with the dirty binding
-        val btnSave = ApplicationData.mainWindow.actionSave.
-        val targetSave = WidgetProperties.enabled<Button>().observe(btnSave)
+        /* experiment with the dirty binding */
+        val targetSave = WidgetProperties.enabled<Button>().observe(view.form.btnDummySave)
         val modelDirty = BeanProperties.value<DirtyFlag, Boolean>("dirty").observe(dirtyFlag)
 
         // ComputedValue is the critical piece in binding a single observable, say a button enabled
         // to multiple model properties, say a dirty flag or validation status
+        val validationObserver = formBindings["validation"]?.model
         val isValidationOk: IObservableValue<Boolean> = ComputedValue.create { validationObserver.value.isOK && modelDirty.value }
         val bindSave = dbc.bindValue(targetSave, isValidationOk)
 
-         */
 
 
         view.form.enable(true)

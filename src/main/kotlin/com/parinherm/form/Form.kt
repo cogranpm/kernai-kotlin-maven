@@ -49,12 +49,14 @@ data class Form<T>(
     val contentProvider = ObservableListContentProvider<T>()
     val formsContainer = makeEditContainer(hasChildViews, sashForm)
     val lblErrors = makeErrorLabel(formsContainer.editContainer)
+    val btnDummySave = makeDummySaveButton(formsContainer.editContainer)
     val childFormsContainer: ChildFormContainer? = getGetChildForms(hasChildViews, viewDefinition, formsContainer)
     val formWidgets = makeForm(fields, formsContainer.editContainer)
     val dbc = DataBindingContext()
 
 
     init {
+
         //needs to be done after content is added
         sashForm.weights = intArrayOf(1, 2)
         sashForm.sashWidth = 4
