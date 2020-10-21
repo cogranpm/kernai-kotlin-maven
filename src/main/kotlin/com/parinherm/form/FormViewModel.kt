@@ -8,9 +8,13 @@ import com.parinherm.entity.NewFlag
 import com.parinherm.entity.schema.IMapper
 import com.parinherm.view.View
 import org.eclipse.core.databinding.DataBindingContext
+import org.eclipse.core.databinding.beans.typed.BeanProperties
 import org.eclipse.core.databinding.observable.ChangeEvent
 import org.eclipse.core.databinding.observable.IChangeListener
 import org.eclipse.core.databinding.observable.list.WritableList
+import org.eclipse.core.databinding.observable.value.ComputedValue
+import org.eclipse.core.databinding.observable.value.IObservableValue
+import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.internal.databinding.swt.SWTObservableValueDecorator
 import org.eclipse.jface.viewers.StructuredSelection
@@ -19,6 +23,7 @@ import org.eclipse.jface.viewers.TableViewerColumn
 import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.events.SelectionListener
+import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.TableColumn
@@ -180,6 +185,20 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
             view.form.lblErrors,
             stateChangeListener
         )
+
+        /* experiment with the dirty binding
+        val btnSave = ApplicationData.mainWindow.actionSave.
+        val targetSave = WidgetProperties.enabled<Button>().observe(btnSave)
+        val modelDirty = BeanProperties.value<DirtyFlag, Boolean>("dirty").observe(dirtyFlag)
+
+        // ComputedValue is the critical piece in binding a single observable, say a button enabled
+        // to multiple model properties, say a dirty flag or validation status
+        val isValidationOk: IObservableValue<Boolean> = ComputedValue.create { validationObserver.value.isOK && modelDirty.value }
+        val bindSave = dbc.bindValue(targetSave, isValidationOk)
+
+         */
+
+
         view.form.enable(true)
     }
 

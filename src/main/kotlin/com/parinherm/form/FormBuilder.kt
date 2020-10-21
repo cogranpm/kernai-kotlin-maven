@@ -24,6 +24,7 @@ import org.eclipse.core.databinding.observable.map.IObservableMap
 import org.eclipse.core.databinding.observable.set.IObservableSet
 import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.core.databinding.property.value.IValueProperty
+import org.eclipse.jface.action.Action
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
@@ -244,7 +245,7 @@ fun makeInputWidget(
 fun <E> makeFormBindings(dbc: DataBindingContext,
                          formWidgets: Map<String, FormWidget>,
                          entity: E,
-                         lblErrors: Label, stateChangeListener: IChangeListener): List<Binding?> {
+                         lblErrors: Label, stateChangeListener: IChangeListener): Map<String, Binding?> {
     dbc.dispose()
     val bindings = dbc.validationStatusProviders
     for (binding: ValidationStatusProvider in bindings) {
@@ -258,8 +259,11 @@ fun <E> makeFormBindings(dbc: DataBindingContext,
         //val fieldName = entityNamePrefix + "." + it.key
         val fieldName =  it.key
         val fieldType = formWidget.fieldType
-        makeInputBinding(dbc, fieldType, fieldName, formWidget, entity)
-    }
+        fieldName to makeInputBinding(dbc, fieldType, fieldName, formWidget, entity)
+        //makeInputBinding(dbc, fieldType, fieldName, formWidget, entity)
+    }.toMap()
+
+
 
     dbc.bindings.forEach {
         it.target.addChangeListener(stateChangeListener)
