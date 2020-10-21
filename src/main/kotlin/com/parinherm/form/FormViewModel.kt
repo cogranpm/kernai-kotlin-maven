@@ -7,6 +7,7 @@ import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.NewFlag
 import com.parinherm.entity.schema.IMapper
 import com.parinherm.view.View
+import org.eclipse.core.databinding.AggregateValidationStatus
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.beans.typed.BeanProperties
 import org.eclipse.core.databinding.observable.ChangeEvent
@@ -192,11 +193,14 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
 
         // ComputedValue is the critical piece in binding a single observable, say a button enabled
         // to multiple model properties, say a dirty flag or validation status
-        val validationObserver = formBindings["validation"]?.model
+        val validationObserver = formBindings["validation"]?.model as AggregateValidationStatus
         val isValidationOk: IObservableValue<Boolean> = ComputedValue.create { validationObserver.value.isOK && modelDirty.value }
         val bindSave = dbc.bindValue(targetSave, isValidationOk)
 
-
+        bindSave.target.addChangeListener() {
+            //println("enabled of save has changed ${view.form.btnDummySave.enabled}")
+            ApplicationData.mainWindow.actionSave.isEnabled = view.form.btnDummySave.enabled
+        }
 
         view.form.enable(true)
     }
@@ -240,7 +244,6 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
                 mapper.save(currentEntity!!)
             }
         }
-        //ApplicationData.mainWindow.actionSave.isEnabled = false
     }
 
     override fun refresh() {

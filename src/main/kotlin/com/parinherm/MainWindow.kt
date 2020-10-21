@@ -91,7 +91,9 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         addToolBar(SWT.NONE) //SWT.FLAT or SWT.WRAP
         addMenuBar()
         addStatusLine()
-
+        actionSave.isEnabled = false
+        actionNew.isEnabled = true
+        actionDelete.isEnabled = false
     }
 
     override fun createContents(parent: Composite?): Control {
