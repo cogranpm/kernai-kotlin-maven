@@ -222,6 +222,7 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
                 mapper.save(currentEntity!!)
             }
         }
+        //ApplicationData.mainWindow.actionSave.isEnabled = false
     }
 
     override fun refresh() {
