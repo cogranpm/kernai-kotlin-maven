@@ -11,6 +11,5 @@ object Snippets : LongIdTable() {
     val type = varchar("type", ApplicationData.lookupFieldLength)
     val desc = varchar("desc", 4000)
     val body = text("body")
-    val output = text("text")
-    val canRun = bool("canRun")
+
 }

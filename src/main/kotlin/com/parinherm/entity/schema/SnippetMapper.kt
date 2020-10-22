@@ -21,8 +21,7 @@ object SnippetMapper : IMapper<Snippet> {
         statement[table.type] = item.type
         statement[table.desc] = item.desc
         statement[table.body] = item.body
-        statement[table.output] = item.output
-        statement[table.canRun] = item.canRun
+
     }
 
     override fun getAll(keys: Map<String, Long>): List<Snippet> {
@@ -42,9 +41,7 @@ object SnippetMapper : IMapper<Snippet> {
                     it[table.topic],
                     it[table.type],
                     it[table.desc],
-                    it[table.body],
-                    it[table.output],
-                    it[table.canRun]
+                    it[table.body]
             )
         }
     }

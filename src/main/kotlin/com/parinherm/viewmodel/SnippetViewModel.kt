@@ -17,29 +17,53 @@ import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 
 import org.graalvm.polyglot.*;
+import javax.script.ScriptEngine
+import javax.script.ScriptEngineManager
 
 
 class SnippetViewModel(parent: CTabFolder)  : FormViewModel<Snippet>(
     SnippetView(parent, Comparator()),
     SnippetMapper, { Snippet.make() }) {
 
+   //val classLoader = Thread.currentThread().contextClassLoader
+   //val engine: ScriptEngine = ScriptEngineManager(classLoader).getEngineByExtension("kts")
+
     init {
         loadData(mapOf())
+
 
         /* custom stuff to test out graal vm javascript */
         val editContainer = view.form.formsContainer.editContainer
         val toolbar = Composite(editContainer, SWT.BORDER)
         toolbar.layout = RowLayout()
+
         val testScriptButton = Button(toolbar, SWT.PUSH)
-        testScriptButton.text = "Test Script"
+        testScriptButton.text = "Run"
         testScriptButton.addSelectionListener(object : SelectionAdapter() {
             override fun widgetSelected(e: SelectionEvent?) {
-                testScript()
+                runKotlinScript()
+            }
+        })
+
+        val graalScriptButton = Button(toolbar, SWT.PUSH)
+        graalScriptButton.text = "Graal JS Test"
+        graalScriptButton.addSelectionListener(object : SelectionAdapter() {
+            override fun widgetSelected(e: SelectionEvent?) {
+                graalTestScript()
             }
         })
     }
 
-    fun testScript(){
+    fun runKotlinScript(){
+        with(ScriptEngineManager().getEngineByExtension("kts")) {
+            eval("val x = 3")
+            val res2 = eval("x + 2")
+            println("from the script: $res2")
+        }
+
+    }
+
+    fun graalTestScript(){
         try {
             val context =Context.newBuilder("js").allowAllAccess(true).allowHostClassLookup { _ -> true }.allowIO(true).build()
             context.use {
