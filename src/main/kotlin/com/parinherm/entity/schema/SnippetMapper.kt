@@ -11,7 +11,7 @@ object SnippetMapper : IMapper<Snippet> {
 
     override fun save(item: Snippet) {
         MapperHelper.save(item, table, ::mapItem)
-   }
+    }
 
     private fun mapItem(item: Snippet, statement: UpdateBuilder<Int>) {
         statement[table.name] = item.name
@@ -21,26 +21,30 @@ object SnippetMapper : IMapper<Snippet> {
         statement[table.type] = item.type
         statement[table.desc] = item.desc
         statement[table.body] = item.body
+        statement[table.output] = item.output
+        statement[table.canRun] = item.canRun
     }
 
     override fun getAll(keys: Map<String, Long>): List<Snippet> {
         return MapperHelper.getAll(
-            keys,
-            table,
-            null,
-            table.name to SortOrder.ASC,
+                keys,
+                table,
+                null,
+                table.name to SortOrder.ASC,
 
-        )
+                )
         {
             Snippet(
-                it[table.id].value,
-                it[table.name],
-                it[table.language],
-                it[table.category],
-                it[table.topic],
-                it[table.type],
-                it[table.desc],
-                it[table.body]
+                    it[table.id].value,
+                    it[table.name],
+                    it[table.language],
+                    it[table.category],
+                    it[table.topic],
+                    it[table.type],
+                    it[table.desc],
+                    it[table.body],
+                    it[table.output],
+                    it[table.canRun]
             )
         }
     }

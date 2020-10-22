@@ -232,11 +232,24 @@ object ViewDefinitions {
             ViewDef.fieldDataType to ViewDef.memo
         )
 
+        val outputDef = mapOf(
+                ViewDef.fieldName to "output",
+                ViewDef.title to "Output",
+                ViewDef.required to false,
+                ViewDef.fieldDataType to ViewDef.memo
+        )
+
+        val canRunDef = mapOf(
+                ViewDef.fieldName to "canRun",
+                ViewDef.title to "Can Run",
+                ViewDef.required to false,
+                ViewDef.fieldDataType to ViewDef.bool
+        )
 
         val viewDef = mapOf(
             ViewDef.viewid to ApplicationData.ViewDef.techSnippetsViewId,
             ViewDef.title to "Snippets",
-            ViewDef.fields to listOf(nameDef, langDef, categoryDef, topicDef, typeDef, descDef, bodyDef)
+            ViewDef.fields to listOf(nameDef, langDef, categoryDef, topicDef, typeDef, descDef, bodyDef, outputDef, canRunDef)
         )
 
         return viewDef
