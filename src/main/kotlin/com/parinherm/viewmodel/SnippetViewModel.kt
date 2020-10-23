@@ -15,8 +15,12 @@ import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.layout.RowLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
+import org.eclipse.swt.widgets.Text
 
 import org.graalvm.polyglot.*;
+import java.io.ByteArrayOutputStream
+import java.io.PrintStream
+import java.io.StringWriter
 import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
 
@@ -56,9 +60,28 @@ class SnippetViewModel(parent: CTabFolder)  : FormViewModel<Snippet>(
 
     fun runKotlinScript(){
         with(ScriptEngineManager().getEngineByExtension("kts")) {
-            eval("val x = 3")
-            val res2 = eval("x + 2")
-            println("from the script: $res2")
+            //val writer = StringWriter()
+            //context.writer = writer
+            val bs = ByteArrayOutputStream()
+            val ps = PrintStream(bs)
+
+            // keep this to restore the output to regular
+            val console = System.out
+
+            // redirect the output to a byte stream
+            System.setOut(ps)
+
+
+           // eval("val x = 3")
+           // val res2 = eval("x + 2")
+
+
+            val result = eval(currentEntity?.body)
+            System.out.flush()
+            System.setOut(console)
+
+            val outputWidget = view.form.formWidgets["output"]!!.widget as Text
+            outputWidget.text = bs.toString()
         }
 
     }
