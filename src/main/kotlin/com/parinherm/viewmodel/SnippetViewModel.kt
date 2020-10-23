@@ -75,6 +75,7 @@ class SnippetViewModel(parent: CTabFolder)  : FormViewModel<Snippet>(
            // eval("val x = 3")
            // val res2 = eval("x + 2")
 
+            put("currentEntity", currentEntity)
 
             val result = eval(currentEntity?.body)
             System.out.flush()
