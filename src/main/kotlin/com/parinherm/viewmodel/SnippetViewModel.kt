@@ -37,25 +37,21 @@ class SnippetViewModel(parent: CTabFolder)  : FormViewModel<Snippet>(
 
 
         /* custom stuff to test out graal vm javascript */
-        val editContainer = view.form.formsContainer.editContainer
-        val toolbar = Composite(editContainer, SWT.BORDER)
-        toolbar.layout = RowLayout()
-
-        val testScriptButton = Button(toolbar, SWT.PUSH)
-        testScriptButton.text = "Run"
-        testScriptButton.addSelectionListener(object : SelectionAdapter() {
+        val snippetView = view as SnippetView
+        snippetView.testScriptButton.addSelectionListener(object : SelectionAdapter() {
             override fun widgetSelected(e: SelectionEvent?) {
                 runKotlinScript()
             }
         })
 
-        val graalScriptButton = Button(toolbar, SWT.PUSH)
-        graalScriptButton.text = "Graal JS Test"
-        graalScriptButton.addSelectionListener(object : SelectionAdapter() {
+
+        snippetView.graalScriptButton.addSelectionListener(object : SelectionAdapter() {
             override fun widgetSelected(e: SelectionEvent?) {
                 graalTestScript()
             }
         })
+
+
     }
 
     fun runKotlinScript(){
