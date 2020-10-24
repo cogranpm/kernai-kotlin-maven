@@ -7,21 +7,20 @@ import com.parinherm.entity.Snippet
 import com.parinherm.entity.schema.SnippetMapper
 import com.parinherm.form.FormViewModel
 import com.parinherm.view.SnippetView
+import org.eclipse.jface.text.Document
+import org.eclipse.jface.text.DocumentEvent
+import org.eclipse.jface.text.IDocument
+import org.eclipse.jface.text.IDocumentListener
+import org.eclipse.jface.text.source.AnnotationModel
 import org.eclipse.jface.viewers.Viewer
-import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.CTabFolder
 import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
-import org.eclipse.swt.layout.RowLayout
-import org.eclipse.swt.widgets.Button
-import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Text
-
-import org.graalvm.polyglot.*;
+import org.graalvm.polyglot.Context
+import org.graalvm.polyglot.Source
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
-import java.io.StringWriter
-import javax.script.ScriptEngine
 import javax.script.ScriptEngineManager
 
 
@@ -32,12 +31,30 @@ class SnippetViewModel(parent: CTabFolder)  : FormViewModel<Snippet>(
    //val classLoader = Thread.currentThread().contextClassLoader
    //val engine: ScriptEngine = ScriptEngineManager(classLoader).getEngineByExtension("kts")
 
+    /********* document for source code editing **************/
+    val document: IDocument = Document()
+    val annotationModel = AnnotationModel()
+
+
     init {
         loadData(mapOf())
 
 
         /* custom stuff to test out graal vm javascript */
         val snippetView = view as SnippetView
+        annotationModel.connect(document)
+        snippetView.txtBody.setDocument(document, annotationModel)
+
+        document.addDocumentListener(object: IDocumentListener {
+            override fun documentAboutToBeChanged(p0: DocumentEvent?) {
+
+            }
+
+            override fun documentChanged(p0: DocumentEvent?) {
+                currentEntity?.body = document.get()
+            }
+        })
+
         snippetView.testScriptButton.addSelectionListener(object : SelectionAdapter() {
             override fun widgetSelected(e: SelectionEvent?) {
                 runKotlinScript()
@@ -106,6 +123,11 @@ class SnippetViewModel(parent: CTabFolder)  : FormViewModel<Snippet>(
     fun loadScript(fileName: String) : String {
         val script = this::class.java.getResource("/scripts/$fileName")
         return script?.readText(Charsets.UTF_8) ?: ""
+    }
+
+    override fun changeSelection() {
+        super.changeSelection()
+        document.set(currentEntity?.body)
     }
 
     class Comparator : BeansViewerComparator(), IViewerComparator {
