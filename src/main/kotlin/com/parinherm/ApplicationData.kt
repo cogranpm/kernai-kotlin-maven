@@ -321,6 +321,8 @@ object ApplicationData {
         const val bool = "bool"
         const val datetime = "datetime"
         const val money = "money"
+        // source is a source code editor
+        const val source = "source"
 
         const val fieldLabelConverter = "fieldLabelConverter"
         const val required = "required"
