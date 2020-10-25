@@ -6,6 +6,7 @@ import com.parinherm.entity.Snippet
 import com.parinherm.form.Form
 import com.parinherm.form.applyLayoutToField
 import com.parinherm.form.makeInputLabel
+import com.parinherm.form.widgets.SourceCodeViewer
 import org.eclipse.jface.text.source.*
 import org.eclipse.swt.SWT
 import org.eclipse.swt.layout.RowLayout
@@ -27,10 +28,7 @@ class SnippetView (val parent: Composite, comparator: BeansViewerComparator) : V
 
     /******* source editor *********/
     val lblBody = makeInputLabel(editContainer, "Body")
-    val VERTICAL_RULER_WIDTH = 12
-    val overviewRuler = OverviewRuler(null, VERTICAL_RULER_WIDTH, null)
-    val ruler = CompositeRuler(VERTICAL_RULER_WIDTH)
-    val txtBody = SourceViewer(editContainer, ruler, overviewRuler, false, SWT.BORDER or SWT.MULTI or SWT.V_SCROLL or SWT.H_SCROLL)
+    val txtBody = SourceCodeViewer(editContainer)
 
     /***** test buttons *********/
     val toolbar = Composite(editContainer, SWT.BORDER)
@@ -38,9 +36,6 @@ class SnippetView (val parent: Composite, comparator: BeansViewerComparator) : V
     val graalScriptButton = Button(toolbar, SWT.PUSH)
 
     init {
-        txtBody.configure(KotlinSourceViewerConfiguration())
-        ruler.addDecorator(0, LineNumberRulerColumn())
-        applyLayoutToField(txtBody.control, true, true)
 
         toolbar.layout = RowLayout()
         testScriptButton.text = "Run"
