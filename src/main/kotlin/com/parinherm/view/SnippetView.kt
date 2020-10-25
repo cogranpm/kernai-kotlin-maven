@@ -6,12 +6,8 @@ import com.parinherm.entity.Snippet
 import com.parinherm.form.Form
 import com.parinherm.form.applyLayoutToField
 import com.parinherm.form.makeInputLabel
-import org.eclipse.jface.text.Document
-import org.eclipse.jface.text.IDocument
 import org.eclipse.jface.text.source.*
 import org.eclipse.swt.SWT
-import org.eclipse.swt.events.SelectionAdapter
-import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.layout.RowLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
@@ -42,7 +38,7 @@ class SnippetView (val parent: Composite, comparator: BeansViewerComparator) : V
     val graalScriptButton = Button(toolbar, SWT.PUSH)
 
     init {
-        txtBody.configure(SourceViewerConfiguration())
+        txtBody.configure(KotlinSourceViewerConfiguration())
         ruler.addDecorator(0, LineNumberRulerColumn())
         applyLayoutToField(txtBody.control, true, true)
 
