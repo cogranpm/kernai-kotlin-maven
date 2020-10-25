@@ -27,8 +27,8 @@ class SnippetView (val parent: Composite, comparator: BeansViewerComparator) : V
     val editContainer = form.formsContainer.editContainer
 
     /******* source editor *********/
-    val lblBody = makeInputLabel(editContainer, "Body")
-    val txtBody = SourceCodeViewer(editContainer)
+    //val lblBody = makeInputLabel(editContainer, "Body")
+    //val txtBody = SourceCodeViewer(editContainer)
 
     /***** test buttons *********/
     val toolbar = Composite(editContainer, SWT.BORDER)

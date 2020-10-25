@@ -31,17 +31,15 @@ class SnippetViewModel(parent: CTabFolder)  : FormViewModel<Snippet>(
    //val classLoader = Thread.currentThread().contextClassLoader
    //val engine: ScriptEngine = ScriptEngineManager(classLoader).getEngineByExtension("kts")
 
-    /********* document for source code editing **************/
-    val document: IDocument = Document()
-    val annotationModel = AnnotationModel()
 
 
     init {
         loadData(mapOf())
-
-
-        /* custom stuff to test out graal vm javascript */
         val snippetView = view as SnippetView
+
+
+        /* custom stuff to test out graal vm javascript
+
         annotationModel.connect(document)
         snippetView.txtBody.setDocument(document, annotationModel)
 
@@ -54,6 +52,7 @@ class SnippetViewModel(parent: CTabFolder)  : FormViewModel<Snippet>(
                 currentEntity?.body = document.get()
             }
         })
+         */
 
         snippetView.testScriptButton.addSelectionListener(object : SelectionAdapter() {
             override fun widgetSelected(e: SelectionEvent?) {
@@ -127,7 +126,7 @@ class SnippetViewModel(parent: CTabFolder)  : FormViewModel<Snippet>(
 
     override fun changeSelection() {
         super.changeSelection()
-        document.set(currentEntity?.body)
+        //document.set(currentEntity?.body)
     }
 
     class Comparator : BeansViewerComparator(), IViewerComparator {

@@ -16,6 +16,7 @@ import com.parinherm.databinding.*
 import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.LookupDetail
+import com.parinherm.form.widgets.SourceCodeViewer
 import org.eclipse.core.databinding.*
 import org.eclipse.core.databinding.beans.typed.BeanProperties
 import org.eclipse.core.databinding.conversion.text.NumberToStringConverter
@@ -26,7 +27,6 @@ import org.eclipse.core.databinding.observable.set.IObservableSet
 import org.eclipse.core.databinding.observable.value.ComputedValue
 import org.eclipse.core.databinding.observable.value.IObservableValue
 import org.eclipse.core.databinding.property.value.IValueProperty
-import org.eclipse.jface.action.Action
 import org.eclipse.jface.databinding.fieldassist.ControlDecorationSupport
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties
 import org.eclipse.jface.databinding.viewers.IViewerObservableValue
@@ -37,6 +37,8 @@ import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.GridLayoutFactory
 import org.eclipse.jface.layout.LayoutConstants
 import org.eclipse.jface.layout.TableColumnLayout
+import org.eclipse.jface.text.DocumentEvent
+import org.eclipse.jface.text.IDocumentListener
 import org.eclipse.jface.viewers.*
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.CTabFolder
@@ -51,8 +53,8 @@ import java.time.LocalDate
 
 
 fun getListViewer(
-        parent: Composite,
-        layout: TableColumnLayout
+    parent: Composite,
+    layout: TableColumnLayout
 )
         : TableViewer {
     val listView = TableViewer(parent, ApplicationData.listViewStyle)
@@ -65,21 +67,21 @@ fun getListViewer(
 }
 
 fun makeColumns(
-        viewer: TableViewer,
-        fields: List<Map<String, Any>>,
-        layout: TableColumnLayout
+    viewer: TableViewer,
+    fields: List<Map<String, Any>>,
+    layout: TableColumnLayout
 )
         : List<TableViewerColumn> {
     return fields
-            .filter { it[ApplicationData.ViewDef.fieldDataType] as String != ApplicationData.ViewDef.memo}
-            .map { makeColumn(it, viewer, layout) }
+        .filter { it[ApplicationData.ViewDef.fieldDataType] as String != ApplicationData.ViewDef.memo }
+        .map { makeColumn(it, viewer, layout) }
 }
 
 
 fun makeColumn(
-        fieldDef: Map<String, Any>,
-        viewer: TableViewer,
-        layout: TableColumnLayout
+    fieldDef: Map<String, Any>,
+    viewer: TableViewer,
+    layout: TableColumnLayout
 ): TableViewerColumn {
     val column = TableViewerColumn(viewer, SWT.LEFT)
     val col = column.column
@@ -94,8 +96,8 @@ fun getPropertyFromFieldDef(fieldDef: Map<String, Any>, propertyKey: String): St
 
 
 fun <E> makeViewerLabelProvider(
-        fields: List<Map<String, Any>>,
-        knownElements: IObservableSet<E>
+    fields: List<Map<String, Any>>,
+    knownElements: IObservableSet<E>
 ): ObservableMapLabelProvider where E : IBeanDataEntity {
     val observables = fields.map { makeColumnObservable(it, knownElements) }
     val labelMaps = observables.toTypedArray()
@@ -114,16 +116,16 @@ fun <E> makeColumnObservable(fieldDef: Map<String, Any>, knownElements: IObserva
     val fieldName = getPropertyFromFieldDef(fieldDef, ApplicationData.ViewDef.fieldName)
     val fieldType = getPropertyFromFieldDef(fieldDef, ApplicationData.ViewDef.fieldDataType)
     val observableColumn: IValueProperty<E, out Any> =
-            when (fieldType) {
-                ApplicationData.ViewDef.text -> BeanProperties.value<E, String>(fieldName)
-                ApplicationData.ViewDef.float -> BeanProperties.value<E, Double>(fieldName)
-                ApplicationData.ViewDef.money -> BeanProperties.value<E, BigDecimal>(fieldName)
-                ApplicationData.ViewDef.int -> BeanProperties.value<E, Int>(fieldName)
-                ApplicationData.ViewDef.bool -> BeanProperties.value<E, Boolean>(fieldName)
-                ApplicationData.ViewDef.datetime -> BeanProperties.value<E, LocalDate>(fieldName)
-                ApplicationData.ViewDef.lookup -> BeanProperties.value<E, String>(fieldName)
-                else -> BeanProperties.value<E, String>(fieldName)
-            }
+        when (fieldType) {
+            ApplicationData.ViewDef.text -> BeanProperties.value<E, String>(fieldName)
+            ApplicationData.ViewDef.float -> BeanProperties.value<E, Double>(fieldName)
+            ApplicationData.ViewDef.money -> BeanProperties.value<E, BigDecimal>(fieldName)
+            ApplicationData.ViewDef.int -> BeanProperties.value<E, Int>(fieldName)
+            ApplicationData.ViewDef.bool -> BeanProperties.value<E, Boolean>(fieldName)
+            ApplicationData.ViewDef.datetime -> BeanProperties.value<E, LocalDate>(fieldName)
+            ApplicationData.ViewDef.lookup -> BeanProperties.value<E, String>(fieldName)
+            else -> BeanProperties.value<E, String>(fieldName)
+        }
     return observableColumn.observeDetail(knownElements)
 }
 
@@ -137,10 +139,10 @@ fun makeForm(fields: List<Map<String, Any>>, parent: Composite)
         val fieldType = it[ApplicationData.ViewDef.fieldDataType] as String
         val label = makeInputLabel(parent, it[ApplicationData.ViewDef.title] as String)
         val control = makeInputWidget(
-                parent,
-                fieldName,
-                fieldType,
-                it
+            parent,
+            fieldName,
+            fieldType,
+            it
         )
         // returning a map entry for each iteration
         // generates a list of pairs
@@ -164,10 +166,10 @@ fun makeInputLabel(parent: Composite, caption: String): Label {
 }
 
 fun makeInputWidget(
-        parent: Composite,
-        fieldName: String,
-        fieldType: String,
-        fieldDef: Map<String, Any>
+    parent: Composite,
+    fieldName: String,
+    fieldType: String,
+    fieldDef: Map<String, Any>
 ): Any {
 
     val control = when (fieldType) {
@@ -182,6 +184,12 @@ fun makeInputWidget(
             val input = Text(parent, SWT.MULTI or SWT.BORDER or SWT.V_SCROLL or SWT.WRAP)
             input.setData("fieldName", fieldName)
             applyLayoutToField(input, true, true, 5 * input.lineHeight)
+            input
+        }
+        ApplicationData.ViewDef.source -> {
+            val input = SourceCodeViewer(parent)
+            input.setData("fieldName", fieldName)
+            applyLayoutToField(input.control, true, true, 5 * input.textWidget.lineHeight)
             input
         }
         ApplicationData.ViewDef.float -> {
@@ -228,7 +236,7 @@ fun makeInputWidget(
                 }
             })
             val comboSource = ApplicationData.lookups.getOrDefault(
-                    fieldDef[ApplicationData.ViewDef.lookupKey] as String, listOf()
+                fieldDef[ApplicationData.ViewDef.lookupKey] as String, listOf()
             )
             applyLayoutToField(input.control, true, false)
             input.input = comboSource
@@ -245,13 +253,15 @@ fun makeInputWidget(
 }
 
 
-fun <E> makeFormBindings(dbc: DataBindingContext,
-                         formWidgets: Map<String, FormWidget>,
-                         entity: E,
-                         lblErrors: Label,
-                         dirtyFlag: DirtyFlag,
-                         form: Form<*>,
-                         stateChangeListener: IChangeListener): Map<String, Binding?> {
+fun <E> makeFormBindings(
+    dbc: DataBindingContext,
+    formWidgets: Map<String, FormWidget>,
+    entity: E,
+    lblErrors: Label,
+    dirtyFlag: DirtyFlag,
+    form: Form<*>,
+    stateChangeListener: IChangeListener
+): Map<String, Binding?> {
     dbc.dispose()
     val bindings = dbc.validationStatusProviders
     for (binding: ValidationStatusProvider in bindings) {
@@ -263,11 +273,19 @@ fun <E> makeFormBindings(dbc: DataBindingContext,
     val formBindings = formWidgets.map {
         val formWidget = it.value
         //val fieldName = entityNamePrefix + "." + it.key
-        val fieldName =  it.key
+        val fieldName = it.key
         val fieldType = formWidget.fieldType
         fieldName to makeInputBinding(dbc, fieldType, fieldName, formWidget, entity)
         //makeInputBinding(dbc, fieldType, fieldName, formWidget, entity)
     }.toMap().toMutableMap()
+
+    val changeHandlers = formWidgets.map {
+        val formWidget = it.value
+        //val fieldName = entityNamePrefix + "." + it.key
+        val fieldName = it.key
+        val fieldType = formWidget.fieldType
+        makeChangeHandler(fieldType, fieldName, formWidget, entity)
+    }
 
 
 
@@ -284,7 +302,8 @@ fun <E> makeFormBindings(dbc: DataBindingContext,
     /*********** save binding ************************/
     val targetSave = WidgetProperties.enabled<ToolItem>().observe(ApplicationData.getSaveToolbarButton())
     val modelDirty = BeanProperties.value<DirtyFlag, Boolean>("dirty").observe(dirtyFlag)
-    val isValidationOk: IObservableValue<Boolean> = ComputedValue.create { validationObserver.value.isOK && modelDirty.value }
+    val isValidationOk: IObservableValue<Boolean> =
+        ComputedValue.create { validationObserver.value.isOK && modelDirty.value }
     val bindSave = dbc.bindValue(targetSave, isValidationOk)
     bindSave.target.addChangeListener() {
         ApplicationData.mainWindow.actionSave.isEnabled = ApplicationData.getSaveToolbarButton().enabled
@@ -294,25 +313,50 @@ fun <E> makeFormBindings(dbc: DataBindingContext,
     val toolDelete = ApplicationData.getDeleteToolbarButton()
     val deleteItemTarget = WidgetProperties.enabled<ToolItem>().observe(toolDelete)
     // cast to Viewer is to get rid of overload ambiguity from kotlin compiler
-    val selectedEntity: IViewerObservableValue<E?> = ViewerProperties.singleSelection<TableViewer, E?>().observe(form.listView as Viewer)
-    val isEntitySelected = ComputedValue.create { if (selectedEntity.value == null) false else true}
+    val selectedEntity: IViewerObservableValue<E?> =
+        ViewerProperties.singleSelection<TableViewer, E?>().observe(form.listView as Viewer)
+    val isEntitySelected = ComputedValue.create { if (selectedEntity.value == null) false else true }
     //a binding that sets delete toolitem to disabled based on whether item in list is selected
     val bindDelete = dbc.bindValue(deleteItemTarget, isEntitySelected)
 
     // this is not firing, is supposed to update the Action based on ToolItem update
     // because a tool item affects just toolbar, and not the action which toolbar AND menu item are based on
     // in the iterim putting a forced enable of action in the change event of the tableviewer which is done in the FormViewModel base class
-    bindDelete.target.addChangeListener{
+    bindDelete.target.addChangeListener {
         ApplicationData.mainWindow.actionDelete.isEnabled = ApplicationData.getDeleteToolbarButton().enabled
     }
 
     return formBindings
 }
 
-
-fun <E> makeInputBinding(dbc: DataBindingContext, fieldType: String, fieldName: String, formWidget: FormWidget, entity: E): Binding? {
+fun <E> makeChangeHandler(fieldType: String, fieldName: String, formWidget: FormWidget, entity: E): Any? {
     return when (fieldType) {
-        ApplicationData.ViewDef.text, ApplicationData.ViewDef.memo  -> {
+        ApplicationData.ViewDef.source -> {
+            val sourceCodeViewerWidget = formWidget.widget as SourceCodeViewer
+            sourceCodeViewerWidget.document.addDocumentListener(object : IDocumentListener {
+                override fun documentAboutToBeChanged(p0: DocumentEvent?) {
+
+                }
+
+                override fun documentChanged(p0: DocumentEvent?) {
+                    println(sourceCodeViewerWidget.document.get())
+                }
+            })
+            null
+        }
+        else -> null
+    }
+}
+
+fun <E> makeInputBinding(
+    dbc: DataBindingContext,
+    fieldType: String,
+    fieldName: String,
+    formWidget: FormWidget,
+    entity: E
+): Binding? {
+    return when (fieldType) {
+        ApplicationData.ViewDef.text, ApplicationData.ViewDef.memo -> {
             val target = WidgetProperties.text<Text>(SWT.Modify).observe(formWidget.widget as Text)
             val model = BeanProperties.value<E, String>(fieldName).observe(entity)
             val modelToTarget = UpdateValueStrategy<String?, String?>(ApplicationData.defaultUpdatePolicy)
@@ -366,17 +410,20 @@ fun <E> makeInputBinding(dbc: DataBindingContext, fieldType: String, fieldName: 
             val inputProperty: DateTimeSelectionProperty = DateTimeSelectionProperty()
             val target = inputProperty.observe(formWidget.widget as DateTime)
             val model = BeanProperties.value<E, LocalDate>(fieldName).observe(entity)
-            val targetToModel = UpdateValueStrategy<String?, LocalDate?>(ApplicationData.defaultUpdatePolicy)
-            val modelToTarget = UpdateValueStrategy<LocalDate?, String?>(ApplicationData.defaultUpdatePolicy)
+            //val targetToModel = UpdateValueStrategy<String?, LocalDate?>(ApplicationData.defaultUpdatePolicy)
+            //val modelToTarget = UpdateValueStrategy<LocalDate?, String?>(ApplicationData.defaultUpdatePolicy)
             val bindInput = dbc.bindValue(target, model)
             ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
             bindInput
         }
 
         ApplicationData.ViewDef.lookup -> {
-            val comboSource = ApplicationData.lookups.getOrDefault(formWidget.fieldDef[ApplicationData.ViewDef.lookupKey] as String, listOf())
+            val comboSource = ApplicationData.lookups.getOrDefault(
+                formWidget.fieldDef[ApplicationData.ViewDef.lookupKey] as String,
+                listOf()
+            )
             val target: IObservableValue<LookupDetail> =
-                    ViewerProperties.singleSelection<ComboViewer, LookupDetail>().observe(formWidget.widget as Viewer)
+                ViewerProperties.singleSelection<ComboViewer, LookupDetail>().observe(formWidget.widget as Viewer)
             val model = BeanProperties.value<E, String>(fieldName).observe(entity)
             val targetToModel = UpdateValueStrategy<LookupDetail, String>(ApplicationData.defaultUpdatePolicy)
             val modelToTarget = UpdateValueStrategy<String?, LookupDetail>(ApplicationData.defaultUpdatePolicy)
@@ -432,7 +479,11 @@ fun makeChildFormContainer(parent: Composite, childDefs: List<Map<String, Any>>)
     return ChildFormContainer(folder, childTabs)
 }
 
-fun getGetChildForms(hasChildViews: Boolean, viewDefinition: Map<String, Any>, formsContainer: FormContainer): ChildFormContainer? {
+fun getGetChildForms(
+    hasChildViews: Boolean,
+    viewDefinition: Map<String, Any>,
+    formsContainer: FormContainer
+): ChildFormContainer? {
     return if (hasChildViews) {
         val childDefs = viewDefinition[ApplicationData.ViewDef.childViews] as List<Map<String, Any>>
         makeChildFormContainer(formsContainer.childContainer!!, childDefs)
@@ -482,7 +533,7 @@ fun hasChildViews(viewDefinition: Map<String, Any>): Boolean {
     }
 }
 
-fun confirmDelete() : Boolean {
+fun confirmDelete(): Boolean {
     return MessageDialog.openConfirm(Display.getDefault().activeShell, "Delete", "Delete, are you sure?")
 }
 

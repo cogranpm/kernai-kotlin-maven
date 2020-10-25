@@ -229,7 +229,7 @@ object ViewDefinitions {
             ViewDef.fieldName to "body",
             ViewDef.title to "Body",
             ViewDef.required to false,
-            ViewDef.fieldDataType to ViewDef.memo
+            ViewDef.fieldDataType to ViewDef.source
         )
 
         val outputDef = mapOf(
