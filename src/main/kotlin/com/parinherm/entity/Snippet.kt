@@ -21,11 +21,6 @@ class Snippet(
     var type: String by Delegates.observable(type, observer)
     var desc: String by Delegates.observable(desc, observer)
     var body: String by Delegates.observable(body, observer)
-    /*
-    var output: String by Delegates.observable(output, observer)
-    var canRun: Boolean by Delegates.observable(canRun, observer)
-
-     */
 
     override fun getColumnValueByIndex(index: Int): String {
         return when (index) {
@@ -41,7 +36,7 @@ class Snippet(
 
     override fun toString(): String {
         //return "Snippets(id=$id, name=$name, language=$language, category=$category, topic=$topic, type=$type, desc=$desc, output=$output, canRun=$canRun)"
-        return "Snippets(id=$id, name=$name, language=$language, category=$category, topic=$topic, type=$type, desc=$desc)"
+        return "Snippets(id=$id, name=$name, language=$language, category=$category, topic=$topic, type=$type, desc=$desc, body=$body)"
     }
 
     companion object Factory {

@@ -24,22 +24,10 @@ class SourceCodeViewer(parent: Composite) : SourceViewer(
     //private val daDocument: IDocument = Document()
     val annotationModel = AnnotationModel()
 
-
     init {
         document = Document()
         annotationModel.connect(document)
         setDocument(document, annotationModel)
-
-        document.addDocumentListener(object: IDocumentListener {
-            override fun documentAboutToBeChanged(p0: DocumentEvent?) {
-
-            }
-
-            override fun documentChanged(p0: DocumentEvent?) {
-                //currentEntity?.body = document.get()
-            }
-        })
-
         (verticalRuler as CompositeRuler).addDecorator(0, LineNumberRulerColumn())
         configure(KotlinSourceViewerConfiguration())
         applyLayoutToField(control, true, true)

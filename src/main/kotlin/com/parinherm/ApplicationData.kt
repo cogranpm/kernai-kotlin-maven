@@ -213,7 +213,8 @@ object ApplicationData {
     val snippetTopic: List<LookupDetail> = listOf(
         LookupDetail("o", "Other"),
         LookupDetail("func", "Functional Programming"),
-        LookupDetail("db", "Database")
+        LookupDetail("db", "Database"),
+        LookupDetail("col", "Collections")
     )
 
     val snippetType: List<LookupDetail> = listOf(

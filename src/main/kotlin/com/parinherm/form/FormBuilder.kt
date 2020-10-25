@@ -50,6 +50,7 @@ import org.eclipse.swt.layout.RowLayout
 import org.eclipse.swt.widgets.*
 import java.math.BigDecimal
 import java.time.LocalDate
+import kotlin.reflect.KMutableProperty
 
 
 fun getListViewer(
@@ -73,10 +74,12 @@ fun makeColumns(
 )
         : List<TableViewerColumn> {
     return fields
-        .filter { it[ApplicationData.ViewDef.fieldDataType] as String != ApplicationData.ViewDef.memo }
+        .filter { isFieldTypeShownInLists(it[ApplicationData.ViewDef.fieldDataType] as String)  }
         .map { makeColumn(it, viewer, layout) }
 }
 
+fun isFieldTypeShownInLists(fieldType: String) =
+    fieldType != ApplicationData.ViewDef.memo && fieldType != ApplicationData.ViewDef.source
 
 fun makeColumn(
     fieldDef: Map<String, Any>,
@@ -279,16 +282,6 @@ fun <E> makeFormBindings(
         //makeInputBinding(dbc, fieldType, fieldName, formWidget, entity)
     }.toMap().toMutableMap()
 
-    val changeHandlers = formWidgets.map {
-        val formWidget = it.value
-        //val fieldName = entityNamePrefix + "." + it.key
-        val fieldName = it.key
-        val fieldType = formWidget.fieldType
-        makeChangeHandler(fieldType, fieldName, formWidget, entity)
-    }
-
-
-
     dbc.bindings.forEach {
         it.target.addChangeListener(stateChangeListener)
     }
@@ -327,25 +320,6 @@ fun <E> makeFormBindings(
     }
 
     return formBindings
-}
-
-fun <E> makeChangeHandler(fieldType: String, fieldName: String, formWidget: FormWidget, entity: E): Any? {
-    return when (fieldType) {
-        ApplicationData.ViewDef.source -> {
-            val sourceCodeViewerWidget = formWidget.widget as SourceCodeViewer
-            sourceCodeViewerWidget.document.addDocumentListener(object : IDocumentListener {
-                override fun documentAboutToBeChanged(p0: DocumentEvent?) {
-
-                }
-
-                override fun documentChanged(p0: DocumentEvent?) {
-                    println(sourceCodeViewerWidget.document.get())
-                }
-            })
-            null
-        }
-        else -> null
-    }
 }
 
 fun <E> makeInputBinding(
