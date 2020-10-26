@@ -9,7 +9,7 @@ import org.eclipse.swt.widgets.Composite
 class NotebookView (val parent: Composite, comparator: BeansViewerComparator) : View<Notebook>  {
     private val formDef: Map<String, Any> =
         ApplicationData.getView(
-            ApplicationData.ViewDef.notebookViewId,
+            ApplicationData.ViewDefConstants.notebookViewId,
             ApplicationData.viewDefinitions
         )
 

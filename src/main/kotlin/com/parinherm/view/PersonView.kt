@@ -10,7 +10,7 @@ class PersonView(val parent: Composite, comparator: BeansViewerComparator) : Vie
 
     val formDef: Map<String, Any> =
         ApplicationData.getView(
-            ApplicationData.ViewDef.personViewId,
+            ApplicationData.ViewDefConstants.personViewId,
             ApplicationData.viewDefinitions
         )
 

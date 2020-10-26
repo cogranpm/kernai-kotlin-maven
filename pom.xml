@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -12,10 +13,9 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-<!--        <kotlin.version>1.3.72</kotlin.version>-->
         <kotlin.version>1.4.10</kotlin.version>
         <kotlin.code.style>official</kotlin.code.style>
-       <!--<serialization.version>1.0-M1-1.4.0-rc</serialization.version>-->
+        <serialization.version>1.0.0</serialization.version>
         <junit.version>4.12</junit.version>
         <!-- <swt.version>3.114.100</swt.version> -->
         <swt.version>3.110.0</swt.version>
@@ -26,6 +26,11 @@
 
     <repositories>
 
+        <repository>
+            <id>kotlinx</id>
+            <name>kotlinx</name>
+            <url>https://kotlin.bintray.com/kotlinx</url>
+        </repository>
 
         <repository>
             <snapshots>
@@ -36,16 +41,14 @@
             <url>https://jcenter.bintray.com/</url>
         </repository>
 
-
         <repository>
-                <id>exposed</id>
-                <name>exposed</name>
-                <url>https://dl.bintray.com/kotlin/exposed</url>
-            </repository>
+            <id>exposed</id>
+            <name>exposed</name>
+            <url>https://dl.bintray.com/kotlin/exposed</url>
+        </repository>
 
 
-   </repositories>
-
+    </repositories>
 
 
     <profiles>
@@ -57,7 +60,9 @@
                     <arch>amd64</arch>
                 </os>
             </activation>
-            <properties><artifact-id-swt>org.eclipse.swt.gtk.linux.x86_64</artifact-id-swt></properties>
+            <properties>
+                <artifact-id-swt>org.eclipse.swt.gtk.linux.x86_64</artifact-id-swt>
+            </properties>
         </profile>
 
         <profile>
@@ -70,19 +75,23 @@
                     <version>10.0</version>
                 </os>
             </activation>
-            <properties><artifact-id-swt>org.eclipse.swt.win32.win32.x86_64</artifact-id-swt></properties>
+            <properties>
+                <artifact-id-swt>org.eclipse.swt.win32.win32.x86_64</artifact-id-swt>
+            </properties>
         </profile>
 
-    <profile>
-      <id>Mac</id>
-      <activation>
-        <os>
-          <name>Mac OS X</name>
-          <arch>x86_64</arch>
-        </os>
-      </activation>
-      <properties><artifact-id-swt>org.eclipse.swt.cocoa.macosx.x86_64</artifact-id-swt></properties>
-    </profile>
+        <profile>
+            <id>Mac</id>
+            <activation>
+                <os>
+                    <name>Mac OS X</name>
+                    <arch>x86_64</arch>
+                </os>
+            </activation>
+            <properties>
+                <artifact-id-swt>org.eclipse.swt.cocoa.macosx.x86_64</artifact-id-swt>
+            </properties>
+        </profile>
 
 
     </profiles>
@@ -140,11 +149,28 @@
             <version>${arrow.version}</version>
         </dependency>
 
-     <!--   <dependency>
+        <!--
+        <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-serialization-runtime</artifactId>
+            <artifactId>kotlinx-serialization-hocon</artifactId>
             <version>${serialization.version}</version>
-        </dependency>-->
+        </dependency>
+        -->
+
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-serialization-json-jvm</artifactId>
+            <version>${serialization.version}</version>
+        </dependency>
+
+
+        <!--
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-serialization</artifactId>
+            <version>1.4.10</version>
+        </dependency>
+        -->
 
 
         <dependency>
@@ -223,7 +249,6 @@
         </dependency>
 
 
-
         <dependency>
             <groupId>org.eclipse.platform</groupId>
             <artifactId>org.eclipse.core.jobs</artifactId>
@@ -243,7 +268,6 @@
             <artifactId>postgresql</artifactId>
             <version>42.2.16</version>
         </dependency>
-
 
 
         <dependency>
@@ -382,19 +406,17 @@
                     <args>
                         <arg>-Xjsr305=strict</arg> <!-- Enable strict mode for JSR-305 annotations -->
                     </args>
-                   <!-- <compilerPlugins>
-                        <plugin>kotlinx-serialization</plugin>
-                    </compilerPlugins>-->
+                    <compilerPlugins>
+                         <plugin>kotlinx-serialization</plugin>
+                     </compilerPlugins>
                 </configuration>
-                <!--<dependencies>
+                <dependencies>
                     <dependency>
-                        <groupId>org.jetbrains.kotlin</groupId>
-                        <artifactId>kotlin-maven-serialization</artifactId>
+                        <groupId>org.jetbrains.kotlinx</groupId>
+                        <artifactId>kotlinx-serialization-json</artifactId>
                         <version>${kotlin.version}</version>
                     </dependency>
                 </dependencies>
--->
-
             </plugin>
 
             <plugin>

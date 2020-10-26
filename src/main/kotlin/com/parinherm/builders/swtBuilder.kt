@@ -1,7 +1,7 @@
 package com.parinherm.builders
 
 import com.parinherm.ApplicationData
-import com.parinherm.ApplicationData.ViewDef
+import com.parinherm.ApplicationData.ViewDefConstants
 import com.parinherm.ApplicationData.swnone
 import com.parinherm.ApplicationData.listViewStyle
 import com.parinherm.ApplicationData.labelStyle
@@ -64,14 +64,14 @@ object swtBuilder {
         val listTable = listView.table
         val tableLayout = TableColumnLayout(true)
 
-        val fields = form[ViewDef.fields] as List<Map<String, Any>>
+        val fields = form[ViewDefConstants.fields] as List<Map<String, Any>>
         fields.forEach { item: Map<String, Any> ->
             val label = Label(editContainer, labelStyle)
-            label.text = item[ViewDef.title] as String
-            val fieldName = item[ViewDef.fieldName] as String
+            label.text = item[ViewDefConstants.title] as String
+            val fieldName = item[ViewDefConstants.fieldName] as String
             GridDataFactory.fillDefaults().applyTo(label)
-            when(item[ViewDef.fieldDataType]) {
-                ViewDef.text -> {
+            when(item[ViewDefConstants.fieldDataType]) {
+                ViewDefConstants.text -> {
                     val input = Text(editContainer, swnone)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
                     viewState.addWidgetToViewState(fieldName, input)
@@ -85,7 +85,7 @@ object swtBuilder {
 
                      */
                 }
-                ViewDef.float -> {
+                ViewDefConstants.float -> {
                     val input = Text(editContainer, swnone)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
                     viewState.addWidgetToViewState(fieldName, input)
@@ -100,29 +100,29 @@ object swtBuilder {
 
                      */
                }
-                ViewDef.money -> {
+                ViewDefConstants.money -> {
                     val input = Text(editContainer, swnone)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
                     viewState.addWidgetToViewState(fieldName, input)
                }
-                ViewDef.int -> {
+                ViewDefConstants.int -> {
                     val input = Spinner(editContainer, swnone)
                     input.minimum = Integer.MIN_VALUE
                     input.maximum = Integer.MAX_VALUE
                     GridDataFactory.fillDefaults().grab(false, false).applyTo(input)
                     viewState.addWidgetToViewState(fieldName, input)
                }
-                ViewDef.bool -> {
+                ViewDefConstants.bool -> {
                     val input = Button(editContainer, SWT.CHECK)
                     GridDataFactory.fillDefaults().grab(false, false).applyTo(input)
                     viewState.addWidgetToViewState(fieldName, input)
                }
-                ViewDef.datetime -> {
+                ViewDefConstants.datetime -> {
                     val input = DateTime(editContainer, SWT.DROP_DOWN or SWT.DATE)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input)
                     viewState.addWidgetToViewState(fieldName, input)
                }
-                ViewDef.lookup ->  {
+                ViewDefConstants.lookup ->  {
                     val input = ComboViewer(editContainer)
                     GridDataFactory.fillDefaults().grab(true, false).applyTo(input.combo)
                     input.contentProvider = ArrayContentProvider.getInstance()
@@ -131,7 +131,7 @@ object swtBuilder {
                             return (element as LookupDetail).label
                         }
                     })
-                    val comboSource = ApplicationData.lookups.getOrDefault(item[ViewDef.lookupKey] as String, listOf())
+                    val comboSource = ApplicationData.lookups.getOrDefault(item[ViewDefConstants.lookupKey] as String, listOf())
                     input.input = comboSource
                     viewState.addWidgetToViewState(fieldName, input)
                 }
@@ -139,7 +139,7 @@ object swtBuilder {
             }
 
             // everyting is a list column right now
-            val column = viewState.getColumn(item[ViewDef.fieldName] as String, item[ViewDef.title] as String, listView, tableLayout)
+            val column = viewState.getColumn(item[ViewDefConstants.fieldName] as String, item[ViewDefConstants.title] as String, listView, tableLayout)
         }
         /**************************************************************************/
        val contentProvider = ObservableListContentProvider<Map<String, Any>>()
@@ -248,9 +248,9 @@ object swtBuilder {
          */
 
         fields.forEach { item: Map<String, Any> ->
-            val fieldName = item[ViewDef.fieldName] as String
-            when (item[ViewDef.fieldDataType]) {
-                ViewDef.text -> {
+            val fieldName = item[ViewDefConstants.fieldName] as String
+            when (item[ViewDefConstants.fieldDataType]) {
+                ViewDefConstants.text -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as Text
                     val target: ISWTObservableValue<String> = WidgetProperties.text<Text>(SWT.Modify).observe(
                         input)
@@ -260,7 +260,7 @@ object swtBuilder {
                    val bindInput = viewState.dbc.bindValue(target, model)
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
                 }
-                ViewDef.float -> {
+                ViewDefConstants.float -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as Text
                     val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
                     val model: IObservableValue<Double> =
@@ -279,7 +279,7 @@ object swtBuilder {
 //                    )
                     ControlDecorationSupport.create(bindHeight, SWT.TOP or SWT.LEFT)
                 }
-                ViewDef.money -> {
+                ViewDefConstants.money -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as Text
                     val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
                     val model: IObservableValue<BigDecimal> =
@@ -291,20 +291,20 @@ object swtBuilder {
                     )
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
                 }
-                ViewDef.int -> {
+                ViewDefConstants.int -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as Spinner
                     val target = WidgetProperties.spinnerSelection().observe(input)
                     //val model = Observables.observeMapEntry(viewState.wm as WritableMap<String, Int>, fieldName)
                     val model = Observables.observeMapEntry(selectedItem as WritableMap<String, Int>, fieldName)
                     val bindInput = viewState.dbc.bindValue<Int, Int>(target, model)
                 }
-                ViewDef.bool -> {
+                ViewDefConstants.bool -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as Button
                     val target = WidgetProperties.buttonSelection().observe(input)
                     val model = Observables.observeMapEntry(selectedItem as WritableMap<String, Boolean>, fieldName)
                     val bindInput = viewState.dbc.bindValue(target, model)
                 }
-                ViewDef.datetime -> {
+                ViewDefConstants.datetime -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as DateTime
                     val inputProperty: DateTimeSelectionProperty = DateTimeSelectionProperty()
                     val target = inputProperty.observe(input)
@@ -312,9 +312,9 @@ object swtBuilder {
                     val bindInput = viewState.dbc.bindValue(target, model)
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
                 }
-                ViewDef.lookup -> {
+                ViewDefConstants.lookup -> {
                     val input = viewState.getWidgetFromViewState(fieldName) as ComboViewer
-                    val comboSource = ApplicationData.lookups.getOrDefault(item[ViewDef.lookupKey] as String, listOf())
+                    val comboSource = ApplicationData.lookups.getOrDefault(item[ViewDefConstants.lookupKey] as String, listOf())
                     val target: IObservableValue<LookupDetail> =
                         ViewerProperties.singleSelection<ComboViewer, LookupDetail>().observeDelayed(1, input)
                     val model = Observables.observeMapEntry(selectedItem as WritableMap<String, String>, fieldName)

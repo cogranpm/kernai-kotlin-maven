@@ -9,7 +9,7 @@ import org.eclipse.swt.widgets.Composite
 class NoteHeaderView (val parent: Composite, comparator: BeansViewerComparator) : View<NoteHeader>{
     private val formDef: Map<String, Any> =
         ApplicationData.getView(
-            ApplicationData.ViewDef.noteheaderViewId,
+            ApplicationData.ViewDefConstants.noteheaderViewId,
             ApplicationData.viewDefinitions
         )
 

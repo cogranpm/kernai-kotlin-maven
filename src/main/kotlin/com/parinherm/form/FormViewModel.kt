@@ -7,30 +7,21 @@ import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.NewFlag
 import com.parinherm.entity.schema.IMapper
 import com.parinherm.view.View
-import org.eclipse.core.databinding.AggregateValidationStatus
 import org.eclipse.core.databinding.DataBindingContext
-import org.eclipse.core.databinding.beans.typed.BeanProperties
 import org.eclipse.core.databinding.observable.ChangeEvent
 import org.eclipse.core.databinding.observable.IChangeListener
 import org.eclipse.core.databinding.observable.list.WritableList
-import org.eclipse.core.databinding.observable.value.ComputedValue
-import org.eclipse.core.databinding.observable.value.IObservableValue
-import org.eclipse.jface.databinding.swt.typed.WidgetProperties
-import org.eclipse.jface.databinding.viewers.IViewerObservableValue
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
-import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
 import org.eclipse.jface.internal.databinding.swt.SWTObservableValueDecorator
 import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.jface.viewers.TableViewerColumn
-import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.TableColumn
-import org.eclipse.swt.widgets.ToolItem
 
 abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val entityMaker: () -> T) :
     IFormViewModel<T> where T : IBeanDataEntity {
@@ -78,8 +69,8 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
         input: WritableList<E>,
         childViewModelMaker: (E?) -> IFormViewModel<E>
     ) where E : IBeanDataEntity {
-        val fields = childFormTab.childDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
-        val title = childFormTab.childDefinition[ApplicationData.ViewDef.title] as String
+        val fields = childFormTab.childDefinition[ApplicationData.ViewDefConstants.fields] as List<Map<String, Any>>
+        val title = childFormTab.childDefinition[ApplicationData.ViewDefConstants.title] as String
 
         val contentProvider = ObservableListContentProvider<E>()
         childFormTab.listView.contentProvider = contentProvider

@@ -9,7 +9,7 @@ import org.eclipse.swt.widgets.Composite
 class NoteDetailView (val parent: Composite, comparator: BeansViewerComparator) : View<NoteDetail> {
     private val formDef: Map<String, Any> =
         ApplicationData.getView(
-            ApplicationData.ViewDef.noteDetailViewId,
+            ApplicationData.ViewDefConstants.noteDetailViewId,
             ApplicationData.viewDefinitions
         )
 

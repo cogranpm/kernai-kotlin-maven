@@ -11,7 +11,7 @@ object HttpClient {
     fun getViews(): String{
         // TODO better error handling and maybe make this call async
        val jsonStr = try { URL(ApplicationData.makeServerUrl("views")).readText() } catch (ex: Exception) { "null" }
-       return jsonStr
+      return jsonStr
        /* GlobalScope.launch(Dispatchers.IO) {
             val jsonStr = try { URL("http://localhost:8080/views").readText() } catch (ex: Exception) { "null" }
             println(jsonStr)
@@ -20,4 +20,5 @@ object HttpClient {
         return ""*/
 
     }
+
 }

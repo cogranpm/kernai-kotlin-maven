@@ -112,13 +112,13 @@ object ApplicationData {
 
 
     fun getView(viewId: String): Map<String, Any> {
-        val forms: List<Map<String, Any>> = views[ViewDef.forms] as List<Map<String, Any>>
-        return forms.first { it[ViewDef.viewid] == viewId }
+        val forms: List<Map<String, Any>> = views[ViewDefConstants.forms] as List<Map<String, Any>>
+        return forms.first { it[ViewDefConstants.viewid] == viewId }
     }
 
     fun getView(viewId: String, viewDefinitions: Map<String, Any>): Map<String, Any> {
-        val forms: List<Map<String, Any>> = viewDefinitions[ViewDef.forms] as List<Map<String, Any>>
-        return forms.first { it[ViewDef.viewid] == viewId }
+        val forms: List<Map<String, Any>> = viewDefinitions[ViewDefConstants.forms] as List<Map<String, Any>>
+        return forms.first { it[ViewDefConstants.viewid] == viewId }
     }
 
     fun makeServerUrl(urlKey: String): String = "$serverProtocol://$serverHost:$serverPort/${urls[urlKey]}"
@@ -279,7 +279,7 @@ object ApplicationData {
     }
 
 
-    object ViewDef {
+    object ViewDefConstants {
 
         // the view id's
         const val bindingTestViewId = "bindingtest"

@@ -22,7 +22,6 @@ import org.eclipse.jface.layout.TableColumnLayout
 import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.SWT
-import org.eclipse.swt.custom.SashForm
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
@@ -38,7 +37,7 @@ data class Form<T>(
     val comparator: BeansViewerComparator
 ) : IForm<T> where T : IBeanDataEntity {
 
-    val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
+    val fields = viewDefinition[ApplicationData.ViewDefConstants.fields] as List<Map<String, Any>>
     val hasChildViews: Boolean = hasChildViews(viewDefinition)
     override val root = Composite(parent, ApplicationData.swnone)
     val sashForm = getSashForm(root, viewDefinition)
@@ -58,11 +57,11 @@ data class Form<T>(
     init {
         var listWeight = 1
         var editWeight = 2
-        if (viewDefinition.containsKey(ApplicationData.ViewDef.listWeight)){
-            listWeight = (viewDefinition[ApplicationData.ViewDef.listWeight] as Double).toInt()
+        if (viewDefinition.containsKey(ApplicationData.ViewDefConstants.listWeight)){
+            listWeight = (viewDefinition[ApplicationData.ViewDefConstants.listWeight] as Double).toInt()
         }
-        if (viewDefinition.containsKey(ApplicationData.ViewDef.editWeight)){
-            editWeight = (viewDefinition[ApplicationData.ViewDef.editWeight] as Double).toInt()
+        if (viewDefinition.containsKey(ApplicationData.ViewDefConstants.editWeight)){
+            editWeight = (viewDefinition[ApplicationData.ViewDefConstants.editWeight] as Double).toInt()
         }
 
         //needs to be done after content is added
@@ -104,14 +103,14 @@ data class Form<T>(
     override fun enable(flag: Boolean) {
         formWidgets.forEach {
             when (it.value.fieldType) {
-                ApplicationData.ViewDef.text,
-                ApplicationData.ViewDef.memo,
-                ApplicationData.ViewDef.int,
-                ApplicationData.ViewDef.float,
-                ApplicationData.ViewDef.money,
-                ApplicationData.ViewDef.bool,
-                ApplicationData.ViewDef.datetime -> (it.value.widget as Control).enabled = flag
-                ApplicationData.ViewDef.lookup -> (it.value.widget as Viewer).control.enabled = flag
+                ApplicationData.ViewDefConstants.text,
+                ApplicationData.ViewDefConstants.memo,
+                ApplicationData.ViewDefConstants.int,
+                ApplicationData.ViewDefConstants.float,
+                ApplicationData.ViewDefConstants.money,
+                ApplicationData.ViewDefConstants.bool,
+                ApplicationData.ViewDefConstants.datetime -> (it.value.widget as Control).enabled = flag
+                ApplicationData.ViewDefConstants.lookup -> (it.value.widget as Viewer).control.enabled = flag
             }
         }
     }

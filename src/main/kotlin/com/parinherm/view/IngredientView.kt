@@ -10,7 +10,7 @@ class IngredientView(val parent: Composite, comparator: BeansViewerComparator) :
 
     private val formDef: Map<String, Any> =
             ApplicationData.getView(
-                    ApplicationData.ViewDef.ingredientViewId,
+                    ApplicationData.ViewDefConstants.ingredientViewId,
                     ApplicationData.viewDefinitions
             )
 

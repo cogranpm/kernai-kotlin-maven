@@ -10,7 +10,7 @@ class LoginView (val parent: Composite, comparator: BeansViewerComparator) : Vie
 
     val formDef: Map<String, Any> =
         ApplicationData.getView(
-            ApplicationData.ViewDef.loginViewId,
+            ApplicationData.ViewDefConstants.loginViewId,
             ApplicationData.viewDefinitions
         )
 

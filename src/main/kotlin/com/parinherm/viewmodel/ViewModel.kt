@@ -8,7 +8,6 @@ import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.NewFlag
 import com.parinherm.entity.schema.IMapper
-import com.parinherm.entity.schema.SchemaBuilder
 import org.eclipse.core.databinding.*
 import org.eclipse.core.databinding.beans.typed.BeanProperties
 import org.eclipse.core.databinding.observable.ChangeEvent
@@ -69,7 +68,7 @@ abstract class ViewModel <T> (data: List<T>,
 
     open fun render(parent: Composite, viewDefinition: Map<String, Any>): Composite {
         val composite = ViewBuilder.renderView(parent, viewDefinition, this::addWidget)
-        val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
+        val fields = viewDefinition[ApplicationData.ViewDefConstants.fields] as List<Map<String, Any>>
         val listView = getWidget("list") as TableViewer
         createListViewBindings<T>(listView, fields, comparator)
         createViewCommands(listView, fields, comparator)
@@ -136,33 +135,33 @@ abstract class ViewModel <T> (data: List<T>,
         val columnLabelList: MutableList<IObservableMap<E, out Any>> = mutableListOf()
        val contentProvider = ObservableListContentProvider<E>()
         fields.forEach{item: Map<String, Any> ->
-            val fieldName = item[ApplicationData.ViewDef.fieldName] as String
-            when (item[ApplicationData.ViewDef.fieldDataType]) {
-                ApplicationData.ViewDef.text -> {
+            val fieldName = item[ApplicationData.ViewDefConstants.fieldName] as String
+            when (item[ApplicationData.ViewDefConstants.fieldDataType]) {
+                ApplicationData.ViewDefConstants.text -> {
                     val observableColumn: IValueProperty<E, String> = BeanProperties.value<E, String>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                 }
-                ApplicationData.ViewDef.float -> {
+                ApplicationData.ViewDefConstants.float -> {
                     val observableColumn: IValueProperty<E, Double> = BeanProperties.value<E, Double>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                 }
-                ApplicationData.ViewDef.money -> {
+                ApplicationData.ViewDefConstants.money -> {
                     val observableColumn: IValueProperty<E, BigDecimal> = BeanProperties.value<E, BigDecimal>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                 }
-                ApplicationData.ViewDef.int -> {
+                ApplicationData.ViewDefConstants.int -> {
                     val observableColumn: IValueProperty<E, Int> = BeanProperties.value<E, Int>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                 }
-                ApplicationData.ViewDef.bool -> {
+                ApplicationData.ViewDefConstants.bool -> {
                     val observableColumn: IValueProperty<E, Boolean> = BeanProperties.value<E, Boolean>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                 }
-                ApplicationData.ViewDef.datetime -> {
+                ApplicationData.ViewDefConstants.datetime -> {
                     val observableColumn: IValueProperty<E, LocalDate> = BeanProperties.value<E, LocalDate>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                 }
-                ApplicationData.ViewDef.lookup -> {
+                ApplicationData.ViewDefConstants.lookup -> {
                     val observableColumn: IValueProperty<E, String> = BeanProperties.value<E, String>(fieldName)
                     columnLabelList.add(observableColumn.observeDetail(contentProvider.knownElements))
                 }
@@ -224,8 +223,8 @@ abstract class ViewModel <T> (data: List<T>,
 
     protected fun listHeaderSelection(listView: TableViewer, fields: List<Map<String, Any>>, daComparator: BeansViewerComparator){
         fields.forEachIndexed {index: Int, item: Map<String, Any> ->
-            val fieldName = item[ApplicationData.ViewDef.fieldName] as String
-            val column = widgets[ApplicationData.ViewDef.makeColumnMapKey(fieldName)] as TableViewerColumn
+            val fieldName = item[ApplicationData.ViewDefConstants.fieldName] as String
+            val column = widgets[ApplicationData.ViewDefConstants.makeColumnMapKey(fieldName)] as TableViewerColumn
             column.column.addSelectionListener(getSelectionAdapter(listView, column.column, index, daComparator))
         }
     }

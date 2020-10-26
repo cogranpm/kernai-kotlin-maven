@@ -1,14 +1,15 @@
 package com.parinherm.server
 
 import com.parinherm.ApplicationData
-import com.parinherm.ApplicationData.ViewDef
+import com.parinherm.ApplicationData.ViewDefConstants
+import com.parinherm.form.definitions.*
 
 object ViewDefinitions {
 
     fun makeDefinitions(): Map<String, Any> {
         return mapOf(
-            ViewDef.version to 1,
-            ViewDef.forms to listOf(
+            ViewDefConstants.version to 1,
+            ViewDefConstants.forms to listOf(
                 makePersonMap(),
                 makePersonDetailDef(),
                 makeRecipesMap(),
@@ -22,53 +23,62 @@ object ViewDefinitions {
         )
     }
 
-    fun makeNotebooksMap(): Map<String, Any> {
+    fun makeNotebooks(): ViewDef {
+        val name = FieldDef("name", "Name", true, SizeDef.SMALL, DataTypeDef.TEXT)
+        val comments = FieldDef("comments", "Comments", false, SizeDef.MEDIUM, DataTypeDef.MEMO)
+        val view = ViewDef(ViewDefConstants.notebookViewId, "Notebooks", 1, 3, SashOrientationDef.VERTICAL, listOf(name, comments))
+        return view
+    }
+
+    fun makeNotebooksMap():  Map<String, Any>{
+
 
         val nameDef = mapOf(
-            ViewDef.fieldName to "name",
-            ViewDef.title to "Name",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.text
+            ViewDefConstants.fieldName to "name",
+            ViewDefConstants.title to "Name",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.text
         )
 
         val commentsDef = mapOf(
-            ViewDef.fieldName to "comments",
-            ViewDef.title to "Comments",
-            ViewDef.required to false,
-            ViewDef.fieldDataType to ViewDef.memo
+            ViewDefConstants.fieldName to "comments",
+            ViewDefConstants.title to "Comments",
+            ViewDefConstants.required to false,
+            ViewDefConstants.fieldDataType to ViewDefConstants.memo
         )
 
         val viewDef = mapOf(
-            ViewDef.viewid to ApplicationData.ViewDef.notebookViewId,
-            ViewDef.title to "Notebooks",
-            ViewDef.fields to listOf(nameDef, commentsDef),
-            ViewDef.childViews to listOf(makeNoteHeaderMap())
+            ViewDefConstants.viewid to ApplicationData.ViewDefConstants.notebookViewId,
+            ViewDefConstants.title to "Notebooks",
+            ViewDefConstants.fields to listOf(nameDef, commentsDef),
+            ViewDefConstants.childViews to listOf(makeNoteHeaderMap())
         )
 
         return viewDef
+
     }
 
     fun makeNoteHeaderMap(): Map<String, Any> {
 
         val nameDef = mapOf(
-            ViewDef.fieldName to "name",
-            ViewDef.title to "Name",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.text
+            ViewDefConstants.fieldName to "name",
+            ViewDefConstants.title to "Name",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.text
         )
 
         val commentsDef = mapOf(
-            ViewDef.fieldName to "comments",
-            ViewDef.title to "Comments",
-            ViewDef.required to false,
-            ViewDef.fieldDataType to ViewDef.memo
+            ViewDefConstants.fieldName to "comments",
+            ViewDefConstants.title to "Comments",
+            ViewDefConstants.required to false,
+            ViewDefConstants.fieldDataType to ViewDefConstants.memo
         )
 
         val viewDef = mapOf(
-            ViewDef.viewid to ApplicationData.ViewDef.noteheaderViewId,
-            ViewDef.title to "Note Header",
-            ViewDef.fields to listOf(nameDef, commentsDef),
-            ViewDef.childViews to listOf(makeNoteDetailMap())
+            ViewDefConstants.viewid to ApplicationData.ViewDefConstants.noteheaderViewId,
+            ViewDefConstants.title to "Note Header",
+            ViewDefConstants.fields to listOf(nameDef, commentsDef),
+            ViewDefConstants.childViews to listOf(makeNoteDetailMap())
         )
 
         return viewDef
@@ -77,37 +87,37 @@ object ViewDefinitions {
     fun makeNoteDetailMap(): Map<String, Any> {
 
         val nameDef = mapOf(
-            ViewDef.fieldName to "name",
-            ViewDef.title to "Name",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.text
+            ViewDefConstants.fieldName to "name",
+            ViewDefConstants.title to "Name",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.text
         )
 
         val bodyDef = mapOf(
-            ViewDef.fieldName to "body",
-            ViewDef.title to "Body",
-            ViewDef.required to false,
-            ViewDef.fieldDataType to ViewDef.memo
+            ViewDefConstants.fieldName to "body",
+            ViewDefConstants.title to "Body",
+            ViewDefConstants.required to false,
+            ViewDefConstants.fieldDataType to ViewDefConstants.memo
         )
 
         val sourceCodeDef = mapOf(
-            ViewDef.fieldName to "sourceCode",
-            ViewDef.title to "Source",
-            ViewDef.required to false,
-            ViewDef.fieldDataType to ViewDef.memo
+            ViewDefConstants.fieldName to "sourceCode",
+            ViewDefConstants.title to "Source",
+            ViewDefConstants.required to false,
+            ViewDefConstants.fieldDataType to ViewDefConstants.memo
         )
 
         val commentsDef = mapOf(
-            ViewDef.fieldName to "comments",
-            ViewDef.title to "Comments",
-            ViewDef.required to false,
-            ViewDef.fieldDataType to ViewDef.memo
+            ViewDefConstants.fieldName to "comments",
+            ViewDefConstants.title to "Comments",
+            ViewDefConstants.required to false,
+            ViewDefConstants.fieldDataType to ViewDefConstants.memo
         )
 
         val viewDef = mapOf(
-            ViewDef.viewid to ApplicationData.ViewDef.noteDetailViewId,
-            ViewDef.title to "Note Detail",
-            ViewDef.fields to listOf(nameDef, bodyDef, sourceCodeDef, commentsDef)
+            ViewDefConstants.viewid to ApplicationData.ViewDefConstants.noteDetailViewId,
+            ViewDefConstants.title to "Note Detail",
+            ViewDefConstants.fields to listOf(nameDef, bodyDef, sourceCodeDef, commentsDef)
         )
 
         return viewDef
@@ -116,60 +126,60 @@ object ViewDefinitions {
     fun makeLoginsMap(): Map<String, Any> {
 
         val nameDef = mapOf(
-            ViewDef.fieldName to "name",
-            ViewDef.title to "Name",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.text
+            ViewDefConstants.fieldName to "name",
+            ViewDefConstants.title to "Name",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.text
         )
 
         val categoryDef = mapOf(
-            ViewDef.fieldName to "category",
-            ViewDef.title to "Category",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.lookup,
-            ViewDef.lookupKey to ApplicationData.loginCategoryKey
+            ViewDefConstants.fieldName to "category",
+            ViewDefConstants.title to "Category",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.lookup,
+            ViewDefConstants.lookupKey to ApplicationData.loginCategoryKey
         )
 
         val userNameDef = mapOf(
-            ViewDef.fieldName to "userName",
-            ViewDef.title to "User Name",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.text
+            ViewDefConstants.fieldName to "userName",
+            ViewDefConstants.title to "User Name",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.text
         )
 
         val passwordDef = mapOf(
-            ViewDef.fieldName to "password",
-            ViewDef.title to "Password",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.lookup,
-            ViewDef.lookupKey to ApplicationData.passwordMasterKey
+            ViewDefConstants.fieldName to "password",
+            ViewDefConstants.title to "Password",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.lookup,
+            ViewDefConstants.lookupKey to ApplicationData.passwordMasterKey
         )
 
         val urlDef = mapOf(
-            ViewDef.fieldName to "url",
-            ViewDef.title to "URL",
-            ViewDef.required to false,
-            ViewDef.fieldDataType to ViewDef.text
+            ViewDefConstants.fieldName to "url",
+            ViewDefConstants.title to "URL",
+            ViewDefConstants.required to false,
+            ViewDefConstants.fieldDataType to ViewDefConstants.text
         )
 
         val notesDef = mapOf(
-            ViewDef.fieldName to "notes",
-            ViewDef.title to "Notes",
-            ViewDef.required to false,
-            ViewDef.fieldDataType to ViewDef.memo
+            ViewDefConstants.fieldName to "notes",
+            ViewDefConstants.title to "Notes",
+            ViewDefConstants.required to false,
+            ViewDefConstants.fieldDataType to ViewDefConstants.memo
         )
 
         val otherDef = mapOf(
-            ViewDef.fieldName to "other",
-            ViewDef.title to "Other",
-            ViewDef.required to false,
-            ViewDef.fieldDataType to ViewDef.memo
+            ViewDefConstants.fieldName to "other",
+            ViewDefConstants.title to "Other",
+            ViewDefConstants.required to false,
+            ViewDefConstants.fieldDataType to ViewDefConstants.memo
         )
 
         val viewDef = mapOf(
-            ViewDef.viewid to ApplicationData.ViewDef.loginViewId,
-            ViewDef.title to "Logins",
-            ViewDef.fields to listOf(nameDef, categoryDef, userNameDef, passwordDef, urlDef, notesDef, otherDef)
+            ViewDefConstants.viewid to ApplicationData.ViewDefConstants.loginViewId,
+            ViewDefConstants.title to "Logins",
+            ViewDefConstants.fields to listOf(nameDef, categoryDef, userNameDef, passwordDef, urlDef, notesDef, otherDef)
         )
 
         return viewDef
@@ -178,76 +188,76 @@ object ViewDefinitions {
 
     fun makeTechSnippetsMap(): Map<String, Any> {
         val nameDef = mapOf(
-            ViewDef.fieldName to "name",
-            ViewDef.title to "Name",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.text
+            ViewDefConstants.fieldName to "name",
+            ViewDefConstants.title to "Name",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.text
         )
 
         val langDef = mapOf(
-            ViewDef.fieldName to "language",
-            ViewDef.title to "Language",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.lookup,
-            ViewDef.lookupKey to ApplicationData.techLanguageLookupKey
+            ViewDefConstants.fieldName to "language",
+            ViewDefConstants.title to "Language",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.lookup,
+            ViewDefConstants.lookupKey to ApplicationData.techLanguageLookupKey
         )
 
 
         val categoryDef = mapOf(
-            ViewDef.fieldName to "category",
-            ViewDef.title to "Category",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.lookup,
-            ViewDef.lookupKey to ApplicationData.snippetCategoryKey
+            ViewDefConstants.fieldName to "category",
+            ViewDefConstants.title to "Category",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.lookup,
+            ViewDefConstants.lookupKey to ApplicationData.snippetCategoryKey
         )
 
 
         val topicDef = mapOf(
-            ViewDef.fieldName to "topic",
-            ViewDef.title to "Topic",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.lookup,
-            ViewDef.lookupKey to ApplicationData.snippetTopicKey
+            ViewDefConstants.fieldName to "topic",
+            ViewDefConstants.title to "Topic",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.lookup,
+            ViewDefConstants.lookupKey to ApplicationData.snippetTopicKey
         )
 
         val typeDef = mapOf(
-            ViewDef.fieldName to "type",
-            ViewDef.title to "Type",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.lookup,
-            ViewDef.lookupKey to ApplicationData.snippetTypeKey
+            ViewDefConstants.fieldName to "type",
+            ViewDefConstants.title to "Type",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.lookup,
+            ViewDefConstants.lookupKey to ApplicationData.snippetTypeKey
         )
 
         val descDef = mapOf(
-            ViewDef.fieldName to "desc",
-            ViewDef.title to "Description",
-            ViewDef.required to false,
-            ViewDef.fieldDataType to ViewDef.memo
+            ViewDefConstants.fieldName to "desc",
+            ViewDefConstants.title to "Description",
+            ViewDefConstants.required to false,
+            ViewDefConstants.fieldDataType to ViewDefConstants.memo
         )
 
         val bodyDef = mapOf(
-            ViewDef.fieldName to "body",
-            ViewDef.title to "Body",
-            ViewDef.required to false,
-            ViewDef.sizeHint to ViewDef.large,
-            ViewDef.fieldDataType to ViewDef.source
+            ViewDefConstants.fieldName to "body",
+            ViewDefConstants.title to "Body",
+            ViewDefConstants.required to false,
+            ViewDefConstants.sizeHint to ViewDefConstants.large,
+            ViewDefConstants.fieldDataType to ViewDefConstants.source
         )
 
         val outputDef = mapOf(
-                ViewDef.fieldName to "output",
-                ViewDef.title to "Output",
-                ViewDef.required to false,
-                ViewDef.fieldDataType to ViewDef.memo
+                ViewDefConstants.fieldName to "output",
+                ViewDefConstants.title to "Output",
+                ViewDefConstants.required to false,
+                ViewDefConstants.fieldDataType to ViewDefConstants.memo
         )
 
 
         val viewDef = mapOf(
-            ViewDef.viewid to ApplicationData.ViewDef.techSnippetsViewId,
-            ViewDef.title to "Snippets",
-            ViewDef.listWeight to 1,
-            ViewDef.editWeight to 5,
-            ViewDef.sashOrientation to ViewDef.horizontal,
-            ViewDef.fields to listOf(nameDef, langDef, categoryDef, topicDef, typeDef, descDef, bodyDef, outputDef)
+            ViewDefConstants.viewid to ApplicationData.ViewDefConstants.techSnippetsViewId,
+            ViewDefConstants.title to "Snippets",
+            ViewDefConstants.listWeight to 1,
+            ViewDefConstants.editWeight to 5,
+            ViewDefConstants.sashOrientation to ViewDefConstants.horizontal,
+            ViewDefConstants.fields to listOf(nameDef, langDef, categoryDef, topicDef, typeDef, descDef, bodyDef, outputDef)
         )
 
         return viewDef
@@ -256,31 +266,31 @@ object ViewDefinitions {
 
     fun makeIngredientsMap(): Map<String, Any> {
         val nameDef = mapOf(
-            ViewDef.fieldName to "name",
-            ViewDef.title to "Name",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.text
+            ViewDefConstants.fieldName to "name",
+            ViewDefConstants.title to "Name",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.text
         )
 
         val quantityDef = mapOf(
-            ViewDef.fieldName to "quantity",
-            ViewDef.title to "Quantity",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.float
+            ViewDefConstants.fieldName to "quantity",
+            ViewDefConstants.title to "Quantity",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.float
         )
 
         val unitDef = mapOf(
-            ViewDef.fieldName to "unit",
-            ViewDef.title to "Unit",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.lookup,
-            ViewDef.lookupKey to ApplicationData.unitLookupKey
+            ViewDefConstants.fieldName to "unit",
+            ViewDefConstants.title to "Unit",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.lookup,
+            ViewDefConstants.lookupKey to ApplicationData.unitLookupKey
         )
 
         val ingredientsDef = mapOf(
-            ViewDef.viewid to ApplicationData.ViewDef.ingredientViewId,
-            ViewDef.title to "Ingredients",
-            ViewDef.fields to listOf(nameDef, quantityDef, unitDef)
+            ViewDefConstants.viewid to ApplicationData.ViewDefConstants.ingredientViewId,
+            ViewDefConstants.title to "Ingredients",
+            ViewDefConstants.fields to listOf(nameDef, quantityDef, unitDef)
         )
 
         return ingredientsDef
@@ -288,33 +298,33 @@ object ViewDefinitions {
 
     fun makeRecipesMap(): Map<String, Any> {
         val nameDef = mapOf(
-            ViewDef.fieldName to "name",
-            ViewDef.title to "Name",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.text
+            ViewDefConstants.fieldName to "name",
+            ViewDefConstants.title to "Name",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.text
         )
 
         val categoryDef = mapOf(
-            ViewDef.fieldName to "category",
-            ViewDef.title to "Category",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.lookup,
-            ViewDef.lookupKey to ApplicationData.recipeCategoryLookupKey
+            ViewDefConstants.fieldName to "category",
+            ViewDefConstants.title to "Category",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.lookup,
+            ViewDefConstants.lookupKey to ApplicationData.recipeCategoryLookupKey
         )
 
         val methodDef = mapOf(
-            ViewDef.fieldName to "method",
-            ViewDef.title to "Method",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.memo
+            ViewDefConstants.fieldName to "method",
+            ViewDefConstants.title to "Method",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.memo
         )
 
 
         val recipesDef = mapOf(
-            ViewDef.viewid to ApplicationData.ViewDef.recipeViewId,
-            ViewDef.title to "Recipes",
-            ViewDef.fields to listOf(nameDef, methodDef, categoryDef),
-            ViewDef.childViews to listOf(makeIngredientsMap())
+            ViewDefConstants.viewid to ApplicationData.ViewDefConstants.recipeViewId,
+            ViewDefConstants.title to "Recipes",
+            ViewDefConstants.fields to listOf(nameDef, methodDef, categoryDef),
+            ViewDefConstants.childViews to listOf(makeIngredientsMap())
         )
         return recipesDef
     }
@@ -322,24 +332,24 @@ object ViewDefinitions {
     fun makePersonDetailDef(): Map<String, Any> {
         /****************** child bean person details ****************/
         val nicknameDef = mapOf(
-            ViewDef.fieldName to "nickname",
-            ViewDef.title to "Nickname",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.text
+            ViewDefConstants.fieldName to "nickname",
+            ViewDefConstants.title to "Nickname",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.text
         )
 
         val petSpeciesDef = mapOf(
-            ViewDef.fieldName to "petSpecies",
-            ViewDef.title to "Pet",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.lookup,
-            ViewDef.lookupKey to ApplicationData.speciesLookupKey
+            ViewDefConstants.fieldName to "petSpecies",
+            ViewDefConstants.title to "Pet",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.lookup,
+            ViewDefConstants.lookupKey to ApplicationData.speciesLookupKey
         )
 
         val personDetailsDef = mapOf(
-            ViewDef.viewid to ApplicationData.ViewDef.personDetailsViewId,
-            ViewDef.title to "Persons Details",
-            ViewDef.fields to listOf(nicknameDef, petSpeciesDef)
+            ViewDefConstants.viewid to ApplicationData.ViewDefConstants.personDetailsViewId,
+            ViewDefConstants.title to "Persons Details",
+            ViewDefConstants.fields to listOf(nicknameDef, petSpeciesDef)
         )
 
         return personDetailsDef
@@ -347,61 +357,61 @@ object ViewDefinitions {
 
     fun makePersonMap(): Map<String, Any> {
         val firstNameDef = mapOf(
-            ViewDef.fieldName to "name",
-            ViewDef.title to "First Name",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.text
+            ViewDefConstants.fieldName to "name",
+            ViewDefConstants.title to "First Name",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.text
         )
 
         val incomeDef = mapOf(
-            ViewDef.fieldName to "income",
-            ViewDef.title to "Income",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.money
+            ViewDefConstants.fieldName to "income",
+            ViewDefConstants.title to "Income",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.money
         )
 
         val heightDef = mapOf(
-            ViewDef.fieldName to "height",
-            ViewDef.title to "Height",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.float
+            ViewDefConstants.fieldName to "height",
+            ViewDefConstants.title to "Height",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.float
         )
 
         val ageDef = mapOf(
-            ViewDef.fieldName to "age",
-            ViewDef.title to "Age",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.int
+            ViewDefConstants.fieldName to "age",
+            ViewDefConstants.title to "Age",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.int
         )
 
         val countryDef = mapOf(
-            ViewDef.fieldName to "country",
-            ViewDef.title to "Country",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.lookup,
-            ViewDef.lookupKey to ApplicationData.countryLookupKey
+            ViewDefConstants.fieldName to "country",
+            ViewDefConstants.title to "Country",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.lookup,
+            ViewDefConstants.lookupKey to ApplicationData.countryLookupKey
         )
 
         val enteredDateDef = mapOf(
-            ViewDef.fieldName to "enteredDate",
-            ViewDef.title to "Entered",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.datetime
+            ViewDefConstants.fieldName to "enteredDate",
+            ViewDefConstants.title to "Entered",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.datetime
         )
 
 
         val isDeceasedDef = mapOf(
-            ViewDef.fieldName to "deceased",
-            ViewDef.title to "Deceased",
-            ViewDef.required to true,
-            ViewDef.fieldDataType to ViewDef.bool
+            ViewDefConstants.fieldName to "deceased",
+            ViewDefConstants.title to "Deceased",
+            ViewDefConstants.required to true,
+            ViewDefConstants.fieldDataType to ViewDefConstants.bool
         )
 
 
         val viewDef = mapOf(
-            ViewDef.viewid to ViewDef.personViewId,
-            ViewDef.title to "People",
-            ViewDef.fields to listOf(
+            ViewDefConstants.viewid to ViewDefConstants.personViewId,
+            ViewDefConstants.title to "People",
+            ViewDefConstants.fields to listOf(
                 firstNameDef,
                 incomeDef,
                 heightDef,
@@ -410,7 +420,7 @@ object ViewDefinitions {
                 enteredDateDef,
                 isDeceasedDef
             ),
-            ViewDef.childViews to listOf(makePersonDetailDef())
+            ViewDefConstants.childViews to listOf(makePersonDetailDef())
         )
         return viewDef
 

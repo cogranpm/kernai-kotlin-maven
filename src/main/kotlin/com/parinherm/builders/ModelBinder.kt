@@ -34,16 +34,16 @@ class ModelBinder <T> () {
         }
 
         fields.forEach { item: Map<String, Any> ->
-            val fieldTitle = item[ApplicationData.ViewDef.title] as String
-            val fieldName = item[ApplicationData.ViewDef.fieldName] as String
-            when (item[ApplicationData.ViewDef.fieldDataType]) {
-                ApplicationData.ViewDef.text -> {
+            val fieldTitle = item[ApplicationData.ViewDefConstants.title] as String
+            val fieldName = item[ApplicationData.ViewDefConstants.fieldName] as String
+            when (item[ApplicationData.ViewDefConstants.fieldDataType]) {
+                ApplicationData.ViewDefConstants.text -> {
                     val input = getWidget(fieldName) as Text
                     val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
                     val model = BeanProperties.value<T, String>(fieldName).observe(currentItem)
                     val modelToTarget = UpdateValueStrategy<String?, String?>(ApplicationData.defaultUpdatePolicy)
                     val targetToModel = UpdateValueStrategy<String?, String?>(ApplicationData.defaultUpdatePolicy)
-                    if (item[ApplicationData.ViewDef.required] as Boolean) {
+                    if (item[ApplicationData.ViewDefConstants.required] as Boolean) {
                         // all validations should be added to list and passed as a CompositeValidator which supports multiple
                         targetToModel.setAfterConvertValidator(CompositeValidator(listOf(RequiredValidation(fieldTitle))))
                     }
@@ -51,7 +51,7 @@ class ModelBinder <T> () {
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
 
                 }
-                ApplicationData.ViewDef.float -> {
+                ApplicationData.ViewDefConstants.float -> {
                     val input = getWidget(fieldName) as Text
                     val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
                     val model: IObservableValue<Double> = BeanProperties.value<T, Double>(fieldName).observe(currentItem)
@@ -63,7 +63,7 @@ class ModelBinder <T> () {
                     val bindInput = dbc.bindValue<String, Double>(target, model, targetToModel, modelToTarget)
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
                 }
-                ApplicationData.ViewDef.money -> {
+                ApplicationData.ViewDefConstants.money -> {
                     val input = getWidget(fieldName) as Text
                     val target = WidgetProperties.text<Text>(SWT.Modify).observe(input)
                     val model: IObservableValue<BigDecimal> = BeanProperties.value<T, BigDecimal>(fieldName).observe(currentItem)
@@ -73,7 +73,7 @@ class ModelBinder <T> () {
                     val bindInput = dbc.bindValue(target, model, targetToModel, modelToTarget)
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
                 }
-                ApplicationData.ViewDef.int -> {
+                ApplicationData.ViewDefConstants.int -> {
                     val input = getWidget(fieldName) as Spinner
                     val target = WidgetProperties.spinnerSelection().observe(input)
                     val model = BeanProperties.value<T, Int>(fieldName).observe(currentItem)
@@ -81,7 +81,7 @@ class ModelBinder <T> () {
                     val modelToTarget = UpdateValueStrategy<Int?, Int?>(ApplicationData.defaultUpdatePolicy)
                     val bindInput = dbc.bindValue<Int, Int>(target, model, targetToModel, modelToTarget)
                 }
-                ApplicationData.ViewDef.bool -> {
+                ApplicationData.ViewDefConstants.bool -> {
                     val input = getWidget(fieldName) as Button
                     val target = WidgetProperties.buttonSelection().observe(input)
                     val model = BeanProperties.value<T, Boolean>(fieldName).observe(currentItem)
@@ -89,7 +89,7 @@ class ModelBinder <T> () {
                     val modelToTarget = UpdateValueStrategy<Boolean?, Boolean?>(ApplicationData.defaultUpdatePolicy)
                     val bindInput = dbc.bindValue<Boolean, Boolean>(target, model, targetToModel, modelToTarget)
                 }
-                ApplicationData.ViewDef.datetime -> {
+                ApplicationData.ViewDefConstants.datetime -> {
                     val input = getWidget(fieldName) as DateTime
                     val inputProperty: DateTimeSelectionProperty = DateTimeSelectionProperty()
                     val target = inputProperty.observe(input)
@@ -99,9 +99,9 @@ class ModelBinder <T> () {
                     val bindInput = dbc.bindValue(target, model)
                     ControlDecorationSupport.create(bindInput, SWT.TOP or SWT.LEFT)
                 }
-                ApplicationData.ViewDef.lookup -> {
+                ApplicationData.ViewDefConstants.lookup -> {
                     val input = getWidget(fieldName) as ComboViewer
-                    val comboSource = ApplicationData.lookups.getOrDefault(item[ApplicationData.ViewDef.lookupKey] as String, listOf())
+                    val comboSource = ApplicationData.lookups.getOrDefault(item[ApplicationData.ViewDefConstants.lookupKey] as String, listOf())
                     val target: IObservableValue<LookupDetail> =
                             ViewerProperties.singleSelection<ComboViewer, LookupDetail>().observeDelayed(1, input)
                     val model = BeanProperties.value<T, String>(fieldName).observe(currentItem)
