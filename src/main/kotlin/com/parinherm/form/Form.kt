@@ -56,14 +56,17 @@ data class Form<T>(
 
 
     init {
-        val sashOrientation = viewDefinition[ApplicationData.ViewDef.sashOrientation]
-        var sashWeights = intArrayOf(1, 2)
-        if (viewDefinition.containsKey(ApplicationData.ViewDef.sashWeights)){
-           val x = viewDefinition[ApplicationData.ViewDef.sashWeights] as List<*>
-           println(x)
+        var listWeight = 1
+        var editWeight = 2
+        if (viewDefinition.containsKey(ApplicationData.ViewDef.listWeight)){
+            listWeight = (viewDefinition[ApplicationData.ViewDef.listWeight] as Double).toInt()
         }
+        if (viewDefinition.containsKey(ApplicationData.ViewDef.editWeight)){
+            editWeight = (viewDefinition[ApplicationData.ViewDef.editWeight] as Double).toInt()
+        }
+
         //needs to be done after content is added
-        sashForm.weights = sashWeights
+        sashForm.weights = intArrayOf(listWeight, editWeight)
         sashForm.sashWidth = 4
         //childFormsContainer?.childTabs?.forEach {println(it.key)}
         listView.contentProvider = contentProvider

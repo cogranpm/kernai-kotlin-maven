@@ -330,7 +330,8 @@ object ApplicationData {
 
         const val fieldLabelConverter = "fieldLabelConverter"
         const val required = "required"
-        const val sashWeights = "sashweight"
+        const val listWeight = "listweight"
+        const val editWeight = "editweight"
         const val sashOrientation = "sashorientation"
         const val horizontal = "horizontal"
         const val vertical = "vertical"
