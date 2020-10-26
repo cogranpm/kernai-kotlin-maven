@@ -67,6 +67,21 @@ fun getListViewer(
     return listView
 }
 
+fun getSashForm(parent: Composite, viewDef: Map<String, Any>) : SashForm {
+    var style: Int = SWT.BORDER
+    style = if (viewDef.containsKey(ApplicationData.ViewDef.sashOrientation)){
+        if((viewDef[ApplicationData.ViewDef.sashOrientation] as String) == ApplicationData.ViewDef.horizontal) {
+            style or SWT.HORIZONTAL
+        } else {
+            style or SWT.VERTICAL
+        }
+    }else {
+        style or SWT.VERTICAL
+    }
+
+    return SashForm(parent, style)
+}
+
 fun makeColumns(
     viewer: TableViewer,
     fields: List<Map<String, Any>>,
@@ -168,6 +183,18 @@ fun makeInputLabel(parent: Composite, caption: String): Label {
     return label
 }
 
+fun getSizeHintValue(fieldDef: Map<String, Any>) : Int{
+    return if(fieldDef.containsKey(ApplicationData.ViewDef.sizeHint)){
+       if(fieldDef[ApplicationData.ViewDef.sizeHint] as String == ApplicationData.ViewDef.large){
+           return 5
+       } else {
+           return 2
+       }
+    } else {
+        2
+    }
+}
+
 fun makeInputWidget(
     parent: Composite,
     fieldName: String,
@@ -186,13 +213,13 @@ fun makeInputWidget(
         ApplicationData.ViewDef.memo -> {
             val input = Text(parent, SWT.MULTI or SWT.BORDER or SWT.V_SCROLL or SWT.WRAP)
             input.setData("fieldName", fieldName)
-            applyLayoutToField(input, true, true, 5 * input.lineHeight)
+            applyLayoutToField(input, true, true, getSizeHintValue(fieldDef) * input.lineHeight)
             input
         }
         ApplicationData.ViewDef.source -> {
             val input = SourceCodeViewer(parent)
             input.setData("fieldName", fieldName)
-            applyLayoutToField(input.control, true, true, 5 * input.textWidget.lineHeight)
+            applyLayoutToField(input.control, true, true, getSizeHintValue(fieldDef) * input.textWidget.lineHeight)
             input
         }
         ApplicationData.ViewDef.float -> {

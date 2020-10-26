@@ -229,6 +229,7 @@ object ViewDefinitions {
             ViewDef.fieldName to "body",
             ViewDef.title to "Body",
             ViewDef.required to false,
+            ViewDef.sizeHint to ViewDef.large,
             ViewDef.fieldDataType to ViewDef.source
         )
 
@@ -245,7 +246,7 @@ object ViewDefinitions {
             ViewDef.title to "Snippets",
             ViewDef.listWeight to 1,
             ViewDef.editWeight to 5,
-            ViewDef.sashOrientation to ViewDef.vertical,
+            ViewDef.sashOrientation to ViewDef.horizontal,
             ViewDef.fields to listOf(nameDef, langDef, categoryDef, topicDef, typeDef, descDef, bodyDef, outputDef)
         )
 

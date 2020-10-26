@@ -328,6 +328,12 @@ object ApplicationData {
         // source is a source code editor
         const val source = "source"
 
+        // sizing
+        const val sizeHint = "sizeHint"
+        const val large = "large"
+        const val medium = "medium"
+        const val small = "small"
+
         const val fieldLabelConverter = "fieldLabelConverter"
         const val required = "required"
         const val listWeight = "listweight"

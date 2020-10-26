@@ -41,7 +41,7 @@ data class Form<T>(
     val fields = viewDefinition[ApplicationData.ViewDef.fields] as List<Map<String, Any>>
     val hasChildViews: Boolean = hasChildViews(viewDefinition)
     override val root = Composite(parent, ApplicationData.swnone)
-    val sashForm = SashForm(root, SWT.BORDER or SWT.VERTICAL)
+    val sashForm = getSashForm(root, viewDefinition)
     val listContainer = Composite(sashForm, ApplicationData.swnone)
     val tableLayout = TableColumnLayout(true)
     val listView = getListViewer(listContainer, tableLayout)
