@@ -185,11 +185,12 @@ fun makeInputLabel(parent: Composite, caption: String): Label {
 
 fun getSizeHintValue(fieldDef: Map<String, Any>) : Int{
     return if(fieldDef.containsKey(ApplicationData.ViewDef.sizeHint)){
-       if(fieldDef[ApplicationData.ViewDef.sizeHint] as String == ApplicationData.ViewDef.large){
-           return 5
-       } else {
-           return 2
-       }
+        return when(fieldDef[ApplicationData.ViewDef.sizeHint] as String) {
+            ApplicationData.ViewDef.large -> 5
+            ApplicationData.ViewDef.medium -> 3
+            ApplicationData.ViewDef.small -> 2
+            else -> 2
+        }
     } else {
         2
     }
