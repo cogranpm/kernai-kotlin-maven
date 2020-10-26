@@ -243,6 +243,8 @@ object ViewDefinitions {
         val viewDef = mapOf(
             ViewDef.viewid to ApplicationData.ViewDef.techSnippetsViewId,
             ViewDef.title to "Snippets",
+            ViewDef.sashWeights to intArrayOf(1, 3),
+            ViewDef.sashOrientation to ViewDef.vertical,
             ViewDef.fields to listOf(nameDef, langDef, categoryDef, topicDef, typeDef, descDef, bodyDef, outputDef)
         )
 

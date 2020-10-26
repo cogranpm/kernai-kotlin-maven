@@ -281,6 +281,7 @@ object ApplicationData {
 
     object ViewDef {
 
+        // the view id's
         const val bindingTestViewId = "bindingtest"
         const val personViewId = "beansbinding"
         const val personDetailsViewId = "persondetails"
@@ -291,6 +292,8 @@ object ApplicationData {
         const val notebookViewId = "notebook"
         const val noteheaderViewId = "noteheader"
         const val noteDetailViewId = "notedetail"
+
+       // the properties available to the views
         const val title = "title"
         const val version = "version"
         const val viewid = "viewid"
@@ -327,6 +330,10 @@ object ApplicationData {
 
         const val fieldLabelConverter = "fieldLabelConverter"
         const val required = "required"
+        const val sashWeights = "sashweight"
+        const val sashOrientation = "sashorientation"
+        const val horizontal = "horizontal"
+        const val vertical = "vertical"
 
         const val childViews = "childViews"
 
