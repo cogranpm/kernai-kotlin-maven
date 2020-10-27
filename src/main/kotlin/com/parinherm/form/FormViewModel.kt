@@ -69,8 +69,8 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
         input: WritableList<E>,
         childViewModelMaker: (E?) -> IFormViewModel<E>
     ) where E : IBeanDataEntity {
-        val fields = childFormTab.childDefinition[ApplicationData.ViewDefConstants.fields] as List<Map<String, Any>>
-        val title = childFormTab.childDefinition[ApplicationData.ViewDefConstants.title] as String
+        val fields = childFormTab.childDefinition.fieldDefinitions
+        val title = childFormTab.childDefinition.title
 
         val contentProvider = ObservableListContentProvider<E>()
         childFormTab.listView.contentProvider = contentProvider

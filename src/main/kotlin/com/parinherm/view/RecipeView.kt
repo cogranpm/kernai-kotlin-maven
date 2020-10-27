@@ -9,15 +9,9 @@ import org.eclipse.swt.widgets.Composite
 class RecipeView(val parent: Composite, comparator: BeansViewerComparator)
     : View <Recipe> {
 
-        val formDef: Map<String, Any> =
-            ApplicationData.getView(
-                ApplicationData.ViewDefConstants.recipeViewId,
-                ApplicationData.viewDefinitions
-            )
-
         // this member has all of the widgets
         // it's a common object favour composition over inheritance
-        override val form: Form<Recipe> = Form(parent, formDef, comparator)
+        override val form: Form<Recipe> = Form(parent, ApplicationData.getView(ApplicationData.ViewDefConstants.recipeViewId), comparator)
 
         init {
         }

@@ -7,14 +7,9 @@ import com.parinherm.form.Form
 import org.eclipse.swt.widgets.Composite
 
 class NoteHeaderView (val parent: Composite, comparator: BeansViewerComparator) : View<NoteHeader>{
-    private val formDef: Map<String, Any> =
-        ApplicationData.getView(
-            ApplicationData.ViewDefConstants.noteheaderViewId,
-            ApplicationData.viewDefinitions
-        )
 
     // this member has all of the widgets
     // it's a common object favour composition over inheritance
-    override val form: Form<NoteHeader> = Form(parent, formDef, comparator)
+    override val form: Form<NoteHeader> = Form(parent, ApplicationData.getView(ApplicationData.ViewDefConstants.noteheaderViewId), comparator)
 
 }
