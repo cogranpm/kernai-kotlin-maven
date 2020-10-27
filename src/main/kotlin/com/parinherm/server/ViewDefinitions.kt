@@ -23,9 +23,91 @@ object ViewDefinitions {
         )
     }
 
+    fun makeTextField(name: String, title: String, required: Boolean) : FieldDef {
+        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.TEXT, null)
+    }
+
+    fun makeMemoField(name: String, title: String, required: Boolean) : FieldDef {
+        return makeField(name, title, required, SizeDef.LARGE, DataTypeDef.MEMO, null)
+    }
+
+    fun makeSourceField(name: String, title: String, required: Boolean) : FieldDef {
+        return makeField(name, title, required, SizeDef.LARGE, DataTypeDef.SOURCE, null)
+    }
+
+
+    fun makeLookupField(name: String, title: String, required: Boolean, lookupKey: String) : FieldDef {
+        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.LOOKUP, lookupKey)
+    }
+
+    fun makeIntField(name: String, title: String, required: Boolean) : FieldDef {
+        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.INT, null)
+    }
+
+    fun makeFloatField(name: String, title: String, required: Boolean) : FieldDef {
+        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.FLOAT, null)
+    }
+
+    fun makeDateTimeField(name: String, title: String, required: Boolean) : FieldDef {
+        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.DATETIME, null)
+    }
+
+    fun makeMoneyField(name: String, title: String, required: Boolean) : FieldDef {
+        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.MONEY, null)
+    }
+
+    fun makeBooleanField(name: String, title: String, required: Boolean) : FieldDef {
+        return makeField(name, title, required, SizeDef.SMALL, DataTypeDef.BOOLEAN, null)
+    }
+
+    fun makeField(name: String, title: String, required: Boolean, size: SizeDef, dataType: DataTypeDef, lookupKey: String?) : FieldDef {
+        return FieldDef(name, title, required, size, dataType, lookupKey)
+    }
+
+
+    fun makeSnippets(): ViewDef {
+        val name = makeTextField("name", "Name", true)
+        val language = makeLookupField("language", "Language", true, ApplicationData.techLanguageLookupKey)
+        val category = makeLookupField("category", "Category", true, ApplicationData.snippetCategoryKey)
+        val topic = makeLookupField("topic", "Topic", true, ApplicationData.snippetTopicKey)
+        val type = makeLookupField("type", "Type", true, ApplicationData.snippetTypeKey)
+        val desc = makeMemoField("desc", "Description", false)
+        val body = makeSourceField("body", "Body", false)
+        val output = makeMemoField("output", "Output", false)
+        return ViewDef(ApplicationData.ViewDefConstants.techSnippetsViewId,
+            "Snippets",
+            1,
+            5,
+            SashOrientationDef.HORIZONTAL,
+            listOf(name, language, category, topic, type, desc, body, output),
+            listOf())
+    }
+
+
+    fun makeLogins(): ViewDef {
+        val name = makeTextField("name", "Name", true)
+        val category = makeLookupField("category", "Category", true,  ApplicationData.loginCategoryKey)
+        val userName = makeTextField("userName", "User Name", true)
+        val password = makeLookupField("password", "Password", true, ApplicationData.passwordMasterKey)
+        val url = makeTextField("url", "URL", false)
+        val notes = makeMemoField("notes", "Notes", false)
+        val other = makeMemoField("other", "Other", false)
+        val view = ViewDef(
+            ViewDefConstants.loginViewId,
+            "Login",
+            1,
+            3,
+            SashOrientationDef.VERTICAL,
+            listOf(name, category, userName, password, url, notes, other),
+            listOf()
+        )
+        return view
+    }
+
+
     fun makeNotebooks(): ViewDef {
-        val name = FieldDef("name", "Name", true, SizeDef.SMALL, DataTypeDef.TEXT)
-        val comments = FieldDef("comments", "Comments", false, SizeDef.MEDIUM, DataTypeDef.MEMO)
+        val name = makeTextField("name", "Name", true)
+        val comments = makeMemoField("comments", "Comments", false)
         val view = ViewDef(
             ViewDefConstants.notebookViewId, "Notebooks", 1, 3, SashOrientationDef.VERTICAL, listOf(name, comments),
             listOf(makeNoteHeaders())
@@ -34,8 +116,8 @@ object ViewDefinitions {
     }
 
     fun makeNoteHeaders(): ViewDef {
-        val name = FieldDef("name", "Name", true, SizeDef.SMALL, DataTypeDef.TEXT)
-        val comments = FieldDef("comments", "Comments", false, SizeDef.MEDIUM, DataTypeDef.MEMO)
+        val name = makeTextField("name", "Name", true)
+        val comments = makeMemoField("comments", "Comments", false)
         val view = ViewDef(
             ViewDefConstants.noteheaderViewId,
             "Note Header",
@@ -51,10 +133,10 @@ object ViewDefinitions {
     }
 
     fun makeNoteDetails(): ViewDef {
-        val name = FieldDef("name", "Name", true, SizeDef.SMALL, DataTypeDef.TEXT)
-        val body = FieldDef("body", "Body", false, SizeDef.MEDIUM, DataTypeDef.MEMO)
-        val sourceCode = FieldDef("sourceCode", "Source", false, SizeDef.MEDIUM, DataTypeDef.MEMO)
-        val comments = FieldDef("comments", "Comments", false, SizeDef.MEDIUM, DataTypeDef.MEMO)
+        val name = makeTextField("name", "Name", true)
+        val body = makeMemoField("body", "Body", false)
+        val sourceCode = makeMemoField("sourceCode", "Source", false)
+        val comments = makeMemoField("comments", "Comments", false)
         val view = ViewDef(
             ViewDefConstants.noteheaderViewId,
             "Note Header",
@@ -162,6 +244,8 @@ object ViewDefinitions {
         return viewDef
     }
 
+
+
     fun makeLoginsMap(): Map<String, Any> {
 
         val nameDef = mapOf(
@@ -231,6 +315,8 @@ object ViewDefinitions {
 
         return viewDef
     }
+
+
 
 
     fun makeTechSnippetsMap(): Map<String, Any> {

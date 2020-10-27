@@ -4,9 +4,12 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-data class FieldDef (val name: String,
-                     val title: String,
-                     val required: Boolean,
-                     val sizeHint: SizeDef,
-                     val dataTypeDef: DataTypeDef) {
+data class FieldDef(
+    val name: String,
+    val title: String,
+    val required: Boolean,
+    val sizeHint: SizeDef,
+    val dataTypeDef: DataTypeDef,
+    val lookupKey: String? = null
+) {
 }
