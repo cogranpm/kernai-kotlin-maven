@@ -22,6 +22,8 @@ import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.layout.TableColumnLayout
+import org.eclipse.jface.text.source.SourceViewer
+import org.eclipse.jface.text.source.SourceViewerConfiguration
 import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.SWT
@@ -104,9 +106,9 @@ data class Form<T>(
                 DataTypeDef.FLOAT,
                 DataTypeDef.TEXT,
                 DataTypeDef.MEMO,
-                DataTypeDef.SOURCE,
                 DataTypeDef.DATETIME -> (it.value.widget as Control).enabled = flag
                 DataTypeDef.LOOKUP -> (it.value.widget as Viewer).control.enabled = flag
+                DataTypeDef.SOURCE -> (it.value.widget as SourceViewer).textWidget.enabled = flag
             }
         }
     }
