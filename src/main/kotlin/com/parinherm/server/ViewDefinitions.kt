@@ -26,11 +26,32 @@ object ViewDefinitions {
     fun makeNotebooks(): ViewDef {
         val name = FieldDef("name", "Name", true, SizeDef.SMALL, DataTypeDef.TEXT)
         val comments = FieldDef("comments", "Comments", false, SizeDef.MEDIUM, DataTypeDef.MEMO)
-        val view = ViewDef(ViewDefConstants.notebookViewId, "Notebooks", 1, 3, SashOrientationDef.VERTICAL, listOf(name, comments))
+        val view = ViewDef(
+            ViewDefConstants.notebookViewId, "Notebooks", 1, 3, SashOrientationDef.VERTICAL, listOf(name, comments),
+            listOf(makeNoteHeaders())
+        )
         return view
     }
 
-    fun makeNotebooksMap():  Map<String, Any>{
+    fun makeNoteHeaders(): ViewDef {
+        val name = FieldDef("name", "Name", true, SizeDef.SMALL, DataTypeDef.TEXT)
+        val comments = FieldDef("comments", "Comments", false, SizeDef.MEDIUM, DataTypeDef.MEMO)
+        val view = ViewDef(
+            ViewDefConstants.noteheaderViewId,
+            "Note Header",
+            1,
+            3,
+            SashOrientationDef.VERTICAL,
+            listOf(name, comments),
+            listOf(
+                makeNoteDetails()
+            )
+        )
+        return view
+    }
+
+
+    fun makeNotebooksMap(): Map<String, Any> {
 
 
         val nameDef = mapOf(
@@ -58,6 +79,7 @@ object ViewDefinitions {
 
     }
 
+
     fun makeNoteHeaderMap(): Map<String, Any> {
 
         val nameDef = mapOf(
@@ -82,6 +104,21 @@ object ViewDefinitions {
         )
 
         return viewDef
+    }
+
+    fun makeNoteDetails(): ViewDef {
+        val name = FieldDef("name", "Name", true, SizeDef.SMALL, DataTypeDef.TEXT)
+        val comments = FieldDef("comments", "Comments", false, SizeDef.MEDIUM, DataTypeDef.MEMO)
+        val view = ViewDef(
+            ViewDefConstants.noteheaderViewId,
+            "Note Header",
+            1,
+            3,
+            SashOrientationDef.VERTICAL,
+            listOf(name, comments),
+            listOf()
+        )
+        return view
     }
 
     fun makeNoteDetailMap(): Map<String, Any> {
@@ -179,7 +216,15 @@ object ViewDefinitions {
         val viewDef = mapOf(
             ViewDefConstants.viewid to ApplicationData.ViewDefConstants.loginViewId,
             ViewDefConstants.title to "Logins",
-            ViewDefConstants.fields to listOf(nameDef, categoryDef, userNameDef, passwordDef, urlDef, notesDef, otherDef)
+            ViewDefConstants.fields to listOf(
+                nameDef,
+                categoryDef,
+                userNameDef,
+                passwordDef,
+                urlDef,
+                notesDef,
+                otherDef
+            )
         )
 
         return viewDef
@@ -244,10 +289,10 @@ object ViewDefinitions {
         )
 
         val outputDef = mapOf(
-                ViewDefConstants.fieldName to "output",
-                ViewDefConstants.title to "Output",
-                ViewDefConstants.required to false,
-                ViewDefConstants.fieldDataType to ViewDefConstants.memo
+            ViewDefConstants.fieldName to "output",
+            ViewDefConstants.title to "Output",
+            ViewDefConstants.required to false,
+            ViewDefConstants.fieldDataType to ViewDefConstants.memo
         )
 
 
@@ -257,7 +302,16 @@ object ViewDefinitions {
             ViewDefConstants.listWeight to 1,
             ViewDefConstants.editWeight to 5,
             ViewDefConstants.sashOrientation to ViewDefConstants.horizontal,
-            ViewDefConstants.fields to listOf(nameDef, langDef, categoryDef, topicDef, typeDef, descDef, bodyDef, outputDef)
+            ViewDefConstants.fields to listOf(
+                nameDef,
+                langDef,
+                categoryDef,
+                topicDef,
+                typeDef,
+                descDef,
+                bodyDef,
+                outputDef
+            )
         )
 
         return viewDef

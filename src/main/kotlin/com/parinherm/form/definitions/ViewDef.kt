@@ -10,6 +10,7 @@ data class ViewDef(
     val listWeight: Int = 1,
     val editWeight: Int = 3,
     val sashOrientation: SashOrientationDef = SashOrientationDef.VERTICAL,
-    val fieldDefinitions: List<FieldDef>
+    val fieldDefinitions: List<FieldDef>,
+    val childViews: List<ViewDef>
 ) {
 }
