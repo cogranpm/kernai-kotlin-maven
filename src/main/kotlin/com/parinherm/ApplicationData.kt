@@ -1,10 +1,14 @@
 package com.parinherm
 
+import com.parinherm.builders.HttpClient
 import com.parinherm.entity.LookupDetail
 import com.parinherm.entity.schema.SchemaBuilder
 import com.parinherm.form.IFormViewModel
+import com.parinherm.form.definitions.ViewDef
 import com.parinherm.server.SimpleHttpServer
 import com.parinherm.server.ViewDefinitions
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.eclipse.core.databinding.UpdateValueStrategy
 import org.eclipse.core.databinding.observable.Realm
 import org.eclipse.jface.databinding.swt.DisplayRealm
@@ -20,7 +24,7 @@ object ApplicationData {
 
     private lateinit var imageRegistry: ImageRegistry
     lateinit var mainWindow: MainWindow
-    lateinit var viewDefinitions: Map<String, Any>
+    lateinit var viewDefinitions: List<ViewDef>
 
     /* keeps all opened tabs in a list and remove them when closed */
     var tabs: MutableMap<String, TabInstance> = mutableMapOf()
@@ -51,7 +55,7 @@ object ApplicationData {
     const val serverProtocol = "http"
     val urls = mapOf<String, String>("views" to "views")
 
-    val views = ViewDefinitions.makeDefinitions()
+    //val views = ViewDefinitions.makeDefinitions()
 
     val defaultUpdatePolicy = UpdateValueStrategy.POLICY_UPDATE  //UpdateValueStrategy.POLICY_ON_REQUEST
 
@@ -69,7 +73,7 @@ object ApplicationData {
         val display: Display = Display.getDefault()
         Realm.runWithDefault(DisplayRealm.getRealm(display)) {
             try {
-                viewDefinitions = getViewDefinitions()
+                viewDefinitions = ApplicationData.getSerializationFormat().decodeFromString<List<ViewDef>>(HttpClient.getViews())
                 imageRegistry = ImageRegistry()
                 mainWindow = MainWindow(null)
                 mainWindow.setBlockOnOpen(true)
@@ -81,6 +85,9 @@ object ApplicationData {
         }
         SimpleHttpServer.stop()
     }
+
+    fun getSerializationFormat() = Json { prettyPrint = true }
+
 
 
     /************************** new way ***************************************************/
@@ -111,15 +118,17 @@ object ApplicationData {
     }
 
 
+    /*
     fun getView(viewId: String): Map<String, Any> {
         val forms: List<Map<String, Any>> = views[ViewDefConstants.forms] as List<Map<String, Any>>
         return forms.first { it[ViewDefConstants.viewid] == viewId }
     }
 
-    fun getView(viewId: String, viewDefinitions: Map<String, Any>): Map<String, Any> {
-        val forms: List<Map<String, Any>> = viewDefinitions[ViewDefConstants.forms] as List<Map<String, Any>>
-        return forms.first { it[ViewDefConstants.viewid] == viewId }
-    }
+     */
+
+    fun getView(viewId: String): ViewDef =
+        viewDefinitions.first {it.id == viewId}
+
 
     fun makeServerUrl(urlKey: String): String = "$serverProtocol://$serverHost:$serverPort/${urls[urlKey]}"
 

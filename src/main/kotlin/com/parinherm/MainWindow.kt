@@ -1,9 +1,6 @@
 package com.parinherm
 
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.parinherm.builders.HttpClient
 import com.parinherm.viewmodel.*
 import org.eclipse.jface.action.*
 import org.eclipse.jface.window.ApplicationWindow
@@ -17,12 +14,13 @@ import org.eclipse.swt.widgets.*
 import java.io.IOException
 
 
+/*
 inline fun <reified T> Gson.fromJson(json: String) = fromJson<T>(json, object: TypeToken<T>() {}.type)
-
 fun getViewDefinitions(): Map<String, Any>{
-    val views = Gson().fromJson<Map<String, Any>>( HttpClient.getViews())
+   val views = Gson().fromJson<Map<String, Any>>( HttpClient.getViews())
     return views
 }
+ */
 
 
 class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {

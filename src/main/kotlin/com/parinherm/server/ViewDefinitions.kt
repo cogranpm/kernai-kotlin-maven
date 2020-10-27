@@ -23,45 +23,110 @@ object ViewDefinitions {
         )
     }
 
-    fun makeTextField(name: String, title: String, required: Boolean) : FieldDef {
+    fun makeViews(): List<ViewDef> = listOf(
+        makePerson(),
+        makePersonDetail(),
+        makeRecipes(),
+        makeIngredients(),
+        makeLogins(),
+        makeNotebooks(),
+        makeNoteHeaders(),
+        makeNoteDetails(),
+        makeSnippets()
+    )
+
+    fun makeTextField(name: String, title: String, required: Boolean): FieldDef {
         return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.TEXT, null)
     }
 
-    fun makeMemoField(name: String, title: String, required: Boolean) : FieldDef {
+    fun makeMemoField(name: String, title: String, required: Boolean): FieldDef {
         return makeField(name, title, required, SizeDef.LARGE, DataTypeDef.MEMO, null)
     }
 
-    fun makeSourceField(name: String, title: String, required: Boolean) : FieldDef {
+    fun makeSourceField(name: String, title: String, required: Boolean): FieldDef {
         return makeField(name, title, required, SizeDef.LARGE, DataTypeDef.SOURCE, null)
     }
 
 
-    fun makeLookupField(name: String, title: String, required: Boolean, lookupKey: String) : FieldDef {
+    fun makeLookupField(name: String, title: String, required: Boolean, lookupKey: String): FieldDef {
         return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.LOOKUP, lookupKey)
     }
 
-    fun makeIntField(name: String, title: String, required: Boolean) : FieldDef {
+    fun makeIntField(name: String, title: String, required: Boolean): FieldDef {
         return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.INT, null)
     }
 
-    fun makeFloatField(name: String, title: String, required: Boolean) : FieldDef {
+    fun makeFloatField(name: String, title: String, required: Boolean): FieldDef {
         return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.FLOAT, null)
     }
 
-    fun makeDateTimeField(name: String, title: String, required: Boolean) : FieldDef {
+    fun makeDateTimeField(name: String, title: String, required: Boolean): FieldDef {
         return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.DATETIME, null)
     }
 
-    fun makeMoneyField(name: String, title: String, required: Boolean) : FieldDef {
+    fun makeMoneyField(name: String, title: String, required: Boolean): FieldDef {
         return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.MONEY, null)
     }
 
-    fun makeBooleanField(name: String, title: String, required: Boolean) : FieldDef {
+    fun makeBooleanField(name: String, title: String, required: Boolean): FieldDef {
         return makeField(name, title, required, SizeDef.SMALL, DataTypeDef.BOOLEAN, null)
     }
 
-    fun makeField(name: String, title: String, required: Boolean, size: SizeDef, dataType: DataTypeDef, lookupKey: String?) : FieldDef {
+    fun makeField(
+        name: String,
+        title: String,
+        required: Boolean,
+        size: SizeDef,
+        dataType: DataTypeDef,
+        lookupKey: String?
+    ): FieldDef {
         return FieldDef(name, title, required, size, dataType, lookupKey)
+    }
+
+    fun makePerson(): ViewDef {
+        val name = makeTextField("name", "First Name", true)
+        val income = makeMoneyField("income", "Income", true)
+        val height = makeFloatField("height", "Height", true)
+        val age = makeIntField("age", "Age", true)
+        val country = makeLookupField("country", "Country", true, ApplicationData.countryLookupKey)
+        val enteredDate = makeDateTimeField("enteredDate", "Entered", true)
+        val isDeceased = makeBooleanField("deceased", "Deceased", true)
+        return ViewDef(ApplicationData.ViewDefConstants.personViewId, "People", 1, 3, SashOrientationDef.VERTICAL,
+            listOf(name, income, height, age, country, enteredDate, isDeceased), listOf(makePersonDetail()))
+    }
+
+
+
+    fun makePersonDetail(): ViewDef {
+        val nickname = makeTextField("nickname", "Nickname", true)
+        val petSpecies = makeLookupField("petSpecies", "Pet", true, ApplicationData.speciesLookupKey)
+        return ViewDef(
+            ApplicationData.ViewDefConstants.personDetailsViewId, "Person Details", 1, 3, SashOrientationDef.VERTICAL,
+            listOf(nickname, petSpecies), listOf()
+        )
+    }
+
+
+
+    fun makeIngredients(): ViewDef {
+        val name = makeTextField("name", "Name", true)
+        val quantity = makeFloatField("quantity", "Quantity", true)
+        val unit = makeLookupField("unit", "Unit", true, ApplicationData.unitLookupKey)
+        return ViewDef(
+            ApplicationData.ViewDefConstants.ingredientViewId,
+            "Ingredients", 1, 3, SashOrientationDef.VERTICAL, listOf(name, quantity, unit), listOf()
+        )
+    }
+
+
+    fun makeRecipes(): ViewDef {
+        val name = makeTextField("name", "Name", true)
+        val category = makeLookupField("category", "Category", true, ApplicationData.recipeCategoryLookupKey)
+        val method = makeMemoField("method", "Method", true)
+        return ViewDef(
+            ApplicationData.ViewDefConstants.recipeViewId, "Recipes", 1, 3, SashOrientationDef.VERTICAL,
+            listOf(name, category, method), listOf(makeIngredients())
+        )
     }
 
 
@@ -74,19 +139,21 @@ object ViewDefinitions {
         val desc = makeMemoField("desc", "Description", false)
         val body = makeSourceField("body", "Body", false)
         val output = makeMemoField("output", "Output", false)
-        return ViewDef(ApplicationData.ViewDefConstants.techSnippetsViewId,
+        return ViewDef(
+            ApplicationData.ViewDefConstants.techSnippetsViewId,
             "Snippets",
             1,
             5,
             SashOrientationDef.HORIZONTAL,
             listOf(name, language, category, topic, type, desc, body, output),
-            listOf())
+            listOf()
+        )
     }
 
 
     fun makeLogins(): ViewDef {
         val name = makeTextField("name", "Name", true)
-        val category = makeLookupField("category", "Category", true,  ApplicationData.loginCategoryKey)
+        val category = makeLookupField("category", "Category", true, ApplicationData.loginCategoryKey)
         val userName = makeTextField("userName", "User Name", true)
         val password = makeLookupField("password", "Password", true, ApplicationData.passwordMasterKey)
         val url = makeTextField("url", "URL", false)
@@ -245,7 +312,6 @@ object ViewDefinitions {
     }
 
 
-
     fun makeLoginsMap(): Map<String, Any> {
 
         val nameDef = mapOf(
@@ -315,8 +381,6 @@ object ViewDefinitions {
 
         return viewDef
     }
-
-
 
 
     fun makeTechSnippetsMap(): Map<String, Any> {
@@ -406,13 +470,6 @@ object ViewDefinitions {
 
     }
 
-    fun makeIngredients() : ViewDef {
-        val name = makeTextField("name", "Name", true)
-        val quantity = makeFloatField("quantity", "Quantity", true)
-        val unit = makeLookupField("unit", "Unit", true, ApplicationData.unitLookupKey)
-        return ViewDef(ApplicationData.ViewDefConstants.ingredientViewId,
-        "Ingredients", 1, 3, SashOrientationDef.VERTICAL, listOf(name, quantity, unit), listOf())
-    }
 
     fun makeIngredientsMap(): Map<String, Any> {
         val nameDef = mapOf(
@@ -445,6 +502,7 @@ object ViewDefinitions {
 
         return ingredientsDef
     }
+
 
     fun makeRecipesMap(): Map<String, Any> {
         val nameDef = mapOf(
@@ -479,6 +537,7 @@ object ViewDefinitions {
         return recipesDef
     }
 
+
     fun makePersonDetailDef(): Map<String, Any> {
         /****************** child bean person details ****************/
         val nicknameDef = mapOf(
@@ -504,6 +563,8 @@ object ViewDefinitions {
 
         return personDetailsDef
     }
+
+
 
     fun makePersonMap(): Map<String, Any> {
         val firstNameDef = mapOf(

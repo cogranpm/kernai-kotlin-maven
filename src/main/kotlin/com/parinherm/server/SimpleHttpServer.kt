@@ -33,16 +33,17 @@ object SimpleHttpServer {
 
                 /******** transition to kotlinx from gson *************/
                 val format = Json { prettyPrint = true }
-                val x = format.encodeToString(ViewDefinitions.makeNotebooks())
-                println(x)
-                val item = format.decodeFromString<ViewDef>(x)
-                println(item.title)
+                val viewsWireFormat = format.encodeToString(ViewDefinitions.makeViews())
+                PrintWriter(http.responseBody).use { out ->
+                    out.println(viewsWireFormat)
+                }
 
-                /************* old way was gson *************/
+                /************* old way was gson *************
                 val gson = GsonBuilder().create()
                 PrintWriter(http.responseBody).use { out ->
                     out.println(gson.toJson(ViewDefinitions.makeDefinitions()))
                 }
+                *********************************************/
             }
 
             /*

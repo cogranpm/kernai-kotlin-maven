@@ -15,6 +15,9 @@ package com.parinherm.form
 import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.entity.IBeanDataEntity
+import com.parinherm.form.definitions.DataTypeDef
+import com.parinherm.form.definitions.FieldDef
+import com.parinherm.form.definitions.ViewDef
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
@@ -33,11 +36,11 @@ import org.eclipse.swt.widgets.Control
 
 data class Form<T>(
     val parent: Composite,
-    val viewDefinition: Map<String, Any>,
+    val viewDefinition: ViewDef,
     val comparator: BeansViewerComparator
 ) : IForm<T> where T : IBeanDataEntity {
 
-    val fields = viewDefinition[ApplicationData.ViewDefConstants.fields] as List<Map<String, Any>>
+    val fields = viewDefinition.fieldDefinitions as List<FieldDef>
     val hasChildViews: Boolean = hasChildViews(viewDefinition)
     override val root = Composite(parent, ApplicationData.swnone)
     val sashForm = getSashForm(root, viewDefinition)
@@ -55,17 +58,9 @@ data class Form<T>(
 
 
     init {
-        var listWeight = 1
-        var editWeight = 2
-        if (viewDefinition.containsKey(ApplicationData.ViewDefConstants.listWeight)){
-            listWeight = (viewDefinition[ApplicationData.ViewDefConstants.listWeight] as Double).toInt()
-        }
-        if (viewDefinition.containsKey(ApplicationData.ViewDefConstants.editWeight)){
-            editWeight = (viewDefinition[ApplicationData.ViewDefConstants.editWeight] as Double).toInt()
-        }
 
         //needs to be done after content is added
-        sashForm.weights = intArrayOf(listWeight, editWeight)
+        sashForm.weights = intArrayOf(viewDefinition.listWeight, viewDefinition.editWeight)
         sashForm.sashWidth = 4
         //childFormsContainer?.childTabs?.forEach {println(it.key)}
         listView.contentProvider = contentProvider
@@ -102,15 +97,16 @@ data class Form<T>(
 
     override fun enable(flag: Boolean) {
         formWidgets.forEach {
-            when (it.value.fieldType) {
-                ApplicationData.ViewDefConstants.text,
-                ApplicationData.ViewDefConstants.memo,
-                ApplicationData.ViewDefConstants.int,
-                ApplicationData.ViewDefConstants.float,
-                ApplicationData.ViewDefConstants.money,
-                ApplicationData.ViewDefConstants.bool,
-                ApplicationData.ViewDefConstants.datetime -> (it.value.widget as Control).enabled = flag
-                ApplicationData.ViewDefConstants.lookup -> (it.value.widget as Viewer).control.enabled = flag
+            when (it.value.fieldDef.dataTypeDef) {
+                DataTypeDef.BOOLEAN,
+                DataTypeDef.INT,
+                DataTypeDef.MONEY,
+                DataTypeDef.FLOAT,
+                DataTypeDef.TEXT,
+                DataTypeDef.MEMO,
+                DataTypeDef.SOURCE,
+                DataTypeDef.DATETIME -> (it.value.widget as Control).enabled = flag
+                DataTypeDef.LOOKUP -> (it.value.widget as Viewer).control.enabled = flag
             }
         }
     }
