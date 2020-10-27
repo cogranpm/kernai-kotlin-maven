@@ -50,6 +50,22 @@ object ViewDefinitions {
         return view
     }
 
+    fun makeNoteDetails(): ViewDef {
+        val name = FieldDef("name", "Name", true, SizeDef.SMALL, DataTypeDef.TEXT)
+        val body = FieldDef("body", "Body", false, SizeDef.MEDIUM, DataTypeDef.MEMO)
+        val sourceCode = FieldDef("sourceCode", "Source", false, SizeDef.MEDIUM, DataTypeDef.MEMO)
+        val comments = FieldDef("comments", "Comments", false, SizeDef.MEDIUM, DataTypeDef.MEMO)
+        val view = ViewDef(
+            ViewDefConstants.noteheaderViewId,
+            "Note Header",
+            1,
+            3,
+            SashOrientationDef.VERTICAL,
+            listOf(name, body, sourceCode, comments),
+            listOf()
+        )
+        return view
+    }
 
     fun makeNotebooksMap(): Map<String, Any> {
 
@@ -106,20 +122,6 @@ object ViewDefinitions {
         return viewDef
     }
 
-    fun makeNoteDetails(): ViewDef {
-        val name = FieldDef("name", "Name", true, SizeDef.SMALL, DataTypeDef.TEXT)
-        val comments = FieldDef("comments", "Comments", false, SizeDef.MEDIUM, DataTypeDef.MEMO)
-        val view = ViewDef(
-            ViewDefConstants.noteheaderViewId,
-            "Note Header",
-            1,
-            3,
-            SashOrientationDef.VERTICAL,
-            listOf(name, comments),
-            listOf()
-        )
-        return view
-    }
 
     fun makeNoteDetailMap(): Map<String, Any> {
 
