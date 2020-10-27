@@ -406,6 +406,14 @@ object ViewDefinitions {
 
     }
 
+    fun makeIngredients() : ViewDef {
+        val name = makeTextField("name", "Name", true)
+        val quantity = makeFloatField("quantity", "Quantity", true)
+        val unit = makeLookupField("unit", "Unit", true, ApplicationData.unitLookupKey)
+        return ViewDef(ApplicationData.ViewDefConstants.ingredientViewId,
+        "Ingredients", 1, 3, SashOrientationDef.VERTICAL, listOf(name, quantity, unit), listOf())
+    }
+
     fun makeIngredientsMap(): Map<String, Any> {
         val nameDef = mapOf(
             ViewDefConstants.fieldName to "name",
