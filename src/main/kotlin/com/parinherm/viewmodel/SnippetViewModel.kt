@@ -14,6 +14,7 @@ import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
 import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
+import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.Text
 import org.graalvm.polyglot.Context
 import org.graalvm.polyglot.Source
@@ -22,12 +23,12 @@ import java.io.PrintStream
 import javax.script.ScriptEngineManager
 
 
-class SnippetViewModel(parent: CTabFolder)  : FormViewModel<Snippet>(
+class SnippetViewModel(parent: CTabFolder) : FormViewModel<Snippet>(
     SnippetView(parent, Comparator()),
     SnippetMapper, { Snippet.make() }) {
 
-   //val classLoader = Thread.currentThread().contextClassLoader
-   //val engine: ScriptEngine = ScriptEngineManager(classLoader).getEngineByExtension("kts")
+    //val classLoader = Thread.currentThread().contextClassLoader
+    //val engine: ScriptEngine = ScriptEngineManager(classLoader).getEngineByExtension("kts")
 
     val bodyWidget = view.form.formWidgets.get("body")?.widget as SourceCodeViewer
 
@@ -35,7 +36,7 @@ class SnippetViewModel(parent: CTabFolder)  : FormViewModel<Snippet>(
         loadData(mapOf())
         val snippetView = view as SnippetView
 
-        bodyWidget.document.addDocumentListener(object: IDocumentListener {
+        bodyWidget.document.addDocumentListener(object : IDocumentListener {
             override fun documentAboutToBeChanged(p0: DocumentEvent?) {
 
             }
@@ -64,7 +65,7 @@ class SnippetViewModel(parent: CTabFolder)  : FormViewModel<Snippet>(
 
     }
 
-    fun runKotlinScript(){
+    fun runKotlinScript() {
         with(ScriptEngineManager().getEngineByExtension("kts")) {
             //val writer = StringWriter()
             //context.writer = writer
@@ -77,9 +78,11 @@ class SnippetViewModel(parent: CTabFolder)  : FormViewModel<Snippet>(
             // redirect the output to a byte stream
             System.setOut(ps)
 
+            val outputWidget = view.form.formWidgets["output"]!!.widget as Text
+            outputWidget.text = ""
 
-           // eval("val x = 3")
-           // val res2 = eval("x + 2")
+            // eval("val x = 3")
+            // val res2 = eval("x + 2")
 
             put("currentEntity", currentEntity)
 
@@ -87,19 +90,22 @@ class SnippetViewModel(parent: CTabFolder)  : FormViewModel<Snippet>(
             System.out.flush()
             System.setOut(console)
 
-            val outputWidget = view.form.formWidgets["output"]!!.widget as Text
-            outputWidget.text = bs.toString()
+            Display.getDefault().timerExec(2000) { outputWidget.text = bs.toString() };
+
+
         }
 
     }
 
-    fun graalTestScript(){
+    fun graalTestScript() {
         try {
-            val context =Context.newBuilder("js").allowAllAccess(true).allowHostClassLookup { _ -> true }.allowIO(true).build()
+            val context =
+                Context.newBuilder("js").allowAllAccess(true).allowHostClassLookup { _ -> true }.allowIO(true).build()
             context.use {
                 val utilsSource = Source.newBuilder("js", loadScript("utils.mjs"), "utils").buildLiteral()
                 it.eval(utilsSource)
-                val mainSource = Source.newBuilder("js", loadScript("testing.mjs"), "testing").buildLiteral() // .bu.mimeType("application/javascript+module")
+                val mainSource = Source.newBuilder("js", loadScript("testing.mjs"), "testing")
+                    .buildLiteral() // .bu.mimeType("application/javascript+module")
                 val bindings = context.getBindings("js")
                 bindings.putMember("foo", ApplicationData)
                 it.eval(mainSource)
@@ -113,7 +119,7 @@ class SnippetViewModel(parent: CTabFolder)  : FormViewModel<Snippet>(
         }
     }
 
-    fun loadScript(fileName: String) : String {
+    fun loadScript(fileName: String): String {
         val script = this::class.java.getResource("/scripts/$fileName")
         return script?.readText(Charsets.UTF_8) ?: ""
     }
