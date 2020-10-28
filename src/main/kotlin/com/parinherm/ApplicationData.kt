@@ -6,7 +6,6 @@ import com.parinherm.entity.schema.SchemaBuilder
 import com.parinherm.form.IFormViewModel
 import com.parinherm.form.definitions.ViewDef
 import com.parinherm.server.SimpleHttpServer
-import com.parinherm.server.ViewDefinitions
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.eclipse.core.databinding.UpdateValueStrategy
@@ -247,8 +246,8 @@ object ApplicationData {
         LookupDetail("mystery", "Mystery5570"),
         LookupDetail("Mystery5570!", "Mystery5570!"),
         LookupDetail("n/a", "Not Applicable"),
-        LookupDetail("cambridge", "cambridge")
-
+        LookupDetail("cambridge", "cambridge"),
+        LookupDetail("1234", "1234")
     )
 
     val loginCategoryList = listOf(
