@@ -1,6 +1,9 @@
 package com.parinherm.entity.schema
 
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.StdOutSqlLogger
+import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object SchemaBuilder {
@@ -15,15 +18,19 @@ object SchemaBuilder {
     fun build() {
         transaction {
             addLogger(StdOutSqlLogger)
-            SchemaUtils.create(Persons,
-                    PersonDetails,
-                    Recipes,
-                    Ingredients,
-                    Snippets,
-                    Logins,
-                    Notebooks,
-                    NoteHeaders,
-                    NoteDetails)
+            SchemaUtils.create(
+                Persons,
+                PersonDetails,
+                Recipes,
+                Ingredients,
+                Snippets,
+                Logins,
+                Notebooks,
+                NoteHeaders,
+                NoteDetails,
+                Lookups,
+                LookupDetails
+            )
         }
     }
 }

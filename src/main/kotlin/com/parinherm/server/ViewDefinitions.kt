@@ -14,7 +14,9 @@ object ViewDefinitions {
         makeNotebooks(),
         makeNoteHeaders(),
         makeNoteDetails(),
-        makeSnippets()
+        makeSnippets(),
+        makeLookup(),
+        makeLookupDetail()
     )
 
     private fun makeTextField(name: String, title: String, required: Boolean): FieldDef {
@@ -64,11 +66,19 @@ object ViewDefinitions {
         return FieldDef(name, title, required, size, dataType, lookupKey)
     }
 
+
+    fun makeLookupDetail() : ViewDef {
+        val code = makeTextField("code", "Code", true)
+        val label = makeTextField("label", "Label", true)
+        return ViewDef(ApplicationData.ViewDefConstants.lookupDetailViewId, "Lookup Items", 1, 3, SashOrientationDef.VERTICAL,
+        listOf(code, label), emptyList())
+    }
+
     private fun makeLookup(): ViewDef {
         val key = makeTextField("key", "Key", true)
         val label = makeTextField("label", "Label", true)
         return ViewDef(ApplicationData.ViewDefConstants.lookupViewId,
-        "Lookups", 1, 3, SashOrientationDef.VERTICAL, listOf(key, label), listOf())
+        "Lookups", 1, 3, SashOrientationDef.VERTICAL, listOf(key, label), listOf(makeLookupDetail()))
     }
 
     private fun makePerson(): ViewDef {

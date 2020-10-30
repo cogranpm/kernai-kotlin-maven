@@ -79,6 +79,7 @@ object ApplicationData {
             try {
                 viewDefinitions = ApplicationData.getSerializationFormat().decodeFromString<List<ViewDef>>(HttpClient.getViews())
                 imageRegistry = ImageRegistry()
+                LookupMapper.getLookups()
                 mainWindow = MainWindow(null)
                 mainWindow.setBlockOnOpen(true)
                 mainWindow.open()
@@ -184,6 +185,7 @@ object ApplicationData {
             LookupDetailMapper.save(it)
         }
     }
+
 
     val countryList: List<LookupDetail> = listOf(
         LookupDetail(0, 0, "Aus", "Australia"),
@@ -321,6 +323,7 @@ object ApplicationData {
         const val noteheaderViewId = "noteheader"
         const val noteDetailViewId = "notedetail"
         const val lookupViewId = "lookup"
+        const val lookupDetailViewId = "lookupdetail"
 
        // the properties available to the views
         const val title = "title"

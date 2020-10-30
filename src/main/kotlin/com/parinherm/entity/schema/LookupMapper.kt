@@ -1,9 +1,10 @@
 package com.parinherm.entity.schema
 
 import com.parinherm.entity.Lookup
-import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
+import org.jetbrains.exposed.sql.transactions.transaction
 
 
 object LookupMapper : IMapper<Lookup> {
@@ -13,6 +14,19 @@ object LookupMapper : IMapper<Lookup> {
     fun mapItem(item: Lookup, statement: UpdateBuilder<Int>) : Unit {
         statement[table.key] = item.key
         statement[table.label] = item.label
+   }
+
+   fun getLookups() {
+       transaction {
+           addLogger(StdOutSqlLogger)
+           val query = table.join(LookupDetails, JoinType.INNER)
+               .slice(table.key, LookupDetails.code, LookupDetails.label)
+               .selectAll()
+           query.orderBy(table.key to SortOrder.ASC)
+           query.forEach {
+               println(it)
+           }
+       }
    }
 
     override fun save(item: Lookup) {

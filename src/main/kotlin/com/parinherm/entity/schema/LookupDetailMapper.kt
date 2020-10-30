@@ -22,7 +22,8 @@ object LookupDetailMapper: IMapper<LookupDetail> {
     }
 
     override fun getAll(keys: Map<String, Long>): List<LookupDetail> {
-        return MapperHelper.getAll(keys, table, null, table.label to SortOrder.ASC) {
+        return MapperHelper.getAll(keys, table,
+            table.lookupId eq keys["lookupId"] as Long,table.label to SortOrder.ASC) {
             LookupDetail(
                     it[table.id].value,
                     it[table.lookupId],
