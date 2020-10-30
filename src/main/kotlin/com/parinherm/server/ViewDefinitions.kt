@@ -64,6 +64,13 @@ object ViewDefinitions {
         return FieldDef(name, title, required, size, dataType, lookupKey)
     }
 
+    private fun makeLookup(): ViewDef {
+        val key = makeTextField("key", "Key", true)
+        val label = makeTextField("label", "Label", true)
+        return ViewDef(ApplicationData.ViewDefConstants.lookupViewId,
+        "Lookups", 1, 3, SashOrientationDef.VERTICAL, listOf(key, label), listOf())
+    }
+
     private fun makePerson(): ViewDef {
         val name = makeTextField("name", "First Name", true)
         val income = makeMoneyField("income", "Income", true)

@@ -240,6 +240,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         actionMenu.add(snippetsAction)
         actionMenu.add(loginAction)
         actionMenu.add(notebookAction)
+        actionMenu.add(lookupsAction)
 
         menuManager.add(fileMenu)
         menuManager.add(actionMenu)
