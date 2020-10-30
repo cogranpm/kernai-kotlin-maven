@@ -166,96 +166,96 @@ object ApplicationData {
     const val loginCategoryKey = "logcat"
 
     val countryList: List<LookupDetail> = listOf(
-        LookupDetail("Aus", "Australia"),
-        LookupDetail("Can", "Canada"),
-        LookupDetail("Bra", "Brazil"),
-        LookupDetail("SA", "South Africa")
+        LookupDetail(0, 0, "Aus", "Australia"),
+        LookupDetail(0, 0, "Can", "Canada"),
+        LookupDetail(0, 0, "Bra", "Brazil"),
+        LookupDetail(0, 0, "SA", "South Africa")
     )
 
     val speciesList: List<LookupDetail> = listOf(
-        LookupDetail("L", "Lizard"),
-        LookupDetail("C", "Cat"),
-        LookupDetail("D", "Dog"),
-        LookupDetail("E", "Elephant"),
-        LookupDetail("M", "Mongoose"),
-        LookupDetail("R", "Rabbit"),
-        LookupDetail("F", "Frog"),
-        LookupDetail("J", "Jackle")
+        LookupDetail(0, 0, "L", "Lizard"),
+        LookupDetail(0, 0, "C", "Cat"),
+        LookupDetail(0, 0, "D", "Dog"),
+        LookupDetail(0, 0, "E", "Elephant"),
+        LookupDetail(0, 0, "M", "Mongoose"),
+        LookupDetail(0, 0, "R", "Rabbit"),
+        LookupDetail(0, 0, "F", "Frog"),
+        LookupDetail(0, 0, "J", "Jackle")
     )
 
     val recipeCategoryList = listOf(
-        LookupDetail("instant", "Instant Pot"),
-        LookupDetail("main", "Main Course"),
-        LookupDetail("dessert", "Dessert"),
-        LookupDetail("soup", "Soup"),
-        LookupDetail("mama", "Ma Ma")
+        LookupDetail(0, 0, "instant", "Instant Pot"),
+        LookupDetail(0, 0, "main", "Main Course"),
+        LookupDetail(0, 0, "dessert", "Dessert"),
+        LookupDetail(0, 0, "soup", "Soup"),
+        LookupDetail(0, 0, "mama", "Ma Ma")
     )
 
     val unitList: List<LookupDetail> = listOf(
-        LookupDetail("cup", "Cup"),
-        LookupDetail("tbl", "Tablespoon"),
-        LookupDetail("tsp", "Teaspoon"),
-        LookupDetail("can", "Can"),
-        LookupDetail("whl", "Whole"),
-        LookupDetail("pnd", "Pound"),
-        LookupDetail("pch", "Pinch"),
-        LookupDetail("oz", "Ounce"),
-        LookupDetail("dp", "Drop"),
-        LookupDetail("hnt", "Hint"),
-        LookupDetail("prt", "Part"),
-        LookupDetail("jar", "Jar"),
-        LookupDetail("pkt", "Packet")
+        LookupDetail(0, 0, "cup", "Cup"),
+        LookupDetail(0, 0, "tbl", "Tablespoon"),
+        LookupDetail(0, 0, "tsp", "Teaspoon"),
+        LookupDetail(0, 0, "can", "Can"),
+        LookupDetail(0, 0, "whl", "Whole"),
+        LookupDetail(0, 0, "pnd", "Pound"),
+        LookupDetail(0, 0, "pch", "Pinch"),
+        LookupDetail(0, 0, "oz", "Ounce"),
+        LookupDetail(0, 0, "dp", "Drop"),
+        LookupDetail(0, 0, "hnt", "Hint"),
+        LookupDetail(0, 0, "prt", "Part"),
+        LookupDetail(0, 0, "jar", "Jar"),
+        LookupDetail(0, 0, "pkt", "Packet")
     )
 
 
     val techLanguage: List<LookupDetail> = listOf(
-        LookupDetail("kot", "Kotlin")
+        LookupDetail(0, 0, "kot", "Kotlin")
     )
 
     val snippetCategory: List<LookupDetail> = listOf(
-        LookupDetail("gen", "General"),
-        LookupDetail("book", "Books"),
-        LookupDetail("stdlib", "Standard Library")
+        LookupDetail(0, 0, "gen", "General"),
+        LookupDetail(0, 0, "book", "Books"),
+        LookupDetail(0, 0, "stdlib", "Standard Library")
     )
 
     val snippetTopic: List<LookupDetail> = listOf(
-        LookupDetail("o", "Other"),
-        LookupDetail("func", "Functional Programming"),
-        LookupDetail("db", "Database"),
-        LookupDetail("col", "Collections")
+        LookupDetail(0, 0, "o", "Other"),
+        LookupDetail(0, 0, "func", "Functional Programming"),
+        LookupDetail(0, 0, "db", "Database"),
+        LookupDetail(0, 0, "col", "Collections")
     )
 
     val snippetType: List<LookupDetail> = listOf(
-        LookupDetail("eg", "Example"),
-        LookupDetail("tr", "Training")
+        LookupDetail(0, 0, "eg", "Example"),
+        LookupDetail(0, 0, "tr", "Training")
     )
 
     val passwordMaster: List<LookupDetail> = listOf(
-        LookupDetail("rd", "red dog"),
-        LookupDetail("rd123", "red dog 123"),
-        LookupDetail("rd123!", "red dog 123!"),
-        LookupDetail("rd!23", "red dog !23"),
-        LookupDetail("Rd!23", "Red dog !23"),
-        LookupDetail("1xpq", "1xp  q"),
-        LookupDetail("1xpm", "1xp  m"),
-        LookupDetail("1xp0", "1xp  0"),
-        LookupDetail("1xpM0q", "1xp q (no punctuation)" ),
-        LookupDetail("mediacom", "Mediacom!"),
-        LookupDetail("emmers", "emmers2425"),
-        LookupDetail("emmett", "Emmett2425"),
-        LookupDetail("mystery", "Mystery5570"),
-        LookupDetail("Mystery5570!", "Mystery5570!"),
-        LookupDetail("n/a", "Not Applicable"),
-        LookupDetail("cambridge", "cambridge"),
-        LookupDetail("1234", "1234")
+        LookupDetail(0, 0, "rd", "red dog"),
+        LookupDetail(0, 0, "rd123", "red dog 123"),
+        LookupDetail(0, 0, "rd123!", "red dog 123!"),
+        LookupDetail(0, 0, "rd!23", "red dog !23"),
+        LookupDetail(0, 0, "Rd!23", "Red dog !23"),
+        LookupDetail(0, 0, "1xpq", "1xp  q"),
+        LookupDetail(0, 0, "1xpm", "1xp  m"),
+        LookupDetail(0, 0, "1xp0", "1xp  0"),
+        LookupDetail(0, 0, "1xpM0q", "1xp q (no punctuation)" ),
+        LookupDetail(0, 0, "mediacom", "Mediacom!"),
+        LookupDetail(0, 0, "emmers", "emmers2425"),
+        LookupDetail(0, 0, "emmett", "Emmett2425"),
+        LookupDetail(0, 0, "mystery", "Mystery5570"),
+        LookupDetail(0, 0, "Mystery5570!", "Mystery5570!"),
+        LookupDetail(0, 0, "n/a", "Not Applicable"),
+        LookupDetail(0, 0, "cambridge", "cambridge"),
+        LookupDetail(0, 0, "1234", "1234")
     )
 
     val loginCategoryList = listOf(
-        LookupDetail("gen", "General"),
-        LookupDetail("fin", "Financial"),
-        LookupDetail("gov", "Government"),
-        LookupDetail("tra", "Travel"),
-        LookupDetail("misc", "Misc")
+        LookupDetail(0, 0, "gen", "General"),
+        LookupDetail(0, 0, "fin", "Financial"),
+        LookupDetail(0, 0, "gov", "Government"),
+        LookupDetail(0, 0, "tra", "Travel"),
+        LookupDetail(0, 0, "misc", "Misc")
     )
 
 
