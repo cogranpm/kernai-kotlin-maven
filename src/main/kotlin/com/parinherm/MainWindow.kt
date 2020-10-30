@@ -211,6 +211,15 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         }
         notebookAction.accelerator = SWT.MOD1 or ('B'.toInt())
 
+        val lookupsAction: Action = object: Action("&Lookup") {
+            override fun run () {
+                val viewModel = LookupViewModel(folder)
+                ApplicationData.makeTab(viewModel, "Lookup", ApplicationData.TAB_KEY_LOOKUP)
+            }
+        }
+        notebookAction.accelerator = SWT.MOD1 or ('B'.toInt())
+
+
         val menuManager = MenuManager("")
         val fileMenu = MenuManager("&File")
         val actionMenu = MenuManager("&Action")

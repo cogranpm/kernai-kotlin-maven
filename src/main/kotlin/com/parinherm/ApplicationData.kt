@@ -1,7 +1,10 @@
 package com.parinherm
 
 import com.parinherm.builders.HttpClient
+import com.parinherm.entity.Lookup
 import com.parinherm.entity.LookupDetail
+import com.parinherm.entity.schema.LookupDetailMapper
+import com.parinherm.entity.schema.LookupMapper
 import com.parinherm.entity.schema.SchemaBuilder
 import com.parinherm.form.IFormViewModel
 import com.parinherm.form.definitions.ViewDef
@@ -44,6 +47,8 @@ object ApplicationData {
     const val TAB_KEY_NOTEBOOK = "notebook"
     const val TAB_KEY_NOTEHEADER = "noteheader"
     const val TAB_KEY_NOTEDETAIL = "notedetail"
+    const val TAB_KEY_LOOKUP = "lookup"
+    const val TAB_KEY_LOOKUPDETAIL = "lookupdetail"
 
     const val swnone = SWT.NONE
     const val labelStyle = SWT.BORDER
@@ -164,6 +169,21 @@ object ApplicationData {
     const val snippetTypeKey = "type"
     const val passwordMasterKey = "password_master"
     const val loginCategoryKey = "logcat"
+
+    fun createLookups(){
+        lookups.forEach { (key: String, value: List<LookupDetail>) ->
+            createLookup(key, key, value)
+        }
+    }
+
+    fun createLookup(key: String, name: String, items: List<LookupDetail>){
+        val lookup = Lookup(0, key, name)
+        LookupMapper.save(lookup)
+        items.forEach {
+            it.lookupId = lookup.id
+            LookupDetailMapper.save(it)
+        }
+    }
 
     val countryList: List<LookupDetail> = listOf(
         LookupDetail(0, 0, "Aus", "Australia"),
@@ -300,6 +320,7 @@ object ApplicationData {
         const val notebookViewId = "notebook"
         const val noteheaderViewId = "noteheader"
         const val noteDetailViewId = "notedetail"
+        const val lookupViewId = "lookup"
 
        // the properties available to the views
         const val title = "title"
