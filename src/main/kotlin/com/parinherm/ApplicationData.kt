@@ -79,7 +79,7 @@ object ApplicationData {
             try {
                 viewDefinitions = ApplicationData.getSerializationFormat().decodeFromString<List<ViewDef>>(HttpClient.getViews())
                 imageRegistry = ImageRegistry()
-                LookupMapper.getLookups()
+                lookups = LookupMapper.getLookups()
                 mainWindow = MainWindow(null)
                 mainWindow.setBlockOnOpen(true)
                 mainWindow.open()
@@ -187,100 +187,19 @@ object ApplicationData {
     }
 
 
-    val countryList: List<LookupDetail> = listOf(
-        LookupDetail(0, 0, "Aus", "Australia"),
-        LookupDetail(0, 0, "Can", "Canada"),
-        LookupDetail(0, 0, "Bra", "Brazil"),
-        LookupDetail(0, 0, "SA", "South Africa")
-    )
+    val countryList: List<LookupDetail> by lazy { lookups.getOrDefault(countryLookupKey, emptyList())}
+    val speciesList: List<LookupDetail> by lazy { lookups.getOrDefault(speciesLookupKey, emptyList())}
+    val recipeCategoryList by lazy { lookups.getOrDefault(recipeCategoryLookupKey, emptyList())}
+    val unitList: List<LookupDetail> by lazy {lookups.getOrDefault(unitLookupKey, emptyList())}
+    val techLanguage: List<LookupDetail> by lazy {lookups.getOrDefault(techLanguageLookupKey, emptyList())}
+    val snippetCategory: List<LookupDetail> by lazy {lookups.getOrDefault(snippetCategoryKey, emptyList())}
+    val snippetTopic: List<LookupDetail> by lazy {lookups.getOrDefault(snippetTopicKey, emptyList())}
+    val snippetType: List<LookupDetail> by lazy {lookups.getOrDefault(snippetTypeKey, emptyList())}
+    val passwordMaster: List<LookupDetail> by lazy {lookups.getOrDefault(passwordMasterKey, emptyList())}
+    val loginCategoryList by lazy {lookups.getOrDefault(loginCategoryKey, emptyList())}
 
-    val speciesList: List<LookupDetail> = listOf(
-        LookupDetail(0, 0, "L", "Lizard"),
-        LookupDetail(0, 0, "C", "Cat"),
-        LookupDetail(0, 0, "D", "Dog"),
-        LookupDetail(0, 0, "E", "Elephant"),
-        LookupDetail(0, 0, "M", "Mongoose"),
-        LookupDetail(0, 0, "R", "Rabbit"),
-        LookupDetail(0, 0, "F", "Frog"),
-        LookupDetail(0, 0, "J", "Jackle")
-    )
-
-    val recipeCategoryList = listOf(
-        LookupDetail(0, 0, "instant", "Instant Pot"),
-        LookupDetail(0, 0, "main", "Main Course"),
-        LookupDetail(0, 0, "dessert", "Dessert"),
-        LookupDetail(0, 0, "soup", "Soup"),
-        LookupDetail(0, 0, "mama", "Ma Ma")
-    )
-
-    val unitList: List<LookupDetail> = listOf(
-        LookupDetail(0, 0, "cup", "Cup"),
-        LookupDetail(0, 0, "tbl", "Tablespoon"),
-        LookupDetail(0, 0, "tsp", "Teaspoon"),
-        LookupDetail(0, 0, "can", "Can"),
-        LookupDetail(0, 0, "whl", "Whole"),
-        LookupDetail(0, 0, "pnd", "Pound"),
-        LookupDetail(0, 0, "pch", "Pinch"),
-        LookupDetail(0, 0, "oz", "Ounce"),
-        LookupDetail(0, 0, "dp", "Drop"),
-        LookupDetail(0, 0, "hnt", "Hint"),
-        LookupDetail(0, 0, "prt", "Part"),
-        LookupDetail(0, 0, "jar", "Jar"),
-        LookupDetail(0, 0, "pkt", "Packet")
-    )
-
-
-    val techLanguage: List<LookupDetail> = listOf(
-        LookupDetail(0, 0, "kot", "Kotlin")
-    )
-
-    val snippetCategory: List<LookupDetail> = listOf(
-        LookupDetail(0, 0, "gen", "General"),
-        LookupDetail(0, 0, "book", "Books"),
-        LookupDetail(0, 0, "stdlib", "Standard Library")
-    )
-
-    val snippetTopic: List<LookupDetail> = listOf(
-        LookupDetail(0, 0, "o", "Other"),
-        LookupDetail(0, 0, "func", "Functional Programming"),
-        LookupDetail(0, 0, "db", "Database"),
-        LookupDetail(0, 0, "col", "Collections")
-    )
-
-    val snippetType: List<LookupDetail> = listOf(
-        LookupDetail(0, 0, "eg", "Example"),
-        LookupDetail(0, 0, "tr", "Training")
-    )
-
-    val passwordMaster: List<LookupDetail> = listOf(
-        LookupDetail(0, 0, "rd", "red dog"),
-        LookupDetail(0, 0, "rd123", "red dog 123"),
-        LookupDetail(0, 0, "rd123!", "red dog 123!"),
-        LookupDetail(0, 0, "rd!23", "red dog !23"),
-        LookupDetail(0, 0, "Rd!23", "Red dog !23"),
-        LookupDetail(0, 0, "1xpq", "1xp  q"),
-        LookupDetail(0, 0, "1xpm", "1xp  m"),
-        LookupDetail(0, 0, "1xp0", "1xp  0"),
-        LookupDetail(0, 0, "1xpM0q", "1xp q (no punctuation)" ),
-        LookupDetail(0, 0, "mediacom", "Mediacom!"),
-        LookupDetail(0, 0, "emmers", "emmers2425"),
-        LookupDetail(0, 0, "emmett", "Emmett2425"),
-        LookupDetail(0, 0, "mystery", "Mystery5570"),
-        LookupDetail(0, 0, "Mystery5570!", "Mystery5570!"),
-        LookupDetail(0, 0, "n/a", "Not Applicable"),
-        LookupDetail(0, 0, "cambridge", "cambridge"),
-        LookupDetail(0, 0, "1234", "1234")
-    )
-
-    val loginCategoryList = listOf(
-        LookupDetail(0, 0, "gen", "General"),
-        LookupDetail(0, 0, "fin", "Financial"),
-        LookupDetail(0, 0, "gov", "Government"),
-        LookupDetail(0, 0, "tra", "Travel"),
-        LookupDetail(0, 0, "misc", "Misc")
-    )
-
-
+    lateinit var lookups: Map<String, List<LookupDetail>>
+    /*
     val lookups: Map<String, List<LookupDetail>> = mapOf(
         countryLookupKey to countryList,
         speciesLookupKey to speciesList,
@@ -293,6 +212,8 @@ object ApplicationData {
         passwordMasterKey to passwordMaster,
         loginCategoryKey to loginCategoryList
     )
+
+     */
 
     fun getSaveToolbarButton() : ToolItem{
         return mainWindow.toolBarManager.control.getItem(0)

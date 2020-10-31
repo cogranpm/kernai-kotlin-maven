@@ -1,6 +1,7 @@
 package com.parinherm.entity.schema
 
 import com.parinherm.entity.Lookup
+import com.parinherm.entity.LookupDetail
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
@@ -16,17 +17,25 @@ object LookupMapper : IMapper<Lookup> {
         statement[table.label] = item.label
    }
 
-   fun getLookups() {
+   fun getLookups() : Map<String, List<LookupDetail>>{
+       var lookups = mutableMapOf<String, List<LookupDetail>>()
        transaction {
-           addLogger(StdOutSqlLogger)
            val query = table.join(LookupDetails, JoinType.INNER)
-               .slice(table.key, LookupDetails.code, LookupDetails.label)
+               .slice(table.key, LookupDetails.id, LookupDetails.lookupId, LookupDetails.code, LookupDetails.label)
                .selectAll()
            query.orderBy(table.key to SortOrder.ASC)
-           query.forEach {
-               println(it)
-           }
+           lookups = query.map {
+               Pair(it[table.key], LookupDetail(
+                   it[LookupDetails.id].value,
+                   it[LookupDetails.lookupId],
+                   it[LookupDetails.code],
+                   it[LookupDetails.label]))
+           }.groupBy(
+               {it.first},
+               {it.second}
+           ) as MutableMap<String, List<LookupDetail>>
        }
+       return lookups
    }
 
     override fun save(item: Lookup) {

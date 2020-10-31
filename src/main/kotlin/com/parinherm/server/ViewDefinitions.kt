@@ -197,7 +197,7 @@ object ViewDefinitions {
         val sourceCode = makeMemoField("sourceCode", "Source", false)
         val comments = makeMemoField("comments", "Comments", false)
         val view = ViewDef(
-            ViewDefConstants.noteheaderViewId,
+            ViewDefConstants.noteDetailViewId,
             "Note Header",
             1,
             3,
