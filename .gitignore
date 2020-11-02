@@ -1,3 +1,4 @@
 /.idea/
 /target/
 /kernai-kotlin-maven.iml
+/out/artifacts/kernai_kotlin_maven_jar/kernai-kotlin-maven.jar
