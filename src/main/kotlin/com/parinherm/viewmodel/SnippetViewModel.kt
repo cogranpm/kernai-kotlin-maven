@@ -7,6 +7,8 @@ import com.parinherm.entity.Snippet
 import com.parinherm.entity.schema.SnippetMapper
 import com.parinherm.form.FormViewModel
 import com.parinherm.form.widgets.SourceCodeViewer
+import com.parinherm.script.GraalScriptRunner
+import com.parinherm.script.KotlinScriptRunner
 import com.parinherm.view.SnippetView
 import org.eclipse.jface.text.DocumentEvent
 import org.eclipse.jface.text.IDocumentListener
@@ -14,13 +16,7 @@ import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
 import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
-import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.Text
-import org.graalvm.polyglot.Context
-import org.graalvm.polyglot.Source
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
-import javax.script.ScriptEngineManager
 
 
 class SnippetViewModel(parent: CTabFolder) : FormViewModel<Snippet>(
@@ -51,77 +47,21 @@ class SnippetViewModel(parent: CTabFolder) : FormViewModel<Snippet>(
         /* custom stuff to test out graal vm javascript */
         snippetView.testScriptButton.addSelectionListener(object : SelectionAdapter() {
             override fun widgetSelected(e: SelectionEvent?) {
-                runKotlinScript()
+                val textWidget = view.form.formWidgets["output"]
+                if (textWidget != null && currentEntity != null){
+                    KotlinScriptRunner.run(textWidget.widget as Text, this@SnippetViewModel.currentEntity!!)
+                }
             }
         })
 
 
         snippetView.graalScriptButton.addSelectionListener(object : SelectionAdapter() {
             override fun widgetSelected(e: SelectionEvent?) {
-                graalTestScript()
+                GraalScriptRunner.run()
             }
         })
 
 
-    }
-
-    fun runKotlinScript() {
-        with(ScriptEngineManager().getEngineByExtension("kts")) {
-            //val writer = StringWriter()
-            //context.writer = writer
-            val bs = ByteArrayOutputStream()
-            val ps = PrintStream(bs)
-
-            // keep this to restore the output to regular
-            val console = System.out
-
-            // redirect the output to a byte stream
-            System.setOut(ps)
-
-            val outputWidget = view.form.formWidgets["output"]!!.widget as Text
-            outputWidget.text = ""
-
-            // eval("val x = 3")
-            // val res2 = eval("x + 2")
-
-            put("currentEntity", currentEntity)
-
-            val result = eval(currentEntity?.body)
-            System.out.flush()
-            System.setOut(console)
-
-            Display.getDefault().timerExec(2000) { outputWidget.text = bs.toString() };
-
-
-        }
-
-    }
-
-    fun graalTestScript() {
-        try {
-            val context =
-                Context.newBuilder("js").allowAllAccess(true).allowHostClassLookup { _ -> true }.allowIO(true).build()
-            context.use {
-                val utilsSource = Source.newBuilder("js", loadScript("utils.mjs"), "utils").buildLiteral()
-                it.eval(utilsSource)
-                val mainSource = Source.newBuilder("js", loadScript("testing.mjs"), "testing")
-                    .buildLiteral() // .bu.mimeType("application/javascript+module")
-                val bindings = context.getBindings("js")
-                bindings.putMember("foo", ApplicationData)
-                it.eval(mainSource)
-                //it.eval("js", loadScript())
-
-                val funcShowWindow = context.getBindings("js").getMember("showWindow")
-                funcShowWindow.execute()
-            }
-        } catch (e: Exception) {
-            println(e)
-        }
-    }
-
-    fun loadScript(fileName: String): String {
-        val script = this::class.java.getResource("/scripts/$fileName")
-        return script?.readText(Charsets.UTF_8) ?: ""
     }
 
     override fun changeSelection() {
