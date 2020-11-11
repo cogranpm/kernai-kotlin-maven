@@ -23,5 +23,16 @@ automatically
 maven for Kotlin does not have an exec:java style plugin that I know of
 so you can run it via intelli j.
 
-mvn assemble will get a fat jar in the target directory
-it has ...with-dependencies.jar in the name
+notes on deployment:
+this uses kotlin java api for scripting jsr233
+to implement a kind of run snippets thing
+this does not work in a fat jar deployment, all kind of classpath stuff going on
+instead of dealing with that, instead decision is to deploy as a thin jar,
+and distribute the lib folder with all the dependencies
+this solves the classpath issue
+maven is set up to create the lib folder with all dependencies in the output directory
+and to stuff the manifest.mf file with the dependencies listed in the class-path section
+with a lib prefix
+this is tested and working via:
+java -jar
+

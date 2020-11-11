@@ -1,5 +1,2 @@
-Manifest-Version: 1.0
-Main-Class: com.parinherm.HelloKt
-Class-Path: lib/*
 
 

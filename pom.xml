@@ -448,6 +448,9 @@
             </plugin>
 
 
+            <!-- this plugin is to create the jar file that needs the dependencies in an external folder
+            such as lib
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -456,6 +459,7 @@
                    <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
                             <mainClass>
                                 com.parinherm.HelloKt
                             </mainClass>
@@ -465,6 +469,10 @@
                 </configuration>
             </plugin>
 
+            <!-- NOTE, this plugin copies all the project dependencies to a lib subfolder the output directory
+            this will allow to distribute a jar will dependencies supplied in external directory
+            and not embedded in the jar. This is to make some things simpler, such as kotlin scripting
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -481,7 +489,7 @@
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>false</overWriteSnapshots>
                             <overWriteIfNewer>true</overWriteIfNewer>
-                            <excludeTransitive>true</excludeTransitive>
+                            <!--<excludeTransitive>true</excludeTransitive>-->
                         </configuration>
                     </execution>
                 </executions>
