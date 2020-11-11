@@ -1,6 +1,5 @@
 package com.parinherm.builders
 
-import com.parinherm.ApplicationData
 import com.parinherm.entity.LookupDetail
 import org.eclipse.jface.viewers.ViewerComparator
 import org.eclipse.swt.SWT
