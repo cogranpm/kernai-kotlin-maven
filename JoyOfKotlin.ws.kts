@@ -21,3 +21,19 @@ class Magician(val name: String, val registered: Instant = Instant.now()){
 
     }
 }
+
+//private constructor
+class Judge private constructor(val name: String)
+
+
+// destructuring data objects
+data class Chef(val name: String, val registered: Instant = Instant.now())
+
+
+fun show(chefs: List<Chef>) {
+    for((name, date) in chefs){
+        println("Name: $name Date: date")
+    }
+}
+
+show(listOf(Chef("Val"), Chef("Piedro")))
