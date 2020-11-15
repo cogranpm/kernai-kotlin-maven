@@ -150,6 +150,9 @@ val c = 10 downTo 3 step 2
 //}
 // or in return type you can go : Bag<out MyClass>
 
+// defining a function as data, ie not using fun
+val double: (Int) -> Int = { x -> x * 2 }
+double(4)
 
 
 
