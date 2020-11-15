@@ -142,5 +142,14 @@ val c = 10 downTo 3 step 2
 // safe syntax for casting as?
 // val result = payload as? String
 
+//generics remember there is use site variance
+// eg out and in not at the type declaration but at the usage site
+// ie in function parameter
+// fun useBag(bag: Bag<in MyClass>): Boolean {
+// return true
+//}
+// or in return type you can go : Bag<out MyClass>
+
+
 
 
