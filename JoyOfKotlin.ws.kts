@@ -2,6 +2,7 @@ import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.time.Instant
 
+
 // explicit constructor
 // public, final by default
 // open is opposite of final
@@ -168,4 +169,49 @@ val multiplyBy2Ref: (Int) -> Int = ::doubleFun
 
 // all three are equivalent
 // remember a lambda is lazy, it's not called just declared
+
+// you can also use an instance
+
+class MyClass {
+    fun double(n: Int) : Int = n * 2
+}
+
+class MyClassComp {
+    companion object {
+        fun double(n: Int) : Int = n * 2
+    }
+}
+
+var fooInst = MyClass()
+var fooCompanion = MyClassComp()
+
+val multiplyBy2Ins: (Int) -> Int = fooInst::double
+// or in companion object
+val multiplyBy2Comp: (Int) -> Int = (MyClassComp)::double
+
+//composing functions
+// write a compose function to compose functions from Int to Int
+fun composeInt (a: (Int) -> Int, b: (Int) -> Int) : (Int) -> Int =
+    {  a(b(it)) }
+
+fun square(n: Int) = n * n
+
+fun triple(n: Int) = n * 3
+
+val squareOfTriple = composeInt(::square, ::triple)
+println(squareOfTriple(2))
+
+// now a generic version
+// initially I did it with just T
+// but to give the client freedom you need the 3 generic types
+// function a just has to take a parameter that b returns
+// b runs first so it gets the parameter passed in, a T
+fun <T, U, V> compose (a: (U) -> V, b: (T) -> U) : (T) -> V =
+    { a(b(it))}
+
+val squareOfTriplex = compose(::square, ::triple)
+println(squareOfTriplex(2))
+
+
+
 
