@@ -154,5 +154,18 @@ val c = 10 downTo 3 step 2
 val double: (Int) -> Int = { x -> x * 2 }
 double(4)
 
+// 2 types of functions, those declared with fun and without
+fun doubleFun(n: Int) : Int = n * 2
 
+// use a fun function inside a lambda
+val multiplyBy2: (Int) -> Int = { n -> doubleFun(n)}
+
+// or abbreviated using it
+val multiplyBy2It:(Int) -> Int = { doubleFun(it)}
+
+// or use a function reference
+val multiplyBy2Ref: (Int) -> Int = ::doubleFun
+
+// all three are equivalent
+// remember a lambda is lazy, it's not called just declared
 
