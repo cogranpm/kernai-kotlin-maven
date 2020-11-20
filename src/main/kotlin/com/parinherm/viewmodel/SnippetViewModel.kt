@@ -13,10 +13,13 @@ import com.parinherm.view.SnippetView
 import org.eclipse.jface.text.DocumentEvent
 import org.eclipse.jface.text.IDocumentListener
 import org.eclipse.jface.viewers.Viewer
+import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.CTabFolder
 import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
+import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.Text
+import java.lang.Exception
 
 
 class SnippetViewModel(parent: CTabFolder) : FormViewModel<Snippet>(
@@ -44,12 +47,23 @@ class SnippetViewModel(parent: CTabFolder) : FormViewModel<Snippet>(
         })
 
 
-        /* custom stuff to test out graal vm javascript */
         snippetView.testScriptButton.addSelectionListener(object : SelectionAdapter() {
             override fun widgetSelected(e: SelectionEvent?) {
                 val textWidget = view.form.formWidgets["output"]
                 if (textWidget != null && currentEntity != null){
-                    KotlinScriptRunner.run(textWidget.widget as Text, this@SnippetViewModel.currentEntity!!)
+                    Display.getDefault().asyncExec {
+                        try {
+                            Display.getDefault().activeShell.cursor = Display.getDefault().getSystemCursor(SWT.CURSOR_WAIT)
+                            KotlinScriptRunner.run(textWidget.widget as Text, this@SnippetViewModel.currentEntity!!)
+
+                        } catch (e: Exception) {
+
+                        }
+                        finally {
+                            Display.getDefault().activeShell.cursor = null
+                        }
+                   }
+
                 }
             }
         })

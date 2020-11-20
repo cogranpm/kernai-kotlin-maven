@@ -42,7 +42,7 @@ object KotlinScriptRunner {
                 System.out.flush()
                 System.setOut(console)
 
-                Display.getDefault().timerExec(2000) { outputWidget.text = bs.toString() };
+                Display.getDefault().timerExec(200) { outputWidget.text = bs.toString() };
 
 
             }
