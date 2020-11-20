@@ -4,6 +4,8 @@ import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.entity.Snippet
 import com.parinherm.form.Form
+import org.eclipse.jface.layout.GridDataFactory
+import org.eclipse.jface.layout.GridLayoutFactory
 import org.eclipse.swt.SWT
 import org.eclipse.swt.layout.RowLayout
 import org.eclipse.swt.widgets.Button
@@ -27,6 +29,7 @@ class SnippetView (val parent: Composite, comparator: BeansViewerComparator) : V
         toolbar.layout = RowLayout()
         testScriptButton.text = "Run"
         graalScriptButton.text = "Graal JS Test"
+        GridDataFactory.fillDefaults().align(SWT.FILL, SWT.CENTER).span(2,1).applyTo(toolbar)
    }
 
 }

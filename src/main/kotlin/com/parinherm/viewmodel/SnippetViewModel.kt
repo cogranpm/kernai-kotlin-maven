@@ -57,7 +57,11 @@ class SnippetViewModel(parent: CTabFolder) : FormViewModel<Snippet>(
                             KotlinScriptRunner.run(textWidget.widget as Text, this@SnippetViewModel.currentEntity!!)
 
                         } catch (e: Exception) {
-
+                            Display.getDefault().timerExec(200) { (textWidget.widget as Text).text = """
+                                *************  Error *****************
+                                ${e.message}
+                                ${e.stackTrace}
+                            """.trimIndent() };
                         }
                         finally {
                             Display.getDefault().activeShell.cursor = null
