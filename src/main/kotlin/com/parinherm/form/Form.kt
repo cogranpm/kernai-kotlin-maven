@@ -21,6 +21,8 @@ import com.parinherm.form.definitions.ViewDef
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
+import org.eclipse.jface.layout.GridDataFactory
+import org.eclipse.jface.layout.GridLayoutFactory
 import org.eclipse.jface.layout.TableColumnLayout
 import org.eclipse.jface.text.source.SourceViewer
 import org.eclipse.jface.text.source.SourceViewerConfiguration
@@ -28,6 +30,7 @@ import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.SWT
 import org.eclipse.swt.layout.FillLayout
+import org.eclipse.swt.layout.RowLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Control
@@ -42,22 +45,22 @@ data class Form<T>(
     val comparator: BeansViewerComparator
 ) : IForm<T> where T : IBeanDataEntity {
 
-    val fields = viewDefinition.fieldDefinitions as List<FieldDef>
+    val fields = viewDefinition.fieldDefinitions
     val hasChildViews: Boolean = hasChildViews(viewDefinition)
     override val root = Composite(parent, ApplicationData.swnone)
     val sashForm = getSashForm(root, viewDefinition)
-    val listContainer = Composite(sashForm, ApplicationData.swnone)
+    val listSectionContainer = Composite(sashForm, ApplicationData.swnone)
+    val filtersContainer = Composite(listSectionContainer, ApplicationData.swnone)
+    val listFields = getListFilters(filtersContainer, fields)
+    val listContainer = Composite(listSectionContainer, ApplicationData.swnone)
     val tableLayout = TableColumnLayout(true)
     val listView = getListViewer(listContainer, tableLayout)
     val columns = makeColumns(listView, fields, tableLayout)
     val contentProvider = ObservableListContentProvider<T>()
     val formsContainer = makeEditContainer(hasChildViews, sashForm)
     val lblErrors = makeErrorLabel(formsContainer.editContainer)
-
     val childFormsContainer: ChildFormContainer? = getGetChildForms(hasChildViews, viewDefinition, formsContainer)
     val formWidgets = makeForm(fields, formsContainer.editContainer)
-    val dbc = DataBindingContext()
-
 
     init {
 
@@ -70,6 +73,10 @@ data class Form<T>(
         listView.comparator = comparator
         enable(false)
 
+        filtersContainer.layout = RowLayout()
+        GridDataFactory.defaultsFor(filtersContainer).applyTo(filtersContainer)
+        GridDataFactory.defaultsFor(listContainer).grab(true, true).hint(150, 150).applyTo(listContainer)
+        GridLayoutFactory.fillDefaults().generateLayout(listSectionContainer)
         root.layout = FillLayout(SWT.VERTICAL)
         root.layout()
     }

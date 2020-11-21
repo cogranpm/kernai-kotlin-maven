@@ -11,4 +11,10 @@ class NotebookView (val parent: Composite, comparator: BeansViewerComparator) : 
     // it's a common object favour composition over inheritance
     override val form: Form<Notebook> = Form(parent, ApplicationData.getView(ApplicationData.ViewDefConstants.notebookViewId), comparator)
 
+
+    init {
+        println(form.listView.table.columnCount)
+    }
+
+
 }

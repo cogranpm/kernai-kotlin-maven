@@ -50,14 +50,24 @@ import org.eclipse.swt.widgets.*
 import java.math.BigDecimal
 import java.time.LocalDate
 
+fun getListFilters(parent: Composite, fields: List<FieldDef>) : Map<String, Text> {
+    val listFilters =
+        fields.filter { isFieldTypeShownInLists(it.dataTypeDef)  }
+        .map {
+        val filterBox = Text(parent, SWT.BORDER)
+        filterBox.message = it.name
+        it.name to filterBox
+    }.toMap()
+    return listFilters
+}
 
 fun getListViewer(
     parent: Composite,
     layout: TableColumnLayout
 )
         : TableViewer {
+    //create a composite to hold the viewer and the filters
     val listView = TableViewer(parent, ApplicationData.listViewStyle)
-
     val listTable = listView.table
     listTable.headerVisible = true
     listTable.linesVisible = true
