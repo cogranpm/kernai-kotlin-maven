@@ -4,6 +4,7 @@ import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.entity.Notebook
 import com.parinherm.form.Form
+import org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter
 import org.eclipse.swt.widgets.Composite
 
 class NotebookView (val parent: Composite, comparator: BeansViewerComparator) : View<Notebook>  {
@@ -13,7 +14,11 @@ class NotebookView (val parent: Composite, comparator: BeansViewerComparator) : 
 
 
     init {
-        println(form.listView.table.columnCount)
+        form.searchButton.addSelectionListener(widgetSelectedAdapter
+        {
+            println("Search Button")
+        })
+
     }
 
 

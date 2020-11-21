@@ -17,6 +17,7 @@ import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.form.definitions.DataTypeDef
 import com.parinherm.form.definitions.ViewDef
+import com.parinherm.view.View
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.layout.GridDataFactory
@@ -70,7 +71,6 @@ data class Form<T>(
         listView.labelProvider = makeViewerLabelProvider<T>(fields, contentProvider.knownElements)
         listView.comparator = comparator
 
-        searchButton.addSelectionListener(widgetSelectedAdapter { e -> println("Search Button") })
 
         enable(false)
 
@@ -81,6 +81,7 @@ data class Form<T>(
         root.layout = FillLayout(SWT.VERTICAL)
         root.layout()
     }
+
 
     override fun refresh(list: WritableList<T>) {
         listView.input = list
