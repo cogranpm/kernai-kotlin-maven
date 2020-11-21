@@ -198,7 +198,7 @@ object ViewDefinitions {
         val comments = makeMemoField("comments", "Comments", false)
         val view = ViewDef(
             ViewDefConstants.noteDetailViewId,
-            "Note Header",
+            "Note Detail",
             1,
             3,
             SashOrientationDef.VERTICAL,

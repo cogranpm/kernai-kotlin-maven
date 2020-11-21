@@ -27,8 +27,8 @@ object NoteDetailMapper : IMapper<NoteDetail> {
             NoteDetail(it[table.id].value,
                 it[table.noteHeaderId],
                 it[table.name],
-                it[table.sourceCode],
                 it[table.body],
+                it[table.sourceCode],
                 it[table.comments])
         }
     }
