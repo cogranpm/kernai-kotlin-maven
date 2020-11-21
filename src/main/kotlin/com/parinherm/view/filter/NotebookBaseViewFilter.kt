@@ -4,9 +4,10 @@ import com.parinherm.entity.Notebook
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.jface.viewers.ViewerFilter
 
-class NotebookViewFilter : ViewerFilter() {
+class NotebookBaseViewFilter() : BaseViewFilter() {
 
-    var searchText = ""
+    override var searchText: String = ""
+
 
     override fun select(viewer: Viewer?, parentElement: Any?, element: Any?): Boolean {
         if (searchText.isNullOrBlank()) return true
