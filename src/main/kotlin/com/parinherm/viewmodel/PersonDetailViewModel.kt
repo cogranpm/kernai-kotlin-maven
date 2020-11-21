@@ -40,7 +40,7 @@ class PersonDetailViewModel (val personId: Long, val selectedPersonDetail: Perso
             val entity1 = e1 as PersonDetail
             val entity2 = e2 as PersonDetail
             val rc = when(propertyIndex){
-                nickname_index -> entity1.nickname.compareTo(entity2.nickname)
+                nickname_index -> compareString(entity1.nickname, entity2.nickname)
                 petSpecies_index -> compareLookups(entity1.petSpecies, entity2.petSpecies, ApplicationData.speciesList)
                 else -> 0
             }

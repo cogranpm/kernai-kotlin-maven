@@ -75,7 +75,7 @@ class NoteHeaderViewModel (val notebookId: Long, val selectedNoteHeader: NoteHea
             val entity1 = e1 as NoteHeader
             val entity2 = e2 as NoteHeader
             val rc = when (propertyIndex) {
-                name_index -> entity1.name.toLowerCase().compareTo(entity2.name.toLowerCase())
+                name_index -> compareString(entity1.name, entity2.name)
                 else -> 0
             }
             return flipSortDirection(rc)

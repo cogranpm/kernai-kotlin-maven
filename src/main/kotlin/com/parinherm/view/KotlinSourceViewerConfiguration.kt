@@ -6,7 +6,7 @@ content assist etc
 
 package com.parinherm.view
 
-import com.parinherm.viewmodel.KeywordCodeScanner
+import com.parinherm.script.KeywordCodeScanner
 import org.eclipse.jface.text.IDocument
 import org.eclipse.jface.text.presentation.IPresentationReconciler
 import org.eclipse.jface.text.presentation.PresentationReconciler

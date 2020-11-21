@@ -37,7 +37,7 @@ class NoteDetailViewModel(val noteHeaderId: Long, val selectedNoteDetail: NoteDe
             val entity1 = e1 as NoteDetail
             val entity2 = e2 as NoteDetail
             val rc = when (propertyIndex) {
-                name_index -> entity1.name.toLowerCase().compareTo(entity2.name.toLowerCase())
+                name_index -> compareString(entity1.name, entity2.name)
                 else -> 0
             }
             return flipSortDirection(rc)

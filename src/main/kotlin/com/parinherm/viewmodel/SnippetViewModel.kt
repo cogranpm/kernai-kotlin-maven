@@ -101,7 +101,7 @@ class SnippetViewModel(parent: CTabFolder) : FormViewModel<Snippet>(
             val entity1 = e1 as Snippet
             val entity2 = e2 as Snippet
             val rc = when (propertyIndex) {
-                name_index -> entity1.name.compareTo(entity2.name)
+                name_index -> compareString(entity1.name, entity2.name)
                 language_index -> compareLookups(entity1.language, entity2.language, ApplicationData.techLanguage)
                 else -> 0
             }

@@ -52,4 +52,7 @@ open class BeansViewerComparator : IViewerComparator, ViewerComparator() {
         }
     }
 
+    fun compareString(e1: String, e2: String) =
+        e1.toLowerCase().compareTo(e2.toLowerCase())
+
 }

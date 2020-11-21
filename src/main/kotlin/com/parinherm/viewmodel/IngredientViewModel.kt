@@ -41,7 +41,7 @@ class IngredientViewModel (val recipeId: Long, val selectedIngredient: Ingredien
             val entity1 = e1 as Ingredient
             val entity2 = e2 as Ingredient
             val rc = when(propertyIndex){
-                name_index -> entity1.name.compareTo(entity2.name)
+                name_index -> compareString(entity1.name, entity2.name)
                 quantity_index -> entity1.quantity.compareTo(entity2.quantity)
                 unit_index -> compareLookups(entity1.unit, entity2.unit, ApplicationData.unitList)
                 else -> 0

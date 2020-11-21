@@ -71,8 +71,8 @@ class LookupViewModel(parent: CTabFolder) : FormViewModel<Lookup>(
             val entity1 = e1 as Lookup
             val entity2 = e2 as Lookup
             val rc = when (propertyIndex) {
-                key_index -> entity1.key.compareTo(entity2.key)
-                label_index -> entity1.label.compareTo(entity2.label)
+                key_index -> compareString(entity1.key, entity2.key)
+                label_index -> compareString(entity1.label, entity2.label)
                 else -> 0
             }
             return flipSortDirection(rc)

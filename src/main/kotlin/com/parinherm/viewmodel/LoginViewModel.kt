@@ -30,11 +30,11 @@ class LoginViewModel (parent: CTabFolder)  : FormViewModel<Login>(
             val entity1 = e1 as Login
             val entity2 = e2 as Login
             val rc = when (propertyIndex) {
-                name_index -> entity1.name.compareTo(entity2.name)
+                name_index -> compareString(entity1.name, entity2.name)
                 category_index -> compareLookups(entity1.category, entity2.category, ApplicationData.loginCategoryList)
-                userName_index -> entity1.userName.compareTo(entity2.userName)
+                userName_index -> compareString(entity1.userName, entity2.userName)
                 password_index -> compareLookups(entity1.password, entity2.password, ApplicationData.passwordMaster)
-                url_index -> entity1.url.compareTo(entity2.url)
+                url_index -> compareString(entity1.url, entity2.url)
                 else -> 0
             }
             return flipSortDirection(rc)

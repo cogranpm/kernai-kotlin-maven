@@ -38,8 +38,8 @@ class LookupDetailViewModel (val lookupId: Long, val selectedLookupDetail: Looku
             val entity1 = e1 as LookupDetail
             val entity2 = e2 as LookupDetail
             val rc = when(propertyIndex){
-                codeIndex -> entity1.code.compareTo(entity2.code)
-                labelIndex -> entity1.label.compareTo(entity2.label)
+                codeIndex -> compareString(entity1.code, entity2.code)
+                labelIndex -> compareString(entity1.label, entity2.label)
                 else -> 0
             }
             return flipSortDirection(rc)

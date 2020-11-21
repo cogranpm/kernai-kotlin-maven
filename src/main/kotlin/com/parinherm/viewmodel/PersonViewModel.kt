@@ -78,7 +78,7 @@ class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(par
             val entity1 = e1 as Person
             val entity2 = e2 as Person
             val rc = when (propertyIndex) {
-                name_index -> entity1.name.compareTo(entity2.name)
+                name_index -> compareString(entity1.name, entity2.name)
                 income_index -> entity1.income.compareTo(entity2.income)
                 height_index -> entity1.height.compareTo(entity2.height)
                 age_index -> entity1.age.compareTo(entity2.age)

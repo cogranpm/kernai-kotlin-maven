@@ -1,9 +1,11 @@
 /***********************
  *  setting up the rules for kotlin scripts
+ *  this is specific to the jface text framework ui
+ *  for source editing
  *
  */
 
-package com.parinherm.viewmodel
+package com.parinherm.script
 
 import org.eclipse.jface.text.TextAttribute
 import org.eclipse.jface.text.rules.RuleBasedScanner
