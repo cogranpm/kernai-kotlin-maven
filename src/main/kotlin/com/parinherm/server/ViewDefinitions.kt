@@ -19,8 +19,8 @@ object ViewDefinitions {
         makeLookupDetail()
     )
 
-    private fun makeTextField(name: String, title: String, required: Boolean): FieldDef {
-        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.TEXT, null)
+    private fun makeTextField(name: String, title: String, required: Boolean, filterable: Boolean = false): FieldDef {
+        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.TEXT, null, filterable)
     }
 
     private fun makeMemoField(name: String, title: String, required: Boolean): FieldDef {
@@ -61,9 +61,10 @@ object ViewDefinitions {
         required: Boolean,
         size: SizeDef,
         dataType: DataTypeDef,
-        lookupKey: String?
+        lookupKey: String?,
+        filterable: Boolean = false
     ): FieldDef {
-        return FieldDef(name, title, required, size, dataType, lookupKey)
+        return FieldDef(name, title, required, size, dataType, lookupKey, filterable)
     }
 
 
@@ -165,7 +166,7 @@ object ViewDefinitions {
 
 
     private fun makeNotebooks(): ViewDef {
-        val name = makeTextField("name", "Name", true)
+        val name = makeTextField("name", "Name", true, filterable = true)
         val comments = makeMemoField("comments", "Comments", false)
         val view = ViewDef(
             ViewDefConstants.notebookViewId, "Notebooks", 1, 3, SashOrientationDef.VERTICAL, listOf(name, comments),

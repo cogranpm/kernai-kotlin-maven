@@ -34,10 +34,7 @@ import org.eclipse.jface.databinding.viewers.IViewerObservableValue
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider
 import org.eclipse.jface.databinding.viewers.typed.ViewerProperties
 import org.eclipse.jface.dialogs.MessageDialog
-import org.eclipse.jface.layout.GridDataFactory
-import org.eclipse.jface.layout.GridLayoutFactory
-import org.eclipse.jface.layout.LayoutConstants
-import org.eclipse.jface.layout.TableColumnLayout
+import org.eclipse.jface.layout.*
 import org.eclipse.jface.viewers.*
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.CTabFolder
@@ -50,20 +47,27 @@ import org.eclipse.swt.widgets.*
 import java.math.BigDecimal
 import java.time.LocalDate
 
-fun getListFilters(parent: Composite, fields: List<FieldDef>) : Map<String, Text> {
+fun getListFilters(parent: Composite, fields: List<FieldDef>): Map<String, Text> {
     val listFilters =
-        fields.filter { isFieldTypeShownInLists(it.dataTypeDef)  }
-        .map {
-        val filterBox = Text(parent, SWT.BORDER)
-        filterBox.message = it.name
-        it.name to filterBox
-    }.toMap()
+        fields.filter { isFieldTypeShownInLists(it.dataTypeDef) && it.filterable }
+            .map {
+                val filterBox = Text(parent, SWT.BORDER)
+                filterBox.message = it.name
+                RowDataFactory
+                    .swtDefaults()
+                    .hint(300, SWT.DEFAULT)
+                    .applyTo(filterBox)
+                it.name to filterBox
+            }.toMap()
     return listFilters
 }
 
-fun getSearchButton(parent:Composite) : Button {
+fun getSearchButton(parent: Composite): Button {
     val button = Button(parent, SWT.PUSH)
     button.text = "&Search"
+    RowDataFactory
+        .swtDefaults()
+        .applyTo(button)
     return button
 }
 
@@ -81,10 +85,10 @@ fun getListViewer(
     return listView
 }
 
-fun getSashForm(parent: Composite, viewDef: ViewDef) : SashForm {
+fun getSashForm(parent: Composite, viewDef: ViewDef): SashForm {
     var style: Int = SWT.BORDER
     style =
-        if(viewDef.sashOrientation == SashOrientationDef.HORIZONTAL) {
+        if (viewDef.sashOrientation == SashOrientationDef.HORIZONTAL) {
             style or SWT.HORIZONTAL
         } else {
             style or SWT.VERTICAL
@@ -99,7 +103,7 @@ fun makeColumns(
 )
         : List<TableViewerColumn> {
     return fields
-        .filter { isFieldTypeShownInLists(it.dataTypeDef)  }
+        .filter { isFieldTypeShownInLists(it.dataTypeDef) }
         .map { makeColumn(it, viewer, layout) }
 }
 
@@ -189,12 +193,12 @@ fun makeInputLabel(parent: Composite, caption: String): Label {
     return label
 }
 
-fun getSizeHintValue(fieldDef: FieldDef) : Int =
-        when(fieldDef.sizeHint) {
-            SizeDef.LARGE -> 5
-            SizeDef.MEDIUM -> 3
-            SizeDef.SMALL -> 2
-        }
+fun getSizeHintValue(fieldDef: FieldDef): Int =
+    when (fieldDef.sizeHint) {
+        SizeDef.LARGE -> 5
+        SizeDef.MEDIUM -> 3
+        SizeDef.SMALL -> 2
+    }
 
 fun makeInputWidget(
     parent: Composite,

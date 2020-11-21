@@ -10,6 +10,7 @@ data class FieldDef(
     val required: Boolean,
     val sizeHint: SizeDef,
     val dataTypeDef: DataTypeDef,
-    val lookupKey: String? = null
+    val lookupKey: String? = null,
+    val filterable: Boolean = false
 ) {
 }

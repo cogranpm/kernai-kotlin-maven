@@ -22,6 +22,7 @@ import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.GridLayoutFactory
+import org.eclipse.jface.layout.RowLayoutFactory
 import org.eclipse.jface.layout.TableColumnLayout
 import org.eclipse.jface.text.source.SourceViewer
 import org.eclipse.jface.viewers.StructuredSelection
@@ -74,8 +75,15 @@ data class Form<T>(
 
         enable(false)
 
-        filtersContainer.layout = RowLayout()
-        GridDataFactory.defaultsFor(filtersContainer).applyTo(filtersContainer)
+        filtersContainer.layout = RowLayoutFactory
+            .fillDefaults()
+            .pack(true)
+            .justify(false)
+            .wrap(true)
+            .center(true)
+            .margins(3, 3)
+            .create()
+        GridDataFactory.defaultsFor(filtersContainer).grab(true, false).applyTo(filtersContainer)
         GridDataFactory.defaultsFor(listContainer).grab(true, true).hint(150, 150).applyTo(listContainer)
         GridLayoutFactory.fillDefaults().generateLayout(listSectionContainer)
         root.layout = FillLayout(SWT.VERTICAL)

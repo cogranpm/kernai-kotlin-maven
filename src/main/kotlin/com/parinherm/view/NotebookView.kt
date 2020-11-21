@@ -15,14 +15,15 @@ class NotebookView (val parent: Composite, comparator: BeansViewerComparator) : 
     val filter = NotebookViewFilter()
 
     init {
+        val searchField = form.listFilters["name"]
         form.searchButton.addSelectionListener(widgetSelectedAdapter
         {
-            filter.searchText = ".*f"
-            form.listView.refresh()
+            if(searchField != null) {
+                filter.searchText = "${searchField.text}"
+                form.listView.refresh()
+            }
         })
-
         form.listView.addFilter(filter)
-
     }
 
 
