@@ -51,7 +51,8 @@ data class Form<T>(
     val sashForm = getSashForm(root, viewDefinition)
     val listSectionContainer = Composite(sashForm, ApplicationData.swnone)
     val filtersContainer = Composite(listSectionContainer, ApplicationData.swnone)
-    val listFields = getListFilters(filtersContainer, fields)
+    val listFilters = getListFilters(filtersContainer, fields)
+    val searchButton = getSearchButton(filtersContainer)
     val listContainer = Composite(listSectionContainer, ApplicationData.swnone)
     val tableLayout = TableColumnLayout(true)
     val listView = getListViewer(listContainer, tableLayout)
@@ -64,13 +65,13 @@ data class Form<T>(
 
     init {
 
-        //needs to be done after content is added
         sashForm.weights = intArrayOf(viewDefinition.listWeight, viewDefinition.editWeight)
         sashForm.sashWidth = 4
-        //childFormsContainer?.childTabs?.forEach {println(it.key)}
         listView.contentProvider = contentProvider
         listView.labelProvider = makeViewerLabelProvider<T>(fields, contentProvider.knownElements)
         listView.comparator = comparator
+
+
         enable(false)
 
         filtersContainer.layout = RowLayout()

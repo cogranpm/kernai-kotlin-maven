@@ -61,6 +61,12 @@ fun getListFilters(parent: Composite, fields: List<FieldDef>) : Map<String, Text
     return listFilters
 }
 
+fun getSearchButton(parent:Composite) : Button {
+    val button = Button(parent, SWT.PUSH)
+    button.text = "&Search"
+    return button
+}
+
 fun getListViewer(
     parent: Composite,
     layout: TableColumnLayout
