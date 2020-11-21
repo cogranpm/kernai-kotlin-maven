@@ -27,10 +27,10 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
     IFormViewModel<T> where T : IBeanDataEntity {
 
     var selectingFlag = false
-    val dbc = DataBindingContext()
+    private val dbc = DataBindingContext()
     var dirtyFlag: DirtyFlag = DirtyFlag(false)
     var newFlag: NewFlag = NewFlag(false)
-    val dataList = WritableList<T>()
+    private val dataList = WritableList<T>()
     var currentEntity: T? = null
 
     /* if a viewmodel has a parent this will be called in the init
@@ -131,6 +131,8 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
          */
         if (selectingFlag) return false
         return when (source) {
+            // with the move to a tab control as the widget, need to re-figure this out
+            // for some reason dirty stuff seems to be working at present
             is SWTObservableValueDecorator<*> -> true //source.widget != view.getSaveButton()
             else -> true
         }

@@ -13,14 +13,15 @@ import com.parinherm.form.IFormViewModel
 import com.parinherm.view.NotebookView
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.Viewer
+import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.CTabFolder
 
 class NotebookViewModel  (parent: CTabFolder)  : FormViewModel<Notebook>(
-    NotebookView(parent, NotebookViewModel.Comparator()),
+    NotebookView(parent, Comparator()),
     NotebookMapper, { Notebook.make() })  {
 
     private val noteHeaders = WritableList<NoteHeader>()
-    val noteHeaderComparator = NoteHeaderViewModel.Comparator()
+    private val noteHeaderComparator = NoteHeaderViewModel.Comparator()
 
 
     init {
