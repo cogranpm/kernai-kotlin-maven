@@ -16,24 +16,23 @@ import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.form.definitions.DataTypeDef
-import com.parinherm.form.definitions.FieldDef
 import com.parinherm.form.definitions.ViewDef
-import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
 import org.eclipse.jface.layout.GridDataFactory
 import org.eclipse.jface.layout.GridLayoutFactory
 import org.eclipse.jface.layout.TableColumnLayout
 import org.eclipse.jface.text.source.SourceViewer
-import org.eclipse.jface.text.source.SourceViewerConfiguration
 import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.SWT
+import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.layout.RowLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Control
+import org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter
 
 
 // domain entity type is the type argument
@@ -71,6 +70,7 @@ data class Form<T>(
         listView.labelProvider = makeViewerLabelProvider<T>(fields, contentProvider.knownElements)
         listView.comparator = comparator
 
+        searchButton.addSelectionListener(widgetSelectedAdapter { e -> println("Search Button") })
 
         enable(false)
 
