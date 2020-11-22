@@ -51,8 +51,6 @@ data class Form<T>(
     override val root = Composite(parent, ApplicationData.swnone)
     val sashForm = getSashForm(root, viewDefinition)
     val listSectionContainer = Composite(sashForm, ApplicationData.swnone)
-    val filtersContainer = Composite(listSectionContainer, ApplicationData.swnone)
-    val listFilters = getListFilters(filtersContainer, fields)
     var searchButton: Button? = null
     val listContainer = Composite(listSectionContainer, ApplicationData.swnone)
     val tableLayout = TableColumnLayout(true)
@@ -66,31 +64,35 @@ data class Form<T>(
 
     init {
 
-        if(filter != null) {
+        if (filter != null) {
+            val filtersContainer = Composite(listSectionContainer, ApplicationData.swnone)
+            val listFilters = getListFilters(filtersContainer, fields)
             searchButton = getSearchButton(filtersContainer)
+            filter.searchFields = listFilters
             listView.addFilter(filter)
+            filtersContainer.layout = RowLayoutFactory
+                .fillDefaults()
+                .pack(true)
+                .justify(false)
+                .wrap(true)
+                .center(true)
+                .margins(3, 3)
+                .create()
+            GridDataFactory.defaultsFor(filtersContainer).grab(true, false).applyTo(filtersContainer)
+
         }
         sashForm.weights = intArrayOf(viewDefinition.listWeight, viewDefinition.editWeight)
         sashForm.sashWidth = 4
         listView.contentProvider = contentProvider
         listView.labelProvider = makeViewerLabelProvider<T>(fields, contentProvider.knownElements)
         listView.comparator = comparator
-
-        enable(false)
-
-        filtersContainer.layout = RowLayoutFactory
-            .fillDefaults()
-            .pack(true)
-            .justify(false)
-            .wrap(true)
-            .center(true)
-            .margins(3, 3)
-            .create()
-        GridDataFactory.defaultsFor(filtersContainer).grab(true, false).applyTo(filtersContainer)
         GridDataFactory.defaultsFor(listContainer).grab(true, true).hint(150, 150).applyTo(listContainer)
         GridLayoutFactory.fillDefaults().generateLayout(listSectionContainer)
         root.layout = FillLayout(SWT.VERTICAL)
         root.layout()
+
+        enable(false)
+
     }
 
 
