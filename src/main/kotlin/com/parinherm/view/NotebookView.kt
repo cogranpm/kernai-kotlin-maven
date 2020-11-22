@@ -15,15 +15,5 @@ class NotebookView (val parent: Composite, comparator: BeansViewerComparator) : 
        ApplicationData.getView(ApplicationData.ViewDefConstants.notebookViewId),
        comparator, NotebookViewFilter())
 
-    init {
-        if(form.searchButton != null) {
-            form?.searchButton?.addSelectionListener(widgetSelectedAdapter
-            {
-              form.listView.refresh()
-            })
-        }
-
-    }
-
 
 }

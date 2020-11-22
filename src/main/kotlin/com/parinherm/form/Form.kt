@@ -80,6 +80,11 @@ data class Form<T>(
                 .create()
             GridDataFactory.defaultsFor(filtersContainer).grab(true, false).applyTo(filtersContainer)
 
+            searchButton?.addSelectionListener(widgetSelectedAdapter
+            {
+                listView.refresh()
+            })
+
         }
         sashForm.weights = intArrayOf(viewDefinition.listWeight, viewDefinition.editWeight)
         sashForm.sashWidth = 4
