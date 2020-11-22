@@ -114,11 +114,11 @@ object ViewDefinitions {
     }
 
     private fun makeRecipes(): ViewDef {
-        val name = makeTextField("name", "Name", true)
+        val name = makeTextField("name", "Name", true, filterable = true)
         val category = makeLookupField("category", "Category", true, ApplicationData.recipeCategoryLookupKey)
         val method = makeMemoField("method", "Method", true)
         return ViewDef(
-            ApplicationData.ViewDefConstants.recipeViewId, "Recipes", 1, 3, SashOrientationDef.VERTICAL,
+            ViewDefConstants.recipeViewId, "Recipes", 1, 3, SashOrientationDef.VERTICAL,
             listOf(name, category, method), listOf(makeIngredients())
         )
     }
