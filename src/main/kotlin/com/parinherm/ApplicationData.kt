@@ -22,6 +22,7 @@ import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.ToolItem
 import com.parinherm.model.test
+import com.parinherm.model.testHbars
 
 object ApplicationData {
 
@@ -85,7 +86,7 @@ object ApplicationData {
                 lookups = LookupMapper.getLookups()
 
                 //testing strintemplate
-                test(ApplicationData.getView(ApplicationData.ViewDefConstants.shelfViewId))
+                testHbars(ApplicationData.getView(ApplicationData.ViewDefConstants.shelfViewId))
 
 
                 mainWindow = MainWindow(null)
