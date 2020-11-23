@@ -76,8 +76,6 @@ object ApplicationData {
 
         SchemaBuilder.build()
 
-        //testing strintemplate
-        test()
 
         val display: Display = Display.getDefault()
         Realm.runWithDefault(DisplayRealm.getRealm(display)) {
@@ -85,6 +83,11 @@ object ApplicationData {
                 viewDefinitions = ApplicationData.getSerializationFormat().decodeFromString<List<ViewDef>>(HttpClient.getViews())
                 imageRegistry = ImageRegistry()
                 lookups = LookupMapper.getLookups()
+
+                //testing strintemplate
+                test()
+
+
                 mainWindow = MainWindow(null)
                 mainWindow.setBlockOnOpen(true)
                 mainWindow.open()
