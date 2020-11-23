@@ -6,17 +6,18 @@ import com.parinherm.form.definitions.*
 
 object ViewDefinitions {
     fun makeViews(): List<ViewDef> = listOf(
-        makePerson(),
-        makePersonDetail(),
-        makeRecipes(),
-        makeIngredients(),
-        makeLogins(),
-        makeNotebooks(),
-        makeNoteHeaders(),
-        makeNoteDetails(),
-        makeSnippets(),
-        makeLookup(),
-        makeLookupDetail()
+            makePerson(),
+            makePersonDetail(),
+            makeRecipes(),
+            makeIngredients(),
+            makeLogins(),
+            makeNotebooks(),
+            makeNoteHeaders(),
+            makeNoteDetails(),
+            makeSnippets(),
+            makeLookup(),
+            makeLookupDetail(),
+            makeShelf()
     )
 
     private fun makeTextField(name: String, title: String, required: Boolean, filterable: Boolean = false): FieldDef {
@@ -75,7 +76,7 @@ object ViewDefinitions {
             listOf(name, comments, createdDate), listOf())
     }
 
-    fun makeLookupDetail() : ViewDef {
+    private fun makeLookupDetail() : ViewDef {
         val code = makeTextField("code", "Code", true)
         val label = makeTextField("label", "Label", true)
         return ViewDef(ApplicationData.ViewDefConstants.lookupDetailViewId, "Lookup Items", 1, 3, SashOrientationDef.VERTICAL,

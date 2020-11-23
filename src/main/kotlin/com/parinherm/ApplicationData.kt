@@ -80,12 +80,12 @@ object ApplicationData {
         val display: Display = Display.getDefault()
         Realm.runWithDefault(DisplayRealm.getRealm(display)) {
             try {
-                viewDefinitions = ApplicationData.getSerializationFormat().decodeFromString<List<ViewDef>>(HttpClient.getViews())
+                viewDefinitions = getSerializationFormat().decodeFromString(HttpClient.getViews())
                 imageRegistry = ImageRegistry()
                 lookups = LookupMapper.getLookups()
 
                 //testing strintemplate
-                test()
+                test(ApplicationData.getView(ApplicationData.ViewDefConstants.shelfViewId))
 
 
                 mainWindow = MainWindow(null)

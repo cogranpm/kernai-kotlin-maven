@@ -1,9 +1,9 @@
-entity_class(name) ::= <<
+entity_class(viewDef) ::= <<
 package com.parinherm.entity
 
 import kotlin.properties.Delegates
 
-class <name>(override var id: Long = 0,  key: String, label: String): ModelObject(), IBeanDataEntity  {
+class <viewDef.title>(override var id: Long = 0,  key: String, label: String): ModelObject(), IBeanDataEntity  {
     var key: String by Delegates.observable(key, observer)
     var label: String by Delegates.observable(label, observer)
 
@@ -30,5 +30,5 @@ class <name>(override var id: Long = 0,  key: String, label: String): ModelObjec
         }
     }
 }
-Hello <name>;>>
+Hello <viewDef.title>;>>
 
