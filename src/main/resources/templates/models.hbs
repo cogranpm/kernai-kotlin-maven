@@ -9,7 +9,7 @@ class {{title}}(override var id: Long = 0, {{#each fieldDefinitions}}{{name}}: {
 
     override fun getColumnValueByIndex(index: Int): String {
         return when (index) {
-            {{#each fieldDefinitions}} {{@index}} -> {{name}}
+            {{#each fieldDefinitions}} {{@index}} -> {{#translateColumnValue this}} {{/translateColumnValue}}
             {{/each}}
             else -> ""
         }
@@ -23,7 +23,7 @@ class {{title}}(override var id: Long = 0, {{#each fieldDefinitions}}{{name}}: {
         fun make(): {{title}}{
             return {{title}}(
                 0,
-                {{#each fieldDefinitions}}""
+                {{#each fieldDefinitions}} {{#translateDefaultValue this}} {{/translateDefaultValue}}
                 {{/each}}
             )
         }
