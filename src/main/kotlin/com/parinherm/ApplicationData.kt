@@ -49,6 +49,7 @@ object ApplicationData {
     const val TAB_KEY_NOTEDETAIL = "notedetail"
     const val TAB_KEY_LOOKUP = "lookup"
     const val TAB_KEY_LOOKUPDETAIL = "lookupdetail"
+    const val TAB_KEY_SHELF = "shelf"
 
     const val swnone = SWT.NONE
     const val labelStyle = SWT.BORDER
@@ -199,21 +200,6 @@ object ApplicationData {
     val loginCategoryList by lazy {lookups.getOrDefault(loginCategoryKey, emptyList())}
 
     lateinit var lookups: Map<String, List<LookupDetail>>
-    /*
-    val lookups: Map<String, List<LookupDetail>> = mapOf(
-        countryLookupKey to countryList,
-        speciesLookupKey to speciesList,
-        recipeCategoryLookupKey to recipeCategoryList,
-        unitLookupKey to unitList,
-        techLanguageLookupKey to techLanguage,
-        snippetCategoryKey to snippetCategory,
-        snippetTopicKey to snippetTopic,
-        snippetTypeKey to snippetType,
-        passwordMasterKey to passwordMaster,
-        loginCategoryKey to loginCategoryList
-    )
-
-     */
 
     fun getSaveToolbarButton() : ToolItem{
         return mainWindow.toolBarManager.control.getItem(0)
@@ -233,7 +219,6 @@ object ApplicationData {
     object ViewDefConstants {
 
         // the view id's
-        const val bindingTestViewId = "bindingtest"
         const val personViewId = "beansbinding"
         const val personDetailsViewId = "persondetails"
         const val recipeViewId = "recipe"
@@ -245,6 +230,7 @@ object ApplicationData {
         const val noteDetailViewId = "notedetail"
         const val lookupViewId = "lookup"
         const val lookupDetailViewId = "lookupdetail"
+        const val shelfViewId = "shelf"
 
        // the properties available to the views
         const val title = "title"
@@ -298,7 +284,6 @@ object ApplicationData {
         const val childViews = "childViews"
 
         fun makeColumnMapKey(fieldName: String): String = fieldName + "_column"
-
 
     }
 

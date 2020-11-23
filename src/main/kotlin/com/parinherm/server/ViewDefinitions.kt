@@ -67,6 +67,13 @@ object ViewDefinitions {
         return FieldDef(name, title, required, size, dataType, lookupKey, filterable)
     }
 
+    private fun makeShelf(): ViewDef {
+        val name = makeTextField("title", "Title", true)
+        val comments = makeMemoField("comments", "Comments", false)
+        val createdDate = makeDateTimeField("createdDate", "Created", true)
+        return ViewDef(ViewDefConstants.shelfViewId, "Shelf", 2, 1, SashOrientationDef.VERTICAL,
+            listOf(name, comments, createdDate), listOf())
+    }
 
     fun makeLookupDetail() : ViewDef {
         val code = makeTextField("code", "Code", true)
@@ -169,7 +176,7 @@ object ViewDefinitions {
         val name = makeTextField("name", "Name", true, filterable = true)
         val comments = makeMemoField("comments", "Comments", false)
         val view = ViewDef(
-            ViewDefConstants.notebookViewId, "Notebooks", 1, 3, SashOrientationDef.VERTICAL, listOf(name, comments),
+            ViewDefConstants.notebookViewId, "Notebooks", 3, 1, SashOrientationDef.VERTICAL, listOf(name, comments),
             listOf(makeNoteHeaders())
         )
         return view
