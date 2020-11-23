@@ -21,6 +21,7 @@ import org.eclipse.swt.custom.CTabItem
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.ToolItem
+import com.parinherm.model.test
 
 object ApplicationData {
 
@@ -74,6 +75,9 @@ object ApplicationData {
         SimpleHttpServer.start()
 
         SchemaBuilder.build()
+
+        //testing strintemplate
+        test()
 
         val display: Display = Display.getDefault()
         Realm.runWithDefault(DisplayRealm.getRealm(display)) {

@@ -1,0 +1,2 @@
+decl(name) ::= "Hello <name>;"
+
