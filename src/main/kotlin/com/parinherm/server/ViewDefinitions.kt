@@ -176,7 +176,7 @@ object ViewDefinitions {
     }
 
     private fun makeNoteHeaders(): ViewDef {
-        val name = makeTextField("name", "Name", true)
+        val name = makeTextField("name", "Name", true, filterable = true)
         val comments = makeMemoField("comments", "Comments", false)
         val view = ViewDef(
             ViewDefConstants.noteheaderViewId,

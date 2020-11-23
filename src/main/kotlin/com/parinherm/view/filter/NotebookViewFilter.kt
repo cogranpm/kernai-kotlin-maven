@@ -8,13 +8,11 @@ import org.eclipse.swt.widgets.Text
 
 class NotebookViewFilter( ) : BaseViewFilter() {
 
-    override var searchFields: Map<String, Text>? = null
-
     override fun select(viewer: Viewer?, parentElement: Any?, element: Any?): Boolean {
         if (element != null && element is Notebook && searchFields != null)
         {
             /* search on the name field, provide name of text widget and a function reference to the entity property we are searching on */
-            return searchOnStringField("name", element::name)
+            return searchOnStringField(searchFields,"name", element::name)
         }
         return false
     }
