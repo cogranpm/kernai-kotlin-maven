@@ -1,2 +1,0 @@
-decl(name) ::= "Hello <name>;"
-
