@@ -1,0 +1,31 @@
+package com.parinherm.entity
+
+import kotlin.properties.Delegates
+
+class {{title}}(override var id: Long = 0, {{#each fieldDefinitions}}{{name}}: {{#translateDataTypeDef dataTypeDef}} {{/translateDataTypeDef}}{{#unless @last}}, {{/unless}}{{/each}}): ModelObject(), IBeanDataEntity  {
+
+    {{#each fieldDefinitions}}var {{name}}: {{#translateDataTypeDef dataTypeDef}} {{/translateDataTypeDef}} by Delegates.observable({{name}}, observer)
+    {{/each}}
+
+    override fun getColumnValueByIndex(index: Int): String {
+        return when (index) {
+            {{#each fieldDefinitions}} {{@index}} -> {{name}}
+            {{/each}}
+            else -> ""
+        }
+    }
+
+    override fun toString(): String {
+        return "{{title}}(id=$id, {{#each fieldDefinitions}}{{name}}=${{name}}{{#unless @last}}, {{/unless}}{{/each}})"
+    }
+
+    companion object Factory {
+        fun make(): {{title}}{
+            return {{title}}(
+                0,
+                {{#each fieldDefinitions}}""
+                {{/each}}
+            )
+        }
+    }
+}
