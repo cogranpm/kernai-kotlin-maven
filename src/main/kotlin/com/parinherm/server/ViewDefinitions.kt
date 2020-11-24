@@ -2,18 +2,14 @@ package com.parinherm.server
 
 import com.parinherm.ApplicationData
 import com.parinherm.ApplicationData.ViewDefConstants
+import com.parinherm.ApplicationData.publicationTypeLookupKey
 import com.parinherm.form.definitions.*
 
 object ViewDefinitions {
     fun makeViews(): List<ViewDef> = listOf(
-            makePerson(),
-            makePersonDetail(),
             makeLogins(),
             makeSnippets(),
-            makeLookup(),
-            makeLookupDetail(),
-            makeShelf()
-    ) + makeRecipes() + makeNotebooks()
+    ) + makeRecipes() + makeNotebooks() + makePerson()  + makeShelf() + makeLookup()
 
     private fun makeTextField(name: String, title: String, required: Boolean, filterable: Boolean = false): FieldDef {
         return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.TEXT, null, filterable)
@@ -63,12 +59,50 @@ object ViewDefinitions {
         return FieldDef(name, title, required, size, dataType, lookupKey, filterable)
     }
 
-    private fun makeShelf(): ViewDef {
+    private fun makeShelf(): List<ViewDef> {
         val name = makeTextField("title", "Title", true)
         val comments = makeMemoField("comments", "Comments", false)
         val createdDate = makeDateTimeField("createdDate", "Created", true)
-        return ViewDef(ViewDefConstants.shelfViewId, "Shelf", 2, 1, SashOrientationDef.VERTICAL,
-            listOf(name, comments, createdDate), listOf())
+
+        val noteDef = ViewDef(ViewDefConstants.noteViewId, "Note", 3, 1, SashOrientationDef.VERTICAL,
+            listOf(
+                makeTextField("title", "Title", true),
+                makeMemoField("description", "Description", false),
+                makeTextField("titleAudioFile", "Title Audio", true),
+                makeTextField("descriptionAudioFile", "Description Audio", true),
+                makeDateTimeField("createdDate", "Created", true)
+            ),
+            listOf())
+
+
+        val topicDef = ViewDef(ViewDefConstants.topicViewId, "Topic", 3, 1, SashOrientationDef.VERTICAL,
+            listOf(
+                makeTextField("name", "Name", true),
+                makeMemoField("comments", "Comments", false),
+                makeDateTimeField("createdDate", "Created", true)
+            ),
+            listOf(noteDef))
+
+        val publicationDef = ViewDef(ViewDefConstants.publicationViewId, "Publication", 3, 1, SashOrientationDef.VERTICAL,
+            listOf(
+                makeTextField("title", "Title", true),
+                makeLookupField("type", "Type", false, publicationTypeLookupKey),
+                makeMemoField("comments", "Comments", false),
+                makeDateTimeField("createdDate", "Created", true)
+            ),
+            listOf(topicDef)
+        )
+
+        val subjectDef = ViewDef(ViewDefConstants.subjectViewId, "Subject", 2, 1, SashOrientationDef.VERTICAL,
+        listOf(
+            makeTextField("title", "Title", true),
+            makeMemoField("comments", "Comments", false),
+            makeDateTimeField("createdDate", "Created", true)
+        ), listOf(publicationDef))
+
+        val view = ViewDef(ViewDefConstants.shelfViewId, "Shelf", 2, 1, SashOrientationDef.VERTICAL,
+            listOf(name, comments, createdDate), listOf(subjectDef))
+        return listOf(view, subjectDef, publicationDef, topicDef, noteDef)
     }
 
     private fun makeLookupDetail() : ViewDef {
@@ -78,14 +112,16 @@ object ViewDefinitions {
         listOf(code, label), emptyList())
     }
 
-    private fun makeLookup(): ViewDef {
+    private fun makeLookup(): List<ViewDef> {
         val key = makeTextField("key", "Key", true)
         val label = makeTextField("label", "Label", true)
-        return ViewDef(ApplicationData.ViewDefConstants.lookupViewId,
-        "Lookups", 1, 3, SashOrientationDef.VERTICAL, listOf(key, label), listOf(makeLookupDetail()))
+        val lookupDetailDef = makeLookupDetail()
+        val view = ViewDef(ApplicationData.ViewDefConstants.lookupViewId,
+        "Lookups", 1, 3, SashOrientationDef.VERTICAL, listOf(key, label), listOf(lookupDetailDef))
+        return listOf(view, lookupDetailDef)
     }
 
-    private fun makePerson(): ViewDef {
+    private fun makePerson(): List<ViewDef> {
         val name = makeTextField("name", "First Name", true)
         val income = makeMoneyField("income", "Income", true)
         val height = makeFloatField("height", "Height", true)
@@ -93,8 +129,10 @@ object ViewDefinitions {
         val country = makeLookupField("country", "Country", true, ApplicationData.countryLookupKey)
         val enteredDate = makeDateTimeField("enteredDate", "Entered", true)
         val isDeceased = makeBooleanField("deceased", "Deceased", true)
-        return ViewDef(ApplicationData.ViewDefConstants.personViewId, "People", 1, 3, SashOrientationDef.VERTICAL,
-            listOf(name, income, height, age, country, enteredDate, isDeceased), listOf(makePersonDetail()))
+        val personDetailDef = makePersonDetail()
+        val view = ViewDef(ApplicationData.ViewDefConstants.personViewId, "People", 1, 3, SashOrientationDef.VERTICAL,
+            listOf(name, income, height, age, country, enteredDate, isDeceased), listOf(personDetailDef))
+        return listOf(view, personDetailDef)
     }
 
     private fun makePersonDetail(): ViewDef {

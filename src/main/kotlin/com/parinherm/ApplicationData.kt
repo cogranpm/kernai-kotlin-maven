@@ -179,6 +179,7 @@ object ApplicationData {
     const val snippetTypeKey = "type"
     const val passwordMasterKey = "password_master"
     const val loginCategoryKey = "logcat"
+    const val publicationTypeLookupKey = "pubtype"
 
     fun createLookups(){
         lookups.forEach { (key: String, value: List<LookupDetail>) ->
@@ -227,7 +228,7 @@ object ApplicationData {
     object ViewDefConstants {
 
         // the view id's
-        const val personViewId = "beansbinding"
+        const val personViewId = "person"
         const val personDetailsViewId = "persondetails"
         const val recipeViewId = "recipe"
         const val ingredientViewId = "ingredients"
@@ -239,6 +240,18 @@ object ApplicationData {
         const val lookupViewId = "lookup"
         const val lookupDetailViewId = "lookupdetail"
         const val shelfViewId = "shelf"
+        const val subjectViewId = "subject"
+        const val topicViewId = "topic"
+        const val publicationViewId = "publication"
+        const val noteViewId = "note"
+        const val noteSegmentViewId = "notesegment"
+        const val noteSegmentTypeViewId = "notesegmenttype"
+        const val noteSegmentTypeHeaderViewId = "notesegmenttypeheader"
+        const val answerViewId = "answer"
+        const val questionViewId = "question"
+        const val quizViewId = "quiz"
+        const val quizRunHeaderViewId = "quizrunheader"
+        const val quizRunQuestionViewId = "quizrunquestion"
 
        // the properties available to the views
         const val title = "title"
