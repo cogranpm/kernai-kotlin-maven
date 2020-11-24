@@ -1,7 +1,9 @@
 package com.parinherm.model
 
+import com.parinherm.ApplicationData
 import com.parinherm.form.definitions.DataTypeDef
 import com.parinherm.form.definitions.FieldDef
+import com.parinherm.form.definitions.ViewDef
 
 class TemplateHelpers {
     fun translateDataTypeDef(dataTypeDef: DataTypeDef): String =
@@ -43,5 +45,14 @@ class TemplateHelpers {
             DataTypeDef.DATETIME -> "LocalDate.now()"
             DataTypeDef.BOOLEAN -> "False"
         }
+
+    fun getForeignKeysByView(viewDef: ViewDef): String {
+        val foreignKeys = viewDef.parentViews.map {
+            val parentViewDef = ApplicationData.getView(it)
+            "${parentViewDef.title}Id: String "
+        }
+        return foreignKeys.joinToString(",")
+    }
+
 
 }
