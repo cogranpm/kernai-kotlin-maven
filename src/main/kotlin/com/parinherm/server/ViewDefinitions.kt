@@ -9,14 +9,11 @@ object ViewDefinitions {
             makePerson(),
             makePersonDetail(),
             makeLogins(),
-            makeNotebooks(),
-            makeNoteHeaders(),
-            makeNoteDetails(),
             makeSnippets(),
             makeLookup(),
             makeLookupDetail(),
             makeShelf()
-    ) + makeRecipes()
+    ) + makeRecipes() + makeNotebooks()
 
     private fun makeTextField(name: String, title: String, required: Boolean, filterable: Boolean = false): FieldDef {
         return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.TEXT, null, filterable)
@@ -173,17 +170,19 @@ object ViewDefinitions {
     }
 
 
-    private fun makeNotebooks(): ViewDef {
+    private fun makeNotebooks(): List<ViewDef> {
         val name = makeTextField("name", "Name", true, filterable = true)
         val comments = makeMemoField("comments", "Comments", false)
+        val noteDetailDef = makeNoteDetails()
+        val noteHeaderDef = makeNoteHeaders(noteDetailDef)
         val view = ViewDef(
             ViewDefConstants.notebookViewId, "Notebooks", 3, 1, SashOrientationDef.VERTICAL, listOf(name, comments),
-            listOf(makeNoteHeaders())
+            listOf(noteHeaderDef)
         )
-        return view
+        return listOf(view, noteDetailDef, noteHeaderDef)
     }
 
-    private fun makeNoteHeaders(): ViewDef {
+    private fun makeNoteHeaders(noteDetailDef: ViewDef): ViewDef {
         val name = makeTextField("name", "Name", true, filterable = true)
         val comments = makeMemoField("comments", "Comments", false)
         val view = ViewDef(
@@ -194,7 +193,7 @@ object ViewDefinitions {
             SashOrientationDef.VERTICAL,
             listOf(name, comments),
             listOf(
-                makeNoteDetails()
+               noteDetailDef
             )
         )
         return view
