@@ -13,4 +13,14 @@ data class ViewDef(
     val fieldDefinitions: List<FieldDef>,
     val childViews: List<ViewDef>
 ) {
+
+    // record the parents useful for stuff like code generation
+    // store the id only, so we don't get a circular reference
+   var parentViews: MutableSet<String> = mutableSetOf()
+
+    init {
+        childViews.forEach{
+            parentViews.add(this.id)
+        }
+    }
 }
