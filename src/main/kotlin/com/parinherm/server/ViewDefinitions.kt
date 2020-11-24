@@ -8,8 +8,6 @@ object ViewDefinitions {
     fun makeViews(): List<ViewDef> = listOf(
             makePerson(),
             makePersonDetail(),
-            makeRecipes(),
-            makeIngredients(),
             makeLogins(),
             makeNotebooks(),
             makeNoteHeaders(),
@@ -18,7 +16,7 @@ object ViewDefinitions {
             makeLookup(),
             makeLookupDetail(),
             makeShelf()
-    )
+    ) + makeRecipes()
 
     private fun makeTextField(name: String, title: String, required: Boolean, filterable: Boolean = false): FieldDef {
         return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.TEXT, null, filterable)
@@ -121,14 +119,16 @@ object ViewDefinitions {
         )
     }
 
-    private fun makeRecipes(): ViewDef {
+    private fun makeRecipes(): List<ViewDef> {
         val name = makeTextField("name", "Name", true, filterable = true)
         val category = makeLookupField("category", "Category", true, ApplicationData.recipeCategoryLookupKey)
         val method = makeMemoField("method", "Method", true)
-        return ViewDef(
-            ViewDefConstants.recipeViewId, "Recipes", 1, 3, SashOrientationDef.VERTICAL,
-            listOf(name, category, method), listOf(makeIngredients())
-        )
+        val ingredients = makeIngredients()
+        return listOf(ViewDef(
+            ViewDefConstants.recipeViewId, "Recipe", 1, 3, SashOrientationDef.VERTICAL,
+            listOf(name, category, method), listOf(ingredients)
+        ) ,ingredients)
+
     }
 
     private fun makeSnippets(): ViewDef {

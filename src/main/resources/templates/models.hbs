@@ -2,7 +2,7 @@ package com.parinherm.entity
 
 import kotlin.properties.Delegates
 
-class {{title}}(override var id: Long = 0, {{#getForeignKeysByView this}}{{/getForeignKeysByView}} {{#each fieldDefinitions}}{{name}}: {{#translateDataTypeDef dataTypeDef}} {{/translateDataTypeDef}}{{#unless @last}}, {{/unless}}{{/each}}): ModelObject(), IBeanDataEntity  {
+class {{title}}(override var id: Long = 0, {{#each (getForeignKeysByView this)}}var {{this}}Id: Long,{{/each}} {{#each fieldDefinitions}}{{name}}: {{#translateDataTypeDef dataTypeDef}} {{/translateDataTypeDef}}{{#unless @last}}, {{/unless}}{{/each}}): ModelObject(), IBeanDataEntity  {
 
     {{#each fieldDefinitions}}var {{name}}: {{#translateDataTypeDef dataTypeDef}} {{/translateDataTypeDef}} by Delegates.observable({{name}}, observer)
     {{/each}}
