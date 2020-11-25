@@ -59,6 +59,20 @@ object ViewDefinitions {
         return FieldDef(name, title, required, size, dataType, lookupKey, filterable)
     }
 
+
+    private fun makeNoteSegmentTypeDef(): List<ViewDef> {
+        val noteSegmentTypeDef = ViewDef(ViewDefConstants.noteSegmentTypeViewId,
+        "Note Segment Type", 2, 1, SashOrientationDef.VERTICAL,
+        listOf(
+            makeTextField("title", "Title", true),
+            makeTextField("fontDesc", "Font", true),
+            makeDateTimeField("createdDate", "Created", true)
+        ),
+            EntityDef("NoteSegmentType")
+        )
+        return listOf(noteSegmentTypeDef)
+    }
+
     private fun makeShelf(): List<ViewDef> {
         val name = makeTextField("title", "Title", true)
         val comments = makeMemoField("comments", "Comments", false)
@@ -72,6 +86,7 @@ object ViewDefinitions {
                 makeTextField("descriptionAudioFile", "Description Audio", true),
                 makeDateTimeField("createdDate", "Created", true)
             ),
+            EntityDef("Note"),
             listOf())
 
 
@@ -81,6 +96,7 @@ object ViewDefinitions {
                 makeMemoField("comments", "Comments", false),
                 makeDateTimeField("createdDate", "Created", true)
             ),
+            EntityDef("Topic"),
             listOf(noteDef))
 
         val publicationDef = ViewDef(ViewDefConstants.publicationViewId, "Publication", 3, 1, SashOrientationDef.VERTICAL,
@@ -90,6 +106,7 @@ object ViewDefinitions {
                 makeMemoField("comments", "Comments", false),
                 makeDateTimeField("createdDate", "Created", true)
             ),
+            EntityDef("Publication"),
             listOf(topicDef)
         )
 
@@ -98,18 +115,22 @@ object ViewDefinitions {
             makeTextField("title", "Title", true),
             makeMemoField("comments", "Comments", false),
             makeDateTimeField("createdDate", "Created", true)
-        ), listOf(publicationDef))
+        ),
+            EntityDef("Subject"),
+            listOf(publicationDef))
 
         val view = ViewDef(ViewDefConstants.shelfViewId, "Shelf", 2, 1, SashOrientationDef.VERTICAL,
-            listOf(name, comments, createdDate), listOf(subjectDef))
-        return listOf(view, subjectDef, publicationDef, topicDef, noteDef)
+            listOf(name, comments, createdDate),
+            EntityDef("Shelf"),
+            listOf(subjectDef))
+        return listOf(view, subjectDef, publicationDef, topicDef, noteDef) + makeNoteSegmentTypeDef()
     }
 
     private fun makeLookupDetail() : ViewDef {
         val code = makeTextField("code", "Code", true)
         val label = makeTextField("label", "Label", true)
         return ViewDef(ApplicationData.ViewDefConstants.lookupDetailViewId, "Lookup Items", 1, 3, SashOrientationDef.VERTICAL,
-        listOf(code, label), emptyList())
+        listOf(code, label), EntityDef("lookupdetails"), emptyList())
     }
 
     private fun makeLookup(): List<ViewDef> {
@@ -117,7 +138,7 @@ object ViewDefinitions {
         val label = makeTextField("label", "Label", true)
         val lookupDetailDef = makeLookupDetail()
         val view = ViewDef(ApplicationData.ViewDefConstants.lookupViewId,
-        "Lookups", 1, 3, SashOrientationDef.VERTICAL, listOf(key, label), listOf(lookupDetailDef))
+        "Lookups", 1, 3, SashOrientationDef.VERTICAL, listOf(key, label), EntityDef("lookups"), listOf(lookupDetailDef))
         return listOf(view, lookupDetailDef)
     }
 
@@ -131,7 +152,10 @@ object ViewDefinitions {
         val isDeceased = makeBooleanField("deceased", "Deceased", true)
         val personDetailDef = makePersonDetail()
         val view = ViewDef(ApplicationData.ViewDefConstants.personViewId, "People", 1, 3, SashOrientationDef.VERTICAL,
-            listOf(name, income, height, age, country, enteredDate, isDeceased), listOf(personDetailDef))
+            listOf(name, income, height, age, country, enteredDate, isDeceased),
+            EntityDef("persons"),
+            listOf(personDetailDef)
+        )
         return listOf(view, personDetailDef)
     }
 
@@ -140,7 +164,7 @@ object ViewDefinitions {
         val petSpecies = makeLookupField("petSpecies", "Pet", true, ApplicationData.speciesLookupKey)
         return ViewDef(
             ApplicationData.ViewDefConstants.personDetailsViewId, "Person Details", 1, 3, SashOrientationDef.VERTICAL,
-            listOf(nickname, petSpecies), listOf()
+            listOf(nickname, petSpecies), EntityDef("persondetails"), listOf()
         )
     }
 
@@ -150,7 +174,10 @@ object ViewDefinitions {
         val unit = makeLookupField("unit", "Unit", true, ApplicationData.unitLookupKey)
         return ViewDef(
             ApplicationData.ViewDefConstants.ingredientViewId,
-            "Ingredients", 1, 3, SashOrientationDef.VERTICAL, listOf(name, quantity, unit), listOf()
+            "Ingredients", 1, 3, SashOrientationDef.VERTICAL,
+            listOf(name, quantity, unit),
+            EntityDef("ingredients"),
+            listOf()
         )
     }
 
@@ -161,7 +188,9 @@ object ViewDefinitions {
         val ingredients = makeIngredients()
         return listOf(ViewDef(
             ViewDefConstants.recipeViewId, "Recipe", 1, 3, SashOrientationDef.VERTICAL,
-            listOf(name, category, method), listOf(ingredients)
+            listOf(name, category, method),
+            EntityDef("recipes"),
+            listOf(ingredients)
         ) ,ingredients)
 
     }
@@ -182,6 +211,7 @@ object ViewDefinitions {
             5,
             SashOrientationDef.HORIZONTAL,
             listOf(name, language, category, topic, type, desc, body, output),
+            EntityDef("snippets"),
             listOf()
         )
     }
@@ -202,6 +232,7 @@ object ViewDefinitions {
             3,
             SashOrientationDef.VERTICAL,
             listOf(name, category, userName, password, url, notes, other),
+            EntityDef("logins"),
             listOf()
         )
         return view
@@ -215,6 +246,7 @@ object ViewDefinitions {
         val noteHeaderDef = makeNoteHeaders(noteDetailDef)
         val view = ViewDef(
             ViewDefConstants.notebookViewId, "Notebooks", 3, 1, SashOrientationDef.VERTICAL, listOf(name, comments),
+            EntityDef("notebooks"),
             listOf(noteHeaderDef)
         )
         return listOf(view, noteDetailDef, noteHeaderDef)
@@ -230,6 +262,7 @@ object ViewDefinitions {
             3,
             SashOrientationDef.VERTICAL,
             listOf(name, comments),
+            EntityDef("noteheaders"),
             listOf(
                noteDetailDef
             )
@@ -249,6 +282,7 @@ object ViewDefinitions {
             3,
             SashOrientationDef.VERTICAL,
             listOf(name, body, sourceCode, comments),
+            EntityDef("notedetails"),
             listOf()
         )
         return view

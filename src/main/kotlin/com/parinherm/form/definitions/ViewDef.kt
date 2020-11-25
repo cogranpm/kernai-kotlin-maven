@@ -11,7 +11,9 @@ data class ViewDef(
     val editWeight: Int = 3,
     val sashOrientation: SashOrientationDef = SashOrientationDef.VERTICAL,
     val fieldDefinitions: List<FieldDef>,
-    val childViews: List<ViewDef>
+    val entityDef: EntityDef,
+    val childViews: List<ViewDef> = listOf(),
+    val references: List<ViewDef> = listOf() // composition or 1 to 1 relationship
 ) {
 
     // record the parents useful for stuff like code generation
