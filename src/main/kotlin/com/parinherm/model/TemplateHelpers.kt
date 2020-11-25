@@ -29,7 +29,7 @@ class TemplateHelpers {
             DataTypeDef.BOOLEAN -> fieldDef.name
             DataTypeDef.LOOKUP -> """ {
                 val listItem = ApplicationData.${fieldDef.lookupKey}.find { it.code == ${fieldDef.name}}
-                "$\{listItem?.label\}"
+                "${'$'}{listItem?.label}"
             }"""
         }
 
@@ -48,7 +48,7 @@ class TemplateHelpers {
 
     fun getForeignKeysByView(viewDef: ViewDef): List<String> {
         return viewDef.parentViews.map {
-            ApplicationData.getView(it).title.toLowerCase()
+            ApplicationData.getView(it).entityDef.name
         }
     }
 
