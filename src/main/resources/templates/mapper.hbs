@@ -38,6 +38,8 @@ object {{#capitalize entityDef.name}}{{/capitalize}}Mapper : IMapper<{{#capitali
     {{/each}}
 
     override fun delete(item: {{#capitalize entityDef.name}}{{/capitalize}}) {
+        {{#each childViews}}{{#capitalize entityDef.name}}{{/capitalize}}Mapper.delete(item)
+        {{/each}}
         MapperHelper.delete(table, table.id eq item.id)
     }
 }
