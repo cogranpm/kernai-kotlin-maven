@@ -1,12 +1,10 @@
 package com.parinherm.entity.schema
 
 import com.parinherm.entity.Ingredient
-import com.parinherm.entity.Person
 import com.parinherm.entity.Recipe
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
-import org.jetbrains.exposed.sql.transactions.transaction
 
 object IngredientMapper : IMapper<Ingredient> {
 

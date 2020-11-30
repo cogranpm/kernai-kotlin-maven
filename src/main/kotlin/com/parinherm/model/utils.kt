@@ -22,6 +22,7 @@ fun test(viewDef: ViewDef){
 
 fun testHbars(viewDef: ViewDef){
     val loader = ClassPathTemplateLoader()
+    println(tempOutputDirectory)
     loader.prefix = "/templates"
     val hbars = Handlebars(loader)
     hbars.registerHelpers(TemplateHelpers())
@@ -30,6 +31,8 @@ fun testHbars(viewDef: ViewDef){
 
     val schema = hbars.compile("schema")
     writeTemplate(viewDef, schema,viewDef.entityDef.name.capitalize() + "s.kt", "entity", "schema")
+    val mapper = hbars.compile("mapper")
+    writeTemplate(viewDef, mapper, "${viewDef.entityDef.name.capitalize()}Mapper.kt", "entity", "schema")
 }
 
 fun writeTemplate(viewDef: ViewDef, template: Template, fileName: String, vararg folders: String ) {
