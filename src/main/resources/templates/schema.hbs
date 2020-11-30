@@ -6,4 +6,6 @@ import org.jetbrains.exposed.sql.`java-time`.date
 object {{entityDef.name}}s: LongIdTable() {
     {{#each fieldDefinitions}}val {{name}} = {{{schemaDeclaration}}}
     {{/each}}
+    {{#each (getForeignKeysByView this)}} val {{this.entityDef.name}}Id = long("{{this.entityDef.name}}Id").references({{this.entityDef.name}}s.id)
+    {{/each}}
 }

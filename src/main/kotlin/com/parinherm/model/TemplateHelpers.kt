@@ -48,9 +48,9 @@ class TemplateHelpers {
 
 
 
-    fun getForeignKeysByView(viewDef: ViewDef): List<String> {
+    fun getForeignKeysByView(viewDef: ViewDef): List<ViewDef> {
         return viewDef.parentViews.map {
-            ApplicationData.getView(it).entityDef.name
+            ApplicationData.getView(it)
         }
     }
 
