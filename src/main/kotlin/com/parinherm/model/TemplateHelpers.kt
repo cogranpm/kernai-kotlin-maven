@@ -46,6 +46,8 @@ class TemplateHelpers {
             DataTypeDef.BOOLEAN -> "False"
         }
 
+
+
     fun getForeignKeysByView(viewDef: ViewDef): List<String> {
         return viewDef.parentViews.map {
             ApplicationData.getView(it).entityDef.name

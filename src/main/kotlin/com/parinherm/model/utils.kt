@@ -29,7 +29,7 @@ fun testHbars(viewDef: ViewDef){
     writeTemplate(viewDef, template, viewDef.entityDef.name + ".kt", "entity")
 
     val schema = hbars.compile("schema")
-    writeTemplate(viewDef, schema,viewDef.entityDef.name + "Schema.kt", "entity", "schema")
+    writeTemplate(viewDef, schema,viewDef.entityDef.name + ".kt", "entity", "schema")
 }
 
 fun writeTemplate(viewDef: ViewDef, template: Template, fileName: String, vararg folders: String ) {

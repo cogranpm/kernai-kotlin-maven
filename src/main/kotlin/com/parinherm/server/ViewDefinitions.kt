@@ -130,7 +130,7 @@ object ViewDefinitions {
         val code = makeTextField("code", "Code", true)
         val label = makeTextField("label", "Label", true)
         return ViewDef(ApplicationData.ViewDefConstants.lookupDetailViewId, "Lookup Items", 1, 3, SashOrientationDef.VERTICAL,
-        listOf(code, label), EntityDef("lookupdetails"), emptyList())
+        listOf(code, label), EntityDef("lookupdetail"), emptyList())
     }
 
     private fun makeLookup(): List<ViewDef> {
@@ -138,7 +138,7 @@ object ViewDefinitions {
         val label = makeTextField("label", "Label", true)
         val lookupDetailDef = makeLookupDetail()
         val view = ViewDef(ApplicationData.ViewDefConstants.lookupViewId,
-        "Lookups", 1, 3, SashOrientationDef.VERTICAL, listOf(key, label), EntityDef("lookups"), listOf(lookupDetailDef))
+        "Lookups", 1, 3, SashOrientationDef.VERTICAL, listOf(key, label), EntityDef("lookup"), listOf(lookupDetailDef))
         return listOf(view, lookupDetailDef)
     }
 
@@ -153,7 +153,7 @@ object ViewDefinitions {
         val personDetailDef = makePersonDetail()
         val view = ViewDef(ApplicationData.ViewDefConstants.personViewId, "People", 1, 3, SashOrientationDef.VERTICAL,
             listOf(name, income, height, age, country, enteredDate, isDeceased),
-            EntityDef("persons"),
+            EntityDef("person"),
             listOf(personDetailDef)
         )
         return listOf(view, personDetailDef)
@@ -164,7 +164,7 @@ object ViewDefinitions {
         val petSpecies = makeLookupField("petSpecies", "Pet", true, ApplicationData.speciesLookupKey)
         return ViewDef(
             ApplicationData.ViewDefConstants.personDetailsViewId, "Person Details", 1, 3, SashOrientationDef.VERTICAL,
-            listOf(nickname, petSpecies), EntityDef("persondetails"), listOf()
+            listOf(nickname, petSpecies), EntityDef("persondetail"), listOf()
         )
     }
 
@@ -176,7 +176,7 @@ object ViewDefinitions {
             ApplicationData.ViewDefConstants.ingredientViewId,
             "Ingredients", 1, 3, SashOrientationDef.VERTICAL,
             listOf(name, quantity, unit),
-            EntityDef("ingredients"),
+            EntityDef("ingredient"),
             listOf()
         )
     }
@@ -189,7 +189,7 @@ object ViewDefinitions {
         return listOf(ViewDef(
             ViewDefConstants.recipeViewId, "Recipe", 1, 3, SashOrientationDef.VERTICAL,
             listOf(name, category, method),
-            EntityDef("recipes"),
+            EntityDef("recipe"),
             listOf(ingredients)
         ) ,ingredients)
 
@@ -211,7 +211,7 @@ object ViewDefinitions {
             5,
             SashOrientationDef.HORIZONTAL,
             listOf(name, language, category, topic, type, desc, body, output),
-            EntityDef("snippets"),
+            EntityDef("snippet"),
             listOf()
         )
     }
@@ -232,7 +232,7 @@ object ViewDefinitions {
             3,
             SashOrientationDef.VERTICAL,
             listOf(name, category, userName, password, url, notes, other),
-            EntityDef("logins"),
+            EntityDef("login"),
             listOf()
         )
         return view
@@ -246,7 +246,7 @@ object ViewDefinitions {
         val noteHeaderDef = makeNoteHeaders(noteDetailDef)
         val view = ViewDef(
             ViewDefConstants.notebookViewId, "Notebooks", 3, 1, SashOrientationDef.VERTICAL, listOf(name, comments),
-            EntityDef("notebooks"),
+            EntityDef("notebook"),
             listOf(noteHeaderDef)
         )
         return listOf(view, noteDetailDef, noteHeaderDef)
@@ -262,7 +262,7 @@ object ViewDefinitions {
             3,
             SashOrientationDef.VERTICAL,
             listOf(name, comments),
-            EntityDef("noteheaders"),
+            EntityDef("noteheader"),
             listOf(
                noteDetailDef
             )
@@ -282,7 +282,7 @@ object ViewDefinitions {
             3,
             SashOrientationDef.VERTICAL,
             listOf(name, body, sourceCode, comments),
-            EntityDef("notedetails"),
+            EntityDef("notedetail"),
             listOf()
         )
         return view
