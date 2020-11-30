@@ -21,6 +21,16 @@ data class ViewDef(
     // this won't work, its not a unified instance of child view def
    var parentViews: MutableSet<String> = mutableSetOf()
 
+    val hasChildren: Boolean
+    get () {
+        return childViews.isNotEmpty()
+    }
+
+    val isChild: Boolean
+    get() {
+        return parentViews.isNotEmpty()
+    }
+
     init {
         childViews.forEach{
             it.parentViews.add(this.id)
