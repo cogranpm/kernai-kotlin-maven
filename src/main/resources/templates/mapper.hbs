@@ -21,7 +21,10 @@ object {{#capitalize entityDef.name}}{{/capitalize}}Mapper : IMapper<{{#capitali
     }
 
     override fun getAll(keys: Map<String, Long>): List<{{#capitalize entityDef.name}}{{/capitalize}}> {
-        return MapperHelper.getAll(keys, table, table.recipeId eq keys["recipeId"] as Long, table.name to SortOrder.ASC ) {
+        return MapperHelper.getAll(keys, table, {{#each (getForeignKeysByView this)}}table.{{this.entityDef.name}}Id: Long,{{/each}}
+
+
+    table.recipeId eq keys["recipeId"] as Long, table.name to SortOrder.ASC ) {
             {{#capitalize entityDef.name}}{{/capitalize}}(it[table.id].value,
                 it[table.name],
                 it[table.quantity],
