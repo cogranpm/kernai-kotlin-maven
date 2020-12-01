@@ -57,5 +57,8 @@ class TemplateHelpers {
     fun capitalize(value: String) : String =
         value.capitalize()
 
+    fun decapitalize(value: String): String =
+        value.decapitalize()
+
 
 }

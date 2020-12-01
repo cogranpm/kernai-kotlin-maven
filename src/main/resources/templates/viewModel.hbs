@@ -1,0 +1,74 @@
+package com.parinherm.viewmodel
+
+import com.parinherm.ApplicationData
+import com.parinherm.builders.BeansViewerComparator
+import com.parinherm.builders.IViewerComparator
+import com.parinherm.entity.*
+import com.parinherm.entity.schema.*
+import com.parinherm.form.ChildFormTab
+import com.parinherm.form.FormViewModel
+import com.parinherm.form.IFormViewModel
+import com.parinherm.view.{{#capitalize entityDef.name}}{{/capitalize}}View
+import org.eclipse.core.databinding.observable.list.WritableList
+import org.eclipse.jface.viewers.Viewer
+import org.eclipse.swt.custom.CTabFolder
+
+class {{#capitalize entityDef.name}}{{/capitalize}}ViewModel(parent: CTabFolder) : FormViewModel<{{#capitalize entityDef.name}}{{/capitalize}}>(
+    {{#capitalize entityDef.name}}{{/capitalize}}View(parent, Comparator()),
+    {{#capitalize entityDef.name}}{{/capitalize}}Mapper, { {{#capitalize entityDef.name}}{{/capitalize}}.make() }) {
+
+    private val ingredients = WritableList<Ingredient>()
+    private val ingredientsComparator = IngredientViewModel.Comparator()
+
+    init {
+        if (view.form.childFormsContainer != null)
+        {
+            view.form.childFormsContainer!!.childTabs.forEach { childFormTab: ChildFormTab ->
+                wireChildTab(childFormTab, ApplicationData.TAB_KEY_INGREDIENT, ingredientsComparator, ingredients, ::makeIngredientsViewModel)
+            }
+        }
+        loadData(mapOf())
+    }
+
+    private fun makeIngredientsViewModel(currentChild: Ingredient?) : IFormViewModel<Ingredient> {
+        return IngredientViewModel(
+            currentEntity!!.id,
+            currentChild,
+            ApplicationData.TAB_KEY_RECIPE,
+            ApplicationData.mainWindow.folder)
+    }
+
+    override fun changeSelection(){
+        val formBindings = super.changeSelection()
+        /* specific to child list */
+        ingredients.clear()
+        ingredients.addAll(IngredientMapper.getAll(mapOf("recipeId" to currentEntity!!.id)))
+    }
+
+    override fun refresh() {
+        super.refresh()
+        ingredients.clear()
+        ingredients.addAll(IngredientMapper.getAll(mapOf("recipeId" to currentEntity!!.id)))
+    }
+
+
+
+    class Comparator : BeansViewerComparator(), IViewerComparator {
+
+        val name_index = 0
+        val category_index = 1
+
+        override fun compare(viewer: Viewer?, e1: Any?, e2: Any?): Int {
+            val entity1 = e1 as {{#capitalize entityDef.name}}{{/capitalize}}
+            val entity2 = e2 as {{#capitalize entityDef.name}}{{/capitalize}}
+            val rc = when (propertyIndex) {
+                name_index -> compareString(entity1.name, entity2.name)
+                category_index -> compareLookups(entity1.category, entity2.category, ApplicationData.recipeCategoryList)
+                else -> 0
+            }
+            return flipSortDirection(rc)
+        }
+    }
+
+
+}

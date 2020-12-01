@@ -86,7 +86,7 @@ object ApplicationData {
                 lookups = LookupMapper.getLookups()
 
                 //testing strintemplate
-                testHbars(ApplicationData.getView(ApplicationData.ViewDefConstants.ingredientViewId))
+                testHbars(ApplicationData.getView(ApplicationData.ViewDefConstants.shelfViewId))
 
 
                 mainWindow = MainWindow(null)

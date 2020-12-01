@@ -33,6 +33,12 @@ fun testHbars(viewDef: ViewDef){
     writeTemplate(viewDef, schema,viewDef.entityDef.name.capitalize() + "s.kt", "entity", "schema")
     val mapper = hbars.compile("mapper")
     writeTemplate(viewDef, mapper, "${viewDef.entityDef.name.capitalize()}Mapper.kt", "entity", "schema")
+
+    val view = hbars.compile("view")
+    writeTemplate(viewDef, view, "${viewDef.entityDef.name.capitalize()}View.kt", "view")
+
+    val viewModel = hbars.compile("viewModel")
+    writeTemplate(viewDef, viewModel, "${viewDef.entityDef.name.capitalize()}ViewModel.kt", "viewmodel")
 }
 
 fun writeTemplate(viewDef: ViewDef, template: Template, fileName: String, vararg folders: String ) {
