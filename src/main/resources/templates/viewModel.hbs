@@ -17,13 +17,16 @@ class {{#capitalize entityDef.name}}{{/capitalize}}ViewModel(parent: CTabFolder)
     {{#capitalize entityDef.name}}{{/capitalize}}View(parent, Comparator()),
     {{#capitalize entityDef.name}}{{/capitalize}}Mapper, { {{#capitalize entityDef.name}}{{/capitalize}}.make() }) {
 
-    private val ingredients = WritableList<Ingredient>()
-    private val ingredientsComparator = IngredientViewModel.Comparator()
+    {{#each childViews}}
+    private val {{#decapitalize entityDef.name}}{{/decapitalize}} = WritableList<{{#capitalize entityDef.name}}{{/capitalize}}>()
+    private val {{#decapitalize entityDef.name}}{{/decapitalize}}Comparator = {{#capitalize entityDef.name}}{{/capitalize}}ViewModel.Comparator()
+    {{/each}}
 
     init {
         if (view.form.childFormsContainer != null)
         {
-            view.form.childFormsContainer!!.childTabs.forEach { childFormTab: ChildFormTab ->
+            view.form.childFormsContainer!!.childTabs.forEach {
+                childFormTab: ChildFormTab ->
                 wireChildTab(childFormTab, ApplicationData.TAB_KEY_INGREDIENT, ingredientsComparator, ingredients, ::makeIngredientsViewModel)
             }
         }
