@@ -1,8 +1,9 @@
 package com.parinherm.entity
 
+import java.time.LocalDate
 import kotlin.properties.Delegates
 
-class {{#capitalize entityDef.name}}{{/capitalize}}(override var id: Long = 0, {{#each (getForeignKeysByView this)}}var {{this.entityDef.name}}Id: Long,{{/each}} {{#each fieldDefinitions}}{{name}}: {{#translateDataTypeDef dataTypeDef}} {{/translateDataTypeDef}}{{#unless @last}}, {{/unless}}{{/each}}): ModelObject(), IBeanDataEntity  {
+class {{#capitalize entityDef.name}}{{/capitalize}}(override var id: Long = 0, {{#each (getForeignKeysByView this)}}var {{#decapitalize this.entityDef.name}}{{/decapitalize}}Id: Long,{{/each}} {{#each fieldDefinitions}}{{name}}: {{#translateDataTypeDef dataTypeDef}} {{/translateDataTypeDef}}{{#unless @last}}, {{/unless}}{{/each}}): ModelObject(), IBeanDataEntity  {
 
     {{#each fieldDefinitions}}var {{name}}: {{#translateDataTypeDef dataTypeDef}} {{/translateDataTypeDef}} by Delegates.observable({{name}}, observer)
     {{/each}}
@@ -23,7 +24,8 @@ class {{#capitalize entityDef.name}}{{/capitalize}}(override var id: Long = 0, {
         fun make(): {{entityDef.name}}{
             return {{entityDef.name}}(
                 0,
-                {{#each fieldDefinitions}} {{#translateDefaultValue this}} {{/translateDefaultValue}}
+                {{#each (getForeignKeysByView this)}}0,{{/each}}
+                {{#each fieldDefinitions}} {{#translateDefaultValue this}} {{/translateDefaultValue}}{{#unless @last}}, {{/unless}}
                 {{/each}}
             )
         }

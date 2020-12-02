@@ -230,6 +230,7 @@ object ApplicationData {
     val snippetType: List<LookupDetail> by lazy {lookups.getOrDefault(snippetTypeKey, emptyList())}
     val passwordMaster: List<LookupDetail> by lazy {lookups.getOrDefault(passwordMasterKey, emptyList())}
     val loginCategoryList by lazy {lookups.getOrDefault(loginCategoryKey, emptyList())}
+    val publicationTypeList by lazy {lookups.getOrDefault(publicationTypeLookupKey, emptyList())}
 
     lateinit var lookups: Map<String, List<LookupDetail>>
 

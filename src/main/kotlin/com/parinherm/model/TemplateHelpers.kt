@@ -21,12 +21,12 @@ class TemplateHelpers {
         when (fieldDef.dataTypeDef) {
             DataTypeDef.MEMO,
             DataTypeDef.SOURCE,
-            DataTypeDef.TEXT,
+            DataTypeDef.TEXT -> fieldDef.name
             DataTypeDef.FLOAT,
             DataTypeDef.MONEY,
             DataTypeDef.INT,
             DataTypeDef.DATETIME,
-            DataTypeDef.BOOLEAN -> fieldDef.name
+            DataTypeDef.BOOLEAN -> """"${'$'}${fieldDef.name}""""
             DataTypeDef.LOOKUP -> """ {
                 val listItem = ApplicationData.${fieldDef.lookupKey}.find { it.code == ${fieldDef.name}}
                 "${'$'}{listItem?.label}"
