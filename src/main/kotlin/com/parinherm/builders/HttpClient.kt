@@ -8,7 +8,7 @@ import kotlinx.coroutines.launch
 
 object HttpClient {
 
-    suspend fun getViews(): String{
+    fun getViews(): String{
         // TODO better error handling and maybe make this call async
        val jsonStr = try { URL(ApplicationData.makeServerUrl("views")).readText() } catch (ex: Exception) { "null" }
       return jsonStr
