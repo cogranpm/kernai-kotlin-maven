@@ -66,6 +66,10 @@ class TemplateHelpers {
         }
     }
 
+    fun hasForeignKeys(viewDef: ViewDef): Boolean {
+        return viewDef.parentViews.size > 0
+    }
+
     fun capitalize(value: String) : String =
         value.capitalize()
 

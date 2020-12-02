@@ -11,8 +11,6 @@ import java.nio.file.Paths
 
 val tempOutputDirectory = System.getProperty("user.home")
 
-
-
 fun test(viewDef: ViewDef){
     val g = STGroupFile("templates/models.stg")
     val i = g.getInstanceOf("entity_class")
@@ -32,6 +30,7 @@ fun testHbars(viewDefs: List<ViewDef>){
 
         val schema = hbars.compile("schema")
         writeTemplate(viewDef, schema, viewDef.entityDef.name.capitalize() + "s.kt", "entity", "schema")
+
         val mapper = hbars.compile("mapper")
         writeTemplate(viewDef, mapper, "${viewDef.entityDef.name.capitalize()}Mapper.kt", "entity", "schema")
 
