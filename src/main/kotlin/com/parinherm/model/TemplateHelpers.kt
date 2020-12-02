@@ -60,5 +60,7 @@ class TemplateHelpers {
     fun decapitalize(value: String): String =
         value.decapitalize()
 
+    fun toUpperCase(value: String): String =
+        value.toUpperCase()
 
 }

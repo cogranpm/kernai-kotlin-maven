@@ -18,7 +18,7 @@ class {{#capitalize entityDef.name}}{{/capitalize}}ViewModel(parent: CTabFolder)
     {{#capitalize entityDef.name}}{{/capitalize}}Mapper, { {{#capitalize entityDef.name}}{{/capitalize}}.make() }) {
 
     {{#each childViews}}
-    private val {{#decapitalize entityDef.name}}{{/decapitalize}} = WritableList<{{#capitalize entityDef.name}}{{/capitalize}}>()
+    private val {{#decapitalize entityDef.name}}{{/decapitalize}}s = WritableList<{{#capitalize entityDef.name}}{{/capitalize}}>()
     private val {{#decapitalize entityDef.name}}{{/decapitalize}}Comparator = {{#capitalize entityDef.name}}{{/capitalize}}ViewModel.Comparator()
     {{/each}}
 
@@ -33,25 +33,36 @@ class {{#capitalize entityDef.name}}{{/capitalize}}ViewModel(parent: CTabFolder)
         loadData(mapOf())
     }
 
-    private fun makeIngredientsViewModel(currentChild: Ingredient?) : IFormViewModel<Ingredient> {
-        return IngredientViewModel(
-            currentEntity!!.id,
-            currentChild,
-            ApplicationData.TAB_KEY_RECIPE,
-            ApplicationData.mainWindow.folder)
+{{#each childViews}}
+    private fun make{{#decapitalize entityDef.name}}{{/decapitalize}}ViewModel(currentChild: {{#capitalize entityDef.name}}{{/capitalize}}?) : IFormViewModel<{{#capitalize entityDef.name}}{{/capitalize}}> {
+        return {{#capitalize entityDef.name}}{{/capitalize}}ViewModel(
+        currentEntity!!.id,
+        currentChild,
+        ApplicationData.TAB_KEY_{{#toUpperCase ../entityDef.name}}{{/toUpperCase}},
+        ApplicationData.mainWindow.folder)
+        }
+
+    private fun clearAndAdd{{#capitalize entityDef.name}}{{/capitalize}}() {
+        {{#decapitalize entityDef.name}}{{/decapitalize}}s.clear()
+        {{#decapitalize entityDef.name}}{{/decapitalize}}s.addAll({{#capitalize entityDef.name}}{{/capitalize}}Mapper.getAll(mapOf("{{#decapitalize ../entityDef.name}}{{/decapitalize}}Id" to currentEntity!!.id)))
     }
+{{/each}}
+
+
 
     override fun changeSelection(){
         val formBindings = super.changeSelection()
         /* specific to child list */
-        ingredients.clear()
-        ingredients.addAll(IngredientMapper.getAll(mapOf("recipeId" to currentEntity!!.id)))
+{{#each childViews}}
+        clearAndAdd{{#capitalize entityDef.name}}{{/capitalize}}()
+{{/each}}
     }
 
     override fun refresh() {
         super.refresh()
-        ingredients.clear()
-        ingredients.addAll(IngredientMapper.getAll(mapOf("recipeId" to currentEntity!!.id)))
+{{#each childViews}}
+        clearAndAdd{{#capitalize entityDef.name}}{{/capitalize}}()
+{{/each}}
     }
 
 
