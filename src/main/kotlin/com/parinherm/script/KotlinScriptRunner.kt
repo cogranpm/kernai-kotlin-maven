@@ -1,6 +1,9 @@
 package com.parinherm.script
 
+import com.parinherm.ApplicationData
 import com.parinherm.entity.Snippet
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.Text
 import java.io.ByteArrayOutputStream
@@ -10,21 +13,23 @@ import javax.script.ScriptEngineManager
 
 object KotlinScriptRunner {
 
-    val engine by lazy { makeEngine() }
+    //val engine: ScriptEngine = GlobalScope.launch {  ApplicationData.makeScriptEngine()}.join()
 
-    private fun makeEngine(): ScriptEngine? {
-        return ScriptEngineManager().getEngineByExtension("kts")
-    }
+    //val engine by lazy { makeEngine() }
+
+//    private fun makeEngine(): ScriptEngine? {
+//        return ScriptEngineManager().getEngineByExtension("kts")
+//    }
 
     fun run(outputWidget: Text, snippet: Snippet) {
 
-        if (engine == null)
+        if (ApplicationData.scriptEngine== null)
         {
             throw NullPointerException("The engine object could not be instantiated")
         }
         else {
 
-            with(engine)
+            with(ApplicationData.scriptEngine)
             {
                 val bs = ByteArrayOutputStream()
                 val ps = PrintStream(bs)

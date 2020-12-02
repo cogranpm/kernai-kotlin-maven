@@ -21,15 +21,13 @@ import org.eclipse.swt.custom.CTabItem
 import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.ToolItem
-import com.parinherm.model.test
 import com.parinherm.model.testHbars
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.swt.SWT
-import org.jetbrains.exposed.sql.Database
-import kotlin.concurrent.thread
+import javax.script.ScriptEngine
+import javax.script.ScriptEngineManager
 
 object ApplicationData {
 
@@ -86,6 +84,8 @@ object ApplicationData {
     private fun startupTasks(){
         SimpleHttpServer.start()
         viewDefinitions = getSerializationFormat().decodeFromString(HttpClient.getViews())
+        //warm up the script engine
+        warmUpScriptEngine()
         //testing code generation
         testHbars(ApplicationData.getView(ApplicationData.ViewDefConstants.shelfViewId))
         mainWindow.setStatus("View Definitions loaded from server on Thread ${Thread.currentThread().name}")
@@ -238,6 +238,16 @@ object ApplicationData {
 
     fun getDeleteToolbarButton() : ToolItem{
         return mainWindow.toolBarManager.control.getItem(2)
+    }
+
+    val scriptEngine: ScriptEngine = makeScriptEngine()
+    private fun makeScriptEngine() : ScriptEngine {
+        return ScriptEngineManager().getEngineByExtension("kts")
+    }
+
+    fun warmUpScriptEngine(){
+        //warm up the engine
+        scriptEngine.eval("1 + 1")
     }
 
 
