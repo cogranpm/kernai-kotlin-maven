@@ -46,6 +46,18 @@ class TemplateHelpers {
             DataTypeDef.BOOLEAN -> "False"
         }
 
+    fun translateColumnCompare(fieldDef: FieldDef): String =
+        when (fieldDef.dataTypeDef) {
+            DataTypeDef.MEMO,
+            DataTypeDef.SOURCE,
+            DataTypeDef.TEXT -> "compareString(entity1.${fieldDef.name}, entity2.${fieldDef.name})"
+            DataTypeDef.LOOKUP -> "compareLookups(entity1.${fieldDef.name}, entity2.${fieldDef.name}, ApplicationData.${fieldDef.lookupKey})"
+            DataTypeDef.FLOAT,
+            DataTypeDef.MONEY,
+            DataTypeDef.INT,
+            DataTypeDef.DATETIME,
+            DataTypeDef.BOOLEAN -> "entity1.${fieldDef.name}.compareTo(entity2.${fieldDef.name})"
+        }
 
 
     fun getForeignKeysByView(viewDef: ViewDef): List<ViewDef> {

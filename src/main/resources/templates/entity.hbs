@@ -16,12 +16,12 @@ class {{#capitalize entityDef.name}}{{/capitalize}}(override var id: Long = 0, {
     }
 
     override fun toString(): String {
-        return "{{title}}(id=$id, {{#each fieldDefinitions}}{{name}}=${{name}}{{#unless @last}}, {{/unless}}{{/each}})"
+        return "{{entityDef.name}}(id=$id, {{#each fieldDefinitions}}{{name}}=${{name}}{{#unless @last}}, {{/unless}}{{/each}})"
     }
 
     companion object Factory {
-        fun make(): {{title}}{
-            return {{title}}(
+        fun make(): {{entityDef.name}}{
+            return {{entityDef.name}}(
                 0,
                 {{#each fieldDefinitions}} {{#translateDefaultValue this}} {{/translateDefaultValue}}
                 {{/each}}

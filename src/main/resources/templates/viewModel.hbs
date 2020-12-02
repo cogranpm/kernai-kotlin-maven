@@ -23,18 +23,24 @@ class {{#capitalize entityDef.name}}{{/capitalize}}ViewModel(parent: CTabFolder)
     {{/each}}
 
     init {
+{{#if hasChildren}}
         if (view.form.childFormsContainer != null)
         {
             view.form.childFormsContainer!!.childTabs.forEach {
-                childFormTab: ChildFormTab ->
-                wireChildTab(childFormTab, ApplicationData.TAB_KEY_INGREDIENT, ingredientsComparator, ingredients, ::makeIngredientsViewModel)
+                childFormTab: ChildFormTab -> {
+        {{#each childViews}}
+                    wireChildTab(childFormTab, ApplicationData.TAB_KEY_{{#toUpperCase entityDef.name}}{{/toUpperCase}}, {{#decapitalize entityDef.name}}{{/decapitalize}}sComparator, {{#decapitalize entityDef.name}}{{/decapitalize}}ingredients, ::make{{#capitalize entityDef.name}}{{/capitalize}}sViewModel)
+        {{/each}}
+                }
             }
         }
+{{/if}}
         loadData(mapOf())
     }
 
+{{#if hasChildren}}
 {{#each childViews}}
-    private fun make{{#decapitalize entityDef.name}}{{/decapitalize}}ViewModel(currentChild: {{#capitalize entityDef.name}}{{/capitalize}}?) : IFormViewModel<{{#capitalize entityDef.name}}{{/capitalize}}> {
+    private fun make{{#decapitalize entityDef.name}}{{/decapitalize}}sViewModel(currentChild: {{#capitalize entityDef.name}}{{/capitalize}}?) : IFormViewModel<{{#capitalize entityDef.name}}{{/capitalize}}> {
         return {{#capitalize entityDef.name}}{{/capitalize}}ViewModel(
         currentEntity!!.id,
         currentChild,
@@ -47,8 +53,6 @@ class {{#capitalize entityDef.name}}{{/capitalize}}ViewModel(parent: CTabFolder)
         {{#decapitalize entityDef.name}}{{/decapitalize}}s.addAll({{#capitalize entityDef.name}}{{/capitalize}}Mapper.getAll(mapOf("{{#decapitalize ../entityDef.name}}{{/decapitalize}}Id" to currentEntity!!.id)))
     }
 {{/each}}
-
-
 
     override fun changeSelection(){
         val formBindings = super.changeSelection()
@@ -65,19 +69,22 @@ class {{#capitalize entityDef.name}}{{/capitalize}}ViewModel(parent: CTabFolder)
 {{/each}}
     }
 
+{{/if}}
 
 
     class Comparator : BeansViewerComparator(), IViewerComparator {
 
-        val name_index = 0
-        val category_index = 1
+{{#each fieldDefinitions}}
+    val {{name}}_index = {{@index}}
+{{/each}}
 
         override fun compare(viewer: Viewer?, e1: Any?, e2: Any?): Int {
             val entity1 = e1 as {{#capitalize entityDef.name}}{{/capitalize}}
             val entity2 = e2 as {{#capitalize entityDef.name}}{{/capitalize}}
             val rc = when (propertyIndex) {
-                name_index -> compareString(entity1.name, entity2.name)
-                category_index -> compareLookups(entity1.category, entity2.category, ApplicationData.recipeCategoryList)
+{{#each fieldDefinitions}}
+                {{name}}_index -> {{#translateColumnCompare this}}{{/translateColumnCompare}}
+{{/each}}
                 else -> 0
             }
             return flipSortDirection(rc)
