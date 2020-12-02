@@ -1,10 +1,8 @@
 package com.parinherm.entity.schema
 
 import com.parinherm.entity.IBeanDataEntity
-import com.parinherm.entity.NoteHeader
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import org.jetbrains.exposed.sql.transactions.transaction
 

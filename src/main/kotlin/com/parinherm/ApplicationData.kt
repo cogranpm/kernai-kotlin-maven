@@ -23,6 +23,13 @@ import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.ToolItem
 import com.parinherm.model.test
 import com.parinherm.model.testHbars
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.swt.SWT
+import org.jetbrains.exposed.sql.Database
+import kotlin.concurrent.thread
 
 object ApplicationData {
 
@@ -72,32 +79,41 @@ object ApplicationData {
 
     }
 
-    fun start(): Unit {
+
+    /**********************************
+     * async startup code
+     */
+    private fun startupTasks(){
         SimpleHttpServer.start()
+        viewDefinitions = getSerializationFormat().decodeFromString(HttpClient.getViews())
+        //testing code generation
+        testHbars(ApplicationData.getView(ApplicationData.ViewDefConstants.shelfViewId))
+        mainWindow.setStatus("View Definitions loaded from server on Thread ${Thread.currentThread().name}")
+    }
 
-        SchemaBuilder.build()
+    fun start(): Unit {
+        //runBlocking (Dispatchers.SWT) {
+            val display: Display = Display.getDefault()
+            // note that db operations cannot be performed in background thread
+            SchemaBuilder.build()
+            Realm.runWithDefault(DisplayRealm.getRealm(display)) {
+                try {
+                    println("display created on Thread ${Thread.currentThread().name}")
+                    imageRegistry = ImageRegistry()
+                    lookups = LookupMapper.getLookups()
+                    mainWindow = MainWindow(null)
+                    mainWindow.setBlockOnOpen(true)
 
-
-        val display: Display = Display.getDefault()
-        Realm.runWithDefault(DisplayRealm.getRealm(display)) {
-            try {
-                viewDefinitions = getSerializationFormat().decodeFromString(HttpClient.getViews())
-                imageRegistry = ImageRegistry()
-                lookups = LookupMapper.getLookups()
-
-                //testing strintemplate
-                testHbars(ApplicationData.getView(ApplicationData.ViewDefConstants.shelfViewId))
-
-
-                mainWindow = MainWindow(null)
-                mainWindow.setBlockOnOpen(true)
-                mainWindow.open()
-                Display.getCurrent().dispose()
-            } catch (ex: Exception) {
-                println(ex.message)
+                    GlobalScope.launch(Dispatchers.SWT) {startupTasks()}
+                    println("launched startup")
+                    mainWindow.open()
+                    Display.getCurrent().dispose()
+                    SimpleHttpServer.stop()
+                } catch (ex: Exception) {
+                    println(ex.message)
+                }
             }
-        }
-        SimpleHttpServer.stop()
+        //}
     }
 
     fun getSerializationFormat() = Json { prettyPrint = true }

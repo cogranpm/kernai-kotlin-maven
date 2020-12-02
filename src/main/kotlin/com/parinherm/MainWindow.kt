@@ -99,22 +99,6 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         folder.selection = homeTab
 
 
-        /*
-        val data = PersonMapper.getAll(mapOf()) //BeansBindingTestData.data
-        val viewModel = BeanTestViewModel(data, Persons.Comparator(), ModelBinder<Persons>())
-        ApplicationData.makeTab(viewModel, "Data binding Test", ApplicationData.TAB_KEY_DATA_BINDING_TEST,
-            ApplicationData.ViewDef.beansBindingTestViewId)
-
-         */
-
-        /* this messes up the layout here or
-        in the toolbar manager override
-
-        val save = ActionContributionItem(actionSave)
-        toolBarManager.add(save)
-        toolBarManager.update(false)
-
-         */
 
         mainContainer.layout()
         return mainContainer
