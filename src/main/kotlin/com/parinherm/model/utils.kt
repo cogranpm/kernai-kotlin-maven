@@ -20,24 +20,27 @@ fun test(viewDef: ViewDef){
     println(i.render())
 }
 
-fun testHbars(viewDef: ViewDef){
+fun testHbars(viewDefs: List<ViewDef>){
     val loader = ClassPathTemplateLoader()
     loader.prefix = "/templates"
     val hbars = Handlebars(loader)
     hbars.registerHelpers(TemplateHelpers())
-    val template = hbars.compile("entity")
-    writeTemplate(viewDef, template, viewDef.entityDef.name.capitalize() + ".kt", "entity")
 
-    val schema = hbars.compile("schema")
-    writeTemplate(viewDef, schema,viewDef.entityDef.name.capitalize() + "s.kt", "entity", "schema")
-    val mapper = hbars.compile("mapper")
-    writeTemplate(viewDef, mapper, "${viewDef.entityDef.name.capitalize()}Mapper.kt", "entity", "schema")
+    viewDefs.forEach { viewDef: ViewDef ->
+        val template = hbars.compile("entity")
+        writeTemplate(viewDef, template, viewDef.entityDef.name.capitalize() + ".kt", "entity")
 
-    val view = hbars.compile("view")
-    writeTemplate(viewDef, view, "${viewDef.entityDef.name.capitalize()}View.kt", "view")
+        val schema = hbars.compile("schema")
+        writeTemplate(viewDef, schema, viewDef.entityDef.name.capitalize() + "s.kt", "entity", "schema")
+        val mapper = hbars.compile("mapper")
+        writeTemplate(viewDef, mapper, "${viewDef.entityDef.name.capitalize()}Mapper.kt", "entity", "schema")
 
-    val viewModel = hbars.compile("viewModel")
-    writeTemplate(viewDef, viewModel, "${viewDef.entityDef.name.capitalize()}ViewModel.kt", "viewmodel")
+        val view = hbars.compile("view")
+        writeTemplate(viewDef, view, "${viewDef.entityDef.name.capitalize()}View.kt", "view")
+
+        val viewModel = hbars.compile("viewModel")
+        writeTemplate(viewDef, viewModel, "${viewDef.entityDef.name.capitalize()}ViewModel.kt", "viewmodel")
+    }
 }
 
 fun writeTemplate(viewDef: ViewDef, template: Template, fileName: String, vararg folders: String ) {

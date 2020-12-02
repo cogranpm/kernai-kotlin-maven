@@ -86,7 +86,7 @@ object ApplicationData {
             SimpleHttpServer.start()
             viewDefinitions = getSerializationFormat().decodeFromString(HttpClient.getViews())
             //testing code generation
-            testHbars(ApplicationData.getView(ApplicationData.ViewDefConstants.shelfViewId))
+            testHbars(listOf(getView(ViewDefConstants.shelfViewId)))
             warmUpScriptEngine()
         }
        mainWindow.setStatus("View Definitions loaded from server on Thread ${Thread.currentThread().name}")
