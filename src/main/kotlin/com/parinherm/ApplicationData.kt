@@ -85,9 +85,9 @@ object ApplicationData {
         SimpleHttpServer.start()
         viewDefinitions = getSerializationFormat().decodeFromString(HttpClient.getViews())
         //warm up the script engine
-        warmUpScriptEngine()
+        GlobalScope.launch { warmUpScriptEngine() }
         //testing code generation
-        testHbars(ApplicationData.getView(ApplicationData.ViewDefConstants.shelfViewId))
+        GlobalScope.launch {testHbars(ApplicationData.getView(ApplicationData.ViewDefConstants.shelfViewId))}
         mainWindow.setStatus("View Definitions loaded from server on Thread ${Thread.currentThread().name}")
     }
 
@@ -245,7 +245,7 @@ object ApplicationData {
         return ScriptEngineManager().getEngineByExtension("kts")
     }
 
-    fun warmUpScriptEngine(){
+    suspend fun warmUpScriptEngine(){
         //warm up the engine
         scriptEngine.eval("1 + 1")
     }
