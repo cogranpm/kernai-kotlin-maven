@@ -13,9 +13,10 @@ import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
 
-class {{#capitalize entityDef.name}}{{/capitalize}}ViewModel(parent: CTabFolder) : FormViewModel<{{#capitalize entityDef.name}}{{/capitalize}}>(
+class {{#capitalize entityDef.name}}{{/capitalize}}ViewModel({{#if isChild}} {{#each (getForeignKeysByView this)}}val {{this.entityDef.name}}Id: Long {{/each}}, val selected{{#capitalize entityDef.name}}{{/capitalize}}: {{#capitalize entityDef.name}}{{/capitalize}}?, val openedFromTabId: String?, {{/if}}parent: CTabFolder) : FormViewModel<{{#capitalize entityDef.name}}{{/capitalize}}>(
     {{#capitalize entityDef.name}}{{/capitalize}}View(parent, Comparator()),
-    {{#capitalize entityDef.name}}{{/capitalize}}Mapper, { {{#capitalize entityDef.name}}{{/capitalize}}.make() }) {
+    {{#capitalize entityDef.name}}{{/capitalize}}Mapper,
+    { {{#capitalize entityDef.name}}{{/capitalize}}.make() }) {
 
     {{#each childViews}}
     private val {{#decapitalize entityDef.name}}{{/decapitalize}}s = WritableList<{{#capitalize entityDef.name}}{{/capitalize}}>()
