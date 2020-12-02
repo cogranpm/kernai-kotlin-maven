@@ -82,13 +82,14 @@ object ApplicationData {
      * async startup code
      */
     private fun startupTasks(){
-        SimpleHttpServer.start()
-        viewDefinitions = getSerializationFormat().decodeFromString(HttpClient.getViews())
-        //warm up the script engine
-        GlobalScope.launch { warmUpScriptEngine() }
-        //testing code generation
-        GlobalScope.launch {testHbars(ApplicationData.getView(ApplicationData.ViewDefConstants.shelfViewId))}
-        mainWindow.setStatus("View Definitions loaded from server on Thread ${Thread.currentThread().name}")
+        GlobalScope.launch {
+            SimpleHttpServer.start()
+            viewDefinitions = getSerializationFormat().decodeFromString(HttpClient.getViews())
+            //testing code generation
+            testHbars(ApplicationData.getView(ApplicationData.ViewDefConstants.shelfViewId))
+            warmUpScriptEngine()
+        }
+       mainWindow.setStatus("View Definitions loaded from server on Thread ${Thread.currentThread().name}")
     }
 
     fun start(): Unit {

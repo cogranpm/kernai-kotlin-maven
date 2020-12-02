@@ -22,7 +22,6 @@ fun test(viewDef: ViewDef){
 
 fun testHbars(viewDef: ViewDef){
     val loader = ClassPathTemplateLoader()
-    println(tempOutputDirectory)
     loader.prefix = "/templates"
     val hbars = Handlebars(loader)
     hbars.registerHelpers(TemplateHelpers())
