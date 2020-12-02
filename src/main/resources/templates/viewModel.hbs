@@ -13,7 +13,7 @@ import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
 
-class {{#capitalize entityDef.name}}{{/capitalize}}ViewModel({{#if (hasForeignKeys this)}} {{#each (getForeignKeysByView this)}}val {{this.entityDef.name}}Id: Long {{/each}}, val selected{{#capitalize entityDef.name}}{{/capitalize}}: {{#capitalize entityDef.name}}{{/capitalize}}?, val openedFromTabId: String?, {{/hasForeignKeys}} parent: CTabFolder) : FormViewModel<{{#capitalize entityDef.name}}{{/capitalize}}>(
+class {{#capitalize entityDef.name}}{{/capitalize}}ViewModel({{#if (hasForeignKeys this)}} {{#each (getForeignKeysByView this)}}val {{#decapitalize this.entityDef.name}}{{/decapitalize}}Id: Long, {{/each}} val selected{{#capitalize entityDef.name}}{{/capitalize}}: {{#capitalize entityDef.name}}{{/capitalize}}?, val openedFromTabId: String?, {{/if}} parent: CTabFolder) : FormViewModel<{{#capitalize entityDef.name}}{{/capitalize}}>(
     {{#capitalize entityDef.name}}{{/capitalize}}View(parent, Comparator()),
     {{#capitalize entityDef.name}}{{/capitalize}}Mapper,
     { {{#capitalize entityDef.name}}{{/capitalize}}.make() }) {
@@ -36,8 +36,22 @@ class {{#capitalize entityDef.name}}{{/capitalize}}ViewModel({{#if (hasForeignKe
             }
         }
 {{/if}}
-        loadData(mapOf())
+        loadData(mapOf({{#each (getForeignKeysByView this)}}"{{#decapitalize entityDef.name}}{{/decapitalize}}Id" to {{#decapitalize entityDef.name}}{{/decapitalize}}{{#unless @last}}, {{/unless}}{{/each}}))
+        {{#if (hasForeignKeys this)}}onLoad(selectedIngredient){{/if}}
     }
+
+
+{{#if (hasForeignKeys this)}}
+    override fun getData(parameters: Map<String, Any>): List<{{#capitalize entityDef.name}}{{/capitalize}}> {
+        return mapper.getAll(parameters as Map<String, Long>)
+    }
+
+    override fun save() {
+        super.save()
+        afterSave(openedFromTabId)
+    }
+
+{{/if}}
 
 {{#if hasChildren}}
 {{#each childViews}}

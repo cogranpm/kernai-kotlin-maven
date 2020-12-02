@@ -86,7 +86,13 @@ object ApplicationData {
             SimpleHttpServer.start()
             viewDefinitions = getSerializationFormat().decodeFromString(HttpClient.getViews())
             //testing code generation
-            testHbars(listOf(getView(ViewDefConstants.recipeViewId), getView(ViewDefConstants.ingredientViewId)))
+            testHbars(listOf(
+                getView(ViewDefConstants.shelfViewId),
+                getView(ViewDefConstants.subjectViewId),
+                getView(ViewDefConstants.publicationViewId),
+                getView(ViewDefConstants.topicViewId),
+                getView(ViewDefConstants.noteViewId)
+            ))
             warmUpScriptEngine()
         }
        mainWindow.setStatus("View Definitions loaded from server on Thread ${Thread.currentThread().name}")
