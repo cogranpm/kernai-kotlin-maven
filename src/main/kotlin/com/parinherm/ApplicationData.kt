@@ -57,6 +57,10 @@ object ApplicationData {
     const val TAB_KEY_LOOKUP = "lookup"
     const val TAB_KEY_LOOKUPDETAIL = "lookupdetail"
     const val TAB_KEY_SHELF = "shelf"
+    const val TAB_KEY_SUBJECT = "subject"
+    const val TAB_KEY_PUBLICATION = "publication"
+    const val TAB_KEY_TOPIC = "topic"
+    const val TAB_KEY_NOTE = "note"
 
     const val swnone = SWT.NONE
     const val labelStyle = SWT.BORDER

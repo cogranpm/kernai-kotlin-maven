@@ -30,14 +30,14 @@ class {{#capitalize entityDef.name}}{{/capitalize}}ViewModel({{#if (hasForeignKe
             view.form.childFormsContainer!!.childTabs.forEach {
                 childFormTab: ChildFormTab -> {
         {{#each childViews}}
-                    wireChildTab(childFormTab, ApplicationData.TAB_KEY_{{#toUpperCase entityDef.name}}{{/toUpperCase}}, {{#decapitalize entityDef.name}}{{/decapitalize}}sComparator, {{#decapitalize entityDef.name}}{{/decapitalize}}ingredients, ::make{{#capitalize entityDef.name}}{{/capitalize}}sViewModel)
+                    wireChildTab(childFormTab, ApplicationData.TAB_KEY_{{#toUpperCase entityDef.name}}{{/toUpperCase}}, {{#decapitalize entityDef.name}}{{/decapitalize}}Comparator, {{#decapitalize entityDef.name}}{{/decapitalize}}s, ::make{{#capitalize entityDef.name}}{{/capitalize}}sViewModel)
         {{/each}}
                 }
             }
         }
 {{/if}}
-        loadData(mapOf({{#each (getForeignKeysByView this)}}"{{#decapitalize entityDef.name}}{{/decapitalize}}Id" to {{#decapitalize entityDef.name}}{{/decapitalize}}{{#unless @last}}, {{/unless}}{{/each}}))
-        {{#if (hasForeignKeys this)}}onLoad(selectedIngredient){{/if}}
+        loadData(mapOf({{#each (getForeignKeysByView this)}}"{{#decapitalize entityDef.name}}{{/decapitalize}}Id" to {{#decapitalize entityDef.name}}{{/decapitalize}}Id{{#unless @last}}, {{/unless}}{{/each}}))
+        {{#if (hasForeignKeys this)}}onLoad(selected{{#capitalize entityDef.name}}{{/capitalize}}){{/if}}
     }
 
 
@@ -55,7 +55,7 @@ class {{#capitalize entityDef.name}}{{/capitalize}}ViewModel({{#if (hasForeignKe
 
 {{#if hasChildren}}
 {{#each childViews}}
-    private fun make{{#decapitalize entityDef.name}}{{/decapitalize}}sViewModel(currentChild: {{#capitalize entityDef.name}}{{/capitalize}}?) : IFormViewModel<{{#capitalize entityDef.name}}{{/capitalize}}> {
+    private fun make{{#capitalize entityDef.name}}{{/capitalize}}sViewModel(currentChild: {{#capitalize entityDef.name}}{{/capitalize}}?) : IFormViewModel<{{#capitalize entityDef.name}}{{/capitalize}}> {
         return {{#capitalize entityDef.name}}{{/capitalize}}ViewModel(
         currentEntity!!.id,
         currentChild,

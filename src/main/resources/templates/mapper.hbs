@@ -16,7 +16,7 @@ object {{#capitalize entityDef.name}}{{/capitalize}}Mapper : IMapper<{{#capitali
     private fun mapItem(item: {{#capitalize entityDef.name}}{{/capitalize}}, statement: UpdateBuilder<Int>) {
        {{#each fieldDefinitions}}statement[table.{{name}}] = item.{{name}}
        {{/each}}
-       {{#each (getForeignKeysByView this)}}statement[table.{{this.entityDef.name}}Id] = item.{{this.entityDef.name}}Id
+       {{#each (getForeignKeysByView this)}}statement[table.{{#decapitalize this.entityDef.name}}{{/decapitalize}}Id] = item.{{#decapitalize this.entityDef.name}}{{/decapitalize}}Id
        {{/each}}
     }
 
@@ -26,16 +26,16 @@ object {{#capitalize entityDef.name}}{{/capitalize}}Mapper : IMapper<{{#capitali
     {{#if isChild}} {{#each (getForeignKeysByView this)}}table.{{this.entityDef.name}}Id eq keys["{{this.entityDef.name}}Id"] as Long{{/each}} {{else}} null {{/if}}
     , {{#each fieldDefinitions}} {{#if @first}}table.{{name}} to SortOrder.ASC {{/if}}{{/each}}) {
             {{#capitalize entityDef.name}}{{/capitalize}}(it[table.id].value,
+                {{#each (getForeignKeysByView this)}}it[table.{{#decapitalize this.entityDef.name}}{{/decapitalize}}Id],{{/each}}
                 {{#each fieldDefinitions}}it[table.{{name}}]{{#unless @last}}, {{/unless}}
                 {{/each}}
-                {{#each (getForeignKeysByView this)}},it[table.{{this.entityDef.name}}Id]{{/each}}
             )
         }
     }
 
     {{#each (getForeignKeysByView this)}}
-    fun delete(parent: {{#capitalize this.entityDef.name}}{{/capitalize}} {
-        MapperHelper.delete(table, table.{{this.entityDef.name}}Id eq parent.id)
+    fun delete(parent: {{#capitalize this.entityDef.name}}{{/capitalize}}) {
+        MapperHelper.delete(table, table.{{#decapitalize this.entityDef.name}}{{/decapitalize}}Id eq parent.id)
     }
     {{/each}}
 
