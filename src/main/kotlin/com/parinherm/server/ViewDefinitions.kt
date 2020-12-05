@@ -9,7 +9,7 @@ object ViewDefinitions {
     fun makeViews(): List<ViewDef> = listOf(
             makeLogins(),
             makeSnippets(),
-    ) + makeRecipes() + makeNotebooks() + makePerson()  + makeShelf() + makeLookup()
+    ) + makeRecipes() + makeNotebooks() + makePerson()  + makeShelf() + makeLookup() + makeNoteSegmentTypeDef()
 
     private fun makeTextField(name: String, title: String, required: Boolean, filterable: Boolean = false): FieldDef {
         return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.TEXT, null, filterable)
@@ -70,7 +70,18 @@ object ViewDefinitions {
         ),
             EntityDef("NoteSegmentType")
         )
-        return listOf(noteSegmentTypeDef)
+        val noteSegmentTypeHeaderDef = ViewDef(ViewDefConstants.noteSegmentTypeHeaderViewId,
+        "Note Segment Type Header", 2, 1, SashOrientationDef.VERTICAL,
+        listOf(
+            makeTextField("title", "Title", true),
+            makeMemoField("helpText", "Help", false),
+            makeDateTimeField("createdDate", "Created", true)
+        ),
+            EntityDef("NoteSegmentTypeHeader"),
+            listOf(noteSegmentTypeDef)
+        )
+
+        return listOf(noteSegmentTypeHeaderDef, noteSegmentTypeDef)
     }
 
     private fun makeShelf(): List<ViewDef> {

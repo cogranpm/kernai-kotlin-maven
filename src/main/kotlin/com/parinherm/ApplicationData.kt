@@ -61,6 +61,9 @@ object ApplicationData {
     const val TAB_KEY_PUBLICATION = "publication"
     const val TAB_KEY_TOPIC = "topic"
     const val TAB_KEY_NOTE = "note"
+    const val TAB_KEY_NOTE_SEGMENT_TYPE_HEADER = "notesegmenttypeheader"
+    const val TAB_KEY_NOTE_SEGMENT_TYPE= "notesegmenttype"
+
 
     const val swnone = SWT.NONE
     const val labelStyle = SWT.BORDER
