@@ -38,7 +38,9 @@ object SchemaBuilder {
                 Subjects,
                 Publications,
                 Topics,
-                Notes
+                Notes,
+                NoteSegmentTypeHeaders,
+                NoteSegmentTypes
             )
 
         }

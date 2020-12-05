@@ -197,6 +197,15 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         }
         shelfAction.accelerator = SWT.MOD1 or ('F'.toInt())
 
+        val noteSegmentTypeAction: Action = object: Action("&Note Segments") {
+            override fun run () {
+                val viewModel = NoteSegmentTypeHeaderViewModel(folder)
+                ApplicationData.makeTab(viewModel, "Note Segment Type", ApplicationData.TAB_KEY_NOTESEGMENTTYPEHEADER)
+            }
+        }
+        noteSegmentTypeAction.accelerator = SWT.MOD1 or ('T'.toInt())
+
+
         val menuManager = MenuManager("")
         val fileMenu = MenuManager("&File")
         val actionMenu = MenuManager("&Action")
@@ -219,6 +228,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         actionMenu.add(notebookAction)
         actionMenu.add(lookupsAction)
         actionMenu.add(shelfAction)
+        actionMenu.add(noteSegmentTypeAction)
 
         menuManager.add(fileMenu)
         menuManager.add(actionMenu)

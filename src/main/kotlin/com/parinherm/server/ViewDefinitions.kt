@@ -64,8 +64,8 @@ object ViewDefinitions {
         val noteSegmentTypeDef = ViewDef(ViewDefConstants.noteSegmentTypeViewId,
         "Note Segment Type", 2, 1, SashOrientationDef.VERTICAL,
         listOf(
-            makeTextField("title", "Title", true),
-            makeTextField("fontDesc", "Font", true),
+            makeTextField("title", "Title", false),
+            makeTextField("fontDesc", "Font", false),
             makeDateTimeField("createdDate", "Created", true)
         ),
             EntityDef("NoteSegmentType")

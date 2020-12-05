@@ -61,8 +61,8 @@ object ApplicationData {
     const val TAB_KEY_PUBLICATION = "publication"
     const val TAB_KEY_TOPIC = "topic"
     const val TAB_KEY_NOTE = "note"
-    const val TAB_KEY_NOTE_SEGMENT_TYPE_HEADER = "notesegmenttypeheader"
-    const val TAB_KEY_NOTE_SEGMENT_TYPE= "notesegmenttype"
+    const val TAB_KEY_NOTESEGMENTTYPEHEADER = "notesegmenttypeheader"
+    const val TAB_KEY_NOTESEGMENTTYPE= "notesegmenttype"
 
 
     const val swnone = SWT.NONE
@@ -94,11 +94,14 @@ object ApplicationData {
             viewDefinitions = getSerializationFormat().decodeFromString(HttpClient.getViews())
             //testing code generation
             testHbars(listOf(
-                getView(ViewDefConstants.shelfViewId),
+                /*getView(ViewDefConstants.shelfViewId),
                 getView(ViewDefConstants.subjectViewId),
                 getView(ViewDefConstants.publicationViewId),
                 getView(ViewDefConstants.topicViewId),
                 getView(ViewDefConstants.noteViewId)
+                 */
+                getView(ViewDefConstants.noteSegmentTypeHeaderViewId),
+                getView(ViewDefConstants.noteSegmentTypeViewId)
             ))
             warmUpScriptEngine()
         }
