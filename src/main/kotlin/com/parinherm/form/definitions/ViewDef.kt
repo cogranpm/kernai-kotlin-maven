@@ -18,7 +18,6 @@ data class ViewDef(
 
     // record the parents useful for stuff like code generation
     // store the id only, so we don't get a circular reference
-    // this won't work, its not a unified instance of child view def
    var parentViews: MutableSet<String> = mutableSetOf()
 
     val hasChildren: Boolean
