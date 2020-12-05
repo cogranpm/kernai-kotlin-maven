@@ -42,4 +42,5 @@ data class FieldDef(
             DataTypeDef.BOOLEAN -> ""
         } + ")"
     }
+
 }

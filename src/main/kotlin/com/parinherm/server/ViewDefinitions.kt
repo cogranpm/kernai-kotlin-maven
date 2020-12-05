@@ -76,7 +76,7 @@ object ViewDefinitions {
     private fun makeShelf(): List<ViewDef> {
         val name = makeTextField("title", "Title", true)
         val comments = makeMemoField("comments", "Comments", false)
-        val createdDate = makeDateTimeField("createdDate", "Created", true)
+        val createdDate = makeDateTimeField("createdDate", "Created", false)
 
         val noteDef = ViewDef(ViewDefConstants.noteViewId, "Note", 3, 1, SashOrientationDef.VERTICAL,
             listOf(

@@ -141,19 +141,6 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         }
         actionChristmasTree.accelerator = SWT.MOD1 or ('X'.toInt())
 
-        /*
-        val actionDataBinding: Action = object: Action("&Data Binding") {
-            override fun run () {
-                clearComposite(mainContainer)
-                val view: Composite = DataBindingView(TestData.data).makeView(mainContainer)
-                mainContainer.layout()
-            }
-        }
-        actionDataBinding.accelerator = SWT.MOD1 or ('B'.toInt())
-
-         */
-
-
         val personAction: Action = object: Action("&People") {
             override fun run () {
                 val viewModel = PersonViewModel(folder)
@@ -161,7 +148,6 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
             }
         }
         personAction.accelerator = SWT.MOD1 or ('P'.toInt())
-
 
         val recipeAction: Action = object: Action("&Recipes") {
             override fun run () {
@@ -201,8 +187,15 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
                 ApplicationData.makeTab(viewModel, "Lookup", ApplicationData.TAB_KEY_LOOKUP)
             }
         }
-        notebookAction.accelerator = SWT.MOD1 or ('B'.toInt())
+        lookupsAction.accelerator = SWT.MOD1 or ('L'.toInt())
 
+        val shelfAction: Action = object: Action("&Shelf") {
+            override fun run () {
+                val viewModel = ShelfViewModel(folder)
+                ApplicationData.makeTab(viewModel, "Shelf", ApplicationData.TAB_KEY_SHELF)
+            }
+        }
+        shelfAction.accelerator = SWT.MOD1 or ('F'.toInt())
 
         val menuManager = MenuManager("")
         val fileMenu = MenuManager("&File")
@@ -225,6 +218,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         actionMenu.add(loginAction)
         actionMenu.add(notebookAction)
         actionMenu.add(lookupsAction)
+        actionMenu.add(shelfAction)
 
         menuManager.add(fileMenu)
         menuManager.add(actionMenu)

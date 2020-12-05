@@ -33,7 +33,9 @@ object SchemaBuilder {
                 NoteHeaders,
                 NoteDetails,
                 Lookups,
-                LookupDetails
+                LookupDetails,
+                Shelfs,
+                Subjects
             )
 
         }

@@ -23,11 +23,11 @@ object {{#capitalize entityDef.name}}{{/capitalize}}Mapper : IMapper<{{#capitali
     override fun getAll(keys: Map<String, Long>): List<{{#capitalize entityDef.name}}{{/capitalize}}> {
     return MapperHelper.getAll(keys,
     table,
-    {{#if isChild}} {{#each (getForeignKeysByView this)}}table.{{this.entityDef.name}}Id eq keys["{{this.entityDef.name}}Id"] as Long{{/each}} {{else}} null {{/if}}
+    {{#if (hasForeignKeys this)}} {{#each (getForeignKeysByView this)}}table.{{#decapitalize entityDef.name}}{{/decapitalize}}Id eq keys["{{#decapitalize entityDef.name}}{{/decapitalize}}Id"] as Long{{/each}} {{else}} null {{/if}}
     , {{#each fieldDefinitions}} {{#if @first}}table.{{name}} to SortOrder.ASC {{/if}}{{/each}}) {
             {{#capitalize entityDef.name}}{{/capitalize}}(it[table.id].value,
                 {{#each (getForeignKeysByView this)}}it[table.{{#decapitalize this.entityDef.name}}{{/decapitalize}}Id],{{/each}}
-                {{#each fieldDefinitions}}it[table.{{name}}]{{#unless @last}}, {{/unless}}
+{{#each fieldDefinitions}}it[table.{{name}}]{{#unless required}}?:{{#translateDefaultValue this}}{{/translateDefaultValue}}{{/unless}}{{#unless @last}}, {{/unless}}
                 {{/each}}
             )
         }

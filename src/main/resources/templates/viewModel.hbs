@@ -28,11 +28,10 @@ class {{#capitalize entityDef.name}}{{/capitalize}}ViewModel({{#if (hasForeignKe
         if (view.form.childFormsContainer != null)
         {
             view.form.childFormsContainer!!.childTabs.forEach {
-                childFormTab: ChildFormTab -> {
+                childFormTab: ChildFormTab ->
         {{#each childViews}}
                     wireChildTab(childFormTab, ApplicationData.TAB_KEY_{{#toUpperCase entityDef.name}}{{/toUpperCase}}, {{#decapitalize entityDef.name}}{{/decapitalize}}Comparator, {{#decapitalize entityDef.name}}{{/decapitalize}}s, ::make{{#capitalize entityDef.name}}{{/capitalize}}sViewModel)
         {{/each}}
-                }
             }
         }
 {{/if}}
