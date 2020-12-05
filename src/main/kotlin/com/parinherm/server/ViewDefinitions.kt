@@ -82,8 +82,8 @@ object ViewDefinitions {
             listOf(
                 makeTextField("title", "Title", true),
                 makeMemoField("description", "Description", false),
-                makeTextField("titleAudioFile", "Title Audio", true),
-                makeTextField("descriptionAudioFile", "Description Audio", true),
+                makeTextField("titleAudioFile", "Title Audio", false),
+                makeTextField("descriptionAudioFile", "Description Audio", false),
                 makeDateTimeField("createdDate", "Created", true)
             ),
             EntityDef("Note"),

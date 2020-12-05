@@ -35,7 +35,10 @@ object SchemaBuilder {
                 Lookups,
                 LookupDetails,
                 Shelfs,
-                Subjects
+                Subjects,
+                Publications,
+                Topics,
+                Notes
             )
 
         }

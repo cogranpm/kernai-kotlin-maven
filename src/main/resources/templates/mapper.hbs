@@ -4,6 +4,8 @@ import com.parinherm.entity.*
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
+import com.parinherm.ApplicationData
+import java.time.LocalDate
 
 object {{#capitalize entityDef.name}}{{/capitalize}}Mapper : IMapper<{{#capitalize entityDef.name}}{{/capitalize}}> {
 
