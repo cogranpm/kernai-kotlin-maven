@@ -1,11 +1,7 @@
 package com.parinherm.form.widgets
 
 import com.parinherm.form.applyLayoutToField
-import com.parinherm.view.KotlinSourceViewerConfiguration
 import org.eclipse.jface.text.Document
-import org.eclipse.jface.text.DocumentEvent
-import org.eclipse.jface.text.IDocument
-import org.eclipse.jface.text.IDocumentListener
 import org.eclipse.jface.text.source.*
 import org.eclipse.swt.SWT
 import org.eclipse.swt.widgets.Composite

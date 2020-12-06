@@ -4,13 +4,15 @@ adding things like presentation stuff (reconciler)
 content assist etc
  */
 
-package com.parinherm.view
+package com.parinherm.form.widgets
 
-import com.parinherm.script.KeywordCodeScanner
+import org.eclipse.jface.text.IAutoIndentStrategy
 import org.eclipse.jface.text.IDocument
+import org.eclipse.jface.text.contentassist.IContentAssistant
 import org.eclipse.jface.text.presentation.IPresentationReconciler
 import org.eclipse.jface.text.presentation.PresentationReconciler
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer
+import org.eclipse.jface.text.source.IAnnotationHover
 import org.eclipse.jface.text.source.ISourceViewer
 import org.eclipse.jface.text.source.SourceViewerConfiguration
 
@@ -23,4 +25,7 @@ class KotlinSourceViewerConfiguration : SourceViewerConfiguration() {
         reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE)
         return reconciler
     }
+
+
+
 }

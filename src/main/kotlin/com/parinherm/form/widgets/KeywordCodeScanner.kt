@@ -5,7 +5,7 @@
  *
  */
 
-package com.parinherm.script
+package com.parinherm.form.widgets
 
 import org.eclipse.jface.text.TextAttribute
 import org.eclipse.jface.text.rules.RuleBasedScanner
