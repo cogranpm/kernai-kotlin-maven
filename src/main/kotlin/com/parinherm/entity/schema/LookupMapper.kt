@@ -1,5 +1,6 @@
 package com.parinherm.entity.schema
 
+import com.parinherm.ApplicationData
 import com.parinherm.entity.Lookup
 import com.parinherm.entity.LookupDetail
 import org.jetbrains.exposed.sql.*

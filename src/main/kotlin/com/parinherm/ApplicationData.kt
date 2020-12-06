@@ -112,17 +112,15 @@ object ApplicationData {
         //runBlocking (Dispatchers.SWT) {
             val display: Display = Display.getDefault()
             // note that db operations cannot be performed in background thread
+            // exposed framework uses the current thread internally
             SchemaBuilder.build()
             Realm.runWithDefault(DisplayRealm.getRealm(display)) {
                 try {
-                    println("display created on Thread ${Thread.currentThread().name}")
                     imageRegistry = ImageRegistry()
                     lookups = LookupMapper.getLookups()
                     mainWindow = MainWindow(null)
                     mainWindow.setBlockOnOpen(true)
-
                     GlobalScope.launch(Dispatchers.SWT) {startupTasks()}
-                    println("launched startup")
                     mainWindow.open()
                     Display.getCurrent().dispose()
                     SimpleHttpServer.stop()
@@ -214,22 +212,6 @@ object ApplicationData {
     const val loginCategoryKey = "logcat"
     const val publicationTypeLookupKey = "pubtype"
 
-    fun createLookups(){
-        lookups.forEach { (key: String, value: List<LookupDetail>) ->
-            createLookup(key, key, value)
-        }
-    }
-
-    fun createLookup(key: String, name: String, items: List<LookupDetail>){
-        val lookup = Lookup(0, key, name)
-        LookupMapper.save(lookup)
-        items.forEach {
-            it.lookupId = lookup.id
-            LookupDetailMapper.save(it)
-        }
-    }
-
-
     val countryList: List<LookupDetail> by lazy { lookups.getOrDefault(countryLookupKey, emptyList())}
     val speciesList: List<LookupDetail> by lazy { lookups.getOrDefault(speciesLookupKey, emptyList())}
     val recipeCategoryList by lazy { lookups.getOrDefault(recipeCategoryLookupKey, emptyList())}
@@ -247,7 +229,6 @@ object ApplicationData {
     fun getSaveToolbarButton() : ToolItem{
         return mainWindow.toolBarManager.control.getItem(0)
     }
-
 
     fun getNewToolbarButton() : ToolItem{
         return mainWindow.toolBarManager.control.getItem(1)
@@ -353,3 +334,21 @@ object ApplicationData {
     }
 
 }
+
+
+/* this was a one off to convert hard coded lookups to database
+fun createLookups(){
+    lookups.forEach { (key: String, value: List<LookupDetail>) ->
+        createLookup(key, key, value)
+    }
+}
+
+fun createLookup(key: String, name: String, items: List<LookupDetail>){
+    val lookup = Lookup(0, key, name)
+    LookupMapper.save(lookup)
+    items.forEach {
+        it.lookupId = lookup.id
+        LookupDetailMapper.save(it)
+    }
+}
+ */
