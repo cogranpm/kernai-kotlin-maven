@@ -94,12 +94,11 @@ object ApplicationData {
             viewDefinitions = getSerializationFormat().decodeFromString(HttpClient.getViews())
             //testing code generation
             testHbars(listOf(
-                /*getView(ViewDefConstants.shelfViewId),
+                getView(ViewDefConstants.shelfViewId),
                 getView(ViewDefConstants.subjectViewId),
                 getView(ViewDefConstants.publicationViewId),
                 getView(ViewDefConstants.topicViewId),
-                getView(ViewDefConstants.noteViewId)
-                 */
+                getView(ViewDefConstants.noteViewId),
                 getView(ViewDefConstants.noteSegmentTypeHeaderViewId),
                 getView(ViewDefConstants.noteSegmentTypeViewId)
             ))

@@ -219,8 +219,7 @@ class MainWindow(parentShell: Shell?): ApplicationWindow(parentShell) {
         fileMenu.add(actionQuit)
 
         // action menus
-        //actionMenu.add(actionChristmasTree)
-        //actionMenu.add(actionDataBinding)
+        actionMenu.add(actionChristmasTree)
         actionMenu.add(personAction)
         actionMenu.add(recipeAction)
         actionMenu.add(snippetsAction)

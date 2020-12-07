@@ -23,7 +23,7 @@ object SchemaBuilder {
         transaction {
             addLogger(StdOutSqlLogger)
             SchemaUtils.create(
-                Persons,
+                Persons/*,
                 PersonDetails,
                 Recipes,
                 Ingredients,
@@ -41,6 +41,7 @@ object SchemaBuilder {
                 Notes,
                 NoteSegmentTypeHeaders,
                 NoteSegmentTypes
+                */
             )
 
         }
