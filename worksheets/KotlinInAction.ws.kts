@@ -10,3 +10,7 @@ fun alphabet() = StringBuilder().apply{
 }.toString()
 
 println(alphabet())
+
+fun main(args: Array<String>) {
+
+}
