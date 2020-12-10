@@ -13,17 +13,17 @@ import org.jetbrains.exposed.sql.transactions.transaction
 object SchemaBuilder {
 
     val db = Database.connect(
-        "jdbc:postgresql://kronmintdesktop/golangtest",
+        "jdbc:postgresql://DESKTOP-0UGB49O/golangtest",
         driver = "org.postgresql.Driver",
-        user = "paulm",
-        password = "reddingo"
+        user = "postgres",
+        password = "REDDINGO"
     )
 
     fun build() {
         transaction {
             addLogger(StdOutSqlLogger)
             SchemaUtils.create(
-                Persons/*,
+                Persons,
                 PersonDetails,
                 Recipes,
                 Ingredients,
@@ -41,7 +41,6 @@ object SchemaBuilder {
                 Notes,
                 NoteSegmentTypeHeaders,
                 NoteSegmentTypes
-                */
             )
 
         }
