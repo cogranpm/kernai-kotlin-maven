@@ -13,10 +13,10 @@ import org.jetbrains.exposed.sql.transactions.transaction
 object SchemaBuilder {
 
     val db = Database.connect(
-        "jdbc:postgresql://DESKTOP-0UGB49O/golangtest",
+        "jdbc:postgresql://kronmintdesktop/golangtest",
         driver = "org.postgresql.Driver",
         user = "postgres",
-        password = "REDDINGO"
+        password = "reddingo"
     )
 
     fun build() {
