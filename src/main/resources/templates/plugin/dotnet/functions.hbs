@@ -1,0 +1,85 @@
+const baseUrl = "api/Companion";
+
+export const getAll = async () => {
+    const response = await fetch(baseUrl);
+    if (response.ok) {
+        const list = await response.json();
+        return { error: null, list: list};
+    } else {
+        return { error: response.statusText, list: null };
+    }
+};
+
+export const loadRecord = async (id) => {
+    const response = await fetch(`${baseUrl}/${id}`);
+    if (response.ok) {
+        const {{entityDef.name}} = await response.json();
+        return { error: null, {{entityDef.name}}: {{entityDef.name}} };
+    } else {
+        return { error: response.statusText, {{entityDef.name}}: null };
+    }
+};
+
+export const deleteRecord = async (id) => {
+    const response = await fetch(`${baseUrl}/${id}`, {
+        method: 'DELETE'
+    });
+    if (response.ok) {
+        return { error: null};
+    } else {
+        return { error: response.statusText };
+    }
+};
+
+export const postData = async (it) => {
+    try {
+        const response = await post{{capitalizeIt entityDef.name}}("POST", baseUrl, it);
+        if (!response.ok) {
+            return { error: response.statusText, {{entityDef.name}}: null };
+        } else {
+            const {{entityDef.name}}= await response.json();
+            return { error: null, {{entityDef.name}}: {{entityDef.name}} };
+        }
+    } catch ({ name, message }) {
+        return { error: `Name: ${name} Message: ${message}`, {{entityDef.name}}: null };
+    }
+
+};
+
+export const putData = async (updated) => {
+    const response = await post{{capitalizeIt entityDef.name}}("PUT", `${baseUrl}/${updated.id}`, updated);
+    if (!response.ok) {
+        return { error: response.statusText, {{entityDef.name}}: null };
+    } else {
+        const loadResponse = await loadRecord(updated.id);
+        return loadResponse;
+    }
+};
+
+const post{{capitalizeIt entityDef.name}}= async (httpMethod, url, {{entityDef.name}}) => {
+    const jsonData = JSON.stringify({{entityDef.name}});
+    const response = await fetch(url, {
+        "method": httpMethod,
+        headers: {
+        "Content-Type": "application/json",
+        },
+        body: jsonData
+    });
+    return response;
+};
+
+export const makeNew = () => {
+    return {
+        id: makeId(),
+        {{#each fieldDefinitions}}
+            {{name}}: "",
+        {{/each}}
+        {{#each (getOwnerAssociations this)}}{{ownedViewDefinition.entityName}}: [],{{/each}}
+        isNew: true,
+        isDeleted: false
+    };
+};
+
+export const makeId = () => {
+    return self.crypto.randomUUID();
+}

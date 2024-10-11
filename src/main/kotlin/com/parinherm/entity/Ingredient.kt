@@ -1,6 +1,7 @@
 package com.parinherm.entity
 
 import com.parinherm.ApplicationData
+import com.parinherm.lookups.LookupUtils
 import kotlin.properties.Delegates
 
 class Ingredient(
@@ -21,7 +22,7 @@ class Ingredient(
                 0 -> name
                 1 -> "$quantity"
                 2 -> {
-                    val listItem = ApplicationData.unitList.find { it.code == unit}
+                    val listItem = LookupUtils.getLookupByKey(LookupUtils.unitLookupKey, false).find { it.code == unit}
                     "${listItem?.label}"
                 }
                 else -> ""
@@ -33,7 +34,7 @@ class Ingredient(
 
         companion object Factory {
             fun make(recipeId: Long): Ingredient {
-                return Ingredient(0, "", 0.0, ApplicationData.unitList[0].code, recipeId)
+                return Ingredient(0, "", 1.0, LookupUtils.getLookupByKey(LookupUtils.unitLookupKey, false)[0].code, recipeId)
             }
         }
 }

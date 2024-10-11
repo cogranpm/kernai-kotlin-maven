@@ -1,6 +1,7 @@
 package com.parinherm.entity
 
 import com.parinherm.ApplicationData
+import com.parinherm.lookups.LookupUtils
 import java.time.LocalDate
 import kotlin.properties.Delegates
 
@@ -16,11 +17,11 @@ class Publication(override var id: Long = 0, var subjectId: Long, title: String,
         return when (index) {
              0 -> title
              1 ->  {
-                val listItem = ApplicationData.publicationTypeList.find { it.code == type}
+                val listItem = LookupUtils.getLookupByKey(LookupUtils.publicationTypeLookupKey, false).find { it.code == type}
                 "${listItem?.label}"
             }
-             2 -> comments
-             3 -> "$createdDate"
+             //2 -> comments
+             2 -> "$createdDate"
             
             else -> ""
         }
@@ -31,15 +32,14 @@ class Publication(override var id: Long = 0, var subjectId: Long, title: String,
     }
 
     companion object Factory {
-        fun make(): Publication{
+        fun make(subjectId: Long): Publication{
             return Publication(
                 0,
-                0,
-                 "", 
-                 ApplicationData.publicationTypeList[0].code,
+                subjectId,
+                 "",
+                LookupUtils.getLookupByKey(LookupUtils.publicationTypeLookupKey, false)[0].code,
                  "", 
                  LocalDate.now()
-                
             )
         }
     }

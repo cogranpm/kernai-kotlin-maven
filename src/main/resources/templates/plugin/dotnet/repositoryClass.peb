@@ -1,0 +1,70 @@
+using Microsoft.EntityFrameworkCore;
+using webapi.Model;
+using webapi.Model.Vacation;
+
+namespace webapi.Repository.Trips;
+
+public class {{viewDef.entityDef.name | capitalize}}Repository : I{{viewDef.entityDef.name | capitalize}}Repository
+{
+    private DemoContext _context;
+    private DbSet<{{viewDef.entityDef.name | capitalize}}> {{viewDef.entityDef.name}}s;
+    private readonly ILogger _logger;
+
+    public {{viewDef.entityDef.name | capitalize}}Repository(ILogger<{{viewDef.entityDef.name | capitalize}}Repository> logger, DemoContext context) {
+        this._logger = logger;
+        this._context = context;
+        this.{{viewDef.entityDef.name}}s = context.{{viewDef.entityDef.name | capitalize}}s;
+   }
+
+   public async Task<IEnumerable<{{viewDef.entityDef.name | capitalize}}?>> Get(String userId){
+        return await this._context.{{viewDef.entityDef.name | capitalize}}s
+        .AsNoTracking()
+        .Where(x => x.UserId.Equals(new Guid(userId)))
+        .ToListAsync();
+   }
+
+    public async Task<{{viewDef.entityDef.name | capitalize}}?> Retrieve(Guid id){
+        return await this._context.{{viewDef.entityDef.name | capitalize}}s.AsNoTracking()
+        .FirstOrDefaultAsync(model => model.Id == id);
+   }
+
+   public void Insert({{viewDef.entityDef.name | capitalize}} it){
+        _context.{{viewDef.entityDef.name | capitalize}}s.Add(it);
+   }
+
+   public async Task<int> Delete(Guid id){
+        var affected = await this.{{viewDef.entityDef.name}}s
+        .Where(model => model.Id == id)
+        .ExecuteDeleteAsync();
+        return affected;
+   }
+
+   public async Task<int> Update({{viewDef.entityDef.name | capitalize}} it){
+        var affected = await this._context.{{viewDef.entityDef.name | capitalize}}s
+        .Where(model => model.Id == it.Id)
+        .ExecuteUpdateAsync(setters => setters
+            {% for field in viewDef.fieldDefinitions %}
+            .SetProperty(m => m.{{field.name | capitalize}}, it.{{field.name | capitalize}})
+            {% endfor %}
+{% for assoc in viewDef.ownerAssociations %}
+{% if assoc.owningType == "one" %}
+            .SetProperty(m => m.{{assoc.name | capitalize}}Id, it.{{assoc.name | capitalize}}Id)
+{% endif %}
+{% endfor %}
+{% for assoc in viewDef.ownedAssociations %}
+{% if assoc.ownedType == "one" %}
+            .SetProperty(m => m.{{assoc.name | capitalize}}Id, it.{{assoc.name | capitalize}}Id)
+{% endif %}
+{% endfor %}
+        );
+        return affected;
+   }
+
+   public async Task Save(){
+        await this._context.SaveChangesAsync();
+   }
+
+   public bool Exists(Guid id){
+        return (_context.{{viewDef.entityDef.name | capitalize}}s?.Any(e => e.Id == id)).GetValueOrDefault();
+   }
+}

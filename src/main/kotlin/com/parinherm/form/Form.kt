@@ -28,11 +28,13 @@ import org.eclipse.jface.text.source.SourceViewer
 import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.SWT
+import org.eclipse.swt.custom.SashForm
 import org.eclipse.swt.layout.FillLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Control
 import org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter
+import org.eclipse.swt.widgets.Text
 
 
 // domain entity type is the type argument
@@ -49,44 +51,45 @@ data class Form<T>(
     val fields = viewDefinition.fieldDefinitions
     val hasChildViews: Boolean = hasChildViews(viewDefinition)
     override val root = Composite(parent, ApplicationData.swnone)
-    val sashForm = getSashForm(root, viewDefinition)
+
+    /* child list on the right side */
+    val listChildSash = makeMainSash(root, hasChildViews)
+    val leftContainer = getLeftContainer(listChildSash, root, hasChildViews)
+    val rightContainer = getRightContainer(listChildSash, hasChildViews)
+
+    val sashForm = getSashForm(leftContainer, viewDefinition)
+
+    val formsContainer = makeEditContainer(sashForm)
     val listSectionContainer = Composite(sashForm, ApplicationData.swnone)
-    var searchButton: Button? = null
+    //val sashForm = getSashForm(root, viewDefinition)
+
+
+    //val headerSection: Text = makeHeaderSection(listSectionContainer)
+    val headerSection: Composite = makeHeaderSection(formsContainer.editContainer)
+    val filterContainer = makeFilterContainer(listSectionContainer, filter)
     val listContainer = Composite(listSectionContainer, ApplicationData.swnone)
     val tableLayout = TableColumnLayout(true)
     val listView = getListViewer(listContainer, tableLayout)
     val columns = makeColumns(listView, fields, tableLayout)
     val contentProvider = ObservableListContentProvider<T>()
-    val formsContainer = makeEditContainer(hasChildViews, sashForm)
-    val lblErrors = makeErrorLabel(formsContainer.editContainer)
-    val childFormsContainer: ChildFormContainer? = getGetChildForms(hasChildViews, viewDefinition, formsContainer)
+    //val formsContainer = makeEditContainer(hasChildViews, sashForm)
+    val toolbar = makeToolbar(formsContainer.editContainer)
+    val childFormsContainer: ChildFormContainer? = getGetChildForms(hasChildViews, viewDefinition, rightContainer)
+    //val childFormsContainer: ChildFormContainer? = getGetChildForms(hasChildViews, viewDefinition, formsContainer)
+
     val formWidgets = makeForm(fields, formsContainer.editContainer)
+    val lblErrors = makeErrorLabel(formsContainer.editContainer)
 
     init {
-
-        if (filter != null) {
-            val filtersContainer = Composite(listSectionContainer, ApplicationData.swnone)
-            val listFilters = getListFilters(filtersContainer, fields)
-            searchButton = getSearchButton(filtersContainer)
-            filter.searchFields = listFilters
-            listView.addFilter(filter)
-            filtersContainer.layout = RowLayoutFactory
-                .fillDefaults()
-                .pack(true)
-                .justify(false)
-                .wrap(true)
-                .center(true)
-                .margins(3, 3)
-                .create()
-            GridDataFactory.defaultsFor(filtersContainer).grab(true, false).applyTo(filtersContainer)
-
-            searchButton?.addSelectionListener(widgetSelectedAdapter
-            {
-                listView.refresh()
-            })
-
+        //right section stuff
+        formsContainer.childContainer = rightContainer
+        if(filter != null){
+            setupFilters(filterContainer!!, filter, fields, listView)
         }
-        sashForm.weights = intArrayOf(viewDefinition.listWeight, viewDefinition.editWeight)
+        if(hasChildViews){
+            listChildSash?.setWeights(2, 1)
+        }
+        sashForm.setWeights(viewDefinition.editWeight, viewDefinition.listWeight)
         sashForm.sashWidth = 4
         listView.contentProvider = contentProvider
         listView.labelProvider = makeViewerLabelProvider<T>(fields, contentProvider.knownElements)
@@ -133,8 +136,13 @@ data class Form<T>(
                 DataTypeDef.FLOAT,
                 DataTypeDef.TEXT,
                 DataTypeDef.MEMO,
-                DataTypeDef.DATETIME -> (it.value.widget as Control).enabled = flag
+                DataTypeDef.DATETIME,
+                DataTypeDef.DATE,
+                DataTypeDef.TIME,
+                DataTypeDef.BLOB,
+                DataTypeDef.FILE -> (it.value.widget as Control).enabled = flag
                 DataTypeDef.LOOKUP -> (it.value.widget as Viewer).control.enabled = flag
+                DataTypeDef.REFERENCE -> (it.value.widget as Viewer).control.enabled = flag
                 DataTypeDef.SOURCE -> (it.value.widget as SourceViewer).textWidget.enabled = flag
             }
         }

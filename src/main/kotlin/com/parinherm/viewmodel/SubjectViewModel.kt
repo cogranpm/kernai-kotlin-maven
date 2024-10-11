@@ -8,37 +8,44 @@ import com.parinherm.entity.schema.*
 import com.parinherm.form.ChildFormTab
 import com.parinherm.form.FormViewModel
 import com.parinherm.form.IFormViewModel
+import com.parinherm.menus.TabInfo
 import com.parinherm.view.SubjectView
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
 
-class SubjectViewModel( val shelfId: Long,  val selectedSubject: Subject?, val openedFromTabId: String?,  parent: CTabFolder) : FormViewModel<Subject>(
-    SubjectView(parent, Comparator()),
+class SubjectViewModel(
+    val shelfId: Long,
+    val selectedSubject: Subject?,
+    val openedFromTabId: String?,
+   tabInfo: TabInfo
+) : FormViewModel<Subject>(
+    SubjectView(tabInfo.folder, Comparator()),
     SubjectMapper,
-    { Subject.make() }) {
+    { Subject.make(shelfId) },
+    tabInfo
+) {
 
-    
     private val publications = WritableList<Publication>()
     private val publicationComparator = PublicationViewModel.Comparator()
-    
 
     init {
+        if (view.form.childFormsContainer != null) {
+            view.form.childFormsContainer!!.childTabs.forEach { childFormTab: ChildFormTab ->
+                wireChildTab(
+                    childFormTab,
+                    publicationComparator,
+                    publications,
+                    ::makePublicationsViewModel,
+                    PublicationMapper
+                )
 
-        if (view.form.childFormsContainer != null)
-        {
-            view.form.childFormsContainer!!.childTabs.forEach {
-                childFormTab: ChildFormTab ->
-        
-                    wireChildTab(childFormTab, ApplicationData.TAB_KEY_PUBLICATION, publicationComparator, publications, ::makePublicationsViewModel)
-        
             }
         }
 
         loadData(mapOf("shelfId" to shelfId))
         onLoad(selectedSubject)
     }
-
 
 
     override fun getData(parameters: Map<String, Any>): List<Subject> {
@@ -51,16 +58,14 @@ class SubjectViewModel( val shelfId: Long,  val selectedSubject: Subject?, val o
     }
 
 
-
-
-
-    private fun makePublicationsViewModel(currentChild: Publication?) : IFormViewModel<Publication> {
+    private fun makePublicationsViewModel(currentChild: Publication?): IFormViewModel<Publication> {
         return PublicationViewModel(
-        currentEntity!!.id,
-        currentChild,
-        ApplicationData.TAB_KEY_SUBJECT,
-        ApplicationData.mainWindow.folder)
-        }
+            currentEntity!!.id,
+            currentChild,
+            tabId,
+           tabInfo.copy(caption = "Publications")
+        )
+    }
 
     private fun clearAndAddPublication() {
         publications.clear()
@@ -68,22 +73,16 @@ class SubjectViewModel( val shelfId: Long,  val selectedSubject: Subject?, val o
     }
 
 
-    override fun changeSelection(){
+    override fun changeSelection() {
         val formBindings = super.changeSelection()
         /* specific to child list */
-
         clearAndAddPublication()
-
     }
 
     override fun refresh() {
         super.refresh()
-
         clearAndAddPublication()
-
     }
-
-
 
 
     class Comparator : BeansViewerComparator(), IViewerComparator {

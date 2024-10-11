@@ -1,0 +1,112 @@
+const baseUrl = "api/{{ viewDef.entityDef.name | capitalize }}";
+
+export const getAll = async () => {
+    const response = await fetch(baseUrl);
+    if (response.ok) {
+        const viewModel = await response.json();
+        return { error: null, viewModel: viewModel};
+    } else {
+        return { error: response.statusText, viewModel: null };
+    }
+};
+
+export const loadRecord = async (id) => {
+    const response = await fetch(`${baseUrl}/${id}`);
+    if (response.ok) {
+        const {{viewDef.entityDef.name}} = await response.json();
+        return { error: null, {{viewDef.entityDef.name}}: {{viewDef.entityDef.name}} };
+    } else {
+        return { error: response.statusText, {{viewDef.entityDef.name}}: null };
+    }
+};
+
+export const deleteRecord = async (id) => {
+    const response = await fetch(`${baseUrl}/${id}`, {
+        method: 'DELETE'
+    });
+    if (response.ok) {
+        return { error: null};
+    } else {
+        return { error: response.statusText };
+    }
+};
+
+export const postData = async (it) => {
+    try {
+        const response = await post{{ viewDef.entityDef.name | capitalize }}("POST", baseUrl, it);
+        if (!response.ok) {
+            return { error: response.statusText, {{viewDef.entityDef.name}}: null };
+        } else {
+            const {{viewDef.entityDef.name}}= await response.json();
+            return { error: null, {{viewDef.entityDef.name}}: {{viewDef.entityDef.name}} };
+        }
+    } catch ({ name, message }) {
+        return { error: `Name: ${name} Message: ${message}`, {{viewDef.entityDef.name}}: null };
+    }
+
+};
+
+export const putData = async (updated) => {
+    const response = await post{{ viewDef.entityDef.name | capitalize }}("PUT", `${baseUrl}/${updated.id}`, updated);
+    if (!response.ok) {
+        return { error: response.statusText, {{viewDef.entityDef.name}}: null };
+    } else {
+        const loadResponse = await loadRecord(updated.id);
+        return loadResponse;
+    }
+};
+
+const post{{ viewDef.entityDef.name | capitalize }}= async (httpMethod, url, {{viewDef.entityDef.name}}) => {
+    const jsonData = JSON.stringify({{viewDef.entityDef.name}});
+    const response = await fetch(url, {
+        "method": httpMethod,
+        headers: {
+        "Content-Type": "application/json",
+        },
+        body: jsonData
+    });
+    return response;
+};
+
+export const makeNew = (
+{% set loopCount = 0 %}
+{% for assoc in viewDef.ownerAssociations %}
+{% if assoc.owningType == "one" %}
+{% if not loop.last and loopCount > 0%},{% endif %}
+default{{ assoc.name | capitalize }}Id
+{% set loopCount = 1 %}
+{% endif %}
+{% endfor %}
+{% for assoc in viewDef.ownedAssociations %}
+{% if assoc.ownedType == "one" %}
+{% if loopCount > 0 %},{% endif %}
+default{{ assoc.ownerViewDefinition.entityName  | capitalize}}Id
+{% set loopCount = 1 %}
+{% endif %}
+{% endfor %}
+) => {
+    return {
+        id: makeId(),
+        {% for field in viewDef.fieldDefinitions %}
+        {{field.name}}: {{ field.defaultJavascript }},
+        {% endfor %}
+        {% for assoc in viewDef.ownerAssociations %}
+        {% if assoc.owningType == "one" %}
+        {{ assoc.name}}Id: default{{ assoc.name | capitalize }}Id ? default{{ assoc.name | capitalize }}Id : "",
+        {% else %}
+        {{ assoc.name }}: [],
+        {% endif %}
+        {% endfor %}
+        {% for assoc in viewDef.ownedAssociations %}
+        {% if assoc.ownedType == "one" %}
+        {{ assoc.ownerViewDefinition.entityName }}Id: default{{ assoc.ownerViewDefinition.entityName | capitalize }}Id ? default{{ assoc.ownerViewDefinition.entityName  | capitalize}}Id : "",
+        {% endif %}
+        {% endfor %}
+        isNew: true,
+        isDeleted: false
+    };
+};
+
+export const makeId = () => {
+    return self.crypto.randomUUID();
+}

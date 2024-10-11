@@ -19,15 +19,21 @@ import com.parinherm.entity.schema.PersonMapper
 import com.parinherm.form.ChildFormTab
 import com.parinherm.form.FormViewModel
 import com.parinherm.form.IFormViewModel
+import com.parinherm.lookups.LookupUtils
+import com.parinherm.menus.TabInfo
 import com.parinherm.view.PersonView
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.util.*
 
-class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(parent, Comparator()), PersonMapper,
-        {Person(0L, "", BigDecimal("0.0"), 6.70, 20, LocalDate.now(), "Aus", false)}) {
+class PersonViewModel(tabInfo: TabInfo) : FormViewModel<Person>
+    (PersonView(tabInfo.folder, Comparator()), PersonMapper,
+        {Person(0L, "", BigDecimal("0.0"), 6.70, 20, LocalDate.now(), "Aus", false)},
+   tabInfo
+) {
 
     val personDetails = WritableList<PersonDetail>()
     val personDetailComparator = PersonDetailViewModel.Comparator()
@@ -36,9 +42,15 @@ class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(par
         if (view.form.childFormsContainer != null)
         {
             view.form.childFormsContainer!!.childTabs.forEach { childFormTab: ChildFormTab ->
-                wireChildTab(childFormTab, ApplicationData.TAB_KEY_PERSONDETAIL, personDetailComparator, personDetails, ::makePersonDetailsViewModel)
+                wireChildTab(childFormTab,
+                    personDetailComparator,
+                    personDetails,
+                    ::makePersonDetailsViewModel,
+                    PersonDetailMapper
+                )
             }
         }
+        createTab()
         loadData(mapOf())
     }
 
@@ -46,8 +58,8 @@ class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(par
         return PersonDetailViewModel(
             currentEntity!!.id,
             currentChild,
-            ApplicationData.TAB_KEY_PERSON,
-            ApplicationData.mainWindow.folder)
+            tabId,
+            tabInfo.copy(caption = "Person Detail"))
     }
 
     override fun changeSelection(){
@@ -82,7 +94,7 @@ class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(par
                 income_index -> entity1.income.compareTo(entity2.income)
                 height_index -> entity1.height.compareTo(entity2.height)
                 age_index -> entity1.age.compareTo(entity2.age)
-                country_index -> compareLookups(entity1.country, entity2.country, ApplicationData.countryList)
+                country_index -> compareLookups(entity1.country, entity2.country, LookupUtils.getLookupByKey(LookupUtils.countryLookupKey, true))
                 enteredDate_index -> entity1.enteredDate.compareTo(entity2.enteredDate)
                 deceased_index -> entity1.deceased.compareTo(entity2.deceased)
                 else -> 0
@@ -90,6 +102,5 @@ class PersonViewModel(parent: CTabFolder) : FormViewModel<Person>(PersonView(par
             return flipSortDirection(rc)
         }
     }
-
 
 }

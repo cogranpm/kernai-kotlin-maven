@@ -15,10 +15,10 @@ class Note(override var id: Long = 0, var topicId: Long, title: String, descript
     override fun getColumnValueByIndex(index: Int): String {
         return when (index) {
              0 -> title
-             1 -> description
-             2 -> titleAudioFile
-             3 -> descriptionAudioFile
-             4 -> "$createdDate"
+             //1 -> description
+             1 -> titleAudioFile
+             2 -> descriptionAudioFile
+             3 -> "$createdDate"
             
             else -> ""
         }
@@ -29,10 +29,10 @@ class Note(override var id: Long = 0, var topicId: Long, title: String, descript
     }
 
     companion object Factory {
-        fun make(): Note{
+        fun make(topicId: Long): Note{
             return Note(
                 0,
-                0,
+                topicId,
                  "", 
                  "", 
                  "", 

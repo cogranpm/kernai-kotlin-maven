@@ -50,6 +50,7 @@ it[table.title],
     
 
     override fun delete(item: Note) {
+        NoteSegmentMapper.delete(item)
         
         MapperHelper.delete(table, table.id eq item.id)
     }

@@ -1,0 +1,14 @@
+using webapi.Model.Vacation;
+
+namespace webapi.Repository;
+
+public interface I{{capitalizeIt entityDef.name}}Repository
+{
+    Task<IEnumerable<{{capitalizeIt entityDef.name}}?>> Get();
+    Task<{{capitalizeIt entityDef.name}}?> Retrieve(Guid id);
+    void Insert({{capitalizeIt entityDef.name}} it);
+    Task<int> Delete(Guid id);
+    Task<int> Update({{capitalizeIt entityDef.name}}it);
+    Task Save();
+    bool Exists(Guid id);
+}

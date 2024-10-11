@@ -1,0 +1,26 @@
+        update{{ viewDef.entityDef.name | capitalize }}: (state, action) => {
+            let existing = state.trip.{{ viewDef.entityDef.name }}s.find((element) => element.id === action.payload.id)
+            if (existing) {
+                state.trip.{{ viewDef.entityDef.name }}s = state.trip.{{ viewDef.entityDef.name }}s.map((element) => {
+                    if (element.id === action.payload.id) {
+                        return action.payload
+                    } else {
+                        return element
+                    }
+                })
+            } else {
+                state.trip.{{ viewDef.entityDef.name }}s.push(action.payload)
+            }
+        },
+        remove{{ viewDef.entityDef.name | capitalize }}: (state, action) => {
+            let existing = state.trip.{{ viewDef.entityDef.name }}s.find((element) => element.id === action.payload.id)
+            if (existing) {
+                state.trip.{{ viewDef.entityDef.name }}s = state.trip.{{ viewDef.entityDef.name }}s.filter(
+                    (element) => element.id !== action.payload.id)
+            }
+        }
+
+export const {
+    update{{ viewDef.entityDef.name | capitalize }},
+    remove{{ viewDef.entityDef.name | capitalize }}
+} = tripSlice.actions

@@ -1,0 +1,14 @@
+using webapi.Model.Vacation;
+
+namespace webapi.Repository.Trips;
+
+public interface I{{viewDef.entityDef.name | capitalize}}Repository
+{
+    Task<IEnumerable<{{viewDef.entityDef.name | capitalize}}?>> Get(String userId);
+    Task<{{viewDef.entityDef.name | capitalize}}?> Retrieve(Guid id);
+    void Insert({{viewDef.entityDef.name | capitalize}} it);
+    Task<int> Delete(Guid id);
+    Task<int> Update({{viewDef.entityDef.name | capitalize}} it);
+    Task Save();
+    bool Exists(Guid id);
+}

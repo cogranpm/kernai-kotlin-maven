@@ -7,8 +7,11 @@ import com.parinherm.entity.Snippet
 import com.parinherm.entity.schema.SnippetMapper
 import com.parinherm.form.FormViewModel
 import com.parinherm.form.widgets.SourceCodeViewer
+import com.parinherm.lookups.LookupUtils
+import com.parinherm.menus.TabInfo
 import com.parinherm.script.GraalScriptRunner
 import com.parinherm.script.KotlinScriptRunner
+import com.parinherm.script.ScriptUtils
 import com.parinherm.view.SnippetView
 import org.eclipse.jface.text.DocumentEvent
 import org.eclipse.jface.text.IDocumentListener
@@ -22,9 +25,11 @@ import org.eclipse.swt.widgets.Text
 import java.lang.Exception
 
 
-class SnippetViewModel(parent: CTabFolder) : FormViewModel<Snippet>(
-    SnippetView(parent, Comparator()),
-    SnippetMapper, { Snippet.make() }) {
+class SnippetViewModel(tabInfo: TabInfo) : FormViewModel<Snippet>(
+    SnippetView(tabInfo.folder, Comparator()),
+    SnippetMapper, { Snippet.make() },
+    tabInfo
+) {
 
     //val classLoader = Thread.currentThread().contextClassLoader
     //val engine: ScriptEngine = ScriptEngineManager(classLoader).getEngineByExtension("kts")
@@ -32,6 +37,7 @@ class SnippetViewModel(parent: CTabFolder) : FormViewModel<Snippet>(
     val bodyWidget = view.form.formWidgets.get("body")?.widget as SourceCodeViewer
 
     init {
+        createTab()
         loadData(mapOf())
         val snippetView = view as SnippetView
 
@@ -46,15 +52,43 @@ class SnippetViewModel(parent: CTabFolder) : FormViewModel<Snippet>(
             }
         })
 
+        snippetView.runScriptButton.addSelectionListener(object : SelectionAdapter() {
+            override fun widgetSelected(e: SelectionEvent?) {
+                val textWidget = view.form.formWidgets["output"]
+                if (textWidget != null && currentEntity != null) {
+                    Display.getDefault().asyncExec {
+                        try {
+                            Display.getDefault().activeShell.cursor = Display.getDefault().getSystemCursor(SWT.CURSOR_WAIT)
+                            ScriptUtils.run(textWidget.widget as Text, this@SnippetViewModel.currentEntity!!)
+                        } catch (e: Exception) {
+                            Display.getDefault().timerExec(200) {
+                                (textWidget.widget as Text).text = """
+                                *************  Error *****************
+                                ${e.message}
+                                ${e.stackTrace}
+                            """.trimIndent()
+                            }
+                        } finally {
+                            Display.getDefault().activeShell.cursor = null
+                        }
+                    }
+                }
+            }
+        })
 
-        snippetView.testScriptButton.addSelectionListener(object : SelectionAdapter() {
+
+
+    }
+
+/*
+        snippetView.graalScriptButton.addSelectionListener(object : SelectionAdapter() {
             override fun widgetSelected(e: SelectionEvent?) {
                 val textWidget = view.form.formWidgets["output"]
                 if (textWidget != null && currentEntity != null){
                     Display.getDefault().asyncExec {
                         try {
                             Display.getDefault().activeShell.cursor = Display.getDefault().getSystemCursor(SWT.CURSOR_WAIT)
-                            KotlinScriptRunner.run(textWidget.widget as Text, this@SnippetViewModel.currentEntity!!)
+                            GraalScriptRunner.run(textWidget.widget as Text, this@SnippetViewModel.currentEntity!!)
 
                         } catch (e: Exception) {
                             Display.getDefault().timerExec(200) { (textWidget.widget as Text).text = """
@@ -66,21 +100,12 @@ class SnippetViewModel(parent: CTabFolder) : FormViewModel<Snippet>(
                         finally {
                             Display.getDefault().activeShell.cursor = null
                         }
-                   }
-
+                    }
                 }
             }
         })
 
-
-        snippetView.graalScriptButton.addSelectionListener(object : SelectionAdapter() {
-            override fun widgetSelected(e: SelectionEvent?) {
-                GraalScriptRunner.run()
-            }
-        })
-
-
-    }
+ */
 
     override fun changeSelection() {
         super.changeSelection()
@@ -102,7 +127,7 @@ class SnippetViewModel(parent: CTabFolder) : FormViewModel<Snippet>(
             val entity2 = e2 as Snippet
             val rc = when (propertyIndex) {
                 name_index -> compareString(entity1.name, entity2.name)
-                language_index -> compareLookups(entity1.language, entity2.language, ApplicationData.techLanguage)
+                language_index -> compareLookups(entity1.language, entity2.language, LookupUtils.getLookupByKey(LookupUtils.techLanguageLookupKey, false))
                 else -> 0
             }
             return flipSortDirection(rc)

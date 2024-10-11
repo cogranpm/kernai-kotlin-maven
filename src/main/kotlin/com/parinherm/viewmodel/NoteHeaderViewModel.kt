@@ -11,6 +11,7 @@ import com.parinherm.form.ChildFormTab
 import com.parinherm.form.FormViewModel
 import com.parinherm.form.IFormViewModel
 import com.parinherm.form.makeViewerLabelProvider
+import com.parinherm.menus.TabInfo
 import com.parinherm.view.NoteHeaderView
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider
@@ -18,9 +19,13 @@ import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
 import org.eclipse.swt.events.SelectionListener
 
-class NoteHeaderViewModel (val notebookId: Long, val selectedNoteHeader: NoteHeader?, val openedFromTabId: String?, parent: CTabFolder) : FormViewModel<NoteHeader>(
-    NoteHeaderView(parent, Comparator()),
-    NoteHeaderMapper, { NoteHeader.make(notebookId) })
+class NoteHeaderViewModel (
+    val notebookId: Long,
+    val selectedNoteHeader: NoteHeader?,
+    val openedFromTabId: String?,
+    tabInfo: TabInfo) : FormViewModel<NoteHeader>(
+    NoteHeaderView(tabInfo.folder, Comparator()),
+    NoteHeaderMapper, { NoteHeader.make(notebookId) }, tabInfo)
 {
 
     val noteDetails = WritableList<NoteDetail>()
@@ -31,7 +36,7 @@ class NoteHeaderViewModel (val notebookId: Long, val selectedNoteHeader: NoteHea
         if (view.form.childFormsContainer != null)
         {
             view.form.childFormsContainer!!.childTabs.forEach { childFormTab: ChildFormTab ->
-                wireChildTab(childFormTab, ApplicationData.TAB_KEY_NOTEDETAIL, noteDetailComparator, noteDetails, ::makeNoteDetail)
+                wireChildTab(childFormTab, noteDetailComparator, noteDetails, ::makeNoteDetail, NoteDetailMapper)
             }
         }
         onLoad(selectedNoteHeader)
@@ -40,8 +45,8 @@ class NoteHeaderViewModel (val notebookId: Long, val selectedNoteHeader: NoteHea
     private fun makeNoteDetail(currentChild: NoteDetail?) : IFormViewModel<NoteDetail> {
         return NoteDetailViewModel(currentEntity!!.id,
             currentChild,
-            ApplicationData.TAB_KEY_NOTEHEADER,
-            ApplicationData.mainWindow.folder)
+            tabId,
+            tabInfo.copy(caption = "Note Detail"))
     }
 
     override fun save() {

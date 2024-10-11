@@ -1,50 +1,443 @@
 package com.parinherm
 
-import com.parinherm.builders.HttpClient
-import com.parinherm.entity.Lookup
-import com.parinherm.entity.LookupDetail
-import com.parinherm.entity.schema.LookupDetailMapper
-import com.parinherm.entity.schema.LookupMapper
+import com.github.jknack.handlebars.Handlebars
+import com.github.jknack.handlebars.HumanizeHelper
+import com.github.jknack.handlebars.io.ClassPathTemplateLoader
+import com.parinherm.audio.AudioClient
+import com.parinherm.audio.SpeechRecognition
+import com.parinherm.entity.AppVersion
+import com.parinherm.entity.schema.AppVersionMapper
 import com.parinherm.entity.schema.SchemaBuilder
-import com.parinherm.form.IFormViewModel
-import com.parinherm.form.definitions.ViewDef
-import com.parinherm.server.SimpleHttpServer
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
+import com.parinherm.font.FontUtils
+import com.parinherm.form.dialogs.FirstTimeSetupDialog
+import com.parinherm.image.ImageUtils
+import com.parinherm.lookups.LookupUtils
+import com.parinherm.model.TemplateHelpers
+import com.parinherm.security.Cryptographer
+import com.parinherm.settings.Setting
+import com.parinherm.settings.SettingsDialog
+import io.pebbletemplates.pebble.PebbleEngine
+import io.pebbletemplates.pebble.loader.FileLoader
+import org.apache.logging.log4j.Level
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.core.config.Configurator
+import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory
 import org.eclipse.core.databinding.UpdateValueStrategy
 import org.eclipse.core.databinding.observable.Realm
+import org.eclipse.core.runtime.IStatus
+import org.eclipse.core.runtime.MultiStatus
+import org.eclipse.core.runtime.Status
 import org.eclipse.jface.databinding.swt.DisplayRealm
-import org.eclipse.jface.resource.ImageDescriptor
-import org.eclipse.jface.resource.ImageRegistry
+import org.eclipse.jface.dialogs.ErrorDialog
+import org.eclipse.jface.resource.JFaceResources
+import org.eclipse.jface.window.Window
 import org.eclipse.swt.SWT
-import org.eclipse.swt.custom.CTabItem
-import org.eclipse.swt.graphics.Image
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.ToolItem
-import com.parinherm.model.testHbars
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.swt.SWT
-import javax.script.ScriptEngine
-import javax.script.ScriptEngineManager
+import java.io.File
+import java.nio.file.Files
+import java.util.*
+import kotlin.system.exitProcess
+
 
 object ApplicationData {
 
-    private lateinit var imageRegistry: ImageRegistry
+    const val version = 1.0
+
     lateinit var mainWindow: MainWindow
-    lateinit var viewDefinitions: List<ViewDef>
+    lateinit var userPath: String
 
     /* keeps all opened tabs in a list and remove them when closed */
     var tabs: MutableMap<String, TabInstance> = mutableMapOf()
 
-    const val IMAGE_ACTVITY_SMALL = "activitysmall"
-    const val IMAGE_ACTIVITY_LARGE = "activitylarge"
-    const val IMAGE_STOCK_INFO = "stock_info"
-    const val IMAGE_STOCK_EXIT = "stock_exit"
-    const val IMAGE_GOUP = "goup"
-    const val IMAGES_PATH = "/images/"
+    const val APPLICATION_NAME = "COUP"
+    const val APPLICATION_DISPLAY_NAME = "Compendium Of Useful Programs"
+    const val VENDOR_NAME = "Parinherm"
+    const val SCRIPT_PATH = "scripts"
+    val pluginId = "${VENDOR_NAME}${APPLICATION_NAME}"
+    const val TEMPLATE_PATH = "templates"
+    const val PLUGIN_TEMPLATE_PATH = "plugin"
+    const val DOTNET_TEMPLATE_PATH = "dotnet"
+    const val DATA_PATH = "data"
+    const val LOG_PATH = "logs"
 
+    val logger = LogManager.getLogger()
+
+    const val swnone = SWT.NONE
+    const val labelStyle = SWT.NONE
+    const val listViewStyle = SWT.SINGLE or SWT.H_SCROLL or SWT.V_SCROLL or SWT.FULL_SELECTION or SWT.BORDER
+
+    val defaultUpdatePolicy = UpdateValueStrategy.POLICY_UPDATE  //UpdateValueStrategy.POLICY_ON_REQUEST
+
+    const val defaultSashWidth = 4
+    const val dbTypeEmbedded = "embed"
+    const val dbTypeMySql = "mysql"
+    const val dbTypeSqlite = "sqlite"
+    const val dbTypePostgres = "postgres"
+    const val dbKeyUrl = "db.url"
+    const val dbKeyType = "db.type"
+    const val dbKeyDriver = "db.driver"
+    const val dbKeyUser = "db.user"
+    const val dbKeyPassword = "db.password"
+    const val encryptionSecretKey = "encryptionSecret"
+    const val propertiesFile = "config.properties"
+    const val scriptExtension = ".kts"
+    const val bootstrapScriptFileName = "bootstrap$scriptExtension"
+    const val maxRowsLimit = 10000
+
+    lateinit var pebbleEngine: PebbleEngine
+    lateinit var handleBarsEngine: Handlebars
+
+    init {
+        createUserPath()
+    }
+
+
+    private fun createUserPath() {
+        userPath = System.getProperty("user.home") +
+                File.separator +
+                "Application Data" +
+                File.separator +
+                ApplicationData.VENDOR_NAME +
+                File.separator +
+                ApplicationData.APPLICATION_NAME +
+                File.separator
+        val directory: File = File(userPath)
+        if (!directory.exists()) {
+            directory.mkdirs()
+        }
+        createUserDirectory("${userPath}${TEMPLATE_PATH}${File.separator}${version}")
+        createUserDirectory("${userPath}${TEMPLATE_PATH}${File.separator}${version}${File.separator}${PLUGIN_TEMPLATE_PATH}")
+        createUserDirectory("${userPath}${TEMPLATE_PATH}${File.separator}${version}${File.separator}${PLUGIN_TEMPLATE_PATH}${File.separator}${DOTNET_TEMPLATE_PATH}")
+        createUserDirectory("${userPath}${SCRIPT_PATH}")
+        createUserDirectory("${userPath}${ImageUtils.IMAGES_PATH}")
+        createUserDirectory("${userPath}${DATA_PATH}")
+        createUserDirectory("${userPath}${LOG_PATH}")
+    }
+
+    private fun createUserDirectory(path: String) {
+        val directory: File = File(path)
+        if (!directory.exists()) {
+            directory.mkdirs()
+        }
+    }
+
+    fun makeCapital(source: String) =
+        source.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+
+    /**********************************
+     * startup code
+     */
+    suspend fun startupTasks() {
+    }
+
+    fun start(): Unit {
+        //Display.setAppName(APPLICATION_NAME)
+        val display: Display = Display.getDefault()
+        // note that db operations cannot be performed in background thread
+        // exposed framework uses the current thread internally
+
+        Realm.runWithDefault(DisplayRealm.getRealm(display)) {
+            try {
+                configureLogging()
+                ImageUtils.setupImages()
+                FontUtils.setupFonts()
+                copyTemplates()
+                initializeTemplateEngines()
+                JFaceResources.getFontRegistry()
+                    .put(JFaceResources.BANNER_FONT, FontUtils.getFont(FontUtils.FONT_IBM_PLEX_MONO_HEADER).fontData)
+                //ui is not database connected as yet
+                mainWindow = MainWindow(null)
+                mainWindow.setBlockOnOpen(true)
+                mainWindow.open()
+                display.dispose()
+            } catch (ex: Exception) {
+                logError(ex, "Error in main loop")
+                showErrorDialog("Error opening Main Window, the program must now exit", ex)
+            }
+        }
+    }
+
+    private fun configureLogging() {
+        /* this is hard to get right
+        https://www.studytonight.com/post/log4j2-programmatic-configuration-in-java-class
+         */
+        val logFile = "${userPath}${LOG_PATH}${File.separator}app"
+        val pattern = "%d %p %c [%t] %m%n"
+        val builder = ConfigurationBuilderFactory.newConfigurationBuilder()
+        builder.setStatusLevel(Level.DEBUG)
+        builder.setConfigurationName("DefaultRollingFileLogger")
+        val layoutBuilder = builder.newLayout("PatternLayout")
+            .addAttribute("pattern", pattern)
+        /*
+        val triggeringPolicy: ComponentBuilder<*> = builder.newComponent<ComponentBuilder<*>>("Policies")
+            .addComponent(
+                builder.newComponent<ComponentBuilder<*>>("SizeBasedTriggeringPolicy").addAttribute("size", "10MB")
+            )
+         */
+
+        val triggeringPolicy = builder.newComponent("Policies")
+            .addComponent(builder.newComponent("CronTriggeringPolicy").addAttribute("schedule", "0 0 0 * * ?"))
+            .addComponent(builder.newComponent("SizeBasedTriggeringPolicy").addAttribute("size", "10M"))
+
+        val appenderBuilder: AppenderComponentBuilder = builder.newAppender("LogToRollingFile", "RollingFile")
+            .addAttribute("fileName", "${logFile}.log")
+            .addAttribute("filePattern", "${logFile}-%d{MM-dd-yy-HH-mm-ss}.log")
+            .add(layoutBuilder)
+            .addComponent(triggeringPolicy)
+
+        builder.add(appenderBuilder)
+        val rootLogger = builder.newRootLogger(Level.ALL)
+        rootLogger.add(builder.newAppenderRef("LogToRollingFile"))
+        builder.add(rootLogger)
+        Configurator.reconfigure(builder.build())
+    }
+
+    fun startupRoutine(display: Display, setting: Setting, forceSettingsDisplay: Boolean) {
+        if (!verifySettings(display, setting, forceSettingsDisplay)) {
+            display.dispose()
+            exitProcess(0)
+        }
+        Cryptographer.setSecret(setting?.encryptionSecret ?: "")
+        verifyConnection(display, setting)
+    }
+
+    private fun verifySettings(display: Display, setting: Setting, forceSettingsDisplay: Boolean): Boolean {
+        setting.read()
+        var dbType = setting.dbType
+        if (dbType.isNullOrBlank() || forceSettingsDisplay) {
+            //presume first time in setting up
+            val dialog = SettingsDialog(display.activeShell)
+            if (dialog.open() != Window.OK) {
+               showErrorDialog("Settings cancelled, the program must now exit", null)
+                return false
+            }
+            setting.read()
+        }
+        dbType = setting.dbType
+        if (dbType.isNullOrBlank()) {
+            //gave 1 chance, now we should exit
+            showErrorDialog("Settings are invalid, Database Type not set", null)
+        }
+        return true
+    }
+
+
+    private fun verifyConnection(display: Display, setting: Setting) {
+        val (didConnect, message) = connect(setting)
+        if (!didConnect) {
+            showErrorDialog("Database Connection Error, please check settings. Message: ${message}", null)
+            //go around again
+            startupRoutine(display, setting, true)
+        }
+    }
+
+    fun initializeTemplateEngines(){
+        val fileLoader = FileLoader()
+        fileLoader.prefix = "${userPath}${TEMPLATE_PATH}${File.separator}${version}${File.separator}${PLUGIN_TEMPLATE_PATH}${File.separator}${DOTNET_TEMPLATE_PATH}"
+        this.pebbleEngine = PebbleEngine.Builder()
+            .cacheActive(false)
+            .templateCache(null)
+            .tagCache(null)
+            .autoEscaping(false)
+            .loader(fileLoader)
+            .build()
+
+        val loader = ClassPathTemplateLoader()
+        loader.prefix = "/${TEMPLATE_PATH}/${PLUGIN_TEMPLATE_PATH}"
+        this.handleBarsEngine = Handlebars(loader)
+        this.handleBarsEngine.registerHelpers(TemplateHelpers())
+        HumanizeHelper.register(this.handleBarsEngine)
+
+    }
+
+    fun copyTemplates() {
+        copyTemplate("/$TEMPLATE_PATH/", "", "entity.hbs")
+        copyTemplate("/$TEMPLATE_PATH/","","mapper.hbs")
+        copyTemplate("/$TEMPLATE_PATH/","","schema.hbs")
+        copyTemplate("/$TEMPLATE_PATH/","","view.hbs")
+        copyTemplate("/$TEMPLATE_PATH/","","viewModel.hbs")
+        copyTemplate("/$TEMPLATE_PATH/","","bootstrap.hbs")
+
+        //plugin templates
+        val outputSuffixPlugins = "${PLUGIN_TEMPLATE_PATH}${File.separator}"
+        val basePathPlugins = "${TEMPLATE_PATH}/${PLUGIN_TEMPLATE_PATH}"
+        copyTemplate(basePathPlugins, outputSuffixPlugins, "entity.hbs")
+        copyTemplate(basePathPlugins, outputSuffixPlugins,"mapper.hbs")
+        copyTemplate(basePathPlugins, outputSuffixPlugins,"schema.hbs")
+        copyTemplate(basePathPlugins, outputSuffixPlugins,"view.hbs")
+        copyTemplate(basePathPlugins, outputSuffixPlugins,"viewModel.hbs")
+
+        val outputSuffixPluginsDotnet = "${PLUGIN_TEMPLATE_PATH}${File.separator}${DOTNET_TEMPLATE_PATH}${File.separator}"
+        val basePathPluginsDotnet = "/${TEMPLATE_PATH}/${PLUGIN_TEMPLATE_PATH}/${DOTNET_TEMPLATE_PATH}"
+        copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet, "dto.peb")
+        copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet,"endpoint.peb")
+        copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet,"form.peb")
+        copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet,"functions.peb")
+        copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet,"repositoryClass.peb")
+        copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet,"repositoryInterface.peb")
+        copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet,"viewModel.peb")
+    }
+
+    private fun copyTemplate(basePath: String, outputSuffix: String, fileName: String) {
+        /* copy all the templates from the resources directory to the user folder */
+        val templatePath: String = "/$basePath/$fileName"
+        val outputFile =
+            File("$userPath${File.separator}$TEMPLATE_PATH${File.separator}${version}${File.separator}${outputSuffix}$fileName")
+        if (!outputFile.exists()) {
+            try {
+                val filestream = this.javaClass.getResourceAsStream(templatePath).use {
+                    Files.copy(it, outputFile.toPath())
+                };
+            } catch (e: Exception) {
+                ApplicationData.logError(e,"Error copying template $fileName Message: ${e.message}")
+            }
+        }
+    }
+
+    fun reconnect() {
+        try {
+            val setting: Setting = Setting("", "", "", "", "", "")
+            setting.read()
+            val (result, message) = connect(setting)
+            if (!result) {
+                val errMessage = "Error connecting to database: ${message}. Please check the settings."
+                showErrorDialog(errMessage, null)
+            }
+        } catch (e: Exception) {
+            val errMessage = "Error connecting to database: ${e.message}. Please check the settings."
+            showErrorDialog(errMessage, e)
+        }
+    }
+
+    fun showErrorDialog(errMessage: String, exception: Exception?, title: String = "Error") {
+       ErrorDialog.openError(
+            Display.getDefault().activeShell,
+            title,
+            errMessage,
+            exception?.let
+            { createMultiStatus(errMessage, exception) }
+                ?: Status(IStatus.ERROR, pluginId, errMessage)
+        )
+    }
+
+    private fun createMultiStatus(errMessage: String, e: Exception): MultiStatus {
+        val list: List<Status> = listOf(
+            Status(IStatus.ERROR, pluginId, errMessage),
+            Status(IStatus.ERROR, pluginId, e.message)
+        )
+        return MultiStatus(pluginId, IStatus.ERROR, list.toTypedArray(), e.toString(), e)
+    }
+
+    private fun connect(setting: Setting): Pair<Boolean, String> {
+        return try {
+            SchemaBuilder.db = SchemaBuilder.connect(setting)
+            if (SchemaBuilder.db == null) {
+                false to "Database is null"
+            } else {
+                //this should trigger an error if database is invalid
+                val dbVersion = SchemaBuilder.db?.version
+                checkVersion()
+                SchemaBuilder.updateSchema()
+                true to ""
+            }
+        } catch (e: Exception) {
+            val msg = e.message ?: "unknown"
+            logError(e, msg)
+            false to msg
+        }
+    }
+
+    fun testConnection(setting: Setting): Pair<Boolean, Exception?> {
+        return try {
+            val db = SchemaBuilder.connect(setting)
+            //have to run a query to find out if database really exists
+            val dbVersion = db?.version
+            Pair(true, null)
+        } catch (e: Exception) {
+            Pair(false, e)
+        }
+    }
+
+/*
+    suspend fun testConnection(setting: Setting) : Pair<Boolean, Exception?> {
+        return try {
+            val db = SchemaBuilder.connect(setting)
+            Pair(true, null)
+        } catch(e: Exception){
+            Pair(false, e)
+        }
+    }
+ */
+
+    private fun checkVersion() {
+        var versionList = listOf<AppVersion>()
+        try {
+            versionList = AppVersionMapper.getAll(mapOf())
+        } catch (e: Exception) {
+            //presumably the schema's do not yet exist
+        }
+        if (versionList.isEmpty()) {
+            // 1 time setup stuff
+            val firstTimeDialog = FirstTimeSetupDialog(Display.getDefault().activeShell)
+            firstTimeDialog.open()
+        }
+        LookupUtils.load()
+    }
+
+
+    fun getSaveToolbarButton(): ToolItem {
+        return mainWindow.toolBarManager.control.getItem(0)
+    }
+
+    fun getNewToolbarButton(): ToolItem {
+        return mainWindow.toolBarManager.control.getItem(1)
+    }
+
+
+    fun getDeleteToolbarButton(): ToolItem {
+        return mainWindow.toolBarManager.control.getItem(2)
+    }
+
+    fun logError(e: Exception?, moreInfo: String?) {
+        logger.error(moreInfo, e)
+    }
+
+    fun close(){
+        try {
+            AudioClient.close()
+            SpeechRecognition.close()
+            SchemaBuilder.close()
+        } catch(e: Exception){
+            logger.error("Error in closing down", e)
+        }
+
+    }
+}
+
+
+//const val serverPort = 8082
+//const val serverHost = "localhost"
+//const val serverProtocol = "http"
+//val urls = mapOf<String, String>("views" to "views")
+
+//val views = ViewDefinitions.makeDefinitions()
+
+
+/* now this is removed, using database instead of a http server
+SimpleHttpServer.start()
+var viewsPacket = HttpClient.getViews()
+if(viewsPacket is Result.Success) {
+    viewDefinitions = getSerializationFormat().decodeFromString(viewsPacket.data)
+} else {
+    if (viewsPacket is Result.Error) {
+        println(viewsPacket.e)
+    }
+}
+ */
+
+/*
     const val TAB_KEY_PERSON = "person"
     const val TAB_KEY_PERSONDETAIL = "persondetail"
     const val TAB_KEY_RECIPE = "recipe"
@@ -61,293 +454,78 @@ object ApplicationData {
     const val TAB_KEY_PUBLICATION = "publication"
     const val TAB_KEY_TOPIC = "topic"
     const val TAB_KEY_NOTE = "note"
+    const val TAB_KEY_NOTESEGMENT = "notesegment"
     const val TAB_KEY_NOTESEGMENTTYPEHEADER = "notesegmenttypeheader"
-    const val TAB_KEY_NOTESEGMENTTYPE= "notesegmenttype"
+    const val TAB_KEY_NOTESEGMENTTYPE = "notesegmenttype"
+    const val TAB_KEY_QUIZ = "quit"
+    const val TAB_KEY_QUESTION = "question"
+    const val TAB_KEY_ANSWER = "answer"
+    const val TAB_KEY_QUIZRUNHEADER = "quizrunheader"
+    const val TAB_KEY_QUIZRUNQUESTION = "quizrunquestion"
+    const val TAB_KEY_VIEWDEFINITION = "viewdefinition"
+    const val TAB_KEY_VIEWDEFINITIONCHILD = "viewdefinitionchild"
+    const val TAB_KEY_FIELDDEFINITION = "fielddefinition"
+ */
 
+/*
+fun makeTab(viewModel: IFormViewModel<*>, key: String, tabInfo: TabInfo){
+    tabs[key] = createTab(viewModel, tabInfo.caption, key, tabInfo.imageKey, tabInfo.fontKey)
+}
+ */
 
-    const val swnone = SWT.NONE
-    const val labelStyle = SWT.BORDER
-    const val listViewStyle = SWT.SINGLE or SWT.H_SCROLL or SWT.V_SCROLL or SWT.FULL_SELECTION or SWT.BORDER
-
-    const val serverPort = "8080"
-    const val serverHost = "localhost"
-    const val serverProtocol = "http"
-    val urls = mapOf<String, String>("views" to "views")
-
-    //val views = ViewDefinitions.makeDefinitions()
-
-    val defaultUpdatePolicy = UpdateValueStrategy.POLICY_UPDATE  //UpdateValueStrategy.POLICY_ON_REQUEST
-
-    const val lookupFieldLength: Int = 20
-
-    init {
-
-    }
-
-
-    /**********************************
-     * async startup code
-     */
-    private fun startupTasks(){
-        GlobalScope.launch {
-            SimpleHttpServer.start()
-            viewDefinitions = getSerializationFormat().decodeFromString(HttpClient.getViews())
-            //testing code generation
-            testHbars(listOf(
-                getView(ViewDefConstants.shelfViewId),
-                getView(ViewDefConstants.subjectViewId),
-                getView(ViewDefConstants.publicationViewId),
-                getView(ViewDefConstants.topicViewId),
-                getView(ViewDefConstants.noteViewId),
-                getView(ViewDefConstants.noteSegmentTypeHeaderViewId),
-                getView(ViewDefConstants.noteSegmentTypeViewId)
-            ))
-            warmUpScriptEngine()
-        }
-       mainWindow.setStatus("View Definitions loaded from server on Thread ${Thread.currentThread().name}")
-    }
-
-    fun start(): Unit {
-        //runBlocking (Dispatchers.SWT) {
-            val display: Display = Display.getDefault()
-            // note that db operations cannot be performed in background thread
-            // exposed framework uses the current thread internally
-            SchemaBuilder.build()
-            Realm.runWithDefault(DisplayRealm.getRealm(display)) {
-                try {
-                    imageRegistry = ImageRegistry()
-                    lookups = LookupMapper.getLookups()
-                    mainWindow = MainWindow(null)
-                    mainWindow.setBlockOnOpen(true)
-                    GlobalScope.launch(Dispatchers.SWT) {startupTasks()}
-                    mainWindow.open()
-                    Display.getCurrent().dispose()
-                    SimpleHttpServer.stop()
-                } catch (ex: Exception) {
-                    println(ex.message)
-                }
-            }
-        //}
-    }
-
-    fun getSerializationFormat() = Json { prettyPrint = true }
-
-
-
-    /************************** new way ***************************************************/
-    fun makeTab(viewModel: IFormViewModel<*>, caption: String, key: String): Unit {
-        if (tabs.containsKey(key) && tabs[key] != null) {
-            if (tabs[key]!!.isClosed) {
-                // set it to open and create the tab
-                tabs[key] = createTab(viewModel, caption, key)
-            } else {
-                // set focus to existing tab somehow
-
-            }
-        } else {
-            tabs[key] = createTab(viewModel, caption, key)
-        }
-    }
-
-    private fun createTab(viewModel: IFormViewModel<*>, caption: String, key: String): TabInstance {
-        val tabItem = CTabItem(mainWindow.folder, SWT.CLOSE)
-        tabItem.text = caption
-        tabItem.control = viewModel.render()
-        tabItem.addDisposeListener {
-            tabs[key]!!.isClosed = true
-        }
-        tabItem.setData("key", key)
-        mainWindow.folder.selection = tabItem
-        return TabInstance(viewModel, tabItem, false)
-    }
-
-
-    /*
-    fun getView(viewId: String): Map<String, Any> {
-        val forms: List<Map<String, Any>> = views[ViewDefConstants.forms] as List<Map<String, Any>>
-        return forms.first { it[ViewDefConstants.viewid] == viewId }
-    }
-
-     */
-
-    fun getView(viewId: String): ViewDef =
-        viewDefinitions.first {it.id == viewId}
-
-
-    fun makeServerUrl(urlKey: String): String = "$serverProtocol://$serverHost:$serverPort/${urls[urlKey]}"
-
-    fun setupImages() {
-        try {
-            putImage(IMAGE_ACTVITY_SMALL, "Activity_16xSM.png")
-            putImage(IMAGE_ACTIVITY_LARGE, "Activity_32x.png")
-            putImage(IMAGE_GOUP, "go-up.png")
-            putImage(IMAGE_STOCK_EXIT, "stock_exit_24.png")
-            putImage(IMAGE_STOCK_INFO, "stock_save_24.png")
-        } catch (e: Exception) {
-            println(e)
-        }
-    }
-
-    private fun putImage(key: String, filename: String) = try {
-        val path: String = IMAGES_PATH + filename
-        this.imageRegistry.put(key, ImageDescriptor.createFromFile(ApplicationData.javaClass, path))
-    } catch (e: Exception) {
-        println(e)
-    }
-
-    fun getImage(name: String): Image {
-        return this.imageRegistry.get(name)
-    }
-
-    const val countryLookupKey = "country"
-    const val speciesLookupKey = "species"
-    const val recipeCategoryLookupKey = "recipecat"
-    const val unitLookupKey = "unit"
-    const val techLanguageLookupKey = "techlang"
-    const val snippetCategoryKey = "cat"
-    const val snippetTopicKey = "topic"
-    const val snippetTypeKey = "type"
-    const val passwordMasterKey = "password_master"
-    const val loginCategoryKey = "logcat"
-    const val publicationTypeLookupKey = "pubtype"
-
-    val countryList: List<LookupDetail> by lazy { lookups.getOrDefault(countryLookupKey, emptyList())}
-    val speciesList: List<LookupDetail> by lazy { lookups.getOrDefault(speciesLookupKey, emptyList())}
-    val recipeCategoryList by lazy { lookups.getOrDefault(recipeCategoryLookupKey, emptyList())}
-    val unitList: List<LookupDetail> by lazy {lookups.getOrDefault(unitLookupKey, emptyList())}
-    val techLanguage: List<LookupDetail> by lazy {lookups.getOrDefault(techLanguageLookupKey, emptyList())}
-    val snippetCategory: List<LookupDetail> by lazy {lookups.getOrDefault(snippetCategoryKey, emptyList())}
-    val snippetTopic: List<LookupDetail> by lazy {lookups.getOrDefault(snippetTopicKey, emptyList())}
-    val snippetType: List<LookupDetail> by lazy {lookups.getOrDefault(snippetTypeKey, emptyList())}
-    val passwordMaster: List<LookupDetail> by lazy {lookups.getOrDefault(passwordMasterKey, emptyList())}
-    val loginCategoryList by lazy {lookups.getOrDefault(loginCategoryKey, emptyList())}
-    val publicationTypeList by lazy {lookups.getOrDefault(publicationTypeLookupKey, emptyList())}
-
-    lateinit var lookups: Map<String, List<LookupDetail>>
-
-    fun getSaveToolbarButton() : ToolItem{
-        return mainWindow.toolBarManager.control.getItem(0)
-    }
-
-    fun getNewToolbarButton() : ToolItem{
-        return mainWindow.toolBarManager.control.getItem(1)
-    }
-
-
-    fun getDeleteToolbarButton() : ToolItem{
-        return mainWindow.toolBarManager.control.getItem(2)
-    }
-
-    val scriptEngine: ScriptEngine = makeScriptEngine()
-    private fun makeScriptEngine() : ScriptEngine {
-        return ScriptEngineManager().getEngineByExtension("kts")
-    }
-
-    suspend fun warmUpScriptEngine(){
-        //warm up the engine
-        scriptEngine.eval("1 + 1")
-    }
-
-
-    object ViewDefConstants {
-
-        // the view id's
-        const val personViewId = "person"
-        const val personDetailsViewId = "persondetails"
-        const val recipeViewId = "recipe"
-        const val ingredientViewId = "ingredients"
-        const val techSnippetsViewId = "techsnip"
-        const val loginViewId = "login"
-        const val notebookViewId = "notebook"
-        const val noteheaderViewId = "noteheader"
-        const val noteDetailViewId = "notedetail"
-        const val lookupViewId = "lookup"
-        const val lookupDetailViewId = "lookupdetail"
-        const val shelfViewId = "shelf"
-        const val subjectViewId = "subject"
-        const val topicViewId = "topic"
-        const val publicationViewId = "publication"
-        const val noteViewId = "note"
-        const val noteSegmentViewId = "notesegment"
-        const val noteSegmentTypeViewId = "notesegmenttype"
-        const val noteSegmentTypeHeaderViewId = "notesegmenttypeheader"
-        const val answerViewId = "answer"
-        const val questionViewId = "question"
-        const val quizViewId = "quiz"
-        const val quizRunHeaderViewId = "quizrunheader"
-        const val quizRunQuestionViewId = "quizrunquestion"
-
-       // the properties available to the views
-        const val title = "title"
-        const val version = "version"
-        const val viewid = "viewid"
-        const val btnRemove = "btnRemove"
-        const val btnAdd = "btnAdd"
-        const val list = "list"
-        const val tab = "tab"
-        const val add_caption = "Add"
-
-        const val forms = "forms"
-        const val fields = "fields"
-
-        //what field from the data (a map) is the input control binding to
-        const val fieldName = "fieldName"
-
-        // needed for conversions text to int etc
-        //determines what control type is used
-        const val fieldDataType = "fieldDataType"
-
-        // possible datatypes
-        const val float = "float"
-        const val int = "int"
-        const val text = "text"
-
-        // memo is long text
-        const val memo = "memo"
-        const val lookup = "lookup"
-        const val lookupKey = "lookupKey"
-        const val bool = "bool"
-        const val datetime = "datetime"
-        const val money = "money"
-        // source is a source code editor
-        const val source = "source"
-
-        // sizing
-        const val sizeHint = "sizeHint"
-        const val large = "large"
-        const val medium = "medium"
-        const val small = "small"
-
-        const val fieldLabelConverter = "fieldLabelConverter"
-        const val required = "required"
-        const val listWeight = "listweight"
-        const val editWeight = "editweight"
-        const val sashOrientation = "sashorientation"
-        const val horizontal = "horizontal"
-        const val vertical = "vertical"
-
-        const val childViews = "childViews"
-
-        fun makeColumnMapKey(fieldName: String): String = fieldName + "_column"
+//fun makeTab(viewModel: IFormViewModel<*>, caption: String, key: String, imageKey: String? = null, fontKey: String? = null): Unit {
+/* stop worry about double opening tabs
+if (tabs.containsKey(key) && tabs[key] != null) {
+    if (tabs[key]!!.isClosed) {
+        // set it to open and create the tab
+        tabs[key] = createTab(viewModel, caption, key, imageKey)
+    } else {
+        // set focus to existing tab somehow
 
     }
+} else {
+    tabs[key] = createTab(viewModel, caption, key, imageKey)
+}
+ */
+//   tabs[key] = createTab(viewModel, caption, key, imageKey, fontKey)
+//}
 
+/*
+fun makeFileEditorTab(viewModel: IFileViewModel, caption: String, key: String) {
+    createFileEditorTab(viewModel, caption, key)
+}
+ */
+
+/*
+private fun createTab(viewModel: IFormViewModel<*>, caption: String, key: String, imageKey: String?, fontKey: String?): TabInstance {
+    val tabItem = CTabItem(mainWindow.folder, SWT.CLOSE)
+    tabItem.text = caption
+    tabItem.control = viewModel.render()
+    tabItem.addDisposeListener {
+        tabs[key]!!.isClosed = true
+    }
+    tabItem.setData("key", key)
+    if (imageKey != null) {
+        tabItem.image = ImageUtils.getImage(imageKey)
+    }
+    if(fontKey != null){
+        tabItem.font = FontUtils.getFont(fontKey)
+    }
+    mainWindow.folder.selection = tabItem
+    return TabInstance(viewModel, tabItem, false)
+}
+private fun createFileEditorTab(viewModel: IFileViewModel, caption: String, key: String) {
+    val tabItem = CTabItem(mainWindow.folder, SWT.CLOSE)
+    tabItem.text = caption
+    tabItem.control = viewModel.render()
+    tabItem.setData("key", key)
+    mainWindow.folder.selection = tabItem
 }
 
+fun getView(viewId: String): ViewDef =
+    viewDefinitions.first { it.id == viewId }
 
-/* this was a one off to convert hard coded lookups to database
-fun createLookups(){
-    lookups.forEach { (key: String, value: List<LookupDetail>) ->
-        createLookup(key, key, value)
-    }
-}
 
-fun createLookup(key: String, name: String, items: List<LookupDetail>){
-    val lookup = Lookup(0, key, name)
-    LookupMapper.save(lookup)
-    items.forEach {
-        it.lookupId = lookup.id
-        LookupDetailMapper.save(it)
-    }
-}
+//fun makeServerUrl(urlKey: String): String = "$serverProtocol://$serverHost:$serverPort/${urls[urlKey]}"
+
  */

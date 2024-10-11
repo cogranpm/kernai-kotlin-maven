@@ -1,0 +1,42 @@
+import com.parinherm.ApplicationData
+import com.parinherm.menus.TabInfo
+import kotlin.properties.Delegates
+import com.parinherm.entity.ModelObject 
+import com.parinherm.entity.IBeanDataEntity
+import org.jetbrains.exposed.dao.id.LongIdTable
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.javatime.date
+import org.jetbrains.exposed.sql.javatime.datetime
+import com.parinherm.entity.schema.IMapper
+import org.jetbrains.exposed.sql.statements.UpdateBuilder
+import com.parinherm.entity.schema.MapperHelper
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import java.time.LocalDate
+import java.time.LocalDateTime
+import com.parinherm.lookups.LookupUtils
+
+//view model
+import com.parinherm.builders.BeansViewerComparator
+import com.parinherm.builders.IViewerComparator
+import com.parinherm.entity.schema.IngredientMapper
+import com.parinherm.form.ChildFormTab
+import com.parinherm.form.FormViewModel
+import com.parinherm.form.IFormViewModel
+import org.eclipse.core.databinding.observable.list.WritableList
+import org.eclipse.jface.viewers.Viewer
+import org.eclipse.swt.custom.CTabFolder
+import com.parinherm.form.Form
+import org.eclipse.swt.widgets.Composite
+import com.parinherm.view.View
+import com.parinherm.server.DefaultViewDefinitions
+
+fun main(tabInfo: TabInfo) {
+    val schemaTables = getSchemaTables()
+    SchemaBuilder.buildSchema(schemaTables)
+    val viewModel = makeViewModel(tabInfo)
+}
+
+fun getSchemaTables() : List<LongIdTable> = listOf({{capitalizeIt entityDef.name}}s {{#each childViews}}, {{capitalizeIt entityDef.name}}s{{/each}})
+
+fun makeViewModel(tabInfo: TabInfo) : {{capitalizeIt entityDef.name}}ViewModel = {{capitalizeIt entityDef.name}}ViewModel(tabInfo)
+

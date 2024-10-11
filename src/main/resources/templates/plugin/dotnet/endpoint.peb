@@ -1,0 +1,106 @@
+using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi.Models;
+using webapi.DTO.Trips;
+using webapi.Model.Vacation;
+using webapi.Repository;
+using webapi.Repository.Trips;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using webapi.Model;
+
+namespace webapi.Endpoints.Trips;
+
+public static class {{viewDef.entityDef.name | capitalize}}Endpoints
+{
+    public static void Map{{viewDef.entityDef.name | capitalize}}Endpoints (this IEndpointRouteBuilder routes)
+    {
+        var group = routes.MapGroup("/api/{{viewDef.entityDef.name | capitalize}}")
+            .WithTags(nameof({{viewDef.entityDef.name | capitalize}}))
+            .RequireAuthorization()
+            .WithOpenApi();
+
+        group.MapGet("/",
+            [ResponseCache(NoStore = true)]
+            async (
+            I{{viewDef.entityDef.name | capitalize}}Repository repository,
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}I{{ ownerAssociation.ownedViewDefinition.entityName | capitalize }}Repository {{ ownerAssociation.ownedViewDefinition.entityName }}Repository, {% endif %}
+{% endfor %}
+{% for assoc in viewDef.ownedAssociations %}{% if assoc.ownedType == "one" %} I{{ assoc.ownerViewDefinition.entityName | capitalize }}Repository {{ assoc.ownerViewDefinition.entityName }}Repository, {% endif %}
+{% endfor %}
+        IMapper mapper,
+        ClaimsPrincipal user,
+        UserManager<ApiUser> userManager
+        ) =>
+        {
+            var userAccount = await userManager.FindByNameAsync(user.Identity.Name);
+            var list = mapper.Map<IEnumerable<{{viewDef.entityDef.name | capitalize}}DTO>>(await  repository.Get(userAccount.Id));
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+var {{ ownerAssociation.name }}Picker = mapper.Map<IEnumerable<{{ ownerAssociation.ownedViewDefinition.entityName | capitalize }}DTO>>(await {{ ownerAssociation.ownedViewDefinition.entityName }}Repository.Get(userAccount.Id));
+{% endif %}
+{% endfor %}
+{%for assoc in viewDef.ownedAssociations%}
+{% if assoc.ownedType == "one" %}
+var {{ assoc.ownerViewDefinition.entityName }}Picker = mapper.Map<IEnumerable<{{ assoc.ownerViewDefinition.entityName | capitalize }}DTO>>(await {{ assoc.ownerViewDefinition.entityName }}Repository.Get(userAccount.Id));
+{% endif %}
+{% endfor %}
+            return new {{viewDef.entityDef.name | capitalize}}ViewModel(list.ToList()
+{% for ownerAssociation in viewDef.ownerAssociations %}{% if ownerAssociation.owningType == "one" %}, {{ ownerAssociation.name }}Picker.ToList() {% endif %}{% endfor %}
+{% for assoc in viewDef.ownedAssociations %}{% if assoc.ownedType == "one" %}, {{ assoc.ownerViewDefinition.entityName }}Picker.ToList() {% endif %}{% endfor %}
+            );
+        })
+        .WithName("GetAll{{viewDef.entityDef.name | capitalize}}s");
+
+        group.MapGet("/{id:}", async (Guid id, I{{viewDef.entityDef.name | capitalize}}Repository repository, IMapper mapper) =>
+        {
+            {{viewDef.entityDef.name | capitalize}}? it = await repository.Retrieve(id);
+            if(it != null)
+            {
+                return Results.Ok<{{viewDef.entityDef.name | capitalize}}DTO>(mapper.Map<{{viewDef.entityDef.name | capitalize}}DTO>(it));
+            }
+            else
+            {
+                return TypedResults.NotFound();
+            }
+        })
+        .WithName("Get{{viewDef.entityDef.name | capitalize}}ById");
+
+        group.MapPut("/{id}", async (Guid id, {{viewDef.entityDef.name | capitalize}}DTO input, I{{viewDef.entityDef.name | capitalize}}Repository repository, IMapper mapper) =>
+        {
+            {{viewDef.entityDef.name | capitalize}} {{viewDef.entityDef.name}} = mapper.Map<{{viewDef.entityDef.name | capitalize}}>(input);
+            var affected = await repository.Update({{viewDef.entityDef.name}});
+            return affected == 1 ? Results.Ok() : TypedResults.NotFound();
+        })
+        .WithName("Update{{viewDef.entityDef.name | capitalize}}");
+
+        group.MapPost("/",
+        [ResponseCache(NoStore = true)]
+        async (
+            {{viewDef.entityDef.name | capitalize}}DTO model,
+            I{{viewDef.entityDef.name | capitalize}}Repository repository,
+            IMapper mapper,
+            ClaimsPrincipal user,
+            UserManager<ApiUser> userManager) =>
+        {
+            var userAccount = await userManager.FindByNameAsync(user.Identity.Name);
+            {{viewDef.entityDef.name | capitalize}} {{viewDef.entityDef.name}} = mapper.Map<{{viewDef.entityDef.name | capitalize}}>(model);
+            {{viewDef.entityDef.name}}.UserId = new Guid(userAccount.Id);
+            repository.Insert({{viewDef.entityDef.name}});
+            await repository.Save();
+            return TypedResults.Created($"/api/{{viewDef.entityDef.name | capitalize}}/{model.Id}", model);
+        })
+        .WithName("Create{{viewDef.entityDef.name | capitalize}}");
+
+        group.MapDelete("/{id}", async (Guid id, I{{viewDef.entityDef.name | capitalize}}Repository repository, IMapper mapper) =>
+        {
+            var affected = await repository.Delete(id);
+            return affected == 1 ? Results.Ok() : TypedResults.NotFound();
+        })
+        .WithName("Delete{{viewDef.entityDef.name | capitalize}}");
+    }
+}

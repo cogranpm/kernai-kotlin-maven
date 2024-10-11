@@ -1,6 +1,7 @@
 package com.parinherm.entity.schema
 
 import com.parinherm.entity.Login
+import com.parinherm.security.Cryptographer
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
@@ -11,7 +12,10 @@ object LoginMapper : IMapper<Login> {
     val table = Logins
 
     override fun save(item: Login) : Unit {
+        val oldPassword = item.password
+        item.password = Cryptographer.encrypt(item.password)
         MapperHelper.save(item, table, LoginMapper::mapItem)
+        item.password = oldPassword
     }
 
     fun mapItem(item: Login, statement: UpdateBuilder<Int>) : Unit {
@@ -32,7 +36,7 @@ object LoginMapper : IMapper<Login> {
                 it[table.name],
                 it[table.category],
                 it[table.userName],
-                it[table.password],
+                Cryptographer.decrypt(it[table.password]),
                 it[table.url],
                 it[table.notes],
                 it[table.other])
@@ -41,5 +45,15 @@ object LoginMapper : IMapper<Login> {
 
     override fun delete(item: Login) {
         MapperHelper.delete(table, table.id eq item.id)
+    }
+
+    fun encryptAll(){
+        val logins = getAll(mapOf())
+        val encryptedLogins = logins.map {
+            Login(it.id, it.name, it.category, it.userName, Cryptographer.encrypt(it.password), it.url, it.notes, it.other)
+        }
+        encryptedLogins.forEach {
+            save(it)
+        }
     }
 }

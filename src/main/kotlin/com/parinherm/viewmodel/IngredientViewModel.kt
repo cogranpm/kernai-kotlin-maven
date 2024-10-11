@@ -1,24 +1,31 @@
 package com.parinherm.viewmodel
 
-import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.builders.IViewerComparator
 import com.parinherm.entity.Ingredient
+import com.parinherm.entity.Recipe
 import com.parinherm.entity.schema.IngredientMapper
 import com.parinherm.form.FormViewModel
+import com.parinherm.form.makeHeaderText
+import com.parinherm.lookups.LookupUtils
+import com.parinherm.menus.TabInfo
 import com.parinherm.view.IngredientView
-import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.jface.viewers.Viewer
-import org.eclipse.swt.custom.CTabFolder
 
-class IngredientViewModel (val recipeId: Long, val selectedIngredient: Ingredient?, val openedFromTabId: String?, parent: CTabFolder):
-        FormViewModel<Ingredient>(IngredientView(parent, IngredientViewModel.Comparator()),
-                IngredientMapper, { Ingredient.make(recipeId)})  {
-
+class IngredientViewModel (
+    val recipe: Recipe?,
+    val selectedIngredient: Ingredient?,
+    val openedFromTabId: String?,
+    tabInfo: TabInfo):
+        FormViewModel<Ingredient>(IngredientView(tabInfo.folder, IngredientViewModel.Comparator()),
+                IngredientMapper, { Ingredient.make(recipe!!.id)}, tabInfo)  {
 
     init {
-        loadData(mapOf("recipeId" to recipeId))
+        loadData(mapOf("recipeId" to recipe!!.id))
         onLoad(selectedIngredient)
+        if(recipe != null){
+           makeHeaderText(this.view.form.headerSection, "Recipe: ${recipe.name}")
+        }
     }
 
     override fun getData(parameters: Map<String, Any>): List<Ingredient> {
@@ -43,7 +50,7 @@ class IngredientViewModel (val recipeId: Long, val selectedIngredient: Ingredien
             val rc = when(propertyIndex){
                 name_index -> compareString(entity1.name, entity2.name)
                 quantity_index -> entity1.quantity.compareTo(entity2.quantity)
-                unit_index -> compareLookups(entity1.unit, entity2.unit, ApplicationData.unitList)
+                unit_index -> compareLookups(entity1.unit, entity2.unit, LookupUtils.getLookupByKey(LookupUtils.unitLookupKey, false))
                 else -> 0
             }
             return flipSortDirection(rc)

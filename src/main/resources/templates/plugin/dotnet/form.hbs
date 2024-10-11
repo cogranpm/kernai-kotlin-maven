@@ -1,0 +1,264 @@
+import React, { useState, useEffect, useRef } from 'react';
+import {
+    Button,
+    Field,
+    Input,
+    makeStyles,
+    shorthands,
+    DataGridBody,
+    DataGridRow,
+    DataGrid,
+    DataGridHeader,
+    DataGridHeaderCell,
+    DataGridCell,
+    TableCellLayout,
+    TableColumnDefinition,
+    Toolbar,
+    ToolbarButton,
+    ToolbarDivider,
+    createTableColumn,
+    Card,
+    CardFooter,
+    CardHeader,
+    CardPreview,
+    Caption1,
+    Body1,
+    Badge,
+    Text
+} from '@fluentui/react-components';
+import styles from '../Styles.module.scss';
+import { getAll, loadRecord, deleteRecord, putData, postData, makeNew } from './functions.js';
+import CountrySelector from '../CountrySelector';
+import { ArrowSyncCircle24Filled, SelectObjectSkewEdit24Filled, Delete24Filled, Save24Filled, FormNew24Filled } from '@fluentui/react-icons';
+
+
+const useStyles = makeStyles({
+    root: {
+        display: "flex",
+        flexDirection: "column",
+        ...shorthands.gap("2px"),
+        width: "720px",
+        maxWidth: "100%"
+    },
+});
+
+const columns = [
+    {{#each fieldDefinitions}}
+    createTableColumn({
+        columnId: "{{name}}",
+        compare: (a, b) => {
+            return a.{{name}}.localeCompare(b.{{name}});
+        },
+        renderHeaderCell: () => {
+            return "{{title}}";
+        },
+        renderCell: (item) => {
+            return (
+                <TableCellLayout >
+                    {item.{{name}}\}
+                </TableCellLayout>
+            );
+        },
+    }) {{#unless @last}},{{/unless}}
+    {{/each}}
+]
+
+function Form() {
+    const [list, setList] = useState([]);
+    const [{{entityDef.name}}, set{{capitalizeIt entityDef.name}}] = useState(null);
+    const [results, setResults] = useState("");
+    const styles = useStyles();
+
+    const onRefresh = async (e) => {
+        const response = await getAll();
+        if (response.list) {
+            setList(response.list);
+            setResults('loaded');
+        } else {
+            setResults(response.error);
+        }
+    }
+
+    //init
+    useEffect(() => {
+        onRefresh(null);
+    }, []);
+
+    const onSelectionChange = (e, data) => {
+        if (data.selectedItems.size === 1) {
+            selectOne(data.selectedItems.values().next().value);
+        }
+    };
+
+    const selectOne = async (id) => {
+        const response = await loadRecord(id);
+        if (response.{{entityDef.name}}) {
+            set{{capitalizeIt entityDef.name}}(response.{{entityDef.name}});
+        } else {
+            setResults(response.error);
+        }
+    };
+
+    const deleteOne = async () => {
+        if (!window.confirm('Delete, are you sure?')) {
+            return;
+        }
+        const response = await deleteRecord({{entityDef.name}}.id);
+        if (response.error) {
+            set{{capitalizeIt entityDef.name}}(null);
+            setResults(results.filter((x) => x.id !== id));
+        } else {
+            setResults('{{capitalizeIt entityDef.name}} was removed');
+        }
+    };
+
+    const postIt = async (e) => {
+        //reset the combo box lookups if not set
+        if ({{entityDef.name}}.isNew) {
+            await post({{entityDef.name}});
+            setList([...list, {{entityDef.name}}]);
+        } else {
+            await put({{entityDef.name}});
+        }
+    };
+
+    const post = async ({{entityDef.name}}) => {
+        const response = await postData({{entityDef.name}});
+        if (!response.error) {
+            setResults(`${response.{{entityDef.name}}.first} was added`);
+            set{{capitalizeIt entityDef.name}}({ ...{{entityDef.name}}, isNew: false });
+        } else {
+            setResults(`Error posting: ${response.error}`);
+        }
+    };
+
+    const put = async ({{entityDef.name}}) => {
+        const response = await putData({{entityDef.name}});
+        if (!response.error) {
+            setResults(`${response.{{entityDef.name}}.first} was updated`);
+        } else {
+            setResults(`Error updating ${ {{entityDef.name}}.first}: ${response.error}`);
+        }
+    };
+
+    const onNew = (e) => {
+        set{{capitalizeIt entityDef.name}}(makeNew());
+    };
+
+    {{#each fieldDefinitions}}
+    const handle{{name}}Change = async (ev, data) => {
+        if (data.value.length <= 150) {
+            set{{capitalizeIt entityDef.name}}({ ...{{entityDef.name}}, {{name}}: data.value });
+        }
+    };
+    {{/each}}
+
+    return (
+        <div className={styles.root}>
+            <Card>
+                <CardHeader
+                    header={
+                        <div>
+                            <Toolbar>
+                                <ToolbarButton
+                                    aria-label="New"
+                                    icon={<FormNew24Filled />}
+                                    appearance="primary"
+                                    onClick={onNew}>
+                                </ToolbarButton>
+                               <ToolbarButton
+                                    aria-label="Save"
+                                    icon={<Save24Filled />}
+                                    appearance="primary"
+                                    disabled={ {{entityDef.name}} === null }
+                                    onClick={postIt}>
+                                </ToolbarButton>
+                                 <ToolbarButton
+                                    aria-label="Refresh"
+                                    icon={<ArrowSyncCircle24Filled />}
+                                    appearance="primary"
+                                    onClick={onRefresh}
+                                ></ToolbarButton>
+                                <ToolbarButton
+                                    aria-label="Delete"
+                                    icon={<Delete24Filled />}
+                                    appearance="primary"
+                                    onClick={deleteOne}
+                                    disabled={ {{entityDef.name}} === null }
+                                >
+                                </ToolbarButton>
+                            </Toolbar>
+
+                        <Body1>
+                            <Text>{{capitalizeIt entityDef.name}}s</Text>
+                        </Body1>
+                        </div>
+                    }
+                />
+                <CardPreview>
+                    <DataGrid
+                        items={list}
+                        columns={columns}
+                        sortable
+                        selectionMode="single"
+                        onSelectionChange={onSelectionChange}
+                        getRowId={(item) => item.id}
+                    >
+                        <DataGridHeader>
+                            <DataGridRow>
+                                {({ renderHeaderCell }) => (
+                                    <DataGridHeaderCell>{renderHeaderCell()}</DataGridHeaderCell>
+                                )}
+                            </DataGridRow>
+                        </DataGridHeader>
+                        <DataGridBody>
+                            {({ item, rowId }) => (
+                                <DataGridRow
+                                    key={rowId}
+                                    selectionCell=\{{ radioIndicator: { "aria-label": "Select row" } \}}
+                                >
+                                    {({ renderCell }) => (
+                                        <DataGridCell>{renderCell(item)}</DataGridCell>
+                                    )}
+                                </DataGridRow>
+                            )}
+                        </DataGridBody>
+                    </DataGrid>
+                </CardPreview>
+                <CardFooter>
+                    <Body1>
+                      <Text align="justify">Results: {results}</Text>
+                    </Body1>
+                </CardFooter>
+            </Card>
+            <div>
+                <form>
+                    <fieldset disabled={ {{entityDef.name}} === null}>
+                        <Field label="Id">
+                            <Input
+                                id="id"
+                                value={companion ? companion.id : ""}
+                                readOnly={true}
+                                disabled={true}
+                            />
+                        </Field>
+                        {{#each fieldDefinitions}}
+                        <Field label="{{title}}">
+                            <Input
+                                id="{{name}}"
+                                value={ {{entityDef.name}} ? {{entityDef.name}}.{{name}} : ""}
+                                onChange={handle{{capitalizeIt name}}Change}
+                                {{#unless required}}required{{/unless}}
+                                maxLength={150}
+                            />
+                        </Field>
+                        {{/each}}
+                    </fieldset>
+                </form>
+
+            </div>
+        </div>
+    );
+}
+
+export default Form;

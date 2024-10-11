@@ -1,17 +1,22 @@
 package com.parinherm.server
 
 //import com.google.gson.GsonBuilder
+import com.parinherm.ApplicationData
+import com.parinherm.entity.schema.ViewDefinitions
 import com.sun.net.httpserver.HttpServer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.io.File
 import java.io.PrintWriter
 import java.net.InetSocketAddress
 
 object SimpleHttpServer {
 
-    val server  =  HttpServer.create(InetSocketAddress(8080), 0)
+    /*
+    val server  =  HttpServer.create(InetSocketAddress(ApplicationData.serverPort), 0)
 
     fun start(){
+
         server.apply {
 
             // test route
@@ -29,34 +34,26 @@ object SimpleHttpServer {
                 http.sendResponseHeaders(200, 0)
                 //transform to json for wire format
 
-                /******** transition to kotlinx from gson *************/
-                val format = Json { prettyPrint = true }
-                val viewsWireFormat = format.encodeToString(ViewDefinitions.makeViews())
+
+
+                //val viewDefsFile = viewDefsResource.file
+                //val viewDefsContent = File(viewDefsFile).readText()
+
+                // user data format instead
+
                 PrintWriter(http.responseBody).use { out ->
-                    out.println(viewsWireFormat)
+
+                    /* used to load all views at once, not any more
+                    these are in database instead
+                    out.println(ViewDefinitions.load())
+                     */
                 }
 
-                /************* old way was gson *************
-                val gson = GsonBuilder().create()
-                PrintWriter(http.responseBody).use { out ->
-                    out.println(gson.toJson(ViewDefinitions.makeDefinitions()))
-                }
-                *********************************************/
+                //val gson = GsonBuilder().create()
+                //PrintWriter(http.responseBody).use { out ->
+                //    out.println(gson.toJson(ViewDefinitions.makeDefinitions()))
+                //}
             }
-
-            /*
-            createContext("/views2") { http ->
-                http.responseHeaders.add("Content-type", "application/json")
-                http.sendResponseHeaders(200, 0)
-                //transform to json for wire format
-                val gson = GsonBuilder().create()
-                PrintWriter(http.responseBody).use { out ->
-                    //out.println(gson.toJson(ViewDefinitions.makeNotebooks()))
-                    out.println(gson.toJson("farts"))
-                }
-            }
-
-             */
             start()
         }
     }
@@ -64,4 +61,5 @@ object SimpleHttpServer {
     fun stop() {
         server.stop(0)
     }
+     */
 }

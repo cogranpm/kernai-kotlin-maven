@@ -1,0 +1,122 @@
+package com.parinherm.viewmodel
+
+import com.parinherm.menus.TabInfo
+import com.parinherm.builders.BeansViewerComparator
+import com.parinherm.builders.IViewerComparator
+{{#each childViews}}
+import com.parinherm.entity.schema.{{capitalizeIt entityDef.name}}Mapper
+import com.parinherm.entity.{{capitalizeIt entityDef.name}}
+{{/each}}
+import com.parinherm.entity.{{capitalizeIt entityDef.name}}
+import com.parinherm.entity.schema.{{capitalizeIt entityDef.name}}Mapper
+import com.parinherm.form.ChildFormTab
+import com.parinherm.form.FormViewModel
+import com.parinherm.form.IFormViewModel
+import com.parinherm.view.{{capitalizeIt entityDef.name}}View
+import org.eclipse.core.databinding.observable.list.WritableList
+import org.eclipse.jface.viewers.Viewer
+import org.eclipse.swt.custom.CTabFolder
+
+
+class {{capitalizeIt entityDef.name}}ViewModel({{#if (hasForeignKeys this)}} {{#each (getForeignKeysByView this)}}val {{this.entityDef.decapitalized}}Id: Long, {{/each}} val selected{{capitalizeIt entityDef.name}}: {{capitalizeIt entityDef.name}}?, val openedFromTabId: String?, {{/if}} tabInfo: TabInfo) : FormViewModel<{{capitalizeIt entityDef.name}}>(
+    {{capitalizeIt entityDef.name}}View(tabInfo.folder, {{capitalizeIt entityDef.name}}Comparator()),
+    {{capitalizeIt entityDef.name}}Mapper,
+    { {{capitalizeIt entityDef.name}}.make({{#each (getForeignKeysByView this)}}{{this.entityDef.decapitalized}}Id{{#unless @last}}, {{/unless}} {{/each}}) }, tabInfo) {
+
+    {{#each childViews}}
+    private val {{entityDef.decapitalized}}s = WritableList<{{capitalizeIt entityDef.name}}>()
+    private val {{entityDef.decapitalized}}Comparator = {{capitalizeIt entityDef.name}}ViewModel.{{capitalizeIt entityDef.name}}Comparator()
+    {{/each}}
+
+    init {
+{{#if hasChildren}}
+        if (view.form.childFormsContainer != null)
+        {
+            view.form.childFormsContainer!!.childTabs.forEach {
+                childFormTab: ChildFormTab ->
+                when (childFormTab.key) {
+        {{#each childViews}}
+                   "{{lowercase entityDef.name}}" -> wireChildTab(
+                   childFormTab,
+                   {{entityDef.decapitalized}}Comparator,
+                   {{entityDef.decapitalized}}s,
+                   ::make{{capitalizeIt entityDef.name}}sViewModel,
+                   {{capitalizeIt entityDef.name}}Mapper)
+        {{/each}}
+                }
+            }
+        }
+{{/if}}
+        {{#unless isChild}}createTab(){{/unless}}
+        loadData(mapOf({{#each (getForeignKeysByView this)}}"{{entityDef.decapitalized}}Id" to {{entityDef.decapitalized}}Id{{#unless @last}}, {{/unless}}{{/each}}))
+        {{#if (hasForeignKeys this)}}onLoad(selected{{capitalizeIt entityDef.name}}){{/if}}
+    }
+
+
+{{#if (hasForeignKeys this)}}
+    override fun getData(parameters: Map<String, Any>): List<{{capitalizeIt entityDef.name}}> {
+        return mapper.getAll(parameters as Map<String, Long>)
+    }
+
+    override fun save() {
+        super.save()
+        afterSave(openedFromTabId)
+    }
+
+{{/if}}
+
+{{#if hasChildren}}
+{{#each childViews}}
+    private fun make{{capitalizeIt entityDef.name}}sViewModel(currentChild: {{capitalizeIt entityDef.name}}?) : IFormViewModel<{{capitalizeIt entityDef.name}}> {
+        return {{capitalizeIt entityDef.name}}ViewModel(
+        currentEntity!!.id,
+        currentChild,
+        tabId,
+        tabInfo.copy(caption = "{{title}}"))
+        }
+
+    private fun clearAndAdd{{capitalizeIt entityDef.name}}() {
+        {{entityDef.decapitalized}}s.clear()
+        {{entityDef.decapitalized}}s.addAll({{capitalizeIt entityDef.name}}Mapper.getAll(mapOf("{{../entityDef.decapitalized}}Id" to currentEntity!!.id)))
+    }
+{{/each}}
+
+    override fun changeSelection(){
+        val formBindings = super.changeSelection()
+        /* specific to child list */
+{{#each childViews}}
+        clearAndAdd{{capitalizeIt entityDef.name}}()
+{{/each}}
+    }
+
+    override fun refresh() {
+        super.refresh()
+{{#each childViews}}
+        clearAndAdd{{capitalizeIt entityDef.name}}()
+{{/each}}
+    }
+
+{{/if}}
+
+
+    class {{capitalizeIt entityDef.name}}Comparator : BeansViewerComparator(), IViewerComparator {
+
+{{#each fieldDefinitions}}
+        val {{name}}_index = {{@index}}
+{{/each}}
+
+        override fun compare(viewer: Viewer?, e1: Any?, e2: Any?): Int {
+            val entity1 = e1 as {{capitalizeIt entityDef.name}}
+            val entity2 = e2 as {{capitalizeIt entityDef.name}}
+            val rc = when (propertyIndex) {
+{{#each fieldDefinitions}}
+                {{name}}_index -> {{{this.columnCompare}}}
+{{/each}}
+                else -> 0
+            }
+            return flipSortDirection(rc)
+        }
+    }
+
+
+}

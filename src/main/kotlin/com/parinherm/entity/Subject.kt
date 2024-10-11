@@ -13,9 +13,8 @@ class Subject(override var id: Long = 0, var shelfId: Long, title: String, comme
     override fun getColumnValueByIndex(index: Int): String {
         return when (index) {
              0 -> title
-             1 -> comments
-             2 -> "$createdDate"
-            
+             //1 -> comments
+             1 -> "$createdDate"
             else -> ""
         }
     }
@@ -25,10 +24,10 @@ class Subject(override var id: Long = 0, var shelfId: Long, title: String, comme
     }
 
     companion object Factory {
-        fun make(): Subject{
+        fun make(shelfId: Long): Subject{
             return Subject(
                 0,
-                0,
+                shelfId,
                  "", 
                  "", 
                  LocalDate.now()

@@ -24,6 +24,22 @@ object TopicMapper : IMapper<Topic> {
        
     }
 
+
+    fun getAll(): List<Topic> {
+        return MapperHelper.getAll(
+            mapOf(),
+            table,
+           null,
+            table.name to SortOrder.ASC   ) {
+            Topic(it[table.id].value,
+                it[table.publicationId],
+                it[table.name],
+                it[table.comments]?:"",
+                it[table.createdDate]
+            )
+        }
+    }
+
     override fun getAll(keys: Map<String, Long>): List<Topic> {
     return MapperHelper.getAll(keys,
     table,

@@ -1,0 +1,35 @@
+object {{ viewDef.entityDef.name|capitalize }}s : LongIdTable() {
+    val name = varchar("name", 255)
+    val method = text("method")
+    val category = varchar("category", LookupUtils.lookupFieldLength)
+}
+
+object {{ viewDef.entityDef.name|capitalize }}Mapper : IMapper<{{ viewDef.entityDef.name|capitalize }}> {
+
+    val table = {{ viewDef.entityDef.name|capitalize }}s
+
+    override fun save(item: {{ viewDef.entityDef.name|capitalize }}) {
+        MapperHelper.save(item, table, {{ viewDef.entityDef.name|capitalize }}Mapper::mapItem)
+    }
+
+    fun mapItem(item: {{ viewDef.entityDef.name|capitalize }}, statement: UpdateBuilder<Int>) {
+        statement[table.name] = item.name
+        statement[table.method] = item.method
+        statement[table.category] = item.category
+    }
+
+    override fun getAll(keys: Map<String, Long>): List<{{ viewDef.entityDef.name|capitalize }}> {
+        return MapperHelper.getAll(keys, table, null, table.name to SortOrder.ASC) {
+            (
+                it[table.id].value,
+                it[table.name],
+                it[table.method],
+                it[table.category]
+            )
+        }
+    }
+
+    override fun delete(item: {{ viewDef.entityDef.name|capitalize }}) {
+        MapperHelper.delete(table, table.id eq item.id)
+    }
+}

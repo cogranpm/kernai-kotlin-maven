@@ -1,0 +1,11 @@
+namespace webapi.DTO.Trips;
+
+public readonly record struct {{viewDef.entityDef.name | capitalize}}ViewModel(
+List<{{viewDef.entityDef.name | capitalize}}DTO> List
+{%for ownerAssociation in viewDef.ownerAssociations%}{%if ownerAssociation.owningType == "one"%}, List<{{ ownerAssociation.ownedViewDefinition.entityName | capitalize }}DTO> {{ ownerAssociation.name | capitalize }}Picker{%endif%}{%endfor%}
+{%for assoc in viewDef.ownedAssociations%}
+{%if assoc.ownedType == "one"%}
+    , List<{{ assoc.ownerViewDefinition.entityName | capitalize }}DTO> {{ assoc.ownerViewDefinition.entityName | capitalize }}Picker
+{%endif%}
+{%endfor%}
+);

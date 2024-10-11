@@ -2,15 +2,14 @@ package com.parinherm.entity.schema
 
 import com.parinherm.ApplicationData
 import org.jetbrains.exposed.dao.id.LongIdTable
-import org.jetbrains.exposed.sql.`java-time`.date
+import org.jetbrains.exposed.sql.javatime.date
+import org.jetbrains.exposed.sql.javatime.date
 
-object Notes: LongIdTable() {
-val title = varchar("title", 255)
+object Notes : LongIdTable() {
+    val title = varchar("title", 255)
     val description = text("description").nullable()
     val titleAudioFile = varchar("titleAudioFile", 255).nullable()
     val descriptionAudioFile = varchar("descriptionAudioFile", 255).nullable()
     val createdDate = date("createdDate")
-    
-     val topicId = long("topicId").references(Topics.id)
-    
+    val topicId = long("topicId").references(Topics.id)
 }

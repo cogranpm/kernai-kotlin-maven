@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+<Appenders>
+    <!-- Console Appender -->
+    <Console name="Console" target="SYSTEM_OUT">
+        <PatternLayout pattern="%d{yyyy-MMM-dd HH:mm:ss a} [%t] %-5level %logger{36} - %msg%n" />
+    </Console>
+
+    <!-- Rolling File Appender -->
+    <RollingFile name="RollingFile">
+        <FileName>${sys:user.home}/parinherm_coup.log</FileName>
+        <FilePattern>${sys:user.home}/parinherm_coup_%d{yyyy-MM-dd-hh}-%i.log.zip</FilePattern>
+        <PatternLayout>
+            <Pattern>%d{yyyy-MMM-dd HH:mm:ss a} [%t] %-5level %logger{36} - %msg%n</Pattern>
+        </PatternLayout>
+        <Policies>
+            <SizeBasedTriggeringPolicy size="10 KB" />
+        </Policies>
+        <DefaultRolloverStrategy max="5" />
+    </RollingFile>
+
+</Appenders>
+<Loggers>
+    <Logger name="com.parinherm.coup.logging" level="debug" additivity="false">
+        <AppenderRef ref="RollingFile" />
+        <AppenderRef ref="Console" />
+    </Logger>
+    <Root level="trace">
+        <AppenderRef ref="RollingFile" />
+        <AppenderRef ref="Console" />
+    </Root>
+</Loggers>
+</Configuration>

@@ -1,16 +1,11 @@
-package com.parinherm.entity
+class {{capitalizeIt entityDef.name}}(override var id: Long = 0, {{#each (getForeignKeysByView this)}}var {{this.entityDef.decapitalized}}Id: Long,{{/each}} {{#each fieldDefinitions}}{{name}}: {{dataTypeDef.dataTypeToKotlinDef}}{{#unless @last}}, {{/unless}}{{/each}}): ModelObject(), IBeanDataEntity  {
 
-import java.time.LocalDate
-import kotlin.properties.Delegates
-
-class {{#capitalize entityDef.name}}{{/capitalize}}(override var id: Long = 0, {{#each (getForeignKeysByView this)}}var {{#decapitalize this.entityDef.name}}{{/decapitalize}}Id: Long,{{/each}} {{#each fieldDefinitions}}{{name}}: {{#translateDataTypeDef dataTypeDef}} {{/translateDataTypeDef}}{{#unless @last}}, {{/unless}}{{/each}}): ModelObject(), IBeanDataEntity  {
-
-    {{#each fieldDefinitions}}var {{name}}: {{#translateDataTypeDef dataTypeDef}} {{/translateDataTypeDef}} by Delegates.observable({{name}}, observer)
+    {{#each fieldDefinitions}}var {{name}}: {{dataTypeDef.dataTypeToKotlinDef}} by Delegates.observable({{name}}, observer)
     {{/each}}
 
     override fun getColumnValueByIndex(index: Int): String {
         return when (index) {
-            {{#each fieldDefinitions}} {{@index}} -> {{#translateColumnValue this}} {{/translateColumnValue}}
+            {{#each fieldDefinitions}} {{@index}} -> {{{this.columnValue}}}
             {{/each}}
             else -> ""
         }
@@ -21,11 +16,11 @@ class {{#capitalize entityDef.name}}{{/capitalize}}(override var id: Long = 0, {
     }
 
     companion object Factory {
-        fun make(): {{entityDef.name}}{
-            return {{entityDef.name}}(
+        fun make({{#each (getForeignKeysByView this)}}{{entityDef.name}}Id: Long{{#unless @last}}, {{/unless}}{{/each}}): {{capitalizeIt entityDef.name}}{
+            return {{capitalizeIt entityDef.name}}(
                 0,
-                {{#each (getForeignKeysByView this)}}0,{{/each}}
-                {{#each fieldDefinitions}} {{#translateDefaultValue this}} {{/translateDefaultValue}}{{#unless @last}}, {{/unless}}
+                {{#each (getForeignKeysByView this)}}{{entityDef.name}}Id,{{/each}}
+                {{#each fieldDefinitions}} {{{this.defaultValue}}} {{#unless @last}}, {{/unless}}
                 {{/each}}
             )
         }

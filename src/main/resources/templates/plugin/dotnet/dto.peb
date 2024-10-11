@@ -1,0 +1,21 @@
+namespace webapi.DTO.Trips;
+
+public readonly record struct {{viewDef.entityDef.name | capitalize}}DTO(
+Guid Id,
+{% for field in viewDef.fieldDefinitions %}
+{{ field.dataTypeDef.dataTypeToCSharpDef }}{% if not field.required  %}?{% endif %} {{ field.name | capitalize}},
+{% endfor %}
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+Guid {{ ownerAssociation.name | capitalize }}Id,
+{% else %}
+List<{{ ownerAssociation.ownedViewDefinition.entityName | capitalize }}DTO> {{ ownerAssociation.name | capitalize }},
+{% endif %}
+{% endfor %}
+{% for assoc in viewDef.ownedAssociations %}
+{% if assoc.ownedType == "one" %}
+Guid {{ assoc.ownerViewDefinition.entityName | capitalize }}Id,
+{% endif %}
+{% endfor %}
+bool IsDeleted,
+bool IsNew);

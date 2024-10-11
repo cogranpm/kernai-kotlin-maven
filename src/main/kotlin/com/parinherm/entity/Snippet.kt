@@ -1,6 +1,7 @@
 package com.parinherm.entity
 
 import com.parinherm.ApplicationData
+import com.parinherm.lookups.LookupUtils
 import kotlin.properties.Delegates
 
 class Snippet(
@@ -25,10 +26,10 @@ class Snippet(
     override fun getColumnValueByIndex(index: Int): String {
         return when (index) {
             0 -> name
-            1 -> "${ApplicationData.techLanguage.find { it.code == language }?.label}"
-            2 -> "${ApplicationData.snippetCategory.find { it.code == category }?.label}"
-            3 -> "${ApplicationData.snippetTopic.find { it.code == topic }?.label}"
-            4 -> "${ApplicationData.snippetType.find { it.code == type }?.label}"
+            1 -> "${LookupUtils.getLookupByKey(LookupUtils.techLanguageLookupKey, false).find { it.code == language }?.label}"
+            2 -> "${LookupUtils.getLookupByKey(LookupUtils.snippetCategoryKey, false).find { it.code == category }?.label}"
+            3 -> "${LookupUtils.getLookupByKey(LookupUtils.snippetTopicKey, false).find { it.code == topic }?.label}"
+            4 -> "${LookupUtils.getLookupByKey(LookupUtils.snippetTypeKey, false).find { it.code == type }?.label}"
             else -> ""
         }
     }
@@ -44,10 +45,10 @@ class Snippet(
             return Snippet(
                     0,
                     "",
-                    ApplicationData.techLanguage[0].code,
-                    ApplicationData.snippetCategory[0].code,
-                    ApplicationData.snippetTopic[0].code,
-                    ApplicationData.snippetType[0].code,
+                LookupUtils.getLookupByKey(LookupUtils.techLanguageLookupKey, false)[0].code,
+                LookupUtils.getLookupByKey(LookupUtils.snippetCategoryKey, false)[0].code,
+                LookupUtils.getLookupByKey(LookupUtils.snippetTopicKey, false)[0].code,
+                LookupUtils.getLookupByKey(LookupUtils.snippetTypeKey, false)[0].code,
                     "",
                     ""
             )

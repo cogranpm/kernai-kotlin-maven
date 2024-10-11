@@ -1,0 +1,58 @@
+class {{ viewDef.entityDef.name|capitalize }}View(val parent: Composite, comparator: BeansViewerComparator)
+    : View <{{ viewDef.entityDef.name|capitalize }}> {
+
+        override val form: Form<{{ viewDef.entityDef.name|capitalize }}> = Form(parent,
+            DefaultViewDefinitions.loadView("{{ viewDef.id }}"),
+            comparator,
+            {{ viewDef.entityDef.name|capitalize }}ViewFilter()
+        )
+}
+
+
+class {{ viewDef.entityDef.name|capitalize }}ViewModel(parent: CTabFolder) : FormViewModel<{{ viewDef.entityDef.name|capitalize }}>(
+    {{ viewDef.entityDef.name|capitalize }}View(parent, Comparator()),
+    {{ viewDef.entityDef.name|capitalize }}Mapper, { {{ viewDef.entityDef.name|capitalize }}.make() }) {
+
+    init {
+        loadData(mapOf())
+    }
+
+    override fun changeSelection(){
+        val formBindings = super.changeSelection()
+    }
+
+    override fun refresh() {
+        super.refresh()
+    }
+
+    class Comparator : BeansViewerComparator(), IViewerComparator {
+
+        val name_index = 0
+        //val method_index = 1
+        val category_index = 1
+
+        override fun compare(viewer: Viewer?, e1: Any?, e2: Any?): Int {
+            val entity1 = e1 as {{ viewDef.entityDef.name|capitalize }}
+            val entity2 = e2 as {{ viewDef.entityDef.name|capitalize }}
+            val rc = when (propertyIndex) {
+                {% for key in viewDef.fieldDefinitions %}
+                {{ key.name }}_index -> compareString(entity1.{{ key.name }}, entity2.{{ key.name }} ) {% endfor %}
+                else -> 0
+            }
+            return flipSortDirection(rc)
+        }
+    }
+
+}
+
+class {{ viewDef.entityDef.name|capitalize }}ViewFilter : BaseViewFilter() {
+
+    override fun select(viewer: Viewer?, parentElement: Any?, element: Any?): Boolean {
+        if (element != null && element is {{ viewDef.entityDef.name|capitalize }} && searchFields != null)
+        {
+            /* search on the name field */
+            return searchOnStringField(searchFields,"name", element::name)
+        }
+        return false
+    }
+}

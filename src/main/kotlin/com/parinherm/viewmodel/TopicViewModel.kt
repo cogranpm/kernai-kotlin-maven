@@ -8,20 +8,25 @@ import com.parinherm.entity.schema.*
 import com.parinherm.form.ChildFormTab
 import com.parinherm.form.FormViewModel
 import com.parinherm.form.IFormViewModel
+import com.parinherm.menus.TabInfo
 import com.parinherm.view.TopicView
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
 
-class TopicViewModel( val publicationId: Long,  val selectedTopic: Topic?, val openedFromTabId: String?,  parent: CTabFolder) : FormViewModel<Topic>(
-    TopicView(parent, Comparator()),
+class TopicViewModel(
+    val publicationId: Long,
+    val selectedTopic: Topic?,
+    val openedFromTabId: String?,
+    tabInfo: TabInfo) : FormViewModel<Topic>(
+    TopicView(tabInfo.folder, Comparator()),
     TopicMapper,
-    { Topic.make() }) {
+    { Topic.make(publicationId) },
+    tabInfo
+) {
 
-    
     private val notes = WritableList<Note>()
     private val noteComparator = NoteViewModel.Comparator()
-    
 
     init {
 
@@ -29,12 +34,9 @@ class TopicViewModel( val publicationId: Long,  val selectedTopic: Topic?, val o
         {
             view.form.childFormsContainer!!.childTabs.forEach {
                 childFormTab: ChildFormTab ->
-        
-                    wireChildTab(childFormTab, ApplicationData.TAB_KEY_NOTE, noteComparator, notes, ::makeNotesViewModel)
-        
+                    wireChildTab(childFormTab,  noteComparator, notes, ::makeNotesViewModel, NoteMapper)
             }
         }
-
         loadData(mapOf("publicationId" to publicationId))
         onLoad(selectedTopic)
     }
@@ -50,16 +52,12 @@ class TopicViewModel( val publicationId: Long,  val selectedTopic: Topic?, val o
         afterSave(openedFromTabId)
     }
 
-
-
-
-
     private fun makeNotesViewModel(currentChild: Note?) : IFormViewModel<Note> {
         return NoteViewModel(
         currentEntity!!.id,
         currentChild,
-        ApplicationData.TAB_KEY_TOPIC,
-        ApplicationData.mainWindow.folder)
+        tabId,
+        tabInfo.copy(caption = "Notes"))
         }
 
     private fun clearAndAddNote() {

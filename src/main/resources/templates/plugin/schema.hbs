@@ -1,0 +1,12 @@
+package com.parinherm.entity.schema
+
+import com.parinherm.ApplicationData
+import org.jetbrains.exposed.dao.id.LongIdTable
+import org.jetbrains.exposed.sql.javatime.datetime
+
+object {{capitalizeIt entityDef.name}}s: LongIdTable() {
+{{#each fieldDefinitions}}val {{name}} = {{dataTypeDef.schemaType}}("{{name}}"{{dataTypeDef.schemaDeclaration}}){{#unless required}}.nullable(){{/unless}}
+    {{/each}}
+    {{#each (getForeignKeysByView this)}} val {{this.entityDef.decapitalized}}Id = long("{{this.entityDef.decapitalized}}Id").references({{capitalizeIt entityDef.name}}s.id)
+    {{/each}}
+}

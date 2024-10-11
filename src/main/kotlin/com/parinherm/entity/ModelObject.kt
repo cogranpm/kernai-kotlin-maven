@@ -16,14 +16,14 @@ open class ModelObject {
         changeSupport.removePropertyChangeListener(listener)
     }
 
-    fun firePropertyChange(propertyName: String, oldValue: Any, newValue: Any){
+    fun firePropertyChange(propertyName: String, oldValue: Any?, newValue: Any?){
        changeSupport.firePropertyChange(propertyName, oldValue, newValue)
     }
 
     protected val observer = {
         property: KProperty<*>,
-        oldValue: Any,
-        newValue: Any -> changeSupport.firePropertyChange(property.name, oldValue, newValue)
+        oldValue: Any?,
+        newValue: Any? -> changeSupport.firePropertyChange(property.name, oldValue, newValue)
     }
 
 }

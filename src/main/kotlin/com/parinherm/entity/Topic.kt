@@ -13,9 +13,7 @@ class Topic(override var id: Long = 0, var publicationId: Long, name: String, co
     override fun getColumnValueByIndex(index: Int): String {
         return when (index) {
              0 -> name
-             1 -> comments
-             2 -> "$createdDate"
-            
+             1 -> "$createdDate"
             else -> ""
         }
     }
@@ -25,10 +23,10 @@ class Topic(override var id: Long = 0, var publicationId: Long, name: String, co
     }
 
     companion object Factory {
-        fun make(): Topic{
+        fun make(publicationId: Long): Topic{
             return Topic(
                 0,
-                0,
+                publicationId,
                  "", 
                  "", 
                  LocalDate.now()

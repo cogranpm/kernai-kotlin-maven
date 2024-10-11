@@ -8,49 +8,50 @@ import com.parinherm.entity.schema.*
 import com.parinherm.form.ChildFormTab
 import com.parinherm.form.FormViewModel
 import com.parinherm.form.IFormViewModel
+import com.parinherm.menus.TabInfo
 import com.parinherm.view.NoteSegmentTypeHeaderView
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
 
-class NoteSegmentTypeHeaderViewModel( parent: CTabFolder) : FormViewModel<NoteSegmentTypeHeader>(
-    NoteSegmentTypeHeaderView(parent, Comparator()),
+class NoteSegmentTypeHeaderViewModel(tabInfo: TabInfo) : FormViewModel<NoteSegmentTypeHeader>(
+    NoteSegmentTypeHeaderView(tabInfo.folder, Comparator()),
     NoteSegmentTypeHeaderMapper,
-    { NoteSegmentTypeHeader.make() }) {
+    { NoteSegmentTypeHeader.make() },
+    tabInfo
+) {
 
-    
+
     private val noteSegmentTypes = WritableList<NoteSegmentType>()
     private val noteSegmentTypeComparator = NoteSegmentTypeViewModel.Comparator()
-    
+
 
     init {
 
-        if (view.form.childFormsContainer != null)
-        {
-            view.form.childFormsContainer!!.childTabs.forEach {
-                childFormTab: ChildFormTab ->
-        
-                    wireChildTab(childFormTab, ApplicationData.TAB_KEY_NOTESEGMENTTYPE, noteSegmentTypeComparator, noteSegmentTypes, ::makeNoteSegmentTypesViewModel)
-        
+        if (view.form.childFormsContainer != null) {
+            view.form.childFormsContainer!!.childTabs.forEach { childFormTab: ChildFormTab ->
+
+                wireChildTab(
+                    childFormTab,
+                    noteSegmentTypeComparator,
+                    noteSegmentTypes,
+                    ::makeNoteSegmentTypesViewModel,
+                    NoteSegmentTypeMapper
+                )
             }
         }
-
+        createTab()
         loadData(mapOf())
-        
     }
 
-
-
-
-
-
-    private fun makeNoteSegmentTypesViewModel(currentChild: NoteSegmentType?) : IFormViewModel<NoteSegmentType> {
+    private fun makeNoteSegmentTypesViewModel(currentChild: NoteSegmentType?): IFormViewModel<NoteSegmentType> {
         return NoteSegmentTypeViewModel(
-        currentEntity!!.id,
-        currentChild,
-        ApplicationData.TAB_KEY_NOTESEGMENTTYPEHEADER,
-        ApplicationData.mainWindow.folder)
-        }
+            currentEntity!!.id,
+            currentChild,
+            tabId,
+            tabInfo.copy(caption = "Note Segment Types")
+        )
+    }
 
     private fun clearAndAddNoteSegmentType() {
         noteSegmentTypes.clear()
@@ -58,7 +59,7 @@ class NoteSegmentTypeHeaderViewModel( parent: CTabFolder) : FormViewModel<NoteSe
     }
 
 
-    override fun changeSelection(){
+    override fun changeSelection() {
         val formBindings = super.changeSelection()
         /* specific to child list */
 
@@ -72,8 +73,6 @@ class NoteSegmentTypeHeaderViewModel( parent: CTabFolder) : FormViewModel<NoteSe
         clearAndAddNoteSegmentType()
 
     }
-
-
 
 
     class Comparator : BeansViewerComparator(), IViewerComparator {

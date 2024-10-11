@@ -8,25 +8,25 @@ import com.parinherm.entity.schema.*
 import com.parinherm.form.ChildFormTab
 import com.parinherm.form.FormViewModel
 import com.parinherm.form.IFormViewModel
+import com.parinherm.menus.TabInfo
 import com.parinherm.view.NoteSegmentTypeView
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
 
-class NoteSegmentTypeViewModel( val noteSegmentTypeHeaderId: Long,  val selectedNoteSegmentType: NoteSegmentType?, val openedFromTabId: String?,  parent: CTabFolder) : FormViewModel<NoteSegmentType>(
-    NoteSegmentTypeView(parent, Comparator()),
+class NoteSegmentTypeViewModel(
+    val noteSegmentTypeHeaderId: Long,
+    val selectedNoteSegmentType: NoteSegmentType?,
+    val openedFromTabId: String?,
+    tabInfo: TabInfo) : FormViewModel<NoteSegmentType>(
+    NoteSegmentTypeView(tabInfo.folder, Comparator()),
     NoteSegmentTypeMapper,
-    { NoteSegmentType.make() }) {
-
-    
+    { NoteSegmentType.make() }, tabInfo) {
 
     init {
-
         loadData(mapOf("noteSegmentTypeHeaderId" to noteSegmentTypeHeaderId))
         onLoad(selectedNoteSegmentType)
     }
-
-
 
     override fun getData(parameters: Map<String, Any>): List<NoteSegmentType> {
         return mapper.getAll(parameters as Map<String, Long>)
@@ -36,11 +36,6 @@ class NoteSegmentTypeViewModel( val noteSegmentTypeHeaderId: Long,  val selected
         super.save()
         afterSave(openedFromTabId)
     }
-
-
-
-
-
 
     class Comparator : BeansViewerComparator(), IViewerComparator {
 

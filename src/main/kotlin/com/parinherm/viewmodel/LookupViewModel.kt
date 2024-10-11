@@ -11,14 +11,16 @@ import com.parinherm.entity.schema.PersonDetailMapper
 import com.parinherm.form.ChildFormTab
 import com.parinherm.form.FormViewModel
 import com.parinherm.form.IFormViewModel
+import com.parinherm.menus.TabInfo
 import com.parinherm.view.LookupView
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
 
-class LookupViewModel(parent: CTabFolder) : FormViewModel<Lookup>(
-    LookupView(parent, Comparator()),
-    LookupMapper, { Lookup.make() }
+class LookupViewModel(tabInfo: TabInfo) : FormViewModel<Lookup>(
+    LookupView(tabInfo.folder, Comparator()),
+    LookupMapper, { Lookup.make() },
+    tabInfo
 ) {
 
     private val lookupDetails = WritableList<LookupDetail>()
@@ -29,22 +31,23 @@ class LookupViewModel(parent: CTabFolder) : FormViewModel<Lookup>(
             view.form.childFormsContainer!!.childTabs.forEach { childFormTab: ChildFormTab ->
                 wireChildTab(
                     childFormTab,
-                    ApplicationData.TAB_KEY_LOOKUPDETAIL,
                     lookupDetailsComparator,
                     lookupDetails,
-                    ::makeLookupDetailsViewModel
+                    ::makeLookupDetailsViewModel,
+                    LookupDetailMapper
                 )
             }
         }
+        createTab()
         loadData(mapOf())
     }
 
     private fun makeLookupDetailsViewModel(currentChild: LookupDetail?): IFormViewModel<LookupDetail> {
         return LookupDetailViewModel(
-            currentEntity!!.id,
+            currentEntity!!,
             currentChild,
-            ApplicationData.TAB_KEY_LOOKUP,
-            ApplicationData.mainWindow.folder
+            tabId,
+            tabInfo.copy(caption = "Lookup Details")
         )
     }
 

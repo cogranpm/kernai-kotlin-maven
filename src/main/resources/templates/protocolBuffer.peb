@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option csharp_namespace = "webapi.GrcpServices";
+import "google/protobuf/timestamp.proto";
+
+package trip;
+
+service {{viewDef.entityDef.name | capitalize}}Service{
+  rpc GetPrice(TripId) returns (TripPriceReturn);
+}
+
+
+message {{viewDef.entityDef.name | capitalize}}{
+	Guid Id = 1;
+	bool IsDeleted = 2;
+    bool IsNew = 3;
+{% for field in viewDef.fieldDefinitions %}
+{{ field.dataTypeDef.dataTypeToCSharpDef }}{% if not field.required  %} optional{% endif %} {{ field.name | capitalize}} = {{ loop.index + 4 }};
+{% endfor %}
+
+}
+
+message TripPriceReturn {
+	double price = 1;
+    google.protobuf.Timestamp responseDate = 2;
+}

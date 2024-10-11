@@ -1,5 +1,6 @@
 package com.parinherm.databinding
 
+import com.parinherm.entity.Lookup
 import com.parinherm.entity.LookupDetail
 import org.eclipse.core.databinding.UpdateValueStrategy
 import org.eclipse.core.databinding.conversion.text.NumberToStringConverter
@@ -22,11 +23,16 @@ import java.text.DecimalFormatSymbols
 import java.text.ParseException
 import java.time.temporal.TemporalAccessor
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoField
 import java.util.*
 
 
 object Converters {
+
+    init {
+
+    }
 
     //these need to be deleted, hard wires the Strategy to the converter
     val updToDouble = UpdateValueStrategy<String, Double>(UpdateValueStrategy.POLICY_UPDATE).setConverter(
@@ -85,15 +91,23 @@ object Converters {
 
 
     //converting from a combo lookup to a field type, say string
-    val convertFromLookup: IConverter<LookupDetail, String?> = IConverter.create<LookupDetail, String?> { it.code }
-    fun convertToLookup(list: List<LookupDetail>): IConverter<String?, LookupDetail> {
+    val convertFromLookupDetail: IConverter<LookupDetail, String?> = IConverter.create<LookupDetail, String?> { it.code }
+    fun convertToLookupDetail(list: List<LookupDetail>): IConverter<String?, LookupDetail> {
         return IConverter.create<String, LookupDetail> { item: String ->
             list.find { it.code == item }
         }
     }
 
 
-    init {
+    /* this is for a Lookup picker, which is used in the system
+    *  ie in the View Definition ui
+    *
+     */
+    val convertFromLookup: IConverter<Lookup, String?> = IConverter.create<Lookup, String?> { it.key}
+    fun convertToLookup(list: List<Lookup>): IConverter<String?, Lookup> {
+        return IConverter.create<String, Lookup> { item: String ->
+            list.find { it.key == item }
+        }
     }
 
 }
@@ -107,12 +121,14 @@ class DateTimeSelectionProperty() : WidgetValueProperty<Widget, Any>(SWT.Selecti
         return TemporalAccessor::class.java as Any
     }
 
+    /* has to be an any as the return type can be a LocalTime or a LocalDate */
     override fun doGetValue(source: Widget): Any {
         val dateTime: DateTime = source as DateTime
         if ((dateTime.style and SWT.TIME) != 0) {
-            return LocalTime.of(dateTime.hours, dateTime.minutes, dateTime.seconds) as Any
+            val localTime = LocalTime.of(dateTime.hours, dateTime.minutes, dateTime.seconds) as Any
+            return localTime
         }
-        return LocalDate.of(dateTime.year, dateTime.month, dateTime.day) as Any
+        return LocalDate.of(dateTime.year, dateTime.month + 1, dateTime.day) as Any
     }
 
 
@@ -137,11 +153,11 @@ class DateTimeSelectionProperty() : WidgetValueProperty<Widget, Any>(SWT.Selecti
 
     private fun getTemporalAccessor(value: Any): TemporalAccessor? {
         if (value is Date) {
-            return LocalDateTime.from((value as Date).toInstant())
+            return LocalDateTime.from((value).toInstant())
         } else if (value is TemporalAccessor) {
-            return value as TemporalAccessor
+            return value
         } else if (value is Calendar) {
-            return LocalDateTime.from((value as Calendar).toInstant())
+            return LocalDateTime.from((value).toInstant())
         } else {
             return null
         }

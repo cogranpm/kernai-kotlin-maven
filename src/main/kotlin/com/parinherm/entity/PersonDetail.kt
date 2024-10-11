@@ -1,6 +1,7 @@
 package com.parinherm.entity
 
 import com.parinherm.ApplicationData
+import com.parinherm.lookups.LookupUtils
 import kotlin.properties.Delegates
 
 class PersonDetail (override var id: Long = 0, nickname: String, var personId: Long, petSpecies: String) : ModelObject(), IBeanDataEntity {
@@ -12,7 +13,7 @@ class PersonDetail (override var id: Long = 0, nickname: String, var personId: L
         return when (index) {
             0 -> nickname
             1 -> {
-                val listItem = ApplicationData.speciesList.find { it.code == petSpecies}
+                val listItem = LookupUtils.getLookupByKey(LookupUtils.speciesLookupKey, true).find { it.code == petSpecies}
                 "${listItem?.label}"
             }
             else -> ""
@@ -26,7 +27,7 @@ class PersonDetail (override var id: Long = 0, nickname: String, var personId: L
 
     companion object Factory {
         fun make(personId: Long) : PersonDetail {
-            return PersonDetail(0, "", personId, ApplicationData.speciesList[0].code)
+            return PersonDetail(0, "", personId, LookupUtils.getLookupByKey(LookupUtils.speciesLookupKey, true)[0].code)
         }
     }
 }

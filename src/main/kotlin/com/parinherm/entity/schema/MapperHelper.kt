@@ -1,5 +1,6 @@
 package com.parinherm.entity.schema
 
+import com.parinherm.ApplicationData
 import com.parinherm.entity.IBeanDataEntity
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.*
@@ -31,18 +32,18 @@ object MapperHelper {
         keys: Map<String, Long>,
         table: LongIdTable,
         whereClause: Op<Boolean>?,
-        orderBy: Pair<Expression<*>, SortOrder>,
+        orderBy: Pair<Expression<*>, SortOrder>?,
         entityMaker: (ResultRow) -> T
     ): List<T> where T : IBeanDataEntity {
         val list: MutableList<T> = mutableListOf()
         transaction {
             addLogger(StdOutSqlLogger)
             val query: Query = if (whereClause != null) {
-                table.select { whereClause }
+                table.select { whereClause }.limit(ApplicationData.maxRowsLimit)
             } else {
-                table.selectAll()
+                table.selectAll().limit(ApplicationData.maxRowsLimit)
             }
-            query.orderBy(orderBy)
+            orderBy?.let { query.orderBy(orderBy) }
             query.forEach {
                 list.add(
                     entityMaker(it)

@@ -1,0 +1,34 @@
+package com.parinherm.entity
+
+import com.parinherm.ApplicationData
+import kotlin.properties.Delegates
+import java.time.LocalDateTime
+
+class {{capitalizeIt entityDef.name}}(override var id: Long = 0, {{#each (getForeignKeysByView this)}}var {{this.entityDef.decapitalized}}Id: Long,{{/each}} {{#each fieldDefinitions}}{{name}}: {{dataTypeDef.dataTypeToKotlinDef}}{{#unless @last}}, {{/unless}}{{/each}}): ModelObject(), IBeanDataEntity  {
+
+    {{#each fieldDefinitions}}var {{name}}: {{dataTypeDef.dataTypeToKotlinDef}} by Delegates.observable({{name}}, observer)
+    {{/each}}
+
+    override fun getColumnValueByIndex(index: Int): String {
+        return when (index) {
+            {{#each fieldDefinitions}} {{@index}} -> {{{this.columnValue}}}
+            {{/each}}
+            else -> ""
+        }
+    }
+
+    override fun toString(): String {
+        return "{{entityDef.name}}(id=$id, {{#each fieldDefinitions}}{{name}}=${{name}}{{#unless @last}}, {{/unless}}{{/each}})"
+    }
+
+    companion object Factory {
+        fun make({{#each (getForeignKeysByView this)}}{{entityDef.name}}Id: Long{{#unless @last}}, {{/unless}}{{/each}}): {{capitalizeIt entityDef.name}}{
+            return {{capitalizeIt entityDef.name}}(
+                0,
+                {{#each (getForeignKeysByView this)}}{{entityDef.name}}Id,{{/each}}
+                {{#each fieldDefinitions}} {{{this.defaultValue}}} {{#unless @last}}, {{/unless}}
+                {{/each}}
+            )
+        }
+    }
+}

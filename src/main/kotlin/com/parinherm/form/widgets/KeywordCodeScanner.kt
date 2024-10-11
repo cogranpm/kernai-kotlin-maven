@@ -21,11 +21,11 @@ class KeywordCodeScanner : RuleBasedScanner() {
 
     init {
         setRules(
-            arrayOf(
+
                 SingleLineRule("var", " ", tokenVarDec, '\\'),
                 SingleLineRule("val", " ", tokenVarDec, '\\'),
                 SingleLineRule("\"", "\"", tokenStringDec, '\\')
-            )
+
         )
     }
 }

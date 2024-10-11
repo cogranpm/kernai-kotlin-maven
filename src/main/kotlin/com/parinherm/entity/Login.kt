@@ -1,6 +1,7 @@
 package com.parinherm.entity
 
 import com.parinherm.ApplicationData
+import com.parinherm.lookups.LookupUtils
 import kotlin.properties.Delegates
 
 class Login(
@@ -25,9 +26,9 @@ class Login(
     override fun getColumnValueByIndex(index: Int): String {
         return when (index) {
             0 -> name
-            1 -> "${ApplicationData.loginCategoryList.find { it.code == category}?.label}"
+            1 -> "${LookupUtils.getLookupByKey(LookupUtils.loginCategoryKey, true).find { it.code == category}?.label}"
             2 -> userName
-            3 -> "${ApplicationData.passwordMaster.find { it.code == password}?.label}"
+            3 -> "${LookupUtils.getLookupByKey(LookupUtils.passwordMasterKey, false).find { it.code == password}?.label}"
             4 -> url
             else -> ""
         }
@@ -43,7 +44,7 @@ class Login(
             return Login(
                 0,
                 "",
-                ApplicationData.loginCategoryList[0].code,
+                LookupUtils.getLookupByKey(LookupUtils.loginCategoryKey, true)[0].code,
                 "",
                 "",
                 "",

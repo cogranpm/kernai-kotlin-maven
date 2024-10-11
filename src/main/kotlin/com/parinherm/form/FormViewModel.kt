@@ -1,12 +1,17 @@
 package com.parinherm.form
 
 import com.parinherm.ApplicationData
+import com.parinherm.TabInstance
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.entity.DirtyFlag
 import com.parinherm.entity.IBeanDataEntity
 import com.parinherm.entity.NewFlag
 import com.parinherm.entity.schema.IMapper
+import com.parinherm.font.FontUtils
+import com.parinherm.image.ImageUtils
+import com.parinherm.menus.TabInfo
 import com.parinherm.view.View
+import org.eclipse.core.databinding.Binding
 import org.eclipse.core.databinding.DataBindingContext
 import org.eclipse.core.databinding.observable.ChangeEvent
 import org.eclipse.core.databinding.observable.IChangeListener
@@ -16,18 +21,26 @@ import org.eclipse.jface.internal.databinding.swt.SWTObservableValueDecorator
 import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.jface.viewers.TableViewer
 import org.eclipse.jface.viewers.TableViewerColumn
+import org.eclipse.swt.SWT
+import org.eclipse.swt.custom.CTabItem
 import org.eclipse.swt.events.SelectionAdapter
 import org.eclipse.swt.events.SelectionEvent
 import org.eclipse.swt.events.SelectionListener
 import org.eclipse.swt.widgets.Composite
 import org.eclipse.swt.widgets.Display
 import org.eclipse.swt.widgets.TableColumn
+import java.util.*
 
-abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val entityMaker: () -> T) :
+abstract class FormViewModel<T>(val view: View<T>,
+                                val mapper: IMapper<T>,
+                                val entityMaker: () -> T,
+                                override val tabInfo: TabInfo,
+                                override val tabId: String = UUID.randomUUID().toString(),
+) :
     IFormViewModel<T> where T : IBeanDataEntity {
 
     var selectingFlag = false
-    private val dbc = DataBindingContext()
+    val dbc = DataBindingContext()
     var dirtyFlag: DirtyFlag = DirtyFlag(false)
     var newFlag: NewFlag = NewFlag(false)
     private val dataList = WritableList<T>()
@@ -64,12 +77,14 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
 
     fun <E> wireChildTab(
         childFormTab: ChildFormTab,
-        childTabId: String,
         comparator: BeansViewerComparator,
         input: WritableList<E>,
-        childViewModelMaker: (E?) -> IFormViewModel<E>
+        childViewModelMaker: (E?) -> IFormViewModel<E>,
+        mapper: IMapper<E>
     ) where E : IBeanDataEntity {
         val fields = childFormTab.childDefinition.fieldDefinitions
+
+        //should child tab title come from this or from the parent
         val title = childFormTab.childDefinition.title
 
         val contentProvider = ObservableListContentProvider<E>()
@@ -82,18 +97,32 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
             val selection = childFormTab.listView.structuredSelection
             val selectedItem = selection.firstElement
             val currentItem = selectedItem as E
-            openTab(childViewModelMaker(currentItem), title, childTabId)
+            openTab(childViewModelMaker(currentItem))
         }
 
         childFormTab.btnAdd.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
-            openTab(childViewModelMaker(null), title, childTabId)
+            openTab(childViewModelMaker(null))
+        })
+
+        childFormTab.btnDelete.addSelectionListener(SelectionListener.widgetSelectedAdapter { _ ->
+            if (confirmDelete()) {
+                val selection = childFormTab.listView.structuredSelection
+                if (!selection.isEmpty) {
+                    val selectedItem = selection.firstElement
+                    mapper.delete(selectedItem as E)
+                    childFormTab.listView.remove(selectedItem as E)
+                }
+            }
         })
         listHeaderSelection(childFormTab.listView, childFormTab.columns, comparator)
     }
 
 
-    private fun <E> openTab(viewModel: IFormViewModel<E>, title: String, tabKey: String) where E : IBeanDataEntity {
-        ApplicationData.makeTab(viewModel, title, tabKey)
+    public fun <E> openTab(viewModel: IFormViewModel<E>) where E : IBeanDataEntity {
+        //ApplicationData.makeTab(viewModel, title, tabKey)
+        //ApplicationData.makeTab(viewModel, title, tabId, tabInfo.imageKey, tabInfo.fontKey)
+        //createTab()
+        createTab(viewModel)
     }
 
     private val stateChangeListener: IChangeListener = IChangeListener {
@@ -174,7 +203,8 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
         }
     }
 
-    open fun changeSelection() {
+   //open fun changeSelection() : Map<String, Binding?> {
+  open fun changeSelection() {
         val formBindings = makeFormBindings(
             dbc,
             view.form.formWidgets,
@@ -187,7 +217,11 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
 
         // sucks to have to do this, but the databing change event listener is not working
         ApplicationData.mainWindow.actionDelete.isEnabled = true
+
+        //testing this
+        ApplicationData.mainWindow.actionSave.isEnabled = true
         view.form.enable(true)
+        //return formBindings
     }
 
     fun listHeaderSelection(
@@ -258,4 +292,47 @@ abstract class FormViewModel<T>(val view: View<T>, val mapper: IMapper<T>, val e
         }
     }
 
+    /* this could be called from outside as parent view model
+    or from inside this instance as child view model
+     */
+    private fun createTab(viewModel: IFormViewModel<*>) {
+        val tabItem = CTabItem(viewModel.tabInfo.folder, SWT.CLOSE)
+        tabItem.text = viewModel.tabInfo.caption
+        tabItem.control = viewModel.render()
+        tabItem.addDisposeListener {
+            ApplicationData.tabs[viewModel.tabId]!!.isClosed = true
+        }
+        tabItem.setData("key", viewModel.tabId)
+        if (viewModel.tabInfo.imageKey != null) {
+            val image = ImageUtils.getImage(viewModel.tabInfo.imageKey!!)
+            if(image != null){
+                tabItem.image = image
+            }
+        }
+        if(viewModel.tabInfo.fontKey != null){
+            val font = FontUtils.getFont(viewModel.tabInfo.fontKey!!)
+            if(font != null){
+                tabItem.font = font
+            }
+        }
+        viewModel.tabInfo.folder.selection = tabItem
+        val tabInstance = TabInstance(viewModel, tabItem, false)
+        ApplicationData.tabs[viewModel.tabId] = tabInstance
+    }
+
+    override fun createTab() {
+        createTab(this)
+    }
+
+    override fun activated() {
+    }
+
+    override fun play() {
+    }
+
+    override fun record() {
+    }
+
+    override fun stop() {
+    }
 }

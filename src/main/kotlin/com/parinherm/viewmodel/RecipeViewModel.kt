@@ -1,6 +1,5 @@
 package com.parinherm.viewmodel
 
-import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.builders.IViewerComparator
 import com.parinherm.entity.Ingredient
@@ -10,14 +9,17 @@ import com.parinherm.entity.schema.RecipeMapper
 import com.parinherm.form.ChildFormTab
 import com.parinherm.form.FormViewModel
 import com.parinherm.form.IFormViewModel
+import com.parinherm.lookups.LookupUtils
+import com.parinherm.menus.TabInfo
 import com.parinherm.view.RecipeView
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.Viewer
-import org.eclipse.swt.custom.CTabFolder
 
-class RecipeViewModel(parent: CTabFolder) : FormViewModel<Recipe>(
-    RecipeView(parent, Comparator()),
-    RecipeMapper, { Recipe.make() }) {
+class RecipeViewModel(tabInfo: TabInfo) : FormViewModel<Recipe>(
+    RecipeView(tabInfo.folder, Comparator()),
+    RecipeMapper, { Recipe.make() },
+    tabInfo
+) {
 
     private val ingredients = WritableList<Ingredient>()
     private val ingredientsComparator = IngredientViewModel.Comparator()
@@ -26,18 +28,19 @@ class RecipeViewModel(parent: CTabFolder) : FormViewModel<Recipe>(
         if (view.form.childFormsContainer != null)
         {
             view.form.childFormsContainer!!.childTabs.forEach { childFormTab: ChildFormTab ->
-                wireChildTab(childFormTab, ApplicationData.TAB_KEY_INGREDIENT, ingredientsComparator, ingredients, ::makeIngredientsViewModel)
+                wireChildTab(childFormTab, ingredientsComparator, ingredients, ::makeIngredientsViewModel, IngredientMapper)
             }
         }
+        createTab()
         loadData(mapOf())
     }
 
     private fun makeIngredientsViewModel(currentChild: Ingredient?) : IFormViewModel<Ingredient> {
         return IngredientViewModel(
-            currentEntity!!.id,
+            currentEntity,
             currentChild,
-            ApplicationData.TAB_KEY_RECIPE,
-            ApplicationData.mainWindow.folder)
+            tabId,
+            tabInfo.copy(caption = "Ingredients"))
     }
 
     override fun changeSelection(){
@@ -53,8 +56,6 @@ class RecipeViewModel(parent: CTabFolder) : FormViewModel<Recipe>(
         ingredients.addAll(IngredientMapper.getAll(mapOf("recipeId" to currentEntity!!.id)))
     }
 
-
-
     class Comparator : BeansViewerComparator(), IViewerComparator {
 
         val name_index = 0
@@ -66,7 +67,7 @@ class RecipeViewModel(parent: CTabFolder) : FormViewModel<Recipe>(
             val entity2 = e2 as Recipe
             val rc = when (propertyIndex) {
                 name_index -> compareString(entity1.name, entity2.name)
-                category_index -> compareLookups(entity1.category, entity2.category, ApplicationData.recipeCategoryList)
+                category_index -> compareLookups(entity1.category, entity2.category, LookupUtils.getLookupByKey(LookupUtils.recipeCategoryLookupKey, false))
                 else -> 0
             }
             return flipSortDirection(rc)

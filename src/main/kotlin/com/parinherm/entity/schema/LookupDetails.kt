@@ -4,7 +4,9 @@ import com.parinherm.entity.schema.PersonDetails.references
 import org.jetbrains.exposed.dao.id.LongIdTable
 
 object LookupDetails  : LongIdTable() {
-    val code = varchar("code", 25)
+    /* this value might encrypted, so it is large
+     */
+    val code = varchar("code", 2500)
     val label = varchar("label", 256)
     val lookupId = long("lookupId").references(Lookups.id)
 }

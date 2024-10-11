@@ -1,15 +1,21 @@
+const HashMap = Java.type('java.util.HashMap');
+const ArrayList = Java.type('java.util.ArrayList');
 // test of javascript module import
 // only way I can figure out so far is to load the library script utils.mjs
 // via the Source polyglot graaljs object before loading the main script
 // it makes the functions in utils.mjs available in this script as globals
 var sq = square(11);
-print(sq)
+print(sq);
 
 
 // testing the use of bindings
 // can pass in objects from the graal context
-// foo is a global object in the script passed from the context
-print(foo)
+print("about to print a binding member");
+print(ApplicationData.getUserPath());
+
+print("what is the view definition");
+print(viewDef.getTitle());
+
 
 // use a java object by first putting type declaration in a variable
 var BigDecimal = Java.type('java.math.BigDecimal');
@@ -24,7 +30,6 @@ var iter = new MyIterator();
 print(iter.next());
 
 // java maps
-var HashMap = Java.type('java.util.HashMap');
 var map = new HashMap();
 map.put(1, "a");
 map.get(1);
@@ -37,7 +42,6 @@ for (var key in map) {
 
 
 //In GraalVM JavaScript you can create and access Java Lists, e.g. java.util.ArrayList.
-var ArrayList = Java.type('java.util.ArrayList');
 var list = new ArrayList();
 list.add(42);
 list.add("23");
@@ -86,3 +90,4 @@ function showWindow() {
 }
 
 print('hello javascript, number ' + the_best + ' ' + the_worst);
+

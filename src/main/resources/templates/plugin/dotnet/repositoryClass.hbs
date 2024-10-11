@@ -1,0 +1,56 @@
+using Microsoft.EntityFrameworkCore;
+using webapi.Model;
+using webapi.Model.Vacation;
+
+namespace webapi.Repository;
+
+public class {{capitalizeIt entityDef.name}}Repository : I{{capitalizeIt entityDef.name}}Repository
+{
+    protected DemoContext _context;
+    protected DbSet<{{capitalizeIt entityDef.name}}> {{entityDef.name}}s;
+    private readonly ILogger _logger;
+
+    public {{capitalizeIt entityDef.name}}Repository(ILogger<{{capitalizeIt entityDef.name}}Repository> logger, DemoContext context) {
+        this._logger = logger;
+        this._context = context;
+        this.{{entityDef.name}}s = context.{{capitalizeIt entityDef.name}}s;
+   }
+
+   public async Task<IEnumerable<{{capitalizeIt entityDef.name}}?>> Get(){
+        return await this._context.{{capitalizeIt entityDef.name}}s.ToListAsync();
+   }
+
+    public async Task<{{capitalizeIt entityDef.name}}?> Retrieve(Guid id){
+        return await this._context.{{capitalizeIt entityDef.name}}s.AsNoTracking()
+        .FirstOrDefaultAsync(model => model.Id == id);
+   }
+
+   public void Insert({{capitalizeIt entityDef.name}} it){
+        _context.{{capitalizeIt entityDef.name}}s.Add(it);
+   }
+
+   public async Task<int> Delete(Guid id){
+        var affected = await this.{{entityDef.name}}s
+        .Where(model => model.Id == id)
+        .ExecuteDeleteAsync();
+        return affected;
+   }
+
+   public async Task<int> Update({{capitalizeIt entityDef.name}} it){
+        var affected = await this._context.{{capitalizeIt entityDef.name}}s
+        .Where(model => model.Id == it.Id)
+        .ExecuteUpdateAsync(setters => setters
+            {{#each fieldDefinitions}} .SetProperty(m => m.{{capitalizeIt name}}, it.{{capitalizeIt name}})
+            {{/each}}
+        );
+        return affected;
+   }
+
+   public async Task Save(){
+        await this._context.SaveChangesAsync();
+   }
+
+   public bool Exists(Guid id){
+        return (_context.{{capitalizeIt entityDef.name}}s?.Any(e => e.Id == id)).GetValueOrDefault();
+   }
+}

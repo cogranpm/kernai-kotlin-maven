@@ -1,26 +1,11 @@
-package com.parinherm.viewmodel
-
-import com.parinherm.ApplicationData
-import com.parinherm.builders.BeansViewerComparator
-import com.parinherm.builders.IViewerComparator
-import com.parinherm.entity.*
-import com.parinherm.entity.schema.*
-import com.parinherm.form.ChildFormTab
-import com.parinherm.form.FormViewModel
-import com.parinherm.form.IFormViewModel
-import com.parinherm.view.{{#capitalize entityDef.name}}{{/capitalize}}View
-import org.eclipse.core.databinding.observable.list.WritableList
-import org.eclipse.jface.viewers.Viewer
-import org.eclipse.swt.custom.CTabFolder
-
-class {{#capitalize entityDef.name}}{{/capitalize}}ViewModel({{#if (hasForeignKeys this)}} {{#each (getForeignKeysByView this)}}val {{#decapitalize this.entityDef.name}}{{/decapitalize}}Id: Long, {{/each}} val selected{{#capitalize entityDef.name}}{{/capitalize}}: {{#capitalize entityDef.name}}{{/capitalize}}?, val openedFromTabId: String?, {{/if}} parent: CTabFolder) : FormViewModel<{{#capitalize entityDef.name}}{{/capitalize}}>(
-    {{#capitalize entityDef.name}}{{/capitalize}}View(parent, Comparator()),
-    {{#capitalize entityDef.name}}{{/capitalize}}Mapper,
-    { {{#capitalize entityDef.name}}{{/capitalize}}.make() }) {
+class {{capitalizeIt entityDef.name}}ViewModel({{#if (hasForeignKeys this)}} {{#each (getForeignKeysByView this)}}val {{this.entityDef.decapitalized}}Id: Long, {{/each}} val selected{{capitalizeIt entityDef.name}}: {{capitalizeIt entityDef.name}}?, val openedFromTabId: String?, {{/if}} tabInfo: TabInfo) : FormViewModel<{{capitalizeIt entityDef.name}}>(
+    {{capitalizeIt entityDef.name}}View(tabInfo.folder, {{capitalizeIt entityDef.name}}Comparator()),
+    {{capitalizeIt entityDef.name}}Mapper,
+    { {{capitalizeIt entityDef.name}}.make({{#each (getForeignKeysByView this)}}{{this.entityDef.decapitalized}}Id{{#unless @last}}, {{/unless}} {{/each}}) }, tabInfo) {
 
     {{#each childViews}}
-    private val {{#decapitalize entityDef.name}}{{/decapitalize}}s = WritableList<{{#capitalize entityDef.name}}{{/capitalize}}>()
-    private val {{#decapitalize entityDef.name}}{{/decapitalize}}Comparator = {{#capitalize entityDef.name}}{{/capitalize}}ViewModel.Comparator()
+    private val {{entityDef.decapitalized}}s = WritableList<{{capitalizeIt entityDef.name}}>()
+    private val {{entityDef.decapitalized}}Comparator = {{capitalizeIt entityDef.name}}ViewModel.{{capitalizeIt entityDef.name}}Comparator()
     {{/each}}
 
     init {
@@ -29,19 +14,28 @@ class {{#capitalize entityDef.name}}{{/capitalize}}ViewModel({{#if (hasForeignKe
         {
             view.form.childFormsContainer!!.childTabs.forEach {
                 childFormTab: ChildFormTab ->
+                when (childFormTab.key) {
         {{#each childViews}}
-                    wireChildTab(childFormTab, ApplicationData.TAB_KEY_{{#toUpperCase entityDef.name}}{{/toUpperCase}}, {{#decapitalize entityDef.name}}{{/decapitalize}}Comparator, {{#decapitalize entityDef.name}}{{/decapitalize}}s, ::make{{#capitalize entityDef.name}}{{/capitalize}}sViewModel)
+                   "{{entityDef.decapitalized}}" -> wireChildTab(
+                                    childFormTab, "{{this.id}}",
+                                    {{entityDef.decapitalized}}Comparator,
+                                    {{entityDef.decapitalized}}s,
+                                    ::make{{capitalizeIt entityDef.name}}sViewModel,
+                                   {{capitalizeIt entityDef.name}}Mapper
+                   )
         {{/each}}
+                }
             }
         }
 {{/if}}
-        loadData(mapOf({{#each (getForeignKeysByView this)}}"{{#decapitalize entityDef.name}}{{/decapitalize}}Id" to {{#decapitalize entityDef.name}}{{/decapitalize}}Id{{#unless @last}}, {{/unless}}{{/each}}))
-        {{#if (hasForeignKeys this)}}onLoad(selected{{#capitalize entityDef.name}}{{/capitalize}}){{/if}}
+        {{#unless isChild}}createTab(){{/unless}}
+        loadData(mapOf({{#each (getForeignKeysByView this)}}"{{entityDef.decapitalized}}Id" to {{entityDef.decapitalized}}Id{{#unless @last}}, {{/unless}}{{/each}}))
+        {{#if (hasForeignKeys this)}}onLoad(selected{{capitalizeIt entityDef.name}}){{/if}}
     }
 
 
 {{#if (hasForeignKeys this)}}
-    override fun getData(parameters: Map<String, Any>): List<{{#capitalize entityDef.name}}{{/capitalize}}> {
+    override fun getData(parameters: Map<String, Any>): List<{{capitalizeIt entityDef.name}}> {
         return mapper.getAll(parameters as Map<String, Long>)
     }
 
@@ -54,17 +48,17 @@ class {{#capitalize entityDef.name}}{{/capitalize}}ViewModel({{#if (hasForeignKe
 
 {{#if hasChildren}}
 {{#each childViews}}
-    private fun make{{#capitalize entityDef.name}}{{/capitalize}}sViewModel(currentChild: {{#capitalize entityDef.name}}{{/capitalize}}?) : IFormViewModel<{{#capitalize entityDef.name}}{{/capitalize}}> {
-        return {{#capitalize entityDef.name}}{{/capitalize}}ViewModel(
+    private fun make{{capitalizeIt entityDef.name}}sViewModel(currentChild: {{capitalizeIt entityDef.name}}?) : IFormViewModel<{{capitalizeIt entityDef.name}}> {
+        return {{capitalizeIt entityDef.name}}ViewModel(
         currentEntity!!.id,
         currentChild,
-        ApplicationData.TAB_KEY_{{#toUpperCase ../entityDef.name}}{{/toUpperCase}},
-        ApplicationData.mainWindow.folder)
+        tabId,
+        tabInfo.copy(caption = "{{title}}"))
         }
 
-    private fun clearAndAdd{{#capitalize entityDef.name}}{{/capitalize}}() {
-        {{#decapitalize entityDef.name}}{{/decapitalize}}s.clear()
-        {{#decapitalize entityDef.name}}{{/decapitalize}}s.addAll({{#capitalize entityDef.name}}{{/capitalize}}Mapper.getAll(mapOf("{{#decapitalize ../entityDef.name}}{{/decapitalize}}Id" to currentEntity!!.id)))
+    private fun clearAndAdd{{capitalizeIt entityDef.name}}() {
+        {{entityDef.decapitalized}}s.clear()
+        {{entityDef.decapitalized}}s.addAll({{capitalizeIt entityDef.name}}Mapper.getAll(mapOf("{{../entityDef.decapitalized}}Id" to currentEntity!!.id)))
     }
 {{/each}}
 
@@ -72,32 +66,32 @@ class {{#capitalize entityDef.name}}{{/capitalize}}ViewModel({{#if (hasForeignKe
         val formBindings = super.changeSelection()
         /* specific to child list */
 {{#each childViews}}
-        clearAndAdd{{#capitalize entityDef.name}}{{/capitalize}}()
+        clearAndAdd{{capitalizeIt entityDef.name}}()
 {{/each}}
     }
 
     override fun refresh() {
         super.refresh()
 {{#each childViews}}
-        clearAndAdd{{#capitalize entityDef.name}}{{/capitalize}}()
+        clearAndAdd{{capitalizeIt entityDef.name}}()
 {{/each}}
     }
 
 {{/if}}
 
 
-    class Comparator : BeansViewerComparator(), IViewerComparator {
+    class {{capitalizeIt entityDef.name}}Comparator : BeansViewerComparator(), IViewerComparator {
 
 {{#each fieldDefinitions}}
         val {{name}}_index = {{@index}}
 {{/each}}
 
         override fun compare(viewer: Viewer?, e1: Any?, e2: Any?): Int {
-            val entity1 = e1 as {{#capitalize entityDef.name}}{{/capitalize}}
-            val entity2 = e2 as {{#capitalize entityDef.name}}{{/capitalize}}
+            val entity1 = e1 as {{capitalizeIt entityDef.name}}
+            val entity2 = e2 as {{capitalizeIt entityDef.name}}
             val rc = when (propertyIndex) {
 {{#each fieldDefinitions}}
-                {{name}}_index -> {{#translateColumnCompare this}}{{/translateColumnCompare}}
+                {{name}}_index -> {{{this.columnCompare}}}
 {{/each}}
                 else -> 0
             }

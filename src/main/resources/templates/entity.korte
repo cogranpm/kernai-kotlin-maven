@@ -1,0 +1,41 @@
+import com.parinherm.ApplicationData
+import kotlin.properties.Delegates
+import com.parinherm.entity.ModelObject
+import com.parinherm.entity.IBeanDataEntity
+import org.jetbrains.exposed.dao.id.LongIdTable
+import org.jetbrains.exposed.sql.*
+import com.parinherm.entity.schema.IMapper
+import org.jetbrains.exposed.sql.statements.UpdateBuilder
+import com.parinherm.entity.schema.MapperHelper
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+
+class {{ viewDef.entityDef.name|capitalize }}(
+    override var id: Long = 0,
+    name: String,
+    method: String,
+    category: String
+) : ModelObject(), IBeanDataEntity {
+
+    var name: String by Delegates.observable(name, observer)
+    var method: String by Delegates.observable(method, observer)
+    var category: String by Delegates.observable(category, observer)
+
+    override fun getColumnValueByIndex(index: Int): String {
+        return when (index) {
+            0 -> name
+            1 -> "${ApplicationData.recipeCategoryList.find { it.code == category }?.label}"
+            else -> ""
+        }
+    }
+
+    override fun toString(): String {
+        return "{{ viewDef.entityDef.name|capitalize }}(id=$id, name=$name, method=$method, category=$category)"
+    }
+
+    companion object Factory {
+        fun make(): {{ viewDef.entityDef.name|capitalize }}{
+            return {{ viewDef.entityDef.name|capitalize }}(0, "", "", ApplicationData.recipeCategoryList[0].code)
+        }
+    }
+
+}

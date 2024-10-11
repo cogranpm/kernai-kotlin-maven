@@ -1,0 +1,9 @@
+namespace webapi.DTO.Trips;
+
+public readonly record struct {{capitalizeIt entityDef.name}}DTO(
+    Guid id,
+    {{#each fieldDefinitions}}{{dataTypeDef.dataTypeToCSharpDef}} {{name}},
+    {{/each}}
+    {{#each (getOwnerAssociations this)}}List<{{capitalizeIt ownedViewDefinition.entityName}}DTO> {{ownedViewDefinition.entityName}}s,{{/each}}
+    bool isDeleted,
+    bool isNew);

@@ -1,0 +1,209 @@
+/******************************** */
+/* REACT */
+import React from 'react';
+
+/************************* */
+/* REDUX */
+import { update{{ viewDef.entityDef.name | capitalize }} } from '../redux/tripSlice'
+import { useDispatch } from 'react-redux'
+
+/********************************
+ * CSS
+ */
+import {
+    Checkbox,
+    Combobox,
+    Option,
+    Dialog,
+    DialogTrigger,
+    DialogSurface,
+    DialogTitle,
+    DialogContent,
+    DialogBody,
+    DialogActions,
+    Button,
+    Input,
+    Textarea,
+    Select,
+    SpinButton,
+    Field,
+} from '@fluentui/react-components';
+
+import { TimePicker } from "@fluentui/react-timepicker-compat";
+
+export const FormDialog = ({
+    open,
+    setOpen,
+    entity,
+    setEntity,
+    doSave,
+    setDoSave
+}) => {
+
+    const dispatch = useDispatch()
+
+    const handleSubmit = async (ev) => {
+        await setDoSave(true)
+        const result = await dispatch(update{{ viewDef.entityDef.name | capitalize }}(entity))
+        await setOpen(false);
+        ev.preventDefault();
+    };
+
+    {% for field in viewDef.fieldDefinitions %}
+    {% if field.dataTypeDef == "DATE" %}
+const handle{{field.name | capitalize}}Change = async (ev) => {
+set{{ viewDef.entityDef.name | capitalize }}({ ...{{ viewDef.entityDef.name }}, {{field.name}}: ev.target.value});
+    };
+    {% elseif field.dataTypeDef == "TIME" %}
+const handle{{field.name | capitalize}}Change = (e, data) => {
+    setEntity({ ...entity, {{field.name}}: data.selectedTimeText})
+    }
+
+    const handle{{field.name | capitalize}}Input = (e) => {
+    setEntity({ ...entity, {{field.name}}: e.target.value })
+    }
+    {% elseif field.dataTypeDef == "DATETIME" %}
+const handle{{field.name | capitalize}}Change = (e, data) => {
+    setEntity({ ...entity, {{field.name}}: data.selectedTimeText})
+}
+
+const handle{{field.name | capitalize}}Input = (e) => {
+    setEntity({ ...entity, {{field.name}}: e.target.value })
+}
+    {% elseif field.dataTypeDef == "INT" %}
+const handle{{field.name | capitalize}}Change = async (ev, data) => {
+        if (data.value !== undefined) {
+            setEntity({ ...entity, {{field.name}}: data.value });
+        } else if (data.displayValue !== undefined) {
+            const newValue = parseFloat(data.displayValue);
+            if (!Number.isNaN(newValue)) {
+                setEntity({...entity, {{field.name}}: newValue });
+            }
+        }
+    };
+     {% elseif field.dataTypeDef == "FLOAT" %}
+    const handle{{field.name | capitalize}}Change = async (ev, data) => {
+        setEntity({...entity, {{field.name}}: data.value });
+    };
+    {% elseif field.dataTypeDef == "BOOLEAN" %}
+    const handle{{field.name | capitalize}}Change = async (ev, data) => {
+        setEntity({...entity, {{field.name}}: data.checked });
+    };
+    {% elseif field.dataTypeDef == "LOOKUP" %}
+const handle{{field.name | capitalize}}Change = async (ev, data) => {
+        setEntity({...entity, {{field.name}}: ev.target.value });
+    };
+
+    const handle{{field.name | capitalize}}Select = async (ev, data) => {
+        setEntity({ ...entity, {{field.name}}: data.optionText ?? "" });
+    };
+    {% else %}
+    const handle{{field.name | capitalize}}Change = async (ev, data) => {
+        setEntity({...entity, {{field.name}}: data.value });
+    };
+    {% endif %}
+{% endfor %}
+
+    return (
+        <Dialog
+            modalType="alert"
+            open={open}
+            onOpenChange={(evt, data) => {
+                setOpen(data.open);
+            }}
+        >
+            <DialogSurface >
+                <form
+                    onSubmit={handleSubmit}
+                    method="post"
+                    name="mainForm"
+                    id="mainForm"
+                >
+                    <input key={entity?.id ?? ""} type="hidden" name="id" defaultValue={entity?.id} />
+
+                    <DialogBody>
+                        <DialogTitle>{{ viewDef.Title }}</DialogTitle>
+                        <DialogContent>
+
+            {% for field in viewDef.fieldDefinitions %}
+             <Field label="{{field.title}}" {% if field.required %}required{% endif %}>
+                {% if (field.dataTypeDef == "TEXT" and field.sizeHint == "LARGE") or (field.dataTypeDef == "MEMO") %}
+                <Textarea
+                    id="{{field.name}}"
+                    value={entity?.{{field.name}}??""}
+                    onChange={handle{{field.name | capitalize}}Change}
+                    maxLength={ {{ field.maxLength }} }
+                    resize="both"
+                    {% if field.required %}required{% endif %}
+                />
+                {% elseif field.dataTypeDef == "INT" %}
+                 <SpinButton
+                    id="{{field.name}}"
+                    value={entity?.{{field.name}}?? "0"}
+                    onChange={handle{{field.name | capitalize}}Change}
+                    {% if field.required %}required{% endif %}
+                />
+                {% elseif field.dataTypeDef == "DATE" %}
+                <input
+                    id="{{field.name}}"
+                    value={entity?.{{field.name}}?? ""}
+                    onChange={handle{{field.name | capitalize}}Change}
+                    disabled={ {{ viewDef.entityDef.name }} === null}
+                    type="date"
+                    {% if field.required %}required{% endif %}
+                />
+               {% elseif field.dataTypeDef == "TIME" %}
+                    <TimePicker
+                        startHour={0}
+                        endHour={24}
+                        increment={15}
+                        freeform
+                        clearable
+                        onTimeChange={handle{{field.name | capitalize}}Change}
+                        value={entity?.{{field.name}} ?? ""}
+                        onInput={handle{{field.name | capitalize}}Input}
+                    />
+                {% elseif field.dataTypeDef == "BOOLEAN" %}
+                <Checkbox
+                    id="{{field.name}}"
+                    checked={entity?.{{field.name}}??false}
+                    onChange={handle{{field.name | capitalize}}Change}
+                    {% if field.required %}required{% endif %}
+                />
+                {% elseif field.dataTypeDef == "LOOKUP" %}
+                <Combobox
+                    id="{{field.name}}"
+                    value={entity?.{{field.name}} ?? ""}
+                    onInput={handle{{field.name | capitalize}}Change}
+                    onOptionSelect={handle{{field.name | capitalize}}Select}
+                >
+                {% for lookup in  field.lookups%}
+                    <Option key="{{lookup.code}}" value="{{lookup.code}}">{{lookup.label}}</Option>
+                {% endfor %}
+                </Combobox>
+                {% else %}
+                <Input
+                    id="{{field.name}}"
+                    value={entity?.{{field.name}}??""}
+                    onChange={handle{{field.name | capitalize}}Change}
+                    maxLength={ {{ field.maxLength }} }
+                    {% if field.required %}required{% endif %}
+                />
+                {% endif %}
+            </Field>
+            {% endfor %}
+           </DialogContent>
+                        <DialogActions>
+                            <DialogTrigger disableButtonEnhancement>
+                                <Button appearance="secondary">Close</Button>
+                            </DialogTrigger>
+                            <Button type="submit" appearance="primary">
+                                Submit
+                            </Button>
+                        </DialogActions>
+                    </DialogBody>
+                </form>
+            </DialogSurface>
+        </Dialog>
+    );
+}

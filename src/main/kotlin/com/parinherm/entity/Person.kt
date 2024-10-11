@@ -3,6 +3,7 @@ package com.parinherm.entity
 import com.parinherm.ApplicationData
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.builders.IViewerComparator
+import com.parinherm.lookups.LookupUtils
 import org.eclipse.jface.viewers.Viewer
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -25,7 +26,7 @@ class Person (override var id: Long = 0, name: String, income: BigDecimal, heigh
             2 -> "${height}"
             3 -> "${age}"
             4 -> {
-                val listItem = ApplicationData.countryList.find { it.code == country }
+                val listItem = LookupUtils.getLookupByKey(LookupUtils.countryLookupKey, true).find { it.code == country }
                 "${listItem?.label}"
             }
             5 -> "${enteredDate}"

@@ -2,7 +2,7 @@ package com.parinherm.entity.schema
 
 import com.parinherm.ApplicationData
 import org.jetbrains.exposed.dao.id.LongIdTable
-import org.jetbrains.exposed.sql.`java-time`.date
+import org.jetbrains.exposed.sql.javatime.date
 
 object NoteSegmentTypeHeaders: LongIdTable() {
 val title = varchar("title", 255)

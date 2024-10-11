@@ -1,0 +1,53 @@
+package com.parinherm.entity.schema
+
+import com.parinherm.ApplicationData
+{{#each (getForeignKeysByView this)}}
+import com.parinherm.entity.{{capitalizeIt entityDef.name}}
+{{/each}}
+import com.parinherm.entity.{{capitalizeIt entityDef.name}}
+import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.statements.UpdateBuilder
+import org.jetbrains.exposed.sql.statements.api.ExposedBlob
+import java.time.LocalDateTime
+
+object {{capitalizeIt entityDef.name}}Mapper : IMapper<{{capitalizeIt entityDef.name}}> {
+
+    val table = {{capitalizeIt entityDef.name}}s
+
+    override fun save(item: {{capitalizeIt entityDef.name}}) {
+        MapperHelper.save(item, table, {{capitalizeIt entityDef.name}}Mapper::mapItem)
+   }
+
+    private fun mapItem(item: {{capitalizeIt entityDef.name}}, statement: UpdateBuilder<Int>) {
+       {{#each fieldDefinitions}}statement[table.{{name}}] = item.{{name}}
+       {{/each}}
+       {{#each (getForeignKeysByView this)}}statement[table.{{this.entityDef.decapitalized}}Id] = item.{{this.entityDef.decapitalized}}Id
+       {{/each}}
+    }
+
+    override fun getAll(keys: Map<String, Long>): List<{{capitalizeIt entityDef.name}}> {
+    return MapperHelper.getAll(keys,
+    table,
+    {{#if (hasForeignKeys this)}} {{#each (getForeignKeysByView this)}}table.{{entityDef.decapitalized}}Id eq keys["{{entityDef.decapitalized}}Id"] as Long{{/each}} {{else}} null {{/if}}
+    , {{#each fieldDefinitions}} {{#if @first}}table.{{name}} to SortOrder.ASC {{/if}}{{/each}}) {
+            {{capitalizeIt entityDef.name}}(it[table.id].value,
+                {{#each (getForeignKeysByView this)}}it[table.{{this.entityDef.decapitalized}}Id],{{/each}}
+{{#each fieldDefinitions}}it[table.{{name}}]{{#unless required}}?:{{{this.defaultValue}}}{{/unless}}{{#unless @last}}, {{/unless}}
+                {{/each}}
+            )
+        }
+    }
+
+    {{#each (getForeignKeysByView this)}}
+    fun delete(parent: {{capitalizeIt this.entityDef.name}}) {
+        MapperHelper.delete(table, table.{{this.entityDef.decapitalized}}Id eq parent.id)
+    }
+    {{/each}}
+
+    override fun delete(item: {{capitalizeIt entityDef.name}}) {
+        {{#each childViews}}{{capitalizeIt entityDef.name}}Mapper.delete(item)
+        {{/each}}
+        MapperHelper.delete(table, table.id eq item.id)
+    }
+}

@@ -1,0 +1,67 @@
+using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi.Models;
+using webapi.DTO.Trips;
+using webapi.Model.Vacation;
+using webapi.Repository;
+
+
+namespace webapi.Endpoints.Trips;
+
+public static class {{capitalizeIt entityDef.name}}Endpoints
+{
+    public static void Map{{capitalizeIt entityDef.name}}Endpoints (this IEndpointRouteBuilder routes)
+    {
+        var group = routes.MapGroup("/api/{{capitalizeIt entityDef.name}}").WithTags(nameof({{capitalizeIt entityDef.name}}));
+
+        group.MapGet("/", async (I{{capitalizeIt entityDef.name}}Repository repository, IMapper mapper) =>
+        {
+            return mapper.Map<IEnumerable<{{capitalizeIt entityDef.name}}DTO>>(await  repository.Get());
+        })
+        .WithName("GetAll{{capitalizeIt entityDef.name}}s")
+        .WithOpenApi();
+
+        group.MapGet("/{id:}", async (Guid id, I{{capitalizeIt entityDef.name}}Repository repository, IMapper mapper) =>
+        {
+            {{capitalizeIt entityDef.name}}? it = await repository.Retrieve(id);
+            if(it != null)
+            {
+                return Results.Ok<{{capitalizeIt entityDef.name}}DTO>(mapper.Map<{{capitalizeIt entityDef.name}}DTO>(it));
+            }
+            else
+            {
+                return TypedResults.NotFound();
+            }
+        })
+        .WithName("Get{{capitalizeIt entityDef.name}}ById")
+        .WithOpenApi();
+
+        group.MapPut("/{id}", async (Guid id, {{capitalizeIt entityDef.name}}DTO input, I{{capitalizeIt entityDef.name}}Repository repository, IMapper mapper) =>
+        {
+            {{capitalizeIt entityDef.name}} {{entityDef.name}} = mapper.Map<{{capitalizeIt entityDef.name}}>(input);
+            var affected = await repository.Update({{entityDef.name}});
+            return affected == 1 ? Results.Ok() : TypedResults.NotFound();
+        })
+        .WithName("Update{{capitalizeIt entityDef.name}}")
+        .WithOpenApi();
+
+        group.MapPost("/", async ({{capitalizeIt entityDef.name}}DTO model, I{{capitalizeIt entityDef.name}}Repository repository, IMapper mapper) =>
+        {
+            {{capitalizeIt entityDef.name}} {{entityDef.name}} = mapper.Map<{{capitalizeIt entityDef.name}}>(model);
+            repository.Insert({{entityDef.name}});
+            await repository.Save();
+            return TypedResults.Created($"/api/{{capitalizeIt entityDef.name}}/{model.id}", model);
+        })
+        .WithName("Create{{capitalizeIt entityDef.name}}")
+        .WithOpenApi();
+
+        group.MapDelete("/{id}", async (Guid id, I{{capitalizeIt entityDef.name}}Repository repository, IMapper mapper) =>
+        {
+            var affected = await repository.Delete(id);
+            return affected == 1 ? Results.Ok() : TypedResults.NotFound();
+        })
+        .WithName("Delete{{capitalizeIt entityDef.name}}")
+        .WithOpenApi();
+    }
+}

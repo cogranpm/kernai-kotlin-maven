@@ -1,0 +1,269 @@
+{% set viewStyleRaw = viewDef.configMap.getOrDefault("viewStyle", "table") %}
+{% set viewStyle = viewStyleRaw | replace({'"': ''}) %}
+/******************************** */
+/* REACT */
+import React, { useState, useEffect } from 'react'
+
+/************************* */
+/* REDUX */
+import { selectTrip, remove{{ viewDef.entityDef.name | capitalize }} } from '../redux/tripSlice'
+import { useSelector, useDispatch } from 'react-redux'
+
+/************************ */
+/* ROUTER*/
+
+/************************* */
+/* COMPONENTS */
+import { FormDialog } from './{{ viewDef.entityDef.name | capitalize }}Form'
+
+/**************************** */
+/* HELPERS */
+import { {{ viewDef.entityDef.name | capitalize }}Factory } from '../factories/{{ viewDef.entityDef.name }}Factory'
+import { update } from '../persistence/localPersistence'
+
+/********************************
+ * CSS
+ */
+import {
+    makeStyles,
+    Body1,
+    Button,
+    Card,
+    CardFooter,
+    CardHeader,
+    CardPreview,
+    Table,
+    TableHeader,
+    TableRow,
+    TableBody,
+    TableCell,
+    TableCellLayout,
+    Tooltip,
+    Toolbar,
+    ToolbarButton,
+    ToolbarDivider,
+    Caption1Strong,
+    Text,
+    Title3
+} from '@fluentui/react-components';
+
+import {
+    NotepadEditRegular,
+    FormNewRegular,
+    DeleteRegular
+} from '@fluentui/react-icons';
+
+const useStyles = makeStyles({
+    root: {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr'
+    }
+})
+
+export const {{ viewDef.entityDef.name | capitalize }} = ({ day }) => {
+
+    const [doSave, setDoSave] = useState(false)
+    const trip = useSelector(selectTrip)
+    const dispatch = useDispatch()
+
+    const classes = useStyles()
+
+    const [editMode, setEditMode] = useState(false)
+    const [entity, setEntity] = useState(null)
+    const [list, setList] = useState([])
+
+    useEffect(() => {
+        const doIt = async () => {
+            const response = await update(trip)
+            if (!response) {
+                console.error(`Error updating the trip in {{ viewDef.entityDef.name | capitalize }} form: ${response.error}`)
+            }
+            setInitialList()
+            setDoSave(false)
+        }
+        if (doSave) {
+            doIt().then()
+        }
+
+    }, [doSave, trip])
+
+    const setInitialList = () => {
+        const entities = trip.{{ viewDef.entityDef.name }}s.filter((d) => d.day === day);
+        setList(entities)
+    }
+
+    useEffect(() => {
+        setInitialList()
+        setEntity(null)
+    }, [day])
+
+    const onNew = (e) => {
+        setEntity({{ viewDef.entityDef.name | capitalize }}Factory.make(day))
+        setEditMode(true)
+    }
+
+    const onEdit = ({{ viewDef.entityDef.name }}) => {
+        setEntity({{ viewDef.entityDef.name }})
+        setEditMode(true)
+    }
+
+    const onDelete = (id) => {
+        if (confirm("Delete {{ viewDef.title }}, please confirm.")) {
+            dispatch(remove{{ viewDef.entityDef.name | capitalize }}({ id: id }))
+            setDoSave(true)
+        }
+    }
+
+    return (
+        <div>
+            <Toolbar>
+                <Title3>{{ viewDef.title }}</Title3>
+                <ToolbarDivider />
+                <Tooltip content="New" relationship="description" withArrow>
+                    <ToolbarButton
+                        id="new"
+                        icon={<FormNewRegular />}
+                        onClick={onNew}
+                    />
+                </Tooltip>
+            </Toolbar>
+
+            {list.map((x) => (
+                <div key={ x.id }>
+                    {% if viewStyle  == "card" %}
+                <Card>
+                    <CardHeader
+                        action={
+                            <Toolbar>
+                                <Tooltip content="Edit" relationship="description" withArrow>
+                                    <ToolbarButton
+                                        id="edit"
+                                        icon={<NotepadEditRegular />}
+                                        onClick={(e) => onEdit(x)}
+                                    />
+                                </Tooltip>
+                                <Tooltip content="Edit" relationship="description" withArrow>
+                                    <ToolbarButton
+                                        id="delete"
+                                        icon={<DeleteRegular />}
+                                        onClick={(e) => onDelete(x.id)}
+                                    />
+                                </Tooltip>
+                            </Toolbar>
+                        }
+                        header={
+                           <div>
+                                <div>
+{% set headerRowIndex = 0 %}
+{% for field in viewDef.fieldDefinitions %}
+    {% set displayInHeaderRaw = field.configMap["displayInHeader"]%}
+    {% set displayInHeader = displayInHeaderRaw | replace({'"': ''}) %}
+    {% set fieldRow = field.configMap["row"] %}
+{% if displayInHeader == "true" %}
+        {% set headerRowIndex = headerRowIndex + 1 %}
+        {% if headerRowIndex == 1 %}
+            <div>
+            {% set innerCount = 0 %}
+            {% for innerField in viewDef.fieldDefinitions %}
+                {% set innerDisplayInHeaderRaw = innerField.configMap["displayInHeader"]%}
+                {% set innerDisplayInHeader = innerDisplayInHeaderRaw | replace({'"': ''}) %}
+                {% set innerFieldRow = innerField.configMap["row"] %}
+                {% set headerRowIndexString = "" + headerRowIndex + "" %}
+                {% if innerFieldRow == headerRowIndexString  and innerDisplayInHeader == "true" %}
+                {% set innerCount = innerCount + 1 %}
+                <Title3>{% if innerCount > 1 %} - {% endif %}{x?.{{innerField.name}} ?? "{{innerField.name}} is empty"} </Title3>
+                {% endif %}
+            {% endfor %}
+            </div>
+        {% else %}
+            {% set innerCount = 0 %}
+            {% for innerField in viewDef.fieldDefinitions %}
+                {% set innerDisplayInHeaderRaw = innerField.configMap["displayInHeader"]%}
+                {% set innerDisplayInHeader = innerDisplayInHeaderRaw | replace({'"': ''}) %}
+                {% set innerFieldRow = innerField.configMap["row"] %}
+                {% set headerRowIndexString = "" + headerRowIndex + "" %}
+                {% if innerFieldRow == headerRowIndexString  and innerDisplayInHeader == "true" %}
+                    {% set innerCount = innerCount + 1 %}
+                    <Text> {% if innerCount > 1 %} - {% endif %} {x?.{{innerField.name}} ?? "{{innerField.name}} is empty"}</Text>
+                {% endif %}
+            {% endfor %}
+
+        {% endif %}
+{% endif %}
+{% endfor %}
+                                <hr/>
+                                </div>
+                                <Table size="extra-small">
+                                <TableHeader>
+                                {% for field in viewDef.fieldDefinitions %}
+                                    {% set displayInHeaderRaw = field.configMap["displayInHeader"]%}
+                                    {% set displayInHeader = displayInHeaderRaw | replace({'"': ''}) %}
+{% if displayInHeader != "true" %}
+                                <TableRow>
+                                    <TableCell><Caption1Strong>{{field.title}}</Caption1Strong></TableCell>
+                                    {% if field.dataTypeDef == "BOOLEAN" %}
+                                    <TableCell><Text>{x?.{{field.name}} ? "Yes" : "No" }</Text></TableCell>
+                                    {% else %}
+                                    <TableCell><Text>{x?.{{field.name}} ?? ""}</Text></TableCell>
+                                    {% endif %}
+                                 </TableRow>
+{% endif %}
+
+                                {% endfor %}
+                            </TableHeader>
+                        </Table>
+                        </div>
+                        }>
+                    </CardHeader>
+                    <CardPreview>
+                    </CardPreview>
+                    <CardFooter>
+                    </CardFooter>
+                </Card>
+                    {% else %}
+                <Toolbar>
+                        <Tooltip content="Edit" relationship="description" withArrow>
+                            <ToolbarButton
+                                id="edit"
+                                icon={<NotepadEditRegular />}
+                                onClick={(e) => onEdit(x)}
+                            />
+                        </Tooltip>
+                        <Tooltip content="Edit" relationship="description" withArrow>
+                            <ToolbarButton
+                                id="delete"
+                                icon={<DeleteRegular />}
+                                onClick={(e) => onDelete(x.id)}
+                            />
+                        </Tooltip>
+                    </Toolbar>
+                    <Table size="extra-small">
+                        <TableHeader>
+                            {% for field in viewDef.fieldDefinitions %}
+                            <TableRow>
+                                <TableCell><Caption1Strong>{{field.title}}</Caption1Strong></TableCell>
+                                {% if field.dataTypeDef == "BOOLEAN" %}
+                                <TableCell><Text>{x?.{{field.name}} ? "Yes" : "No" }</Text></TableCell>
+                                {% else %}
+                                <TableCell><Text>{x?.{{field.name}} ?? ""}</Text></TableCell>
+                                {% endif %}
+                             </TableRow>
+                            {% endfor %}
+                        </TableHeader>
+                    </Table>
+                    {% endif %}
+                </div>
+                )
+            )}
+            {editMode ? <FormDialog
+                open={editMode}
+                setOpen={setEditMode}
+                entity={entity}
+                setEntity={setEntity}
+                doSave={doSave}
+                setDoSave={setDoSave}
+            /> : ""}
+        </div>
+    )
+}
+

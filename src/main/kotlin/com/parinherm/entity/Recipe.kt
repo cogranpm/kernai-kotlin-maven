@@ -1,6 +1,7 @@
 package com.parinherm.entity
 
 import com.parinherm.ApplicationData
+import com.parinherm.lookups.LookupUtils
 import kotlin.properties.Delegates
 
 class Recipe(
@@ -18,12 +19,10 @@ class Recipe(
     override fun getColumnValueByIndex(index: Int): String {
         return when (index) {
             0 -> name
-            1 -> "${ApplicationData.recipeCategoryList.find { it.code == category }?.label}"
+            1 -> "${LookupUtils.getLookupByKey(LookupUtils.recipeCategoryLookupKey, true).find { it.code == category }?.label}"
             else -> ""
         }
     }
-
-
 
     override fun toString(): String {
         return "Recipe(id=$id, name=$name, method=$method, category=$category)"
@@ -31,7 +30,7 @@ class Recipe(
 
     companion object Factory {
         fun make(): Recipe {
-            return Recipe(0, "", "", ApplicationData.recipeCategoryList[0].code)
+            return Recipe(0, "", "", LookupUtils.getLookupByKey(LookupUtils.recipeCategoryLookupKey, true)[0].code)
         }
     }
 }

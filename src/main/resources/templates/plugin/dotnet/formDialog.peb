@@ -1,0 +1,290 @@
+import React from 'react';
+import {
+    Dialog,
+    DialogTrigger,
+    DialogSurface,
+    DialogTitle,
+    DialogContent,
+    DialogBody,
+    DialogActions,
+    Button,
+    Input,
+    Field,
+    Label,
+    Select,
+    makeStyles,
+    Checkbox,
+    shorthands,
+    Dropdown,
+    Toolbar,
+    ToolbarButton,
+    ToolbarDivider,
+    createTableColumn,
+    Caption1,
+    Body1,
+    Badge,
+    Text,
+    Textarea,
+    SpinButton
+} from '@fluentui/react-components';
+import styles from '../Styles.module.scss';
+import CountrySelector from '../CountrySelector';
+import { postEntity } from '../server.js';
+
+const baseUrl = "api/{{ viewDef.entityDef.name | capitalize }}";
+
+const useStyles = makeStyles({
+    root: {
+        display: "flex",
+        flexDirection: "column",
+        ...shorthands.gap("2px"),
+        width: "100%",
+        maxWidth: "100%"
+    },
+});
+
+
+function FormDialog({
+    open,
+    setOpen,
+    {{ viewDef.entityDef.name }},
+    set{{ viewDef.entityDef.name | capitalize }},
+    setResults,
+    list,
+    setList,
+{% for x in viewDef.ownerAssociations %}
+{% if x.owningType == "one" %}
+{{ x.name }}Picker,
+{% endif %}
+{% endfor %}
+{% for assoc in viewDef.ownedAssociations %}
+{% if assoc.ownedType == "one" %}
+{{ assoc.ownerViewDefinition.entityName }}Picker,
+{% endif %}
+{% endfor %}
+    jwtToken
+}) {
+    const styles = useStyles();
+
+    const handleSubmit = async (ev) => {
+        ev.preventDefault();
+        await postIt(ev);
+        setOpen(false);
+    };
+
+    const postIt = async (e) => {
+        if ({{ viewDef.entityDef.name }}.isNew) {
+            await post({{ viewDef.entityDef.name }});
+            setList([...list, {{ viewDef.entityDef.name }}]);
+        } else {
+            await put({{ viewDef.entityDef.name }});
+        }
+    };
+
+    const post = async ({{ viewDef.entityDef.name }}) => {
+        const response = postEntity("POST", baseUrl, {{ viewDef.entityDef.name }}, jwtToken)
+        if (!response.error) {
+            setResults(`{{ viewDef.entityDef.name }} was added`);
+            set{{ viewDef.entityDef.name | capitalize }}({ ...{{ viewDef.entityDef.name }}, isNew: false });
+        } else {
+            setResults(`Error posting: ${response.error}`);
+        }
+    };
+
+    const put = async ({{ viewDef.entityDef.name }}) => {
+        const response = postEntity("PUT", `${baseUrl}/${ {{ viewDef.entityDef.name }}.id}`, {{ viewDef.entityDef.name }}, jwtToken)
+        if (!response.error) {
+            setResults(`{{ viewDef.entityDef.name }} was updated`);
+        } else {
+            setResults(`Error updating ${ {{ viewDef.entityDef.name }}.first}: ${response.error}`);
+        }
+    };
+
+
+    {% for field in viewDef.fieldDefinitions %}
+    {% if field.dataTypeDef == "DATE" %}
+const handle{{field.name | capitalize}}Change = async (ev) => {
+    set{{ viewDef.entityDef.name | capitalize }}({ ...{{ viewDef.entityDef.name }}, {{field.name}}: ev.target.value});
+    };
+    {% elseif field.dataTypeDef == "TIME" %}
+const handle{{field.name | capitalize}}Change = async (ev, data) => {
+        set{{ viewDef.entityDef.name | capitalize }}({ ...{{ viewDef.entityDef.name }}, {{field.name}}: data.value });
+    };
+    {% elseif field.dataTypeDef == "DATETIME" %}
+const handle{{field.name | capitalize}}TimeChange = async (ev, data) => {
+        set{{ viewDef.entityDef.name | capitalize }}({ ...{{ viewDef.entityDef.name }}, {{field.name}}: data.selectedTime});
+    };
+
+const handle{{field.name | capitalize}}Change = async (ev) => {
+        set{{ viewDef.entityDef.name | capitalize }}({ ...{{ viewDef.entityDef.name }}, {{field.name}}: ev.target.value });
+    };
+    {% elseif field.dataTypeDef == "INT" %}
+const handle{{field.name | capitalize}}Change = async (ev, data) => {
+        if (data.value !== undefined) {
+            set{{ viewDef.entityDef.name | capitalize }}({ ...{{ viewDef.entityDef.name }}, {{field.name}}: data.value });
+        } else if (data.displayValue !== undefined) {
+            const newValue = parseFloat(data.displayValue);
+            if (!Number.isNaN(newValue)) {
+                set{{ viewDef.entityDef.name | capitalize }}({ ...{{ viewDef.entityDef.name }}, {{field.name}}: newValue });
+            }
+        }
+    };
+     {% elseif field.dataTypeDef == "FLOAT" %}
+const handle{{field.name | capitalize}}Change = async (ev, data) => {
+        set{{ viewDef.entityDef.name | capitalize }}({ ...{{ viewDef.entityDef.name }}, {{field.name}}: parseFloat(data.value) });
+    };
+    {% elseif field.dataTypeDef == "BOOLEAN" %}
+const handle{{field.name | capitalize}}Change = async (ev, data) => {
+        set{{ viewDef.entityDef.name | capitalize }}({ ...{{ viewDef.entityDef.name }}, {{field.name}}: data.checked });
+    };
+    {% else %}
+const handle{{field.name | capitalize}}Change = async (ev, data) => {
+        set{{ viewDef.entityDef.name | capitalize }}({ ...{{ viewDef.entityDef.name }}, {{field.name}}: data.value });
+    };
+    {% endif %}
+{% endfor %}
+
+    {% for ownerAssociation in viewDef.ownerAssociations %}
+        {% if ownerAssociation.owningType == "one" %}
+const handle{{ ownerAssociation.name | capitalize}}Change = async (ev, data) => {
+    set{{ viewDef.entityDef.name | capitalize }}({ ...{{ viewDef.entityDef.name }}, {{ ownerAssociation.name}}Id: data.value });
+};
+    {% endif %}
+    {% endfor %}
+    {% for assoc in viewDef.ownedAssociations %}
+        {% if assoc.ownedType == "one" %}
+    const handle{{ assoc.ownerViewDefinition.entityName | capitalize }}Change = async (ev, data) => {
+        set{{ viewDef.entityDef.name | capitalize }}({ ...{{ viewDef.entityDef.name }}, {{ assoc.ownerViewDefinition.entityName}}Id: data.value });
+    };
+    {% endif %}
+    {% endfor %}
+
+
+    return (
+        <Dialog
+            modalType="alert"
+            open={open}
+            onOpenChange={(evt, data) => {
+                setOpen(data.open);
+            }}
+        >
+            <DialogSurface >
+                <form onSubmit={handleSubmit}>
+                    <DialogBody>
+                        <DialogTitle>{{ viewDef.entityDef.name | capitalize }}</DialogTitle>
+                        <DialogContent className={styles.content}>
+
+                       <Field label="Id">
+                            <Input
+                                id="id"
+                                value={ {{ viewDef.entityDef.name }} ? {{ viewDef.entityDef.name }}.id : ""}
+                                readOnly={true}
+                                disabled={true}
+                            />
+                        </Field>
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+                         <Field label="{{ ownerAssociation.name | capitalize }}" disabled={ {{ viewDef.entityDef.name }} === null} required >
+                            <Select
+                                id="{{ ownerAssociation.name }}Id"
+                                value={ {{ viewDef.entityDef.name }}? {{ viewDef.entityDef.name }}.{{ ownerAssociation.name }}Id: ""}
+                                onChange={handle{{ ownerAssociation.name | capitalize}}Change}
+                            >
+                                { {{ ownerAssociation.name }}Picker.map((x) => {
+                                    return (
+                                        <option value={x.id}>{x.name}</option>
+                                    )
+                                }) }
+                            </Select>
+                        </Field>
+{% endif %}
+{% endfor %}
+    {% for assoc in viewDef.ownedAssociations %}
+        {% if assoc.ownedType == "one" %}
+                         <Field label="{{ assoc.ownerViewDefinition.entityName | capitalize }}" disabled={ {{ viewDef.entityDef.name }} === null} required >
+                            <Select
+                                id="{{ assoc.ownerViewDefinition.entityName }}Id"
+                                value={ {{ viewDef.entityDef.name }}? {{ viewDef.entityDef.name }}.{{ assoc.ownerViewDefinition.entityName }}Id: ""}
+                                onChange={handle{{ assoc.ownerViewDefinition.entityName | capitalize}}Change}
+                            >
+                                { {{ assoc.ownerViewDefinition.entityName }}Picker.map((x) => {
+                                    return (
+                                        <option value={x.id}>{x.name}</option>
+                                    )
+                                }) }
+                            </Select>
+                        </Field>
+    {% endif %}
+    {% endfor %}
+                        {% for field in viewDef.fieldDefinitions %}
+                         <Field label="{{field.title}}" {% if field.required %}required{% endif %}>
+                            {% if field.dataTypeDef == "TEXT" and field.sizeHint == "LARGE"  %}
+                            <Textarea
+                                id="{{field.name}}"
+                                value={ {{ viewDef.entityDef.name }} ? {{ viewDef.entityDef.name }}.{{field.name}} : ""}
+                                onChange={handle{{field.name | capitalize}}Change}
+                                maxLength={ {{ field.maxLength }} }
+                                resize="both"
+                                {% if field.required %}required{% endif %}
+                            />
+                            {% elseif field.dataTypeDef == "INT" %}
+                             <SpinButton
+                                id="{{field.name}}"
+                                value={ {{ viewDef.entityDef.name }} ? {{ viewDef.entityDef.name }}.{{field.name}} : "0"}
+                                onChange={handle{{field.name | capitalize}}Change}
+                                {% if field.required %}required{% endif %}
+                            />
+                            {% elseif field.dataTypeDef == "DATE" %}
+                            <input
+                                id="{{field.name}}"
+                                value={ {{ viewDef.entityDef.name }} ? {{ viewDef.entityDef.name }}.{{field.name}} : ""}
+                                onChange={handle{{field.name | capitalize}}Change}
+                                disabled={ {{ viewDef.entityDef.name }} === null}
+                                type="date"
+                                {% if field.required %}required{% endif %}
+                            />
+                           {% elseif field.dataTypeDef == "TIME" %}
+                            <Input
+                                id="{{field.name}}"
+                                value={ {{ viewDef.entityDef.name }} ? {{ viewDef.entityDef.name }}.{{field.name}} : ""}
+                                onChange={handle{{field.name | capitalize}}Change}
+                                type="time"
+                                step={1}
+                                {% if field.required %}required{% endif %}
+                            />
+                            {% elseif field.dataTypeDef == "BOOLEAN" %}
+                            <Checkbox
+                                id="{{field.name}}"
+                                checked={ {{ viewDef.entityDef.name }} ? {{ viewDef.entityDef.name }}.{{field.name}} : false}
+                                onChange={handle{{field.name | capitalize}}Change}
+                                {% if field.required %}required{% endif %}
+                            />
+                            {% else %}
+                            <Input
+                                id="{{field.name}}"
+                                value={ {{ viewDef.entityDef.name }} && {{ viewDef.entityDef.name }}.{{field.name}} ? {{ viewDef.entityDef.name }}.{{field.name}} : ""}
+                                onChange={handle{{field.name | capitalize}}Change}
+                                maxLength={ {{ field.maxLength }} }
+                                {% if field.required %}required{% endif %}
+                            />
+                            {% endif %}
+                        </Field>
+                        {% endfor %}
+
+                        </DialogContent>
+                        <DialogActions>
+                            <DialogTrigger disableButtonEnhancement>
+                                <Button appearance="secondary">Close</Button>
+                            </DialogTrigger>
+                            <Button type="submit" appearance="primary">
+                                Submit
+                            </Button>
+                        </DialogActions>
+                    </DialogBody>
+                </form>
+            </DialogSurface>
+        </Dialog>
+    );
+}
+
+export default FormDialog;

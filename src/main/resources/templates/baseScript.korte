@@ -1,0 +1,4 @@
+fun getSchemaTables() : List<LongIdTable> = listOf({{ viewDef.entityDef.name|capitalize }}s)
+
+fun makeViewModel(parent: CTabFolder) : {{ viewDef.entityDef.name|capitalize }}ViewModel =  {{ viewDef.entityDef.name|capitalize }}ViewModel(parent)
+

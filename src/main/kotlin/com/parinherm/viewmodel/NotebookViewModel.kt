@@ -10,38 +10,49 @@ import com.parinherm.entity.schema.NotebookMapper
 import com.parinherm.form.ChildFormTab
 import com.parinherm.form.FormViewModel
 import com.parinherm.form.IFormViewModel
+import com.parinherm.menus.TabInfo
 import com.parinherm.view.NotebookView
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.SWT
 import org.eclipse.swt.custom.CTabFolder
 
-class NotebookViewModel  (parent: CTabFolder)  : FormViewModel<Notebook>(
-    NotebookView(parent, Comparator()),
-    NotebookMapper, { Notebook.make() })  {
+class NotebookViewModel(tabInfo: TabInfo) : FormViewModel<Notebook>(
+    NotebookView(tabInfo.folder, Comparator()),
+    NotebookMapper, { Notebook.make() },
+    tabInfo
+) {
 
     private val noteHeaders = WritableList<NoteHeader>()
     private val noteHeaderComparator = NoteHeaderViewModel.Comparator()
 
 
     init {
-        if (view.form.childFormsContainer != null)
-        {
+        if (view.form.childFormsContainer != null) {
             view.form.childFormsContainer!!.childTabs.forEach { childFormTab: ChildFormTab ->
-                wireChildTab(childFormTab, ApplicationData.TAB_KEY_NOTEHEADER, noteHeaderComparator, noteHeaders, ::makeNoteHeader )
+                wireChildTab(
+                    childFormTab,
+                    noteHeaderComparator,
+                    noteHeaders,
+                    ::makeNoteHeader,
+                    NoteHeaderMapper
+                )
             }
         }
+        createTab()
         loadData(mapOf())
     }
 
-    private fun makeNoteHeader(currentChild: NoteHeader?) : IFormViewModel<NoteHeader> {
-        return NoteHeaderViewModel(currentEntity!!.id,
+    private fun makeNoteHeader(currentChild: NoteHeader?): IFormViewModel<NoteHeader> {
+        return NoteHeaderViewModel(
+            currentEntity!!.id,
             currentChild,
-            ApplicationData.TAB_KEY_NOTEBOOK,
-            ApplicationData.mainWindow.folder)
+            tabId,
+            tabInfo.copy(caption = "Note Header")
+        )
     }
 
-    override fun changeSelection(){
+    override fun changeSelection() {
         val formBindings = super.changeSelection()
         /* specific to child list */
         noteHeaders.clear()
@@ -64,7 +75,7 @@ class NotebookViewModel  (parent: CTabFolder)  : FormViewModel<Notebook>(
             val entity2 = e2 as Notebook
             val rc = when (propertyIndex) {
                 name_index -> compareString(entity1.name, entity2.name)
-               else -> 0
+                else -> 0
             }
             return flipSortDirection(rc)
         }

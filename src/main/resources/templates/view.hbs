@@ -1,18 +1,9 @@
-package com.parinherm.view
 
-import com.parinherm.ApplicationData
-import com.parinherm.builders.BeansViewerComparator
-import com.parinherm.entity.{{#capitalize entityDef.name}}{{/capitalize}}
-import com.parinherm.form.Form
-import org.eclipse.swt.widgets.Composite
+class {{capitalizeIt entityDef.name}}View(val parent: Composite, comparator: BeansViewerComparator)
+    : View <{{capitalizeIt entityDef.name}}> {
 
-class {{#capitalize entityDef.name}}{{/capitalize}}View(val parent: Composite, comparator: BeansViewerComparator)
-    : View <{{#capitalize entityDef.name}}{{/capitalize}}> {
-
-        // this member has all of the widgets
-        // it's a common object favour composition over inheritance
-        override val form: Form<{{#capitalize entityDef.name}}{{/capitalize}}> = Form(parent,
-            ApplicationData.getView(ApplicationData.ViewDefConstants.{{#decapitalize entityDef.name}}{{/decapitalize}}ViewId),
+        override val form: Form<{{capitalizeIt entityDef.name}}> = Form(parent,
+            DefaultViewDefinitions.loadView("{{this.id}}"),
             comparator
         )
 

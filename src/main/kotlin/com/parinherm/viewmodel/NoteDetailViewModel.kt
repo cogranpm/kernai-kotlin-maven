@@ -6,14 +6,19 @@ import com.parinherm.entity.Ingredient
 import com.parinherm.entity.NoteDetail
 import com.parinherm.entity.schema.NoteDetailMapper
 import com.parinherm.form.FormViewModel
+import com.parinherm.menus.TabInfo
 import com.parinherm.view.NoteDetailView
 import org.eclipse.jface.viewers.StructuredSelection
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
 
-class NoteDetailViewModel(val noteHeaderId: Long, val selectedNoteDetail: NoteDetail?, val openedFromTabId: String?, parent: CTabFolder) : FormViewModel<NoteDetail>(
-    NoteDetailView(parent, Comparator()),
-    NoteDetailMapper, { NoteDetail.make(noteHeaderId) })
+class NoteDetailViewModel(
+    val noteHeaderId: Long,
+    val selectedNoteDetail: NoteDetail?,
+    val openedFromTabId: String?,
+    tabInfo: TabInfo) : FormViewModel<NoteDetail>(
+    NoteDetailView(tabInfo.folder, Comparator()),
+    NoteDetailMapper, { NoteDetail.make(noteHeaderId) }, tabInfo)
 {
 
     init {
