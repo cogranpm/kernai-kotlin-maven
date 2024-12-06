@@ -144,4 +144,7 @@ data class FieldDef(
             SizeDef.SMALL -> 150
         }
 
+    val nameAsField: String
+        get() = this.name.replaceFirstChar { it.lowercase() }
+
 }

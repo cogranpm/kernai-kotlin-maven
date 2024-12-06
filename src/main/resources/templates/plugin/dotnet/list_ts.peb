@@ -1,0 +1,160 @@
+import { toQueryString } from "../utils/url-utils.js";
+import { addOrRemoveClass, createJqSelectorBuilder as jqs } from "../utils/jquery-utils.js";
+
+export interface {{viewDef.entityDef.name | capitalize}}ForList {
+    numRows: number;
+    id: number;
+    {% for field in viewDef.fieldDefinitions %}
+    {{ field.nameAsField}}: {{ field.dataTypeDef.dataTypeToTypeScriptDef }};
+    {% endfor %}
+}
+
+export interface SearchCriteria {
+    search: string;
+}
+
+export interface {{viewDef.entityDef.name | capitalize}}ListModel {
+    criteria: SearchCriteria ,
+    loadingHtml: string;
+    loadingSmHtml: string;
+}
+
+export enum ElementIds {
+    LIST_TABLE = "listTable"
+}
+
+let model: {{viewDef.entityDef.name | capitalize}}ListModel;
+
+export function initialize(m: {{viewDef.entityDef.name | capitalize}}ListModel) {
+    model = m;
+}
+
+function getJqListTable(): JQuery<HTMLTableElement> {
+    return $<HTMLTableElement>(`#${ElementIds.LIST_TABLE}`);
+}
+
+$(function () {
+    var dataTable = getJqListTable().DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '/productEarningTypeLookups/list',
+            data: function(d) {
+                return $.extend({}, d, model.criteria);
+            }
+        },
+        columns: [
+            {
+                data: function (data: ProductEarningTypeLookupForList) {
+                    return '<a href="#" onclick="return false;">' + data.id + '</a>';
+                }
+            },
+            {% for field in viewDef.fieldDefinitions %}
+            { data: '{{ field.nameAsField}} },
+            {% endfor %}
+        ],
+        columnDefs: [
+            { targets: 'no-sort', orderable: false },
+            { targets: 'date', type: 'date' }
+        ],
+        order: [[1, 'desc']],
+        language: {
+            infoFiltered: '',
+            processing: model.loadingSmHtml,
+            searchPlaceholder: 'Filter Results',
+            search: ''
+        },
+        lengthChange: false,
+        stateSave: false,
+        stateDuration: -1,
+        pageLength: 50,
+        searching: true,
+        initComplete: function (settings, json: any) {
+            var hashedInvoiceId = $(location).attr('hash').replace('#', '');
+            if (hashedInvoiceId != '') {
+                //loadInvoice(hashedInvoiceId);
+            }
+            else if (json.data[0]) {
+                //var invoiceId = json.data[0].invoiceId;
+                //loadInvoice(invoiceId);
+            }
+
+        }
+    });
+
+    getJqListTable().wrap('<div class="table-responsive with-data-table"></div>');
+
+    jqs().id(ElementIds.LIST_TABLE).tbody().toJq().on('click', 'tr', function () {
+		//var clicked = (dataTable.row(this).data() as any).invoiceId;
+		//loadInvoice(clicked);
+	});
+
+    dataTable.on('draw', function () {
+        /*
+        if (currentInvoiceId != '') {
+            highlightInvoice(currentInvoiceId);
+        }
+         */
+    });
+
+    $(window).resize(function () {
+		//listViewBack(false);
+	});
+
+    $(window).on('popstate', function (event) {
+        var hashedInvoiceId = $(location).attr('hash').replace('#', '');
+        /*
+        if (!isLoading && hashedInvoiceId != '' && hashedInvoiceId != currentInvoiceId) {
+            loadInvoice(hashedInvoiceId);
+        }
+         */
+    });
+
+});
+
+//var currentInvoiceId = '';
+var currentId = -1;
+
+function highlightInvoice(id: number) {
+    currentId = id;
+    jqs().id(ElementIds.LIST_TABLE).tbody().tr().toJq().removeClass('alert-info');
+    //jqs().tr().contains(id as string).toJq().addClass('alert-info');
+    $(location).attr('hash', id);
+}
+
+function getInfoElement() {
+    return jqs().id("invoiceInfo").toJq();
+}
+var isLoading = false;
+export function load(id: number) {
+    isLoading = true;
+	listViewBack(false);
+    highlightInvoice(id);
+    listViewBack(true);
+    getInfoElement().html(model.loadingHtml);
+    $(function () {
+        const qs = toQueryString({});
+        getInfoElement().load(
+            `/invoices/invoiceinfo/${id}` + "?" + qs,
+            function (response, status, xhr) {
+                if (status == 'error') {
+                    getInfoElement().html('<div class="alert alert-warning">Could not load this invoice</div>');
+                    isLoading = false;
+                }
+                else {
+                    isLoading = false;
+                }
+            }
+        );
+    });
+}
+
+export function listViewBack(show: boolean) {
+    if (window.matchMedia("(max-width: 991.98px)").matches) {
+        addOrRemoveClass(show, '.list-viewer', 'list-content-show');
+        addOrRemoveClass(show, '#mainMenuOpen', 'd-none');
+        addOrRemoveClass(!show, '#listViewBack', 'd-none');
+    }
+}
+
+

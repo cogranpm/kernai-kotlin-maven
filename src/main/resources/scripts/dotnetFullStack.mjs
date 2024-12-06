@@ -26,10 +26,78 @@ const writeTemplate = (folder, fileName, viewDef, pebbleTemplate) => {
 };
 
 writeTemplate(
+    viewDef.getEntityDef().getName() + "/Model/ConklinCentral",
+    ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + ".cs",
+    viewDef,
+   ApplicationData.getPebbleEngine().getTemplate(`${basepath}entity.peb`));
+
+writeTemplate(
+    viewDef.getEntityDef().getName() + "/Model/ConklinCentral",
+    ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "ForList.cs",
+    viewDef,
+   ApplicationData.getPebbleEngine().getTemplate(`${basepath}entityForList.peb`));
+
+writeTemplate(
+    viewDef.getEntityDef().getName() + "/Repository",
+    ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Repository.cs",
+    viewDef,
+    ApplicationData.getPebbleEngine().getTemplate(`${basepath}repositoryClass.peb`));
+
+writeTemplate(
+    viewDef.getEntityDef().getName() + "/Service",
+    ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Service.cs",
+    viewDef,
+    ApplicationData.getPebbleEngine().getTemplate(`${basepath}service.peb`));
+
+writeTemplate(
+    viewDef.getEntityDef().getName() + "/Controllers",
+   ApplicationData.makeCapital(viewDef.getEntityDef().getName()) +  "sController.cs",
+    viewDef,
+    ApplicationData.getPebbleEngine().getTemplate(`${basepath}controller.peb`));
+
+writeTemplate(
+    viewDef.getEntityDef().getName() + "/Views/" + viewDef.getEntityDef().getName() + "s",
+    "Index.cshtml",
+    viewDef,
+    ApplicationData.getPebbleEngine().getTemplate(`${basepath}index.peb`));
+
+writeTemplate(
+    viewDef.getEntityDef().getName() + "/Views/" + viewDef.getEntityDef().getName() + "s",
+    "_list.cshtml",
+    viewDef,
+    ApplicationData.getPebbleEngine().getTemplate(`${basepath}list.peb`));
+
+writeTemplate(
+    viewDef.getEntityDef().getName() + "/ViewModel",
+    ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "ListJson.cs",
+    viewDef,
+   ApplicationData.getPebbleEngine().getTemplate(`${basepath}listJson.peb`));
+
+writeTemplate(
+    viewDef.getEntityDef().getName() + "/ViewModel",
+    ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Search.cs",
+    viewDef,
+   ApplicationData.getPebbleEngine().getTemplate(`${basepath}search.peb`));
+
+writeTemplate(
+    viewDef.getEntityDef().getName() + "/ViewModel",
+    ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "SearchCriteria.cs",
+    viewDef,
+   ApplicationData.getPebbleEngine().getTemplate(`${basepath}searchCriteria.peb`));
+
+writeTemplate(
+    viewDef.getEntityDef().getName() + "/wwwroot/" + viewDef.getEntityDef().getName(),
+    ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "list.ts",
+    viewDef,
+   ApplicationData.getPebbleEngine().getTemplate(`${basepath}list_ts.peb`));
+
+print("Completed");
+/*
+writeTemplate(
     "DTO",
     ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "DTO.cs",
     viewDef,
-   ApplicationData.getPebbleEngine().getTemplate(`${basepath}dto.peb`));
+    ApplicationData.getPebbleEngine().getTemplate(`${basepath}dto.peb`));
 print(`Wrote File ${ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "DTO.cs"}`);
 
 writeTemplate(
@@ -37,4 +105,6 @@ writeTemplate(
     ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Service.proto",
     viewDef,
    ApplicationData.getPebbleEngine().getTemplate(`${basepath}protocolBuffer.peb`));
+
 print(`Wrote File ${ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Service.proto"}`);
+*/

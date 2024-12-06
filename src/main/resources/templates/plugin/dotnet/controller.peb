@@ -1,0 +1,75 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
+using Portal.Core;
+using Portal.Data.ConklinCentral.Entities;
+using Portal.Data.ConklinCentral.Models;
+using Portal.Repository;
+using Portal.Repository.Domain;
+using Portal.Repository.Model;
+using Portal.Repository.Model.CommonInterfaces;
+using Portal.Repository.Model.ConklinCentral;
+using Portal.Web.Models;
+
+namespace Portal.Web.Controllers {
+
+    [Route("{{viewDef.entityDef.name | capitalize}}s")]
+    public class {{viewDef.entityDef.name | capitalize}}sController : Controller {
+
+        public const string Heading = "{{viewDef.title}}s";
+
+        private readonly I{{viewDef.entityDef.name | capitalize}}Service _service;
+
+        public {{viewDef.entityDef.name | capitalize}}sController(I{{viewDef.entityDef.name | capitalize}}Service _service){
+            this._service = service;
+        }
+
+        public ViewResult Index({% for field in viewDef.searchFields %}{{ field.dataTypeDef.dataTypeToCSharpDef }}? {{ field.nameAsField }} = null, {% endfor %}string search = null)
+        {
+            return View("Index", new ProductEarningTypeLookupSearch()
+            {
+                Title = Heading,
+                Criteria = new ProductEarningTypeLookupSearchCriteria()
+                {
+                {% for field in viewDef.searchFields %}
+{{ field.nameAsField }}{% if loop.last %}{% else %},{% endif %}
+{% endfor %}
+                }
+            });
+        }
+
+        [HttpGet]
+        [Route("list")]
+        public JsonResult ListJson(int draw,
+            int start,
+            int length,
+            [Bind(Prefix = "order[0][column]")] int orderCol,
+            [Bind(Prefix = "order[0][dir]")] string orderDir,
+            {% for field in viewDef.searchFields %}
+{{ field.dataTypeDef.dataTypeToCSharpDef }}? {{ field.nameAsField }} = null{% if loop.last %}{% else %},{% endif %}
+{% endfor %}
+           )
+        {
+            var dataSort = new DataSortParameters { Length = length, OrderDir = orderDir, OrderCol = orderCol, Start = start };
+            var records = this._service.GetForList(
+            {% for field in viewDef.searchFields %}
+{{ field.nameAsField }},
+{% endfor %}
+                    dataSort)
+                .ToList();
+
+            var result = new ProductEarningTypeLookupListJson
+            {
+                Draw = draw,
+                RecordsTotal = records.Count,
+                RecordsFiltered = records.Count(),
+                Data = records
+            };
+            return Json(result);
+        }
+    }
+}

@@ -1,0 +1,37 @@
+using Microsoft.EntityFrameworkCore;
+using Portal.Repository.Domain;
+using Portal.Repository.Model.ConklinCentral;
+
+namespace Portal.Repository
+{
+    public interface I{{viewDef.entityDef.name | capitalize}}Service : IService<{{viewDef.entityDef.name | capitalize}}, int>
+    {
+    	IQueryable<{{viewDef.entityDef.name | capitalize}}> Get{{viewDef.entityDef.name | capitalize}}ForList(
+{% for field in viewDef.searchFields %}
+{{ field.dataTypeDef.dataTypeToCSharpDef }}? {{ field.nameAsField }},
+{% endfor %}
+DataSortParameters dataSort
+    	);
+    }
+
+    public class {{viewDef.entityDef.name | capitalize}}Service : BaseService<{{viewDef.entityDef.name | capitalize}}, int, I{{viewDef.entityDef.name | capitalize}}Repository>, I{{viewDef.entityDef.name | capitalize}}Service
+    {
+    	public {{viewDef.entityDef.name | capitalize}}Service(I{{viewDef.entityDef.name | capitalize}}Repository repository) : base(repository) {
+
+        }
+
+        public IQueryable<{{viewDef.entityDef.name | capitalize}}> Get{{viewDef.entityDef.name | capitalize}}ForList(
+            {% for field in viewDef.searchFields %}
+    {{ field.dataTypeDef.dataTypeToCSharpDef }}? {{ field.nameAsField }},
+    {% endfor %}
+        DataSortParameters dataSort
+        ){
+            return this.Repository.GetForList(
+            {% for field in viewDef.searchFields %}
+    {{ field.dataTypeDef.dataTypeToCSharpDef }}? {{ field.nameAsField }},
+    {% endfor %}
+            dataSort);
+        }
+
+    }
+}

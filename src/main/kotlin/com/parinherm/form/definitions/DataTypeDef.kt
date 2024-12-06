@@ -25,6 +25,13 @@ enum class DataTypeDef {
             BLOB -> "ByteArray"
         }
 
+    val dataTypeToTypeScriptDef: String
+        get() = when (this) {
+            MEMO, SOURCE, TEXT, LOOKUP, FILE, DATETIME, TIME, DATE -> "string"
+            FLOAT, MONEY, INT, REFERENCE, BLOB -> "number"
+            BOOLEAN -> "boolean"
+        }
+
     val dataTypeToCSharpDef: String
         get() = when (this) {
             MEMO, SOURCE, TEXT, LOOKUP, FILE -> "String"

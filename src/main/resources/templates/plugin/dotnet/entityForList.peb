@@ -1,0 +1,17 @@
+using System;
+
+namespace Portal.Repository.Model.ConklinCentral;
+
+public class {{viewDef.entityDef.name | capitalize}}ForList
+{
+		public int NumRows { get; set; }
+		public int Id { get; set; }
+		{% for field in viewDef.fieldDefinitions %}
+        public {{ field.dataTypeDef.dataTypeToCSharpDef }}{% if not field.required  %}?{% endif %} {{ field.name | capitalize}} { get; set; }
+        {% endfor %}
+		{% for field in viewDef.fieldDefinitions %}
+		{% if field.dataTypeDef == "DATETIME" %}
+        public string {{ field.name | capitalize}}String => {{ field.name | capitalize}}.ToString("MM/dd/yyyy");
+        {% endif %}
+        {% endfor %}
+}

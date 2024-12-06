@@ -54,6 +54,11 @@ data class ViewDef(
             return AssociationDefinitionMapper.getAllAsOwned(this);
         }
 
+    val searchFields : List<FieldDef>
+        get() {
+            return this.fieldDefinitions.filter { it.filterable }
+        }
+
     init {
         childViews.forEach{
             it.parentViews.add(this.id)

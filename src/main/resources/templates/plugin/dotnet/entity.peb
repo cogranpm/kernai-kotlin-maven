@@ -1,0 +1,39 @@
+using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+using Portal.Repository.Model.Enums;
+
+namespace Portal.Repository.Model.ConklinCentral {
+
+
+public class {{viewDef.entityDef.name | capitalize}} : AuditTracking {
+
+ public int Id { get; set; }
+{% for field in viewDef.fieldDefinitions %}
+ public {{ field.dataTypeDef.dataTypeToCSharpDef }}{% if not field.required  %}?{% endif %} {{ field.name | capitalize}} { get; set; }
+{% endfor %}
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+ public int {{ ownerAssociation.name | capitalize }}Id { get; set; }
+{% else %}
+List<{{ ownerAssociation.ownedViewDefinition.entityName | capitalize }}DTO> {{ ownerAssociation.name | capitalize }},
+{% endif %}
+{% endfor %}
+{% for assoc in viewDef.ownedAssociations %}
+{% if assoc.ownedType == "one" %}
+   public int {{ assoc.ownerViewDefinition.entityName | capitalize }}Id { get; set; }
+{% endif %}
+{% endfor %}
+}
+
+    public class {{viewDef.entityDef.name | capitalize}}Config
+    {
+        public {{viewDef.entityDef.name | capitalize}}Config(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<{{viewDef.entityDef.name | capitalize}}>().ToTable("{{viewDef.entityDef.name | capitalize}}");
+
+            modelBuilder.Entity<{{viewDef.entityDef.name | capitalize}}>().HasKey(x => x.Id);
+        }
+    }
+
+}

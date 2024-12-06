@@ -1,0 +1,43 @@
+@model Portal.Web.Models.{{viewDef.entityDef.name | capitalize}}Search
+@{
+    Layout = "_EmptyLayout";
+}
+
+
+<div class="div-datatables">
+    <table id="listTable" class="table table-hover table-sm small clickable">
+        <thead>
+        <tr>
+            <th></th>
+            {% for field in viewDef.fieldDefinitions %}
+            <th>{{ field.title }}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td colspan="4" class="pt-4">@await Html.PartialAsync("_loadingsm")</td>
+        </tr>
+        <tr>
+            <td colspan="4"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<style type="text/css">
+    #invoiceListTable_filter {
+        display: none;
+    }
+</style>
+<script type="module">
+    import { initialize, load, listViewBack } from "./{{viewDef.entityDef.name}}/list.js";
+    const model = {
+        criteria: @Portal.Web.Helpers.MvcStringHelpers.ToJavaScriptObjectString(Model),
+        loadingHtml: '@await Html.PartialAsync("_loading")',
+        loadingSmHtml: '@await Html.PartialAsync("_loadingsm")'
+    }
+    initialize(model);
+    window.load = load;
+    window.listViewBack = listViewBack;
+
+</script>

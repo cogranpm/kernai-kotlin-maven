@@ -1,0 +1,35 @@
+import { makeId } from "../common"
+
+export class {{ viewDef.entityDef.name | capitalize }}Factory {
+
+
+{% set foreignKeyRaw = viewDef.configMap.get("foreignKey") %}
+{% set foreignKey = foreignKeyRaw | replace({'"': ''}) %}
+
+    static make({{ foreignKey }}) {
+        return {
+            id: makeId(),
+    {% for field in viewDef.fieldDefinitions %}
+    {% if field.dataTypeDef == "DATE" %}
+    {{field.name }}: "",
+    {% elseif field.dataTypeDef == "TIME" %}
+    {{field.name }}: "",
+    {% elseif field.dataTypeDef == "DATETIME" %}
+    {{field.name }}: "",
+    {% elseif field.dataTypeDef == "INT" %}
+    {{field.name }}: 0,
+     {% elseif field.dataTypeDef == "FLOAT" %}
+    {{field.name }}: 0,
+    {% elseif field.dataTypeDef == "BOOLEAN" %}
+    {{field.name }}: false,
+    {% else %}
+    {{field.name }}: "",
+    {% endif %}
+
+{% endfor %}
+    {% if foreignKey is not empty %}
+    {{ foreignKey }}: {{ foreignKey }}
+    {% endif %}
+        }
+    }
+}

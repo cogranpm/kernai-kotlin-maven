@@ -1,0 +1,60 @@
+@using Portal.Core
+@using Portal.Repository
+@using Portal.Repository.Model.Enums
+@model Portal.Web.Models.{{viewDef.entityDef.name | capitalize}}Search
+@{
+    Layout = "~/Views/Shared/_DashforgeTemplate.cshtml";
+    ViewData["Title"] = Model.Title;
+    var searchUrl = "{{viewDef.entityDef.name | capitalize}}s";
+}
+
+<div class="list-viewer list-invoices">
+    <div class="list-header">
+        <h5 class="mb-0">@Model.Title</h5>
+    </div>
+    <div class="list-sidebar">
+        <div class="list-sidebar-body-ns">
+            <div>
+                <nav class="nav nav-line p-0 bg-gray-100 small">
+                    <a href="#basicSearch" id="tabBasicSearch"
+                       class="nav-link active pl-2 pr-2 m-0" data-toggle="tab">Basic Search</a>
+                </nav>
+            </div>
+            <div class="tab-content">
+                <div id="basicSearch" class="tab-pane fade active show bg-gray-100">
+                    <form action="@searchUrl" method="get">
+                        <div class="row p-0 m-0 border-bottom">
+                            <div class="search-form col-lg-12 p-0 m-0">
+                                <input type="search"
+                                       class="form-control border-0 border-right"
+                                       name="search" id="search"
+                                       value="@Model.Criteria.Search"
+                                       placeholder="Search by todo"
+                                       title="too">
+                                <button type="submit"
+                                        class="btn border-0 bg-white">
+                                    <i data-feather="search" class="tx-primary"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            @await Html.PartialAsync("_list", Model)
+        </div>
+    </div>
+    <div class="list-body">
+        <div id="{{viewDef.entityDef.name | capitalize}}Info" class="container"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        if (window.matchMedia("(min-width: 992px)").matches) {
+            $('#{{viewDef.entityDef.name | capitalize}}Info').addClass('container');
+        }
+
+        $('#startDate').datepicker();
+        $('#endDate').datepicker();
+    });
+</script>
