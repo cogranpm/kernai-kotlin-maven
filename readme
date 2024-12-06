@@ -20,8 +20,9 @@ coming from maven repo online and gets correct swt version per platform
 automatically
 
 
-maven for Kotlin does not have an exec:java style plugin that I know of
-so you can run it via intelli j.
+good news: mvn exec:java now works, below is outdated:
+// old news::::maven for Kotlin does not have an exec:java style plugin that I know of
+// old news::::so you can run it via intelli j.
 
 notes on deployment:
 this uses kotlin java api for scripting jsr233
@@ -35,4 +36,41 @@ and to stuff the manifest.mf file with the dependencies listed in the class-path
 with a lib prefix
 this is tested and working via:
 java -jar
+
+running on mac notes:
+update as of Sep 2021
+maven has to be run with sudo
+to package up the jar and dependencies run sudo mvn install
+then to run the app:
+java -XstartOnFirstThread -jar kernai-kotlin-maven-1.0-SNAPSHOT.jar
+
+
+code generator notes:
+currently every time app runs the code generation occurs
+this is in the startupTasks method of ApplicationData
+it is sent in the view definitions we wish to run
+output path is the home directory / models
+then you would copy file by file into the src directory and recompile
+add your menus etc
+
+
+swt browser note:
+the chromium version was abandoned, seem to now be commercial
+using SWT.EDGE works on windows, so that will do
+need to deploy webview2 first: see here:
+https://docs.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution
+could integrate it perhaps or just show a warning with a link etc etc
+note the link has detailed information to check for existence of the webview2 runtime:
+
+also see here for limitations of the swt control:
+https://www.eclipse.org/swt/faq.php#edgelimitations
+
+
+#### Speech Recognition Notes
+#### mysql
+
+need to run this for queries
+Query	SET GLOBAL max_allowed_packet = 10 * (1024 * 1024)
+
+also need to make sure blob column generates as LongBlob
 
