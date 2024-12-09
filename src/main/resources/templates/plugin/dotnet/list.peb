@@ -3,14 +3,15 @@
     Layout = "_EmptyLayout";
 }
 
-
 <div class="div-datatables">
     <table id="listTable" class="table table-hover table-sm small clickable">
         <thead>
         <tr>
             <th></th>
             {% for field in viewDef.fieldDefinitions %}
-            <th>{{ field.title }}</th>
+            {% set showInList = field.configMap.getOrDefault("showInList", true) %}
+            {% if showInList == true %}<th>{{ field.title }}</th>
+{% endif %}
             {% endfor %}
         </tr>
         </thead>

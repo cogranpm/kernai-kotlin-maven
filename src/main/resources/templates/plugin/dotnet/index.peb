@@ -44,14 +44,14 @@
         </div>
     </div>
     <div class="list-body">
-        <div id="{{viewDef.entityDef.name | capitalize}}Info" class="container"></div>
+        <div id="info" class="container"></div>
     </div>
 </div>
 
 <script type="text/javascript">
     $(function () {
         if (window.matchMedia("(min-width: 992px)").matches) {
-            $('#{{viewDef.entityDef.name | capitalize}}Info').addClass('container');
+            $('#info').addClass('container');
         }
 
         $('#startDate').datepicker();

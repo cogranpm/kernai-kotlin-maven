@@ -38,6 +38,25 @@ namespace Portal.Web.Controllers {
             });
         }
 
+
+
+        [HttpGet]
+        [Route("info/{id}")]
+        public ViewResult Info(int? id, [FromQuery]{{viewDef.entityDef.name | capitalize}}SearchCriteria criteria)
+        {
+            var entityInfo = new  {{viewDef.entityDef.name | capitalize}}Info();
+            var entity = this._service.GetFirstWhere(x => x.Id == id);
+            if (entity != null)
+            {
+                entityInfo.Id = entity.Id;
+                {% for field in viewDef.fieldDefinitions %}
+                entityInfo.{{ field.name | capitalize }} = entity.{{ field.name | capitalize }};
+                {% endfor %}
+            }
+            entityInfo.Criteria = criteria;
+            return View("_info", entityInfo);
+        }
+
         [HttpGet]
         [Route("list")]
         public JsonResult ListJson(int draw,

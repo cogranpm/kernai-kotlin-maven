@@ -119,6 +119,15 @@ writeTemplate(
     ApplicationData.getPebbleEngine().getTemplate(`${basepath}list.peb`));
 pathsMap.push(getXCopyCommand(listFileName, viewsFolder, viewsTargetFolder));
 
+let infoViewFileName = "_info.cshtml";
+writeTemplate(
+    viewsFolder,
+    infoViewFileName,
+    viewDef,
+    ApplicationData.getPebbleEngine().getTemplate(`${basepath}info.peb`));
+pathsMap.push(getXCopyCommand(infoViewFileName, viewsFolder, viewsTargetFolder));
+
+
 let viewModelFolder = viewDef.getEntityDef().getName() + "/ViewModel";
 let listJsonFileName = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "ListJson.cs";
 let viewModelTargetFolder = "Portal.Web/Models";
@@ -128,6 +137,15 @@ writeTemplate(
     viewDef,
     ApplicationData.getPebbleEngine().getTemplate(`${basepath}listJson.peb`));
 pathsMap.push(getXCopyCommand(listJsonFileName, viewModelFolder, viewModelTargetFolder));
+
+let infoClassName = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Info.cs";
+writeTemplate(
+    viewModelFolder,
+    infoClassName,
+    viewDef,
+   ApplicationData.getPebbleEngine().getTemplate(`${basepath}viewModelInfo.peb`));
+pathsMap.push(getXCopyCommand(infoClassName, viewModelFolder, viewModelTargetFolder));
+
 
 let searchViewModelClassName = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Search.cs";
 writeTemplate(

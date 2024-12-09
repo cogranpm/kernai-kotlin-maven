@@ -1,0 +1,58 @@
+
+@using Portal.Core
+@model Portal.Web.Models.ProductEarningTypeLookupInfo
+@if (Model.ShouldUseBlankLayout)
+{
+    Layout = "_EmptyLayout";
+}
+<div class="card">
+    <div class="card-header invoice-logo">
+        <div><img src="/templates/dashforge/img/conklin.png" style="width: 150px;" /></div>
+    </div>
+    <div class="card-header">
+        <h3 class="mb-1 mt-1">
+            <strong>Record @Model.Id</strong>
+        </h3>
+    </div>
+    <div class="card-body">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row mb-2">
+                        <div class="col-sm-4 font-weight-bold">Start Date:</div>
+                        <div class="col-sm-8">@Model.StartDate</div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                </div>
+                <div class="col-md-6">
+                    <div class="row mt-2 mb-2">
+                        <div class="col-sm-4 font-weight-bold">Product:</div>
+                        <div class="col-sm-8">
+                               <div>@Model.ProductId</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <div>
+            <nav class="nav nav-line tx-medium pl-2">
+                <a href="#details" class="nav-link active" data-toggle="tab">Details</a>
+            </nav>
+        </div>
+    </div>
+</div>
+<div class="card mb-0 invoice-footer">
+    <div class="card-body">
+
+    </div>
+</div>
+
+

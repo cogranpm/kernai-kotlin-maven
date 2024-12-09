@@ -1,0 +1,14 @@
+using System;
+
+namespace Portal.Web.Models
+{
+    public class {{viewDef.entityDef.name | capitalize}}Info
+    {
+         public int Id { get; set; }
+         {% for field in viewDef.fieldDefinitions %}
+         public {{ field.dataTypeDef.dataTypeToCSharpDef }} {{ field.name | capitalize}} { get; set; }
+   {% endfor %}
+         public bool ShouldUseBlankLayout { get; set; }
+         public {{viewDef.entityDef.name | capitalize}}SearchCriteria Criteria { get; set; }
+    }
+}

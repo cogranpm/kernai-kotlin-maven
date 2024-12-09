@@ -50,7 +50,12 @@ $(function () {
                 }
             },
             {% for field in viewDef.fieldDefinitions %}
-            { data: '{{ field.nameAsField}}' },
+            {% set showInList = field.configMap.getOrDefault("showInList", true) %}
+            {% if showInList == true and (field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME") %}
+             { data: '{{ field.nameAsField}}String' },
+            {% elseif showInList == true %}
+             { data: '{{ field.nameAsField}}' },
+            {% endif %}
             {% endfor %}
         ],
         columnDefs: [
@@ -70,75 +75,72 @@ $(function () {
         pageLength: 50,
         searching: true,
         initComplete: function (settings, json: any) {
-            var hashedInvoiceId = $(location).attr('hash').replace('#', '');
-            if (hashedInvoiceId != '') {
-                //loadInvoice(hashedInvoiceId);
+            var hashedId = $(location).attr('hash').replace('#', '');
+            if (hashedId != '') {
+                load(hashedId);
             }
             else if (json.data[0]) {
-                //var invoiceId = json.data[0].invoiceId;
-                //loadInvoice(invoiceId);
+                var id = json.data[0].id;
+                load(id);
             }
-
         }
     });
 
     getJqListTable().wrap('<div class="table-responsive with-data-table"></div>');
 
     jqs().id(ElementIds.LIST_TABLE).tbody().toJq().on('click', 'tr', function () {
-		//var clicked = (dataTable.row(this).data() as any).invoiceId;
-		//loadInvoice(clicked);
+        let row = dataTable.row(this);
+        let data = row.data() as any;
+        let id = data.id;
+		load(id);
 	});
 
     dataTable.on('draw', function () {
-        /*
-        if (currentInvoiceId != '') {
-            highlightInvoice(currentInvoiceId);
+        if (currentId != '') {
+            highlight(currentId);
         }
-         */
     });
 
     $(window).resize(function () {
-		//listViewBack(false);
+		listViewBack(false);
 	});
 
     $(window).on('popstate', function (event) {
-        var hashedInvoiceId = $(location).attr('hash').replace('#', '');
-        /*
-        if (!isLoading && hashedInvoiceId != '' && hashedInvoiceId != currentInvoiceId) {
-            loadInvoice(hashedInvoiceId);
+        var hashedId = $(location).attr('hash').replace('#', '');
+        if (!isLoading && hashedId != '' && hashedId != currentId) {
+            load(hashedId);
         }
-         */
     });
 
 });
 
-//var currentInvoiceId = '';
-var currentId = -1;
+var currentId = '';
 
-function highlightInvoice(id: number) {
+function highlight(id: string) {
     currentId = id;
     jqs().id(ElementIds.LIST_TABLE).tbody().tr().toJq().removeClass('alert-info');
-    //jqs().tr().contains(id as string).toJq().addClass('alert-info');
+    jqs().tr().contains(id as string).toJq().addClass('alert-info');
     $(location).attr('hash', id);
 }
 
 function getInfoElement() {
-    return jqs().id("invoiceInfo").toJq();
+    return jqs().id("info").toJq();
 }
 var isLoading = false;
-export function load(id: number) {
+
+export function load(id: string) {
     isLoading = true;
 	listViewBack(false);
-    highlightInvoice(id);
+    highlight(id);
     listViewBack(true);
     getInfoElement().html(model.loadingHtml);
     $(function () {
         const qs = toQueryString({});
         getInfoElement().load(
-            `/invoices/invoiceinfo/${id}` + "?" + qs,
+            `/{{viewDef.entityDef.name | capitalize}}s/info/${id}` + "?" + qs,
             function (response, status, xhr) {
                 if (status == 'error') {
-                    getInfoElement().html('<div class="alert alert-warning">Could not load this invoice</div>');
+                    getInfoElement().html('<div class="alert alert-warning">Could not load record</div>');
                     isLoading = false;
                 }
                 else {
