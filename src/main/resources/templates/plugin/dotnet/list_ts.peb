@@ -50,7 +50,7 @@ $(function () {
                 }
             },
             {% for field in viewDef.fieldDefinitions %}
-            { data: '{{ field.nameAsField}} },
+            { data: '{{ field.nameAsField}}' },
             {% endfor %}
         ],
         columnDefs: [

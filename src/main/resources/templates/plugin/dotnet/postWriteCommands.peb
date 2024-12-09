@@ -1,0 +1,3 @@
+{% for filesDef in pathsMap %}
+   xcopy "{{ filesDef.sourceFile }}" "{{ filesDef.targetFolder }}" /y /i /f
+{% endfor %}

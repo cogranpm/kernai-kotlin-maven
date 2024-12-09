@@ -25,86 +25,141 @@ const writeTemplate = (folder, fileName, viewDef, pebbleTemplate) => {
     fw.close();
 };
 
-writeTemplate(
-    viewDef.getEntityDef().getName() + "/Model/ConklinCentral",
-    ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + ".cs",
-    viewDef,
-   ApplicationData.getPebbleEngine().getTemplate(`${basepath}entity.peb`));
 
+const writeBatchCommands = (folder, fileName, pebbleTemplate, pathsMap) => {
+    print('writing template');
+    const tempOutputPath = Paths.get(tempOutputDirectory, "models", folder);
+    Files.createDirectories(tempOutputPath);
+    const filePath = tempOutputPath.resolve(fileName);
+    const writer = new StringWriter();
+    let context = new HashMap();
+    context.put("pathsMap", pathsMap);
+    pebbleTemplate.evaluate(writer, context);
+    const output = writer.toString();
+    const fw = new FileWriter(filePath.toString());
+    fw.write(output);
+    fw.close();
+ }
+
+const getXCopyCommand = (modelFile, modelFolder, targetFolder) => {
+    const targetFolderBase = "C:/Users/pmartin/source/repos/ConklinCentral/";
+    const tempOutputPath = Paths.get(tempOutputDirectory, "models", modelFolder);
+    const targetFilePath = tempOutputPath.resolve(modelFile);
+    return {"sourceFile": targetFilePath, "targetFolder": targetFolderBase + targetFolder};
+}
+let pathsMap = [];
+
+
+let modelFolder = viewDef.getEntityDef().getName() + "/Model/ConklinCentral";
+let modelFile = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + ".cs";
+let modelTargetFolder = "Portal.Repository/Model/ConklinCentral";
 writeTemplate(
-    viewDef.getEntityDef().getName() + "/Model/ConklinCentral",
-    ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "ForList.cs",
+    modelFolder,
+    modelFile,
+    viewDef,
+   ApplicationData.getPebbleEngine().getTemplate(`${basepath}entity.peb`),
+   viewDef.getEntityDef().getName() + "/Model/ConklinCentral");
+pathsMap.push(getXCopyCommand(modelFile, modelFolder, modelTargetFolder));
+
+let forListModelFile = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "ForList.cs";
+writeTemplate(
+    modelFolder,
+    forListModelFile,
     viewDef,
    ApplicationData.getPebbleEngine().getTemplate(`${basepath}entityForList.peb`));
 
+pathsMap.push(getXCopyCommand(forListModelFile, modelFolder, modelTargetFolder));
+
+let repoFolder = viewDef.getEntityDef().getName() + "/Repository";
+let repoClassFile = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Repository.cs";
+let repoTargetFolder = "Portal.Repository";
 writeTemplate(
-    viewDef.getEntityDef().getName() + "/Repository",
-    ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Repository.cs",
+    repoFolder,
+    repoClassFile,
     viewDef,
     ApplicationData.getPebbleEngine().getTemplate(`${basepath}repositoryClass.peb`));
 
+pathsMap.push(getXCopyCommand(repoClassFile, repoFolder, repoTargetFolder));
+
+let serviceFolder = viewDef.getEntityDef().getName() + "/Service";
+let serviceClassFile = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Service.cs";
+let serviceTargetFolder = "Portal.Service";
 writeTemplate(
-    viewDef.getEntityDef().getName() + "/Service",
-    ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Service.cs",
+    serviceFolder,
+    serviceClassFile,
     viewDef,
     ApplicationData.getPebbleEngine().getTemplate(`${basepath}service.peb`));
+pathsMap.push(getXCopyCommand(serviceClassFile, serviceFolder, serviceTargetFolder));
 
+let controllerFolder = viewDef.getEntityDef().getName() + "/Controllers"
+let controllerClassFile = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) +  "sController.cs";
+let controllerTargetFolder = "Portal.Web/Controllers";
 writeTemplate(
-    viewDef.getEntityDef().getName() + "/Controllers",
-   ApplicationData.makeCapital(viewDef.getEntityDef().getName()) +  "sController.cs",
+    controllerFolder ,
+    controllerClassFile,
     viewDef,
     ApplicationData.getPebbleEngine().getTemplate(`${basepath}controller.peb`));
+pathsMap.push(getXCopyCommand(controllerClassFile, controllerFolder, controllerTargetFolder));
 
+let viewsFolder = viewDef.getEntityDef().getName() + "/Views/" + viewDef.getEntityDef().getName() + "s";
+let indexFileName = "Index.cshtml";
+let viewsTargetFolder = `Portal.Web/Views/${viewDef.getEntityDef().getName()}s`;
 writeTemplate(
-    viewDef.getEntityDef().getName() + "/Views/" + viewDef.getEntityDef().getName() + "s",
-    "Index.cshtml",
+    viewsFolder,
+    indexFileName,
     viewDef,
     ApplicationData.getPebbleEngine().getTemplate(`${basepath}index.peb`));
+pathsMap.push(getXCopyCommand(indexFileName, viewsFolder, viewsTargetFolder));
 
+let listFileName = "_list.cshtml";
 writeTemplate(
-    viewDef.getEntityDef().getName() + "/Views/" + viewDef.getEntityDef().getName() + "s",
-    "_list.cshtml",
+    viewsFolder,
+    listFileName,
     viewDef,
     ApplicationData.getPebbleEngine().getTemplate(`${basepath}list.peb`));
+pathsMap.push(getXCopyCommand(listFileName, viewsFolder, viewsTargetFolder));
 
+let viewModelFolder = viewDef.getEntityDef().getName() + "/ViewModel";
+let listJsonFileName = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "ListJson.cs";
+let viewModelTargetFolder = "Portal.Web/Models";
 writeTemplate(
-    viewDef.getEntityDef().getName() + "/ViewModel",
-    ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "ListJson.cs",
+    viewModelFolder,
+    listJsonFileName,
     viewDef,
-   ApplicationData.getPebbleEngine().getTemplate(`${basepath}listJson.peb`));
+    ApplicationData.getPebbleEngine().getTemplate(`${basepath}listJson.peb`));
+pathsMap.push(getXCopyCommand(listJsonFileName, viewModelFolder, viewModelTargetFolder));
 
+let searchViewModelClassName = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Search.cs";
 writeTemplate(
-    viewDef.getEntityDef().getName() + "/ViewModel",
-    ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Search.cs",
+    viewModelFolder,
+    searchViewModelClassName,
     viewDef,
    ApplicationData.getPebbleEngine().getTemplate(`${basepath}search.peb`));
+pathsMap.push(getXCopyCommand(searchViewModelClassName, viewModelFolder, viewModelTargetFolder));
 
+let searchCriteriaClassName = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "SearchCriteria.cs";
 writeTemplate(
-    viewDef.getEntityDef().getName() + "/ViewModel",
-    ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "SearchCriteria.cs",
+    viewModelFolder,
+    searchCriteriaClassName,
     viewDef,
    ApplicationData.getPebbleEngine().getTemplate(`${basepath}searchCriteria.peb`));
+pathsMap.push(getXCopyCommand(searchCriteriaClassName, viewModelFolder, viewModelTargetFolder));
 
+let wwwrootFolder = viewDef.getEntityDef().getName() + "/wwwroot/" + viewDef.getEntityDef().getName();
+let listtsFileName = "list.ts";
+let wwwrootTargetFolder = `Portal.Web/wwwroot/${viewDef.getEntityDef().getName()}`;
 writeTemplate(
-    viewDef.getEntityDef().getName() + "/wwwroot/" + viewDef.getEntityDef().getName(),
-    ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "list.ts",
+    wwwrootFolder,
+    listtsFileName,
     viewDef,
    ApplicationData.getPebbleEngine().getTemplate(`${basepath}list_ts.peb`));
+pathsMap.push(getXCopyCommand(listtsFileName, wwwrootFolder, wwwrootTargetFolder));
+
+writeBatchCommands(
+    viewDef.getEntityDef().getName(),
+    'commands.bat',
+    ApplicationData.getPebbleEngine().getTemplate(`${basepath}postWriteCommands.peb`),
+    pathsMap
+    );
 
 print("Completed");
-/*
-writeTemplate(
-    "DTO",
-    ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "DTO.cs",
-    viewDef,
-    ApplicationData.getPebbleEngine().getTemplate(`${basepath}dto.peb`));
-print(`Wrote File ${ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "DTO.cs"}`);
-
-writeTemplate(
-    "Grpc",
-    ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Service.proto",
-    viewDef,
-   ApplicationData.getPebbleEngine().getTemplate(`${basepath}protocolBuffer.peb`));
-
-print(`Wrote File ${ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Service.proto"}`);
-*/

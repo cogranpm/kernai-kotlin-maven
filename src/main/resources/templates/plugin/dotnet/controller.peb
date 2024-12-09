@@ -1,18 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.EntityFrameworkCore;
 using Portal.Core;
-using Portal.Data.ConklinCentral.Entities;
-using Portal.Data.ConklinCentral.Models;
-using Portal.Repository;
-using Portal.Repository.Domain;
-using Portal.Repository.Model;
-using Portal.Repository.Model.CommonInterfaces;
-using Portal.Repository.Model.ConklinCentral;
+using Portal.Service;
 using Portal.Web.Models;
 
 namespace Portal.Web.Controllers {
@@ -24,7 +15,7 @@ namespace Portal.Web.Controllers {
 
         private readonly I{{viewDef.entityDef.name | capitalize}}Service _service;
 
-        public {{viewDef.entityDef.name | capitalize}}sController(I{{viewDef.entityDef.name | capitalize}}Service _service){
+        public {{viewDef.entityDef.name | capitalize}}sController(I{{viewDef.entityDef.name | capitalize}}Service service){
             this._service = service;
         }
 
@@ -36,7 +27,7 @@ namespace Portal.Web.Controllers {
                 Criteria = new ProductEarningTypeLookupSearchCriteria()
                 {
                 {% for field in viewDef.searchFields %}
-{{ field.nameAsField }}{% if loop.last %}{% else %},{% endif %}
+{{ field.name | capitalize }} = {{ field.nameAsField }} {% if loop.last %}{% else %},{% endif %}
 {% endfor %}
                 }
             });

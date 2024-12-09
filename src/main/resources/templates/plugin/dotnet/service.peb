@@ -1,8 +1,10 @@
-using Microsoft.EntityFrameworkCore;
-using Portal.Repository.Domain;
+using System;
+using System.Linq;
+using Portal.Core;
+using Portal.Repository;
 using Portal.Repository.Model.ConklinCentral;
 
-namespace Portal.Repository
+namespace Portal.Service
 {
     public interface I{{viewDef.entityDef.name | capitalize}}Service : IService<{{viewDef.entityDef.name | capitalize}}, int>
     {
@@ -28,7 +30,7 @@ DataSortParameters dataSort
         ){
             return this.Repository.GetForList(
             {% for field in viewDef.searchFields %}
-    {{ field.dataTypeDef.dataTypeToCSharpDef }}? {{ field.nameAsField }},
+    {{ field.nameAsField }},
     {% endfor %}
             dataSort);
         }
