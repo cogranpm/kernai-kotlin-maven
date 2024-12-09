@@ -19,7 +19,11 @@ namespace Portal.Web.Controllers {
             this._service = service;
         }
 
-        public ViewResult Index({% for field in viewDef.searchFields %}{{ field.dataTypeDef.dataTypeToCSharpDef }}? {{ field.nameAsField }} = null, {% endfor %}string search = null)
+        public ViewResult Index(
+           {% for field in viewDef.searchFields %}
+{{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }} = null,
+{% endfor %}
+           string search = null)
         {
             return View("Index", new ProductEarningTypeLookupSearch()
             {
@@ -27,8 +31,9 @@ namespace Portal.Web.Controllers {
                 Criteria = new ProductEarningTypeLookupSearchCriteria()
                 {
                 {% for field in viewDef.searchFields %}
-{{ field.name | capitalize }} = {{ field.nameAsField }} {% if loop.last %}{% else %},{% endif %}
-{% endfor %}
+                {{ field.name | capitalize }} = {{ field.nameAsField }} {% if loop.last %}{% else %},{% endif %}
+
+                {% endfor %}
                 }
             });
         }
@@ -41,7 +46,8 @@ namespace Portal.Web.Controllers {
             [Bind(Prefix = "order[0][column]")] int orderCol,
             [Bind(Prefix = "order[0][dir]")] string orderDir,
             {% for field in viewDef.searchFields %}
-{{ field.dataTypeDef.dataTypeToCSharpDef }}? {{ field.nameAsField }} = null{% if loop.last %}{% else %},{% endif %}
+{{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }} = null{% if loop.last %}{% else %},{% endif %}
+
 {% endfor %}
            )
         {

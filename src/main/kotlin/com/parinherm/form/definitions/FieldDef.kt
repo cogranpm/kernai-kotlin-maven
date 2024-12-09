@@ -147,4 +147,19 @@ data class FieldDef(
     val nameAsField: String
         get() = this.name.replaceFirstChar { it.lowercase() }
 
+    val cSharpNullablePostfix: String
+        get() =
+             when (this.dataTypeDef) {
+                DataTypeDef.MEMO, DataTypeDef.SOURCE, DataTypeDef.TEXT, DataTypeDef.LOOKUP, DataTypeDef.FILE -> ""
+                DataTypeDef.FLOAT -> "?"
+                DataTypeDef.MONEY -> "?"
+                DataTypeDef.INT -> "?"
+                DataTypeDef.DATETIME -> ""
+                DataTypeDef.TIME -> ""
+                DataTypeDef.DATE -> ""
+                DataTypeDef.BOOLEAN -> "?"
+                DataTypeDef.REFERENCE -> "?"
+                DataTypeDef.BLOB -> "?"
+                else -> ""
+            }
 }
