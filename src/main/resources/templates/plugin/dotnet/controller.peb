@@ -87,5 +87,15 @@ namespace Portal.Web.Controllers {
             };
             return Json(result);
         }
+
+        [HttpPost]
+        public ActionResult Edit([Bind()] {{viewDef.entityDef.name | capitalize}}Info entity)
+        {
+            if (ModelState.IsValid)
+            {
+                return RedirectToAction("Index");
+            }
+            return View("_info", entity);
+        }
     }
 }

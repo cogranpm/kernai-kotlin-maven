@@ -1,13 +1,23 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Portal.Web.Models
 {
     public class {{viewDef.entityDef.name | capitalize}}Info
     {
+        [Required]
          public int Id { get; set; }
          {% for field in viewDef.fieldDefinitions %}
+{% if field.required == true %}[Required]{% endif %}
+
+         [Display(Name = "{{ field.title }}")]
+{% if field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME" %}
+         [DataType(DataType.Date)]
+         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+{% endif %}
          public {{ field.dataTypeDef.dataTypeToCSharpDef }} {{ field.name | capitalize}} { get; set; }
-   {% endfor %}
+{% endfor %}
+
          public bool ShouldUseBlankLayout { get; set; }
          public {{viewDef.entityDef.name | capitalize}}SearchCriteria Criteria { get; set; }
     }

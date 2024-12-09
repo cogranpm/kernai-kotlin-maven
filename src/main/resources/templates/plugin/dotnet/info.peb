@@ -1,4 +1,3 @@
-
 @using Portal.Core
 @model Portal.Web.Models.ProductEarningTypeLookupInfo
 @if (Model.ShouldUseBlankLayout)
@@ -11,48 +10,58 @@
     </div>
     <div class="card-header">
         <h3 class="mb-1 mt-1">
-            <strong>Record @Model.Id</strong>
+            <strong>{{viewDef.entityDef.title}}</strong>
         </h3>
     </div>
     <div class="card-body">
         <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="row mb-2">
-                        <div class="col-sm-4 font-weight-bold">Start Date:</div>
-                        <div class="col-sm-8">@Model.StartDate</div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6">
-                </div>
-                <div class="col-md-6">
-                    <div class="row mt-2 mb-2">
-                        <div class="col-sm-4 font-weight-bold">Product:</div>
-                        <div class="col-sm-8">
-                               <div>@Model.ProductId</div>
+            @using (Html.BeginForm("Edit", "{{viewDef.entityDef.name | capitalize}}s", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <div class="form-horizontal">
+                    @Html.ValidationSummary(true)
+                    @Html.HiddenFor(model => model.Id)
+
+                    {% for field in viewDef.fieldDefinitions %}
+                         <div class="row">
+                            <div class="col-md-6">
+                                <div class="row mb-2">
+                                    <div class="col-sm-4 font-weight-bold">{{ field.title }}:</div>
+                                    <div class="col-sm-8">
+                                    @Html.EditorFor(model => model.{{ field.name | capitalize }})
+                                    @Html.ValidationMessageFor(model => model.{{ field.name | capitalize }})
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    {% endfor %}
+                     <div class="form-group">
+                        <div class="col-md-offset-2 col-md-10">
+                            <input type="submit" value="Save" class="btn btn-default"/>
                         </div>
                     </div>
                 </div>
-            </div>
+            }
         </div>
     </div>
-</div>
-
-<div class="card">
-    <div class="table-responsive">
-        <div>
-            <nav class="nav nav-line tx-medium pl-2">
-                <a href="#details" class="nav-link active" data-toggle="tab">Details</a>
-            </nav>
-        </div>
-    </div>
-</div>
-<div class="card mb-0 invoice-footer">
     <div class="card-body">
-
+        <div class="container-fluid">
+           {% for field in viewDef.fieldDefinitions %}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row mb-2">
+                        <div class="col-sm-4 font-weight-bold">{{ field.title }}:</div>
+                        <div class="col-sm-8">@Model.{{ field.name | capitalize }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
+
+
 
 
