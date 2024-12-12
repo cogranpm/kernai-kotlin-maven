@@ -15,10 +15,17 @@ namespace Portal.Web.Models
          [DataType(DataType.Date)]
          [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
 {% endif %}
-         public {{ field.dataTypeDef.dataTypeToCSharpDef }} {{ field.name | capitalize}} { get; set; }
+         public {{ field.dataTypeDef.dataTypeToCSharpDef }} {{ field.name | capitalize}} { get; set; } {% if field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME" %} = DateTime.Now;{% endif %}
+
 {% endfor %}
 
          public bool ShouldUseBlankLayout { get; set; }
          public {{viewDef.entityDef.name | capitalize}}SearchCriteria Criteria { get; set; }
+
+
+		public override string ToString()
+		{
+			return $"{{viewDef.entityDef.name | capitalize}}Info: {% for field in viewDef.fieldDefinitions %}{{ field.name | capitalize}}:{this.{{ field.name | capitalize}}} {% endfor %}";
+		}
     }
 }

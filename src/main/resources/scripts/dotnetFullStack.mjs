@@ -42,7 +42,7 @@ const writeBatchCommands = (folder, fileName, pebbleTemplate, pathsMap) => {
  }
 
 const getXCopyCommand = (modelFile, modelFolder, targetFolder) => {
-    const targetFolderBase = "C:/Users/pmartin/source/repos/ConklinCentral/";
+    const targetFolderBase = "d:/projects/ConklinCentral/";
     const tempOutputPath = Paths.get(tempOutputDirectory, "models", modelFolder);
     const targetFilePath = tempOutputPath.resolve(modelFile);
     return {"sourceFile": targetFilePath, "targetFolder": targetFolderBase + targetFolder};

@@ -4,17 +4,16 @@ import { addOrRemoveClass, createJqSelectorBuilder as jqs } from "../utils/jquer
 export interface {{viewDef.entityDef.name | capitalize}}ForList {
     numRows: number;
     id: number;
-    {% for field in viewDef.fieldDefinitions %}
-    {{ field.nameAsField}}: {{ field.dataTypeDef.dataTypeToTypeScriptDef }};
-    {% endfor %}
-}
+{% for field in viewDef.fieldDefinitions %}
+{{ field.nameAsField}}: {{ field.dataTypeDef.dataTypeToTypeScriptDef }};
+{% endfor %}}
 
 export interface SearchCriteria {
     search: string;
 }
 
 export interface {{viewDef.entityDef.name | capitalize}}ListModel {
-    criteria: SearchCriteria ,
+    criteria: SearchCriteria,
     loadingHtml: string;
     loadingSmHtml: string;
 }
@@ -34,29 +33,34 @@ function getJqListTable(): JQuery<HTMLTableElement> {
 }
 
 $(function () {
-    var dataTable = getJqListTable().DataTable({
+    let dataTable = getJqListTable().DataTable({
         processing: true,
         serverSide: true,
         ajax: {
-            url: '/productEarningTypeLookups/list',
+            url: '/{{viewDef.entityDef.name | capitalize}}Lookups/list',
             data: function(d) {
                 return $.extend({}, d, model.criteria);
             }
         },
         columns: [
             {
-                data: function (data: ProductEarningTypeLookupForList) {
-                    return '<a href="#" onclick="return false;">' + data.id + '</a>';
+                data: function (data: {{viewDef.entityDef.name | capitalize}}ForList) {
+                    return `<a href="javascript:;" class="editLink" data-id="${data.id}">${data.id}</a>`;
                 }
             },
-            {% for field in viewDef.fieldDefinitions %}
-            {% set showInList = field.configMap.getOrDefault("showInList", true) %}
-            {% if showInList == true and (field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME") %}
-             { data: '{{ field.nameAsField}}String' },
-            {% elseif showInList == true %}
-             { data: '{{ field.nameAsField}}' },
-            {% endif %}
-            {% endfor %}
+{% for field in viewDef.fieldDefinitions %}
+{% set showInList = field.configMap.getOrDefault("showInList", true) %}
+{% if showInList == true and (field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME") %}
+{ data: '{{ field.nameAsField}}String' },
+{% elseif showInList == true %}
+{ data: '{{ field.nameAsField}}' },
+{% endif %}
+{% endfor %}
+             {
+                data: function (data: {{viewDef.entityDef.name | capitalize}}ForList) {
+                    return `<a href="javascript:;" class="deleteLink" data-id="${data.id}"><i class="fa fa-trash"></i></a>`;
+                }
+            }
         ],
         columnDefs: [
             { targets: 'no-sort', orderable: false },
@@ -75,25 +79,48 @@ $(function () {
         pageLength: 50,
         searching: true,
         initComplete: function (settings, json: any) {
-            var hashedId = $(location).attr('hash').replace('#', '');
-            if (hashedId != '') {
-                load(hashedId);
+
+            let editLinks: HTMLCollectionOf<HTMLAnchorElement> = document.getElementsByClassName("editLink") as HTMLCollectionOf<HTMLAnchorElement>;
+            for (const element of editLinks) {
+                element.addEventListener("click", async (event: Event) => {
+                    const id = (event.currentTarget as HTMLAnchorElement).dataset.id;
+                    load(id);
+                });
             }
-            else if (json.data[0]) {
-                var id = json.data[0].id;
-                load(id);
+
+            let deleteLinks: HTMLCollectionOf<HTMLAnchorElement> = document.getElementsByClassName("deleteLink") as HTMLCollectionOf<HTMLAnchorElement>;
+            for (const element of deleteLinks) {
+                element.addEventListener("click", async (event: Event) => {
+                    if (confirm('Delete this record?')) {
+                        const id = (event.currentTarget as HTMLAnchorElement).dataset.id;
+                        const url = `/{{viewDef.entityDef.name | capitalize}}s/delete/${id}`;
+                        try {
+                            const response = await fetch(url);
+                            if (!response.ok) {
+                                throw new Error(`Response status: ${response.status}`);
+                            } else {
+                                $('#alert-success-delete').fadeIn(200).delay(2000).slideUp(200);
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            $("#alert-error").fadeIn(200).delay(2000).slideUp(200);
+                        }
+                    }
+                });
             }
         }
     });
 
     getJqListTable().wrap('<div class="table-responsive with-data-table"></div>');
 
+/*
     jqs().id(ElementIds.LIST_TABLE).tbody().toJq().on('click', 'tr', function () {
         let row = dataTable.row(this);
         let data = row.data() as any;
         let id = data.id;
 		load(id);
 	});
+*/
 
     dataTable.on('draw', function () {
         if (currentId != '') {
@@ -106,15 +133,25 @@ $(function () {
 	});
 
     $(window).on('popstate', function (event) {
-        var hashedId = $(location).attr('hash').replace('#', '');
+        let hashedId = $(location).attr('hash').replace('#', '');
         if (!isLoading && hashedId != '' && hashedId != currentId) {
-            load(hashedId);
+            //load(hashedId);
         }
+    });
+
+     $('#btnSaveShared').on('click', function (e) {
+        e.preventDefault();
+        save();
+    });
+
+    const btnCreate: HTMLButtonElement = document.getElementById("btnCreate") as HTMLButtonElement;
+    btnCreate.addEventListener("click", async (event: Event) => {
+        create();
     });
 
 });
 
-var currentId = '';
+let currentId = '';
 
 function highlight(id: string) {
     currentId = id;
@@ -126,7 +163,36 @@ function highlight(id: string) {
 function getInfoElement() {
     return jqs().id("info").toJq();
 }
-var isLoading = false;
+
+let isLoading = false;
+export function save(){
+    const el: HTMLFormElement = document.getElementById('editForm') as HTMLFormElement;
+    if (el) {
+       let viewModel = {};
+
+        let formData = new FormData(el);
+        viewModel = Object.fromEntries(
+            Array.from(formData.keys()).map(key => [
+                key, formData.getAll(key).length > 1 ? formData.getAll(key) : formData.get(key)
+            ])
+        )
+
+        getInfoElement().load(
+            `/{{viewDef.entityDef.name | capitalize}}s/edit`, viewModel,
+            function (response, status, xhr) {
+                if (status == 'error') {
+                    getInfoElement().html('<div class="alert alert-warning">Could not load record</div>');
+                    isLoading = false;
+                }
+                else {
+                    if (xhr.status == 202) {
+                        window.location.href = "/{{viewDef.entityDef.name | capitalize}}s";
+                    }
+                }
+            }
+        );
+    }
+}
 
 export function load(id: string) {
     isLoading = true;
@@ -144,6 +210,30 @@ export function load(id: string) {
                     isLoading = false;
                 }
                 else {
+                    let modal = $('#modal') as any;
+                    modal.modal({ focus: true });
+                    isLoading = false;
+                }
+            }
+        );
+    });
+}
+
+export function create() {
+    isLoading = true;
+    getInfoElement().html(model.loadingHtml);
+    $(function () {
+        const qs = toQueryString({});
+        getInfoElement().load(
+            `/{{viewDef.entityDef.name | capitalize}}s/create` + "?" + qs,
+            function (response, status, xhr) {
+                if (status == 'error') {
+                    getInfoElement().html('<div class="alert alert-warning">Could not load record</div>');
+                    isLoading = false;
+                }
+                else {
+                    let modal = $('#modal') as any;
+                    modal.modal({ focus: true });
                     isLoading = false;
                 }
             }

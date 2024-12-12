@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Portal.Core;
@@ -89,13 +90,34 @@ namespace Portal.Web.Controllers {
         }
 
         [HttpPost]
+        [Route("edit")]
         public ActionResult Edit([Bind()] {{viewDef.entityDef.name | capitalize}}Info entity)
         {
+            var viewResult = View("_info", entity);
             if (ModelState.IsValid)
             {
-                return RedirectToAction("Index");
+                Response.StatusCode = StatusCodes.Status202Accepted;
+                return viewResult;
             }
-            return View("_info", entity);
+            return viewResult;
         }
+
+
+        [HttpGet]
+        [Route("create")]
+        public ViewResult Create([FromQuery] {{viewDef.entityDef.name | capitalize}}SearchCriteria criteria)
+        {
+            var entityInfo = new {{viewDef.entityDef.name | capitalize}}Info();
+            entityInfo.Criteria = criteria;
+            return View("_info", entityInfo);
+        }
+
+
+        [Route("delete/{id}")]
+        public int? Delete(int? id)
+        {
+            return id;
+        }
+
     }
 }

@@ -4,64 +4,23 @@
 {
     Layout = "_EmptyLayout";
 }
-<div class="card">
-    <div class="card-header invoice-logo">
-        <div><img src="/templates/dashforge/img/conklin.png" style="width: 150px;" /></div>
-    </div>
-    <div class="card-header">
-        <h3 class="mb-1 mt-1">
-            <strong>{{viewDef.entityDef.title}}</strong>
-        </h3>
-    </div>
-    <div class="card-body">
-        <div class="container-fluid">
-            @using (Html.BeginForm("Edit", "{{viewDef.entityDef.name | capitalize}}s", FormMethod.Post))
-            {
-                @Html.AntiForgeryToken()
-                <div class="form-horizontal">
-                    @Html.ValidationSummary(true)
-                    @Html.HiddenFor(model => model.Id)
-
-                    {% for field in viewDef.fieldDefinitions %}
-                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="row mb-2">
-                                    <div class="col-sm-4 font-weight-bold">{{ field.title }}:</div>
-                                    <div class="col-sm-8">
-                                    @Html.EditorFor(model => model.{{ field.name | capitalize }})
-                                    @Html.ValidationMessageFor(model => model.{{ field.name | capitalize }})
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
 
 
-                    {% endfor %}
-                     <div class="form-group">
-                        <div class="col-md-offset-2 col-md-10">
-                            <input type="submit" value="Save" class="btn btn-default"/>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    </div>
-    <div class="card-body">
-        <div class="container-fluid">
-           {% for field in viewDef.fieldDefinitions %}
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="row mb-2">
-                        <div class="col-sm-4 font-weight-bold">{{ field.title }}:</div>
-                        <div class="col-sm-8">@Model.{{ field.name | capitalize }}</div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
+<div class="container-fluid">
+	@using (Html.BeginForm("Edit", "{{viewDef.entityDef.name | capitalize}}s", FormMethod.Post, new { id = "editForm" }))
+	{
+		@Html.AntiForgeryToken()
+		@Html.ValidationSummary(true)
+		@Html.HiddenFor(model => model.Id)
+    {% for field in viewDef.fieldDefinitions %}
+
+		<div class="form-group row">
+			<label for="bonusAmount" class="col-sm-2 col-form-label">{{ field.title }}:</label>
+			<div class="col-sm-10">
+				@Html.EditorFor(model => model.{{ field.name | capitalize }}, new { htmlAttributes = new { name = "{{ field.nameAsField }}", @class = "form-control", placeholder = "Enter {{ field.title}}" } })
+				@Html.ValidationMessageFor(model => model.{{ field.name | capitalize }})
+			</div>
+		</div>
+    {% endfor %}
+	}
 </div>
-
-
-
-
