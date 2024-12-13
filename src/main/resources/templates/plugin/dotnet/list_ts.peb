@@ -5,7 +5,7 @@ export interface {{viewDef.entityDef.name | capitalize}}ForList {
     numRows: number;
     id: number;
 {% for field in viewDef.fieldDefinitions %}
-{{ field.nameAsField}}: {{ field.dataTypeDef.dataTypeToTypeScriptDef }};
+    {{ field.nameAsField}}: {{ field.dataTypeDef.dataTypeToTypeScriptDef }};
 {% endfor %}}
 
 export interface SearchCriteria {
@@ -51,12 +51,12 @@ $(function () {
 {% for field in viewDef.fieldDefinitions %}
 {% set showInList = field.configMap.getOrDefault("showInList", true) %}
 {% if showInList == true and (field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME") %}
-{ data: '{{ field.nameAsField}}String' },
+            { data: '{{ field.nameAsField}}String' },
 {% elseif showInList == true %}
-{ data: '{{ field.nameAsField}}' },
+            { data: '{{ field.nameAsField}}' },
 {% endif %}
 {% endfor %}
-             {
+            {
                 data: function (data: {{viewDef.entityDef.name | capitalize}}ForList) {
                     return `<a href="javascript:;" class="deleteLink" data-id="${data.id}"><i class="fa fa-trash"></i></a>`;
                 }

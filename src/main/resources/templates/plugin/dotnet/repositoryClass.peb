@@ -10,10 +10,10 @@ namespace Portal.Repository
     public interface I{{viewDef.entityDef.name | capitalize}}Repository : IRepository<{{viewDef.entityDef.name | capitalize}}, int>
     {
         IQueryable<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
-        {% for field in viewDef.searchFields%}
-        {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }},
+{% for field in viewDef.searchFields%}
+            {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }},
 {% endfor %}
-        DataSortParameters dataSort);
+            DataSortParameters dataSort);
     }
 
     public class {{viewDef.entityDef.name | capitalize}}Repository : BaseRepository<{{viewDef.entityDef.name | capitalize}}, int>, I{{viewDef.entityDef.name | capitalize}}Repository
@@ -26,16 +26,14 @@ namespace Portal.Repository
         }
 
         public IQueryable<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
-            {% for field in viewDef.searchFields %}
+{% for field in viewDef.searchFields %}
             {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }},
-            {% endfor %}
+{% endfor %}
             DataSortParameters dataSort)
         {
-            var result = this.GetPagedListWhere(
-                    x =>
-                    {% for field in viewDef.searchFields %}
-                    ({{ field.nameAsField }} == null || x.{{ field.nameAsField | capitalize}}.Equals({{ field.nameAsField }})){% if loop.last %},{% else %} && {% endif %}
-                    {% endfor %}
+            var result = this.GetPagedListWhere(x =>
+{% for field in viewDef.searchFields %}    ({{ field.nameAsField }} == null || x.{{ field.nameAsField | capitalize}}.Equals({{ field.nameAsField }})){% if loop.last %},{% else %} && {% endif %}{% endfor %}
+
                     dataSort.Start,
                     dataSort.Length)
             .Select(x => new {{viewDef.entityDef.name | capitalize}}ForList ()

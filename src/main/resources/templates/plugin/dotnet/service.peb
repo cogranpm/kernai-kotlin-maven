@@ -9,9 +9,9 @@ namespace Portal.Service
     public interface I{{viewDef.entityDef.name | capitalize}}Service : IService<{{viewDef.entityDef.name | capitalize}}, int>
     {
     	IQueryable<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
-             {% for field in viewDef.searchFields %}
+{% for field in viewDef.searchFields %}
              {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }},
-             {% endfor %}
+{% endfor %}
              DataSortParameters dataSort
     	);
     }
@@ -23,15 +23,15 @@ namespace Portal.Service
         }
 
         public IQueryable<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
-            {% for field in viewDef.searchFields %}
-    {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }},
-            {% endfor %}
+{% for field in viewDef.searchFields %}
+        {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }},
+{% endfor %}
         DataSortParameters dataSort
         ){
             return this.Repository.GetForList(
-            {% for field in viewDef.searchFields %}
-    {{ field.nameAsField }},
-            {% endfor %}
+{% for field in viewDef.searchFields %}
+            {{ field.nameAsField }},
+{% endfor %}
             dataSort);
         }
 

@@ -7,13 +7,13 @@ using Portal.Core;
 using Portal.Service;
 using Portal.Web.Models;
 
-namespace Portal.Web.Controllers {
+namespace Portal.Web.Controllers
+{
 
     [Route("{{viewDef.entityDef.name | capitalize}}s")]
-    public class {{viewDef.entityDef.name | capitalize}}sController : Controller {
-
+    public class {{viewDef.entityDef.name | capitalize}}sController : Controller
+    {
         public const string Heading = "{{viewDef.title}}s";
-
         private readonly I{{viewDef.entityDef.name | capitalize}}Service _service;
 
         public {{viewDef.entityDef.name | capitalize}}sController(I{{viewDef.entityDef.name | capitalize}}Service service){
@@ -21,8 +21,8 @@ namespace Portal.Web.Controllers {
         }
 
         public ViewResult Index(
-           {% for field in viewDef.searchFields %}
-{{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }} = null,
+{% for field in viewDef.searchFields %}
+            {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }} = null,
 {% endfor %}
            string search = null)
         {
@@ -31,15 +31,13 @@ namespace Portal.Web.Controllers {
                 Title = Heading,
                 Criteria = new ProductEarningTypeLookupSearchCriteria()
                 {
-                {% for field in viewDef.searchFields %}
+{% for field in viewDef.searchFields %}
                 {{ field.name | capitalize }} = {{ field.nameAsField }} {% if loop.last %}{% else %},{% endif %}
 
-                {% endfor %}
+{% endfor %}
                 }
             });
         }
-
-
 
         [HttpGet]
         [Route("info/{id}")]
@@ -50,9 +48,9 @@ namespace Portal.Web.Controllers {
             if (entity != null)
             {
                 entityInfo.Id = entity.Id;
-                {% for field in viewDef.fieldDefinitions %}
+{% for field in viewDef.fieldDefinitions %}
                 entityInfo.{{ field.name | capitalize }} = entity.{{ field.name | capitalize }};
-                {% endfor %}
+{% endfor %}
             }
             entityInfo.Criteria = criteria;
             return View("_info", entityInfo);
@@ -66,18 +64,18 @@ namespace Portal.Web.Controllers {
             [Bind(Prefix = "order[0][column]")] int orderCol,
             [Bind(Prefix = "order[0][dir]")] string orderDir,
             {% for field in viewDef.searchFields %}
-{{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }} = null{% if loop.last %}{% else %},{% endif %}
+        {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }} = null{% if loop.last %}{% else %},{% endif %}
 
 {% endfor %}
            )
         {
             var dataSort = new DataSortParameters { Length = length, OrderDir = orderDir, OrderCol = orderCol, Start = start };
             var records = this._service.GetForList(
-            {% for field in viewDef.searchFields %}
-{{ field.nameAsField }},
+{% for field in viewDef.searchFields %}
+            {{ field.nameAsField }},
 {% endfor %}
-                    dataSort)
-                .ToList();
+            dataSort)
+            .ToList();
 
             var result = new ProductEarningTypeLookupListJson
             {
@@ -111,7 +109,6 @@ namespace Portal.Web.Controllers {
             entityInfo.Criteria = criteria;
             return View("_info", entityInfo);
         }
-
 
         [Route("delete/{id}")]
         public int? Delete(int? id)

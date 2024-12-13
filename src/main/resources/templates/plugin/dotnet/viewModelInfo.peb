@@ -5,11 +5,14 @@ namespace Portal.Web.Models
 {
     public class {{viewDef.entityDef.name | capitalize}}Info
     {
-        [Required]
+         [Required]
          public int Id { get; set; }
-         {% for field in viewDef.fieldDefinitions %}
-{% if field.required == true %}[Required]{% endif %}
 
+         {% for field in viewDef.fieldDefinitions %}
+
+{% if field.required == true %}
+         [Required]
+{% endif %}
          [Display(Name = "{{ field.title }}")]
 {% if field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME" %}
          [DataType(DataType.Date)]
@@ -21,7 +24,6 @@ namespace Portal.Web.Models
 
          public bool ShouldUseBlankLayout { get; set; }
          public {{viewDef.entityDef.name | capitalize}}SearchCriteria Criteria { get; set; }
-
 
 		public override string ToString()
 		{

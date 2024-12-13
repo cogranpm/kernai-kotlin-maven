@@ -6,9 +6,9 @@ namespace Portal.Web.Models;
 
 public class {{viewDef.entityDef.name | capitalize}}SearchCriteria
 {
-		{% for field in viewDef.searchFields %}
+{% for field in viewDef.searchFields %}
         public {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.name | capitalize}} { get; set; }
-        {% endfor %}
+{% endfor %}
 
         public string Search { get; set; }
 
@@ -16,11 +16,10 @@ public class {{viewDef.entityDef.name | capitalize}}SearchCriteria
         {
             var d = new Dictionary<string, string>
             {
-                {% for field in viewDef.searchFields %}
+{% for field in viewDef.searchFields %}
                 { nameof({{ field.name | capitalize }}).LcFirst(), {{ field.name | capitalize }}.ToString() ?? "" }{% if loop.last %}{% else %},{% endif %}
 
-                {% endfor %}
-
+{% endfor %}
             };
             return d;
         }

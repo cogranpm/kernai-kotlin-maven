@@ -10,7 +10,7 @@
             <th></th>
 {% for field in viewDef.fieldDefinitions %}
 {% set showInList = field.configMap.getOrDefault("showInList", true) %}
-{% if showInList == true %}<th>{{ field.title }}</th>
+{% if showInList == true %}          <th>{{ field.title }}</th>
 {% endif %}
 {% endfor %}
             <th/>
