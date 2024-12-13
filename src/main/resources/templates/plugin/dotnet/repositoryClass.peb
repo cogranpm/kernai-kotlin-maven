@@ -14,15 +14,21 @@ namespace Portal.Repository
             {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }},
 {% endfor %}
             DataSortParameters dataSort);
+
+        {{viewDef.entityDef.name | capitalize}} Add({{viewDef.entityDef.name | capitalize}} entity);
+		void Update({{viewDef.entityDef.name | capitalize}} entity);
+		void Delete(int id);
     }
 
     public class {{viewDef.entityDef.name | capitalize}}Repository : BaseRepository<{{viewDef.entityDef.name | capitalize}}, int>, I{{viewDef.entityDef.name | capitalize}}Repository
     {
         protected sealed override DbSet<{{viewDef.entityDef.name | capitalize}}> Entities { get; set; }
+		private {{viewDef.entityDef.name | capitalize}}ServiceBase _serviceBase;
 
         public {{viewDef.entityDef.name | capitalize}}Repository(ConklinCentralDataEntities context)
         {
             Entities = context.{{viewDef.entityDef.name | capitalize}}s;
+            this._serviceBase = new ProductEarningTypeLookupServiceBase(context);
         }
 
         public IQueryable<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
@@ -46,5 +52,38 @@ namespace Portal.Repository
             }).AsQueryable<{{viewDef.entityDef.name | capitalize}}ForList>();
             return result;
         }
+
+
+ 	public {{viewDef.entityDef.name | capitalize}} Add({{viewDef.entityDef.name | capitalize}} entity)
+		{
+			this._serviceBase.Add(entity);
+			this._serviceBase.SaveChanges();
+			return entity;
+		}
+
+		public void Update({{viewDef.entityDef.name | capitalize}} entity)
+		{
+			var existing = this.Entities.AsNoTracking().FirstOrDefault(x => x.Id == entity.Id);
+			if (existing != null)
+			{
+				//viewmodel does not have existing audit info
+				entity.CreatedBy = existing.CreatedBy;
+				entity.CreatedOn = existing.CreatedOn;
+				this._serviceBase.Update(entity);
+				this._serviceBase.SaveChanges();
+			}
+		}
+		public void Delete(int id)
+		{
+			this._serviceBase.Delete(id);
+			this._serviceBase.SaveChanges();
+		}
+
+		class {{viewDef.entityDef.name | capitalize}}ServiceBase : ServiceBase<{{viewDef.entityDef.name | capitalize}}, ConklinCentralDataEntities>
+		{
+			public {{viewDef.entityDef.name | capitalize}}ServiceBase(ConklinCentralDataEntities repo) : base(repo)
+			{
+			}
+		}
     }
 }

@@ -18,8 +18,7 @@
 						   class="form-control border-0 border-right"
 						   name="search" id="search"
 						   value="@Model.Criteria.Search"
-						   placeholder="Search by todo"
-						   title="too">
+						   placeholder="">
 					<button type="submit"
 							class="btn border-0 bg-white">
 						<i data-feather="search" class="tx-primary"></i>
@@ -69,8 +68,5 @@
 		if (window.matchMedia("(min-width: 992px)").matches) {
 			$('#info').addClass('container');
 		}
-
-		$('#startDate').datepicker();
-		$('#endDate').datepicker();
 	});
 </script>

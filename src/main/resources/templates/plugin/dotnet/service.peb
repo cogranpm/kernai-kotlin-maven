@@ -1,8 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+using Portal.Repository.Domain;
+using Portal.Repository.Model.ConklinCentral;
 using System;
 using System.Linq;
 using Portal.Core;
 using Portal.Repository;
-using Portal.Repository.Model.ConklinCentral;
 
 namespace Portal.Service
 {
@@ -14,6 +16,11 @@ namespace Portal.Service
 {% endfor %}
              DataSortParameters dataSort
     	);
+
+
+        void Update(ProductEarningTypeLookup entity);
+        ProductEarningTypeLookup Add(ProductEarningTypeLookup entity);
+        void Delete(int id);
     }
 
     public class {{viewDef.entityDef.name | capitalize}}Service : BaseService<{{viewDef.entityDef.name | capitalize}}, int, I{{viewDef.entityDef.name | capitalize}}Repository>, I{{viewDef.entityDef.name | capitalize}}Service
@@ -33,6 +40,21 @@ namespace Portal.Service
             {{ field.nameAsField }},
 {% endfor %}
             dataSort);
+        }
+
+        public void Update({{viewDef.entityDef.name | capitalize}} entity)
+        {
+            this.Repository.Update(entity);
+        }
+
+        public {{viewDef.entityDef.name | capitalize}} Add({{viewDef.entityDef.name | capitalize}} entity)
+        {
+            return this.Repository.Add(entity);
+        }
+
+        public void Delete(int id)
+        {
+            this.Repository.Delete(id);
         }
 
     }

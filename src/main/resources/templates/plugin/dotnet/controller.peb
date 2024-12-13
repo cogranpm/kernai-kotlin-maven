@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Portal.Core;
 using Portal.Service;
 using Portal.Web.Models;
+using Portal.Repository.Model.ConklinCentral;
 
 namespace Portal.Web.Controllers
 {
@@ -91,13 +92,26 @@ namespace Portal.Web.Controllers
         [Route("edit")]
         public ActionResult Edit([Bind()] {{viewDef.entityDef.name | capitalize}}Info entity)
         {
-            var viewResult = View("_info", entity);
-            if (ModelState.IsValid)
-            {
-                Response.StatusCode = StatusCodes.Status202Accepted;
-                return viewResult;
-            }
-            return viewResult;
+			var mapper = new EntityMapper();
+			if (ModelState.IsValid)
+			{
+				Response.StatusCode = StatusCodes.Status202Accepted;
+				var domainInstance = mapper.ToDomain(entity);
+				if (entity.Id < 1)
+				{
+					mapper.SetAudit(domainInstance, "system", true);
+					var updatedDomain = this._service.Add(domainInstance);
+					var updatedInfo = mapper.ToViewModel(updatedDomain);
+					return View("_info", updatedInfo);
+				}
+				else
+				{
+					mapper.SetAudit(domainInstance, "system", false);
+					this._service.Update(domainInstance);
+				}
+				return View("_info", entity);
+			}
+			return View("_info", entity);
         }
 
 
@@ -113,8 +127,78 @@ namespace Portal.Web.Controllers
         [Route("delete/{id}")]
         public int? Delete(int? id)
         {
-            return id;
+			if (id != null)
+			{
+				this._service.Delete(id.Value);
+			}
+			return id;
         }
+
+        private {{viewDef.entityDef.name | capitalize}}Info MakeEntityViewModel(
+            {{viewDef.entityDef.name | capitalize}}SearchCriteria criteria,
+            {{viewDef.entityDef.name | capitalize}}Info existing = null,
+            {{viewDef.entityDef.name | capitalize}} domain = null)
+        {
+            var entity = new {{viewDef.entityDef.name | capitalize}}Info();
+            if (domain != null)
+            {
+                entity = new EntityMapper().ToViewModel(domain);
+            }
+            else if(existing != null)
+            {
+                entity = existing;
+            }
+
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty %}
+        public IList<SelectListItem> {{ field.lookupKey }}s { get; set; }
+            entity.{{ field.lookupKey }}s = this._earningTypeRepo.GetAll()
+            .OrderBy(e => e.Id)
+            .Select(x => new SelectListItem(x.Name, x.Id.ToString(), x.Id == entity.{{ field.name | capitalize}}))
+            .ToList();
+{% endif %}
+ {% endfor %}
+
+            entity.Criteria = criteria;
+            return entity;
+        }
+
+		class EntityMapper
+		{
+			public EntityMapper() { }
+			public {{viewDef.entityDef.name | capitalize}}Info ToViewModel({{viewDef.entityDef.name | capitalize}} entity)
+			{
+				return new {{viewDef.entityDef.name | capitalize}}Info()
+				{
+{% for field in viewDef.fieldDefinitions %}
+                    {{ field.name | capitalize}} = entity.{{ field.name | capitalize}},
+{% endfor %}
+				    Id = entity.Id
+				};
+			}
+
+			public {{viewDef.entityDef.name | capitalize}} ToDomain({{viewDef.entityDef.name | capitalize}}Info info)
+			{
+				return new {{viewDef.entityDef.name | capitalize}}()
+				{
+{% for field in viewDef.fieldDefinitions %}
+                    {{ field.name | capitalize}} = info.{{ field.name | capitalize}},
+{% endfor %}
+				    Id = info.Id
+				};
+			}
+
+			public void SetAudit({{viewDef.entityDef.name | capitalize}} entity, string user, bool creating = false)
+			{
+				if (creating)
+				{
+					entity.CreatedBy = user;
+					entity.CreatedOn = DateTime.Now;
+				}
+				entity.ModifiedBy = user;
+				entity.ModifiedOn = DateTime.Now;
+			}
+		}
 
     }
 }

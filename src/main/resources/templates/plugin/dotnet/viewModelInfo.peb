@@ -1,5 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Collections.Generic;
 
 namespace Portal.Web.Models
 {
@@ -19,6 +21,10 @@ namespace Portal.Web.Models
          [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
 {% endif %}
          public {{ field.dataTypeDef.dataTypeToCSharpDef }} {{ field.name | capitalize}} { get; set; } {% if field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME" %} = DateTime.Now;{% endif %}
+
+{% if field.lookupKey is not empty %}
+        public IList<SelectListItem> {{ field.lookupKey }}s { get; set; }
+{% endif %}
 
 {% endfor %}
 

@@ -99,7 +99,7 @@ $(function () {
                             if (!response.ok) {
                                 throw new Error(`Response status: ${response.status}`);
                             } else {
-                                $('#alert-success-delete').fadeIn(200).delay(2000).slideUp(200);
+                                window.location.href = "/{{viewDef.entityDef.name | capitalize}}s";
                             }
                         } catch (error) {
                             console.error(error);
