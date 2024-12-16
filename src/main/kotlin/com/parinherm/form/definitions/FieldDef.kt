@@ -147,6 +147,9 @@ data class FieldDef(
     val nameAsField: String
         get() = this.name.replaceFirstChar { it.lowercase() }
 
+    val lookupKeyAsField: String?
+    get() = this.lookupKey?.replaceFirstChar { it.lowercase() }
+
     val cSharpNullablePostfix: String
         get() =
              when (this.dataTypeDef) {

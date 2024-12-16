@@ -35,7 +35,7 @@
 	@await Html.PartialAsync("_list", Model)
 
 	<div class="list-body">
-		<div class="modal" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal" id="modal" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
 			<div class="modal-dialog modal-dialog-centered" role="document">
 				<div class="modal-content">
 					<div class="modal-header">

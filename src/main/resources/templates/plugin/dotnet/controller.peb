@@ -7,6 +7,8 @@ using Portal.Core;
 using Portal.Service;
 using Portal.Web.Models;
 using Portal.Repository.Model.ConklinCentral;
+using Portal.Repository;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Portal.Web.Controllers
 {
@@ -16,9 +18,19 @@ namespace Portal.Web.Controllers
     {
         public const string Heading = "{{viewDef.title}}s";
         private readonly I{{viewDef.entityDef.name | capitalize}}Service _service;
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty %}
+        private readonly I{{ field.lookupKey }}Repository _{{ field.lookupKeyAsField }}Repo;
+{% endif %}
+{% endfor %}
 
-        public {{viewDef.entityDef.name | capitalize}}sController(I{{viewDef.entityDef.name | capitalize}}Service service){
+
+        public {{viewDef.entityDef.name | capitalize}}sController(I{{viewDef.entityDef.name | capitalize}}Service service
+{% for field in viewDef.fieldDefinitions %}{% if field.lookupKey is not empty %}        , I{{ field.lookupKey }}Repository {{ field.lookupKeyAsField }}Repo{% endif %}{% endfor %}
+
+        ){
             this._service = service;
+ {% for field in viewDef.fieldDefinitions %}        {% if field.lookupKey is not empty %}this._{{ field.lookupKeyAsField }}Repo = {{ field.lookupKeyAsField }}Repo;{% endif %}{% endfor %}
         }
 
         public ViewResult Index(
@@ -46,15 +58,7 @@ namespace Portal.Web.Controllers
         {
             var entityInfo = new  {{viewDef.entityDef.name | capitalize}}Info();
             var entity = this._service.GetFirstWhere(x => x.Id == id);
-            if (entity != null)
-            {
-                entityInfo.Id = entity.Id;
-{% for field in viewDef.fieldDefinitions %}
-                entityInfo.{{ field.name | capitalize }} = entity.{{ field.name | capitalize }};
-{% endfor %}
-            }
-            entityInfo.Criteria = criteria;
-            return View("_info", entityInfo);
+            return View("_info", this.MakeEntityViewModel(criteria, null, entity));
         }
 
         [HttpGet]
@@ -101,17 +105,17 @@ namespace Portal.Web.Controllers
 				{
 					mapper.SetAudit(domainInstance, "system", true);
 					var updatedDomain = this._service.Add(domainInstance);
-					var updatedInfo = mapper.ToViewModel(updatedDomain);
+                    var updatedInfo = this.MakeEntityViewModel(null, null, updatedDomain);
 					return View("_info", updatedInfo);
 				}
 				else
 				{
 					mapper.SetAudit(domainInstance, "system", false);
 					this._service.Update(domainInstance);
+                    return View("_info", this.MakeEntityViewModel(null, entity, null));
 				}
-				return View("_info", entity);
 			}
-			return View("_info", entity);
+			return View("_info", this.MakeEntityViewModel(null, entity, null));
         }
 
 
@@ -119,9 +123,7 @@ namespace Portal.Web.Controllers
         [Route("create")]
         public ViewResult Create([FromQuery] {{viewDef.entityDef.name | capitalize}}SearchCriteria criteria)
         {
-            var entityInfo = new {{viewDef.entityDef.name | capitalize}}Info();
-            entityInfo.Criteria = criteria;
-            return View("_info", entityInfo);
+            return View("_info", this.MakeEntityViewModel(criteria));
         }
 
         [Route("delete/{id}")]
@@ -151,13 +153,12 @@ namespace Portal.Web.Controllers
 
 {% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty %}
-        public IList<SelectListItem> {{ field.lookupKey }}s { get; set; }
-            entity.{{ field.lookupKey }}s = this._earningTypeRepo.GetAll()
-            .OrderBy(e => e.Id)
-            .Select(x => new SelectListItem(x.Name, x.Id.ToString(), x.Id == entity.{{ field.name | capitalize}}))
+            entity.{{ field.lookupKey }}s = this._{{ field.lookupKeyAsField }}Repo.GetAllForListLookup()
+            .Select(x => new SelectListItem(x.Title, x.Id.ToString(), x.Id == entity.{{ field.name | capitalize}}))
+            .OrderBy(e => e.Value)
             .ToList();
 {% endif %}
- {% endfor %}
+{% endfor %}
 
             entity.Criteria = criteria;
             return entity;

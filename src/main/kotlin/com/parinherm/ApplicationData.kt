@@ -126,6 +126,10 @@ object ApplicationData {
     fun makeCapital(source: String) =
         source.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
+    fun decapitalize(source: String) =
+        source.replaceFirstChar { if (it.isUpperCase()) it.lowercase(Locale.getDefault()) else it.toString() }
+
+
     /**********************************
      * startup code
      */

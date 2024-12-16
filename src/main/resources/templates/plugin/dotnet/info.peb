@@ -15,9 +15,13 @@
     {% for field in viewDef.fieldDefinitions %}
 
 		<div class="form-group row">
-			<label for="bonusAmount" class="col-sm-2 col-form-label">{{ field.title }}:</label>
+			<label for="{{ field.name | capitalize }}" class="col-sm-2 col-form-label">{{ field.title }}:</label>
 			<div class="col-sm-10">
+{% if field.lookupKey is not empty %}
+                @Html.DropDownListFor(model => model.{{ field.name | capitalize }}, Model.{{ field.lookupKey }}s, "-- Select {{ field.title }}--", new { name = "{{ field.nameAsField }}", @class = "form-select", placeholder = "Enter {{ field.title }}" })
+{% else %}
 				@Html.EditorFor(model => model.{{ field.name | capitalize }}, new { htmlAttributes = new { name = "{{ field.nameAsField }}", @class = "form-control", placeholder = "Enter {{ field.title}}" } })
+{% endif %}
 				@Html.ValidationMessageFor(model => model.{{ field.name | capitalize }})
 			</div>
 		</div>
