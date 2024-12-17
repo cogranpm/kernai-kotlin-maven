@@ -32,7 +32,7 @@ namespace Portal.Web.Models
 {% endfor %}
 
          public bool ShouldUseBlankLayout { get; set; }
-         public {{viewDef.entityDef.name | capitalize}}SearchCriteria Criteria { get; set; }
+         public {{viewDef.entityDef.name | capitalize}}Search Criteria { get; set; }
 
 		public override string ToString()
 		{

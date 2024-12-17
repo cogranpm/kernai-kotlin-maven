@@ -35,7 +35,10 @@ function getJqListTable(): JQuery<HTMLTableElement> {
 $(function () {
     let dataTable = getJqListTable().DataTable({
         processing: true,
-        serverSide: true,
+        serverSide: false,
+        info: false,
+        paging: false,
+        order: [[1, 'asc']],
         ajax: {
             url: '/{{viewDef.entityDef.name | capitalize}}s/list',
             data: function(d) {
@@ -68,7 +71,6 @@ $(function () {
             { targets: 'no-sort', orderable: false },
             { targets: 'date', type: 'date' }
         ],
-        order: [[1, 'desc']],
         language: {
             infoFiltered: '',
             processing: model.loadingSmHtml,
@@ -78,7 +80,7 @@ $(function () {
         lengthChange: false,
         stateSave: false,
         stateDuration: -1,
-        pageLength: 50,
+        pageLength: 500,
         searching: true,
         initComplete: function (settings, json: any) {
 

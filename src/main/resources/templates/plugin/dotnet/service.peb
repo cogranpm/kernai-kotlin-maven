@@ -11,13 +11,7 @@ namespace Portal.Service
 {
     public interface I{{viewDef.entityDef.name | capitalize}}Service : IService<{{viewDef.entityDef.name | capitalize}}, int>
     {
-    	IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
-{% for field in viewDef.searchFields %}
-             {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }},
-{% endfor %}
-             DataSortParameters dataSort
-    	);
-
+    	IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search);
 
         void Update(ProductEarningTypeLookup entity);
         ProductEarningTypeLookup Add(ProductEarningTypeLookup entity);
@@ -30,17 +24,8 @@ namespace Portal.Service
 
         }
 
-        public IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
-{% for field in viewDef.searchFields %}
-        {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }},
-{% endfor %}
-        DataSortParameters dataSort
-        ){
-            return this.Repository.GetForList(
-{% for field in viewDef.searchFields %}
-            {{ field.nameAsField }},
-{% endfor %}
-            dataSort);
+        public IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search){
+            return this.Repository.GetForList(dataSort, search);
         }
 
         public void Update({{viewDef.entityDef.name | capitalize}} entity)

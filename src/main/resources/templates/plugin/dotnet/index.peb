@@ -17,7 +17,7 @@
 					<input type="search"
 						   class="form-control border-0 border-right"
 						   name="search" id="search"
-						   value="@Model.Criteria.Search"
+						   value="@Model.Search"
 						   placeholder="">
 					<button type="submit"
 							class="btn border-0 bg-white">

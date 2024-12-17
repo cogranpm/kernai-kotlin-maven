@@ -8,5 +8,5 @@ public class {{viewDef.entityDef.name | capitalize}}ListJson
     public int Draw { get; set; }
     public int RecordsTotal { get; set; }
     public int RecordsFiltered { get; set; }
-    public List<{{viewDef.entityDef.name | capitalize}}ForList> Data { get; set; }
+    public IList<{{viewDef.entityDef.name | capitalize}}ForList> Data { get; set; }
 }

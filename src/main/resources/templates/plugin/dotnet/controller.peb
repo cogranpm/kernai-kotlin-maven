@@ -41,28 +41,18 @@ namespace Portal.Web.Controllers
 {% endif %}{% endfor %}
         }
 
-        public ViewResult Index(
-{% for field in viewDef.searchFields %}
-            {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }} = null,
-{% endfor %}
-           string search = null)
+        public ViewResult Index(string search = null)
         {
-            return View("Index", new ProductEarningTypeLookupSearch()
+            return View("Index", new {{viewDef.entityDef.name | capitalize}}Search()
             {
                 Title = Heading,
-                Criteria = new ProductEarningTypeLookupSearchCriteria()
-                {
-{% for field in viewDef.searchFields %}
-                {{ field.name | capitalize }} = {{ field.nameAsField }} {% if loop.last %}{% else %},{% endif %}
-
-{% endfor %}
-                }
+                Search = search
             });
         }
 
         [HttpGet]
         [Route("info/{id}")]
-        public ViewResult Info(int? id, [FromQuery]{{viewDef.entityDef.name | capitalize}}SearchCriteria criteria)
+        public ViewResult Info(int? id, [FromQuery]{{viewDef.entityDef.name | capitalize}}Search criteria)
         {
             var entityInfo = new  {{viewDef.entityDef.name | capitalize}}Info();
             var entity = this._service.GetFirstWhere(x => x.Id == id);
@@ -76,25 +66,20 @@ namespace Portal.Web.Controllers
             int length,
             [Bind(Prefix = "order[0][column]")] int orderCol,
             [Bind(Prefix = "order[0][dir]")] string orderDir,
-            {% for field in viewDef.searchFields %}
-        {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }} = null{% if loop.last %}{% else %},{% endif %}
-
-{% endfor %}
+            {{viewDef.entityDef.name | capitalize}}Search searchCriteria
            )
         {
             var dataSort = new DataSortParameters { Length = length, OrderDir = orderDir, OrderCol = orderCol, Start = start };
-            var records = this._service.GetForList(
-{% for field in viewDef.searchFields %}
-            {{ field.nameAsField }},
-{% endfor %}
-            dataSort)
-            .ToList();
+            var records = this._service.GetForList(dataSort, searchCriteria.Search);
 
-            var result = new ProductEarningTypeLookupListJson
+            var firstRecord = records.FirstOrDefault();
+            var total = firstRecord?.NumRows ?? 0;
+
+            var result = new {{viewDef.entityDef.name | capitalize}}ListJson
             {
                 Draw = draw,
-                RecordsTotal = records.Count,
-                RecordsFiltered = records.Count(),
+                RecordsTotal = total,
+                RecordsFiltered = total,
                 Data = records
             };
             return Json(result);
@@ -129,7 +114,7 @@ namespace Portal.Web.Controllers
 
         [HttpGet]
         [Route("create")]
-        public ViewResult Create([FromQuery] {{viewDef.entityDef.name | capitalize}}SearchCriteria criteria)
+        public ViewResult Create([FromQuery] {{viewDef.entityDef.name | capitalize}}Search criteria)
         {
             return View("_info", this.MakeEntityViewModel(criteria));
         }
@@ -157,7 +142,7 @@ namespace Portal.Web.Controllers
 {% endfor %}
 
         private {{viewDef.entityDef.name | capitalize}}Info MakeEntityViewModel(
-            {{viewDef.entityDef.name | capitalize}}SearchCriteria criteria,
+            {{viewDef.entityDef.name | capitalize}}Search criteria,
             {{viewDef.entityDef.name | capitalize}}Info existing = null,
             {{viewDef.entityDef.name | capitalize}} domain = null)
         {

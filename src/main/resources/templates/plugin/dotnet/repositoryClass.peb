@@ -12,15 +12,16 @@ using System.Collections.Generic;
 {% set hasLookups = 1 %}
 {% endif %}
 {% endfor %}
+
+{% set hasSearchFields = 0 %}
+{% for field in viewDef.searchFields %}
+{% set hasSearchFields = 1 %}
+{% endfor %}
 namespace Portal.Repository
 {
     public interface I{{viewDef.entityDef.name | capitalize}}Repository : IRepository<{{viewDef.entityDef.name | capitalize}}, int>
     {
-        IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
-{% for field in viewDef.searchFields%}
-            {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }},
-{% endfor %}
-            DataSortParameters dataSort);
+        IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search);
 
         {{viewDef.entityDef.name | capitalize}} Add({{viewDef.entityDef.name | capitalize}} entity);
 		void Update({{viewDef.entityDef.name | capitalize}} entity);
@@ -57,17 +58,11 @@ namespace Portal.Repository
 {% endfor %}
         }
 
-        public IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
-{% for field in viewDef.searchFields %}
-            {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }},
-{% endfor %}
-            DataSortParameters dataSort)
+        public IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search)
         {
-            var results = this.GetPagedListWhere(x =>
-{% for field in viewDef.searchFields %}    ({{ field.nameAsField }} == null || x.{{ field.nameAsField | capitalize}}.Equals({{ field.nameAsField }})){% if loop.last %},{% else %} && {% endif %}{% endfor %}
 
-                    dataSort.Start,
-                    dataSort.Length)
+            var results = this.Entities;
+            var viewModel = results
             .Select(x => new {{viewDef.entityDef.name | capitalize}}ForList ()
             {
 {% for field in viewDef.fieldDefinitions %}
@@ -77,8 +72,9 @@ namespace Portal.Repository
                 NumRows = Count()
             }).ToList();
 
+            var viewModelList = viewModel.ToList();
 {% if hasLookups == 1 %}
-            results.ForEach(i =>
+            viewModelList.ForEach(i =>
             {
 {% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty %}
@@ -87,7 +83,25 @@ namespace Portal.Repository
 {% endfor %}
             });
 {% endif %}
-            return results;
+
+            var filteredViewModel = viewModelList;
+{%  if hasSearchFields == 1 %}
+            if (!string.IsNullOrEmpty(search))
+            {
+                filteredViewModel = viewModelList.Where(
+                    x =>
+{% for field in viewDef.searchFields %}
+{% if field.lookupKey is not empty %}
+                    x.{{ field.name | capitalize }}String.Contains(search, StringComparison.CurrentCultureIgnoreCase)
+{% else %}
+                     x.{{ field.name | capitalize }}.Contains(search, StringComparison.CurrentCultureIgnoreCase)
+{% endif %}
+{% if not loop.last %} ||{% endif %}
+{% endfor %}
+                ).ToList();
+            }
+{% endif %}
+            return filteredViewModel;
         }
 
 

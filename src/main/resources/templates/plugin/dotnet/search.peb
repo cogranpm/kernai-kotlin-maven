@@ -3,7 +3,5 @@ namespace Portal.Web.Models;
 public class {{viewDef.entityDef.name | capitalize}}Search
 {
         public string Title { get; set; }
-
-        public {{viewDef.entityDef.name | capitalize}}SearchCriteria Criteria { get; set; } =
-            new {{viewDef.entityDef.name | capitalize}}SearchCriteria();
+	    public string Search { get; set; }
  }

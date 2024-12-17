@@ -155,6 +155,7 @@ writeTemplate(
    ApplicationData.getPebbleEngine().getTemplate(`${basepath}search.peb`));
 pathsMap.push(getXCopyCommand(searchViewModelClassName, viewModelFolder, viewModelTargetFolder));
 
+/*
 let searchCriteriaClassName = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "SearchCriteria.cs";
 writeTemplate(
     viewModelFolder,
@@ -162,6 +163,7 @@ writeTemplate(
     viewDef,
    ApplicationData.getPebbleEngine().getTemplate(`${basepath}searchCriteria.peb`));
 pathsMap.push(getXCopyCommand(searchCriteriaClassName, viewModelFolder, viewModelTargetFolder));
+*/
 
 let wwwrootFolder = viewDef.getEntityDef().getName() + "/wwwroot/" + viewDef.getEntityDef().getName();
 let listtsFileName = "list.ts";
