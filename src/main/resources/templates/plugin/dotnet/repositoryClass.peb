@@ -4,12 +4,19 @@ using Portal.Repository.Model.ConklinCentral;
 using System;
 using System.Linq;
 using Portal.Core;
+using System.Collections.Generic;
 
+{% set hasLookups = 0 %}
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty %}
+{% set hasLookups = 1 %}
+{% endif %}
+{% endfor %}
 namespace Portal.Repository
 {
     public interface I{{viewDef.entityDef.name | capitalize}}Repository : IRepository<{{viewDef.entityDef.name | capitalize}}, int>
     {
-        IQueryable<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
+        IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
 {% for field in viewDef.searchFields%}
             {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }},
 {% endfor %}
@@ -25,19 +32,38 @@ namespace Portal.Repository
         protected sealed override DbSet<{{viewDef.entityDef.name | capitalize}}> Entities { get; set; }
 		private {{viewDef.entityDef.name | capitalize}}ServiceBase _serviceBase;
 
-        public {{viewDef.entityDef.name | capitalize}}Repository(ConklinCentralDataEntities context)
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty %}
+    	private I{{ field.lookupKey | capitalize}}Repository _{{ field.lookupKeyAsField }}Repository;
+{% endif %}
+{% endfor %}
+
+
+        public {{viewDef.entityDef.name | capitalize}}Repository(
+            ConklinCentralDataEntities context
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty %}
+    	    , I{{ field.lookupKey | capitalize}}Repository {{ field.lookupKeyAsField }}Repository
+{% endif %}
+{% endfor %}
+        )
         {
             Entities = context.{{viewDef.entityDef.name | capitalize}}s;
             this._serviceBase = new ProductEarningTypeLookupServiceBase(context);
+ {% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty %}
+    	    this._{{ field.lookupKeyAsField }}Repository = {{ field.lookupKeyAsField }}Repository;
+{% endif %}
+{% endfor %}
         }
 
-        public IQueryable<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
+        public IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
 {% for field in viewDef.searchFields %}
             {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }},
 {% endfor %}
             DataSortParameters dataSort)
         {
-            var result = this.GetPagedListWhere(x =>
+            var results = this.GetPagedListWhere(x =>
 {% for field in viewDef.searchFields %}    ({{ field.nameAsField }} == null || x.{{ field.nameAsField | capitalize}}.Equals({{ field.nameAsField }})){% if loop.last %},{% else %} && {% endif %}{% endfor %}
 
                     dataSort.Start,
@@ -48,9 +74,20 @@ namespace Portal.Repository
                 {{ field.name | capitalize}} = x.{{ field.name | capitalize}},
 {% endfor %}
                 Id = x.Id,
-                NumRows = 0
-            }).AsQueryable<{{viewDef.entityDef.name | capitalize}}ForList>();
-            return result;
+                NumRows = Count()
+            }).ToList();
+
+{% if hasLookups == 1 %}
+            results.ForEach(i =>
+            {
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty %}
+                i.{{ field.name | capitalize }}String = this._{{ field.lookupKeyAsField }}Repository.GetDescriptionById(i.{{ field.name | capitalize }});
+{% endif %}
+{% endfor %}
+            });
+{% endif %}
+            return results;
         }
 
 

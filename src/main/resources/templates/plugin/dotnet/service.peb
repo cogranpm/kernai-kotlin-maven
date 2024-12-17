@@ -5,12 +5,13 @@ using System;
 using System.Linq;
 using Portal.Core;
 using Portal.Repository;
+using System.Collections.Generic;
 
 namespace Portal.Service
 {
     public interface I{{viewDef.entityDef.name | capitalize}}Service : IService<{{viewDef.entityDef.name | capitalize}}, int>
     {
-    	IQueryable<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
+    	IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
 {% for field in viewDef.searchFields %}
              {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }},
 {% endfor %}
@@ -29,7 +30,7 @@ namespace Portal.Service
 
         }
 
-        public IQueryable<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
+        public IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
 {% for field in viewDef.searchFields %}
         {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.nameAsField }},
 {% endfor %}

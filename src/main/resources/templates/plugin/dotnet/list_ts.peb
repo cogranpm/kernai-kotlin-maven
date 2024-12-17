@@ -52,6 +52,8 @@ $(function () {
 {% set showInList = field.configMap.getOrDefault("showInList", true) %}
 {% if showInList == true and (field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME") %}
             { data: '{{ field.nameAsField}}String' },
+{% elseif showInList == true and field.lookupKey is not empty %}
+            { data: '{{ field.nameAsField}}String' },
 {% elseif showInList == true %}
             { data: '{{ field.nameAsField}}' },
 {% endif %}
@@ -165,6 +167,30 @@ function getInfoElement() {
 }
 
 let isLoading = false;
+
+const modalConfig = (loading: boolean = false) => {
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
+    let {{ field.nameAsField }}Combo = $('#{{ field.nameAsField }}');
+    const current{{ field.name | capitalize }} = {{ field.nameAsField }}Combo.data("{{ field.nameAsField }}");
+
+    {{ field.nameAsField }}Combo.select2({
+        placeholder: 'Choose {{ field.title }}',
+        allowClear: false,
+        dropdownParent: $('#modal'),
+        ajax: {
+            type: 'GET',
+            url: `/{{viewDef.entityDef.name | capitalize}}s/{{ field.lookupKeyAsField }}s`,
+            dataType: 'json'
+        },
+    });
+    if (current{{ field.name | capitalize }}) {
+        {{ field.nameAsField }}Combo.val(current{{ field.name | capitalize }}).trigger('change');
+    }
+{% endif %}
+{% endfor %}
+}
+
 export function save(){
     const el: HTMLFormElement = document.getElementById('editForm') as HTMLFormElement;
     if (el) {
@@ -211,6 +237,7 @@ export function load(id: string) {
                 }
                 else {
                     let modal = $('#modal') as any;
+                    modalConfig(true);
                     modal.modal({ focus: true });
                     isLoading = false;
                 }
@@ -233,6 +260,7 @@ export function create() {
                 }
                 else {
                     let modal = $('#modal') as any;
+                    modalConfig(false);
                     modal.modal({ focus: true });
                     isLoading = false;
                 }

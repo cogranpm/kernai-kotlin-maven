@@ -20,17 +20,25 @@ namespace Portal.Web.Controllers
         private readonly I{{viewDef.entityDef.name | capitalize}}Service _service;
 {% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty %}
-        private readonly I{{ field.lookupKey }}Repository _{{ field.lookupKeyAsField }}Repo;
+        private readonly I{{ field.lookupKey }}Repository _{{ field.lookupKeyAsField }}Repository;
 {% endif %}
 {% endfor %}
 
 
-        public {{viewDef.entityDef.name | capitalize}}sController(I{{viewDef.entityDef.name | capitalize}}Service service
-{% for field in viewDef.fieldDefinitions %}{% if field.lookupKey is not empty %}        , I{{ field.lookupKey }}Repository {{ field.lookupKeyAsField }}Repo{% endif %}{% endfor %}
+        public {{viewDef.entityDef.name | capitalize}}sController(
+        I{{viewDef.entityDef.name | capitalize}}Service service
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty %}
+        , I{{ field.lookupKey }}Repository {{ field.lookupKeyAsField }}Repository
+{% endif %}
+{% endfor %}
 
         ){
             this._service = service;
- {% for field in viewDef.fieldDefinitions %}        {% if field.lookupKey is not empty %}this._{{ field.lookupKeyAsField }}Repo = {{ field.lookupKeyAsField }}Repo;{% endif %}{% endfor %}
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty %}
+            this._{{ field.lookupKeyAsField }}Repository = {{ field.lookupKeyAsField }}Repository;
+{% endif %}{% endfor %}
         }
 
         public ViewResult Index(
@@ -136,6 +144,18 @@ namespace Portal.Web.Controllers
 			return id;
         }
 
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
+		[HttpGet]
+		[Route("{{ field.lookupKeyAsField }}s")]
+		public JsonResult Get{{ field.lookupKey | capitalize }}s(string term, string q, string _type, int? page)
+		{
+			Console.WriteLine($"term: {term} q: {q} page: {page}");
+			return Json(this._{{ field.lookupKeyAsField }}Repository.GetAllForListLookup(term, page));
+		}
+{% endif %}
+{% endfor %}
+
         private {{viewDef.entityDef.name | capitalize}}Info MakeEntityViewModel(
             {{viewDef.entityDef.name | capitalize}}SearchCriteria criteria,
             {{viewDef.entityDef.name | capitalize}}Info existing = null,
@@ -152,11 +172,13 @@ namespace Portal.Web.Controllers
             }
 
 {% for field in viewDef.fieldDefinitions %}
-{% if field.lookupKey is not empty %}
-            entity.{{ field.lookupKey }}s = this._{{ field.lookupKeyAsField }}Repo.GetAllForListLookup()
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] != "true" %}
+            entity.{{ field.lookupKey }}s = this._{{ field.lookupKeyAsField }}Repository.GetAllForListLookup()
             .Select(x => new SelectListItem(x.Title, x.Id.ToString(), x.Id == entity.{{ field.name | capitalize}}))
             .OrderBy(e => e.Value)
             .ToList();
+{% elseif field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
+			entity.{{ field.name | capitalize}}String = this._{{ field.lookupKeyAsField }}Repository.GetDescriptionById(entity.{{ field.name | capitalize}});
 {% endif %}
 {% endfor %}
 
