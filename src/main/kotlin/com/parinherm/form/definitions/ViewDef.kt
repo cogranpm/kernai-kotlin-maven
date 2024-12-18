@@ -59,6 +59,11 @@ data class ViewDef(
             return this.fieldDefinitions.filter { it.filterable }
         }
 
+    val sortedFields : List<FieldDef>
+        get(){
+            return this.fieldDefinitions.sortedBy { it.sequence }
+        }
+
     init {
         childViews.forEach{
             it.parentViews.add(this.id)

@@ -104,11 +104,9 @@ object SchemaBuilder {
     }
 
     fun updateSchema(){
-        /*
        transaction {
-           SchemaUtils.createMissingTablesAndColumns(SalesforceConfigs)
+           SchemaUtils.createMissingTablesAndColumns(FieldDefinitions)
        }
-       */
 
     }
 

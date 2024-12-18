@@ -3,12 +3,9 @@ package com.parinherm.form.definitions
 import com.parinherm.entity.LookupDetail
 import com.parinherm.lookups.LookupUtils
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import java.util.*
 
 
 @Serializable
@@ -22,6 +19,7 @@ data class FieldDef(
     val filterable: Boolean = false,
     val default: String = "",
     val config: String = "",
+    val sequence: Int = 0,
     val referenceDef: ReferenceDef? = null
 ) {
 

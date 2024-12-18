@@ -19,6 +19,7 @@ object DefaultViewDefinitions {
         filterable: Boolean = false,
         default: String = "",
         config: String = "",
+        sequence: Int = 0,
         referenceDef: ReferenceDef?
     ): FieldDefinition {
         /* mappings for the enums */
@@ -33,7 +34,8 @@ object DefaultViewDefinitions {
             lookupKey ?: "",
             filterable,
             default,
-            config
+            config,
+            sequence
         )
     }
 
@@ -43,43 +45,43 @@ object DefaultViewDefinitions {
         required: Boolean,
         filterable: Boolean = false
     ): FieldDefinition {
-        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.TEXT, null, filterable, "",  "",null)
+        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.TEXT, null, filterable, "",  "", 0,null)
     }
 
     private fun makeMemoField(name: String, title: String, required: Boolean): FieldDefinition {
-        return makeField(name, title, required, SizeDef.LARGE, DataTypeDef.MEMO, "", false, "", "", null)
+        return makeField(name, title, required, SizeDef.LARGE, DataTypeDef.MEMO, "", false, "", "",0, null)
     }
 
     private fun makeSourceField(name: String, title: String, required: Boolean): FieldDefinition {
-        return makeField(name, title, required, SizeDef.LARGE, DataTypeDef.SOURCE, "", false, "", "", null)
+        return makeField(name, title, required, SizeDef.LARGE, DataTypeDef.SOURCE, "", false, "", "",0, null)
     }
 
     private fun makeLookupField(name: String, title: String, required: Boolean, lookupKey: String): FieldDefinition {
-        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.LOOKUP, lookupKey, false, "", "", null)
+        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.LOOKUP, lookupKey, false, "", "",0, null)
     }
 
     private fun makeIntField(name: String, title: String, required: Boolean): FieldDefinition {
-        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.INT, "", false, "", "",null)
+        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.INT, "", false, "", "",0,null)
     }
 
     private fun makeFloatField(name: String, title: String, required: Boolean): FieldDefinition {
-        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.FLOAT, "", false, "", "",null)
+        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.FLOAT, "", false, "", "",0,null)
     }
 
     private fun makeDateTimeField(name: String, title: String, required: Boolean): FieldDefinition {
-        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.DATETIME, "", false, "","", null)
+        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.DATETIME, "", false, "","",0, null)
     }
 
     private fun makeDateField(name: String, title: String, required: Boolean): FieldDefinition {
-        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.DATE, "", false, "","", null)
+        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.DATE, "", false, "","",0, null)
     }
 
     private fun makeMoneyField(name: String, title: String, required: Boolean): FieldDefinition {
-        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.MONEY, "", false, "","", null)
+        return makeField(name, title, required, SizeDef.MEDIUM, DataTypeDef.MONEY, "", false, "","",0, null)
     }
 
     private fun makeBooleanField(name: String, title: String, required: Boolean): FieldDefinition {
-        return makeField(name, title, required, SizeDef.SMALL, DataTypeDef.BOOLEAN, "", false, "","", null)
+        return makeField(name, title, required, SizeDef.SMALL, DataTypeDef.BOOLEAN, "", false, "","",0, null)
     }
 
     private fun makeReferenceField(
@@ -88,7 +90,7 @@ object DefaultViewDefinitions {
         required: Boolean,
         referenceDef: ReferenceDef
     ): FieldDefinition {
-        return makeField(name, title, required, SizeDef.SMALL, DataTypeDef.REFERENCE, null, false, "","", referenceDef)
+        return makeField(name, title, required, SizeDef.SMALL, DataTypeDef.REFERENCE, null, false, "","",0, referenceDef)
     }
 
 
@@ -691,6 +693,7 @@ object DefaultViewDefinitions {
             fieldDefinition.filterable,
             fieldDefinition.default,
             fieldDefinition.config,
+            fieldDefinition.sequence,
             null
         )
 

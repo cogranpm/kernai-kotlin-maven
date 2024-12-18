@@ -1,22 +1,22 @@
 @using Portal.Core
 @model Portal.Web.Models.ProductEarningTypeLookupInfo
-@if (Model.ShouldUseBlankLayout)
-{
+@{
     Layout = "_EmptyLayout";
 }
 
-
-<div class="container-fluid">
+<div>
 	@using (Html.BeginForm("Edit", "{{viewDef.entityDef.name | capitalize}}s", FormMethod.Post, new { id = "editForm" }))
 	{
 		@Html.AntiForgeryToken()
 		@Html.ValidationSummary(true)
 		@Html.HiddenFor(model => model.Id)
-    {% for field in viewDef.fieldDefinitions %}
+    {% for field in viewDef.sortedFields%}
 
-		<div class="form-group row">
-			<label for="{{ field.nameAsField }}" class="col-sm-2 col-form-label">{{ field.title }}:</label>
-			<div class="col-sm-10">
+		<div class="row mg-b-5">
+		    <div class="col-sm-3">
+			<label for="{{ field.nameAsField }}" class="col-form-label">{{ field.title }}:</label>
+			</div>
+			<div class="col-sm-9">
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
                     @Html.DropDownListFor(model => model.{{ field.name | capitalize }},
                         new List<SelectListItem>(){new SelectListItem(){Text=@Model.{{ field.name | capitalize }}String, Value = @Model.{{ field.name | capitalize }}, Selected=true}},

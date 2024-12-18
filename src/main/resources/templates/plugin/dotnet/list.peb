@@ -4,24 +4,26 @@
 }
 
 <div class="div-datatables">
-    <table id="listTable" class="table table-hover table-sm small clickable">
+    <table id="listTable" class="table table-hover table-sm table-hover">
         <thead>
         <tr>
-            <th></th>
-{% for field in viewDef.fieldDefinitions %}
+            <th class="border-bottom"></th>
+{%  set numCols = 2 %}
+{% for field in viewDef.sortedFields %}
 {% set showInList = field.configMap.getOrDefault("showInList", true) %}
-{% if showInList == true %}          <th>{{ field.title }}</th>
+{% if showInList == true %}              <th class="border-bottom">{{ field.title }}</th>
+{% set numCols = numCols + 1 %}
 {% endif %}
 {% endfor %}
-            <th/>
+            <th class="border-bottom"></th>
         </tr>
         </thead>
         <tbody>
         <tr>
-            <td colspan="4" class="pt-4">@await Html.PartialAsync("_loadingsm")</td>
+            <td colspan="{{ numCols }}" class="pt-4">@await Html.PartialAsync("_loadingsm")</td>
         </tr>
         <tr>
-            <td colspan="4"></td>
+            <td colspan="{{ numCols }}"></td>
         </tr>
         </tbody>
     </table>

@@ -27,6 +27,7 @@ object FieldDefinitionMapper : IMapper<FieldDefinition> {
         statement[table.filterable] = item.filterable
         statement[table.default] = item.default
         statement[table.config]= item.config
+        statement[table.sequence] = item.sequence
     }
 
     override fun getAll(keys: Map<String, Long>): List<FieldDefinition> {
@@ -46,7 +47,8 @@ object FieldDefinitionMapper : IMapper<FieldDefinition> {
                 it[table.lookupKey],
                 it[table.filterable],
                 it[table.default] ?: "",
-                it[table.config] ?: ""
+                it[table.config] ?: "",
+                it[table.sequence] ?: 0
             )
         }
     }

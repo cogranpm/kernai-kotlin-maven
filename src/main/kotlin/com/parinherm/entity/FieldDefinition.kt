@@ -1,11 +1,7 @@
 package com.parinherm.entity
 
-import com.parinherm.ApplicationData
 import com.parinherm.form.widgets.LookupPicker
-import com.parinherm.form.widgets.ViewPicker
 import com.parinherm.lookups.LookupUtils
-import java.time.LocalDate
-import java.time.LocalDateTime
 import kotlin.properties.Delegates
 
 class FieldDefinition(override var id: Long = 0,
@@ -17,16 +13,17 @@ class FieldDefinition(override var id: Long = 0,
                       lookupKey: String,
                       filterable: Boolean,
                       default: String,
-                      config: String
-    /*,
-                        if the datatype is reference, which view definition are we referencing
-                       for example, if Lookup is the view selected, we show the Lookup Picker in the ui
-                       if View Definition is selected, we show the View Def picker
-                       so this field should only be enabled if DataType = Reference
-                       use case is for menus, which will have a View Picker field
-                       another use case if for this class FieldDefinition which has a lookup key field
-                      referenceViewId: String
-                        */
+                      config: String,
+                      sequence: Int
+                      /*,
+                                          if the datatype is reference, which view definition are we referencing
+                                         for example, if Lookup is the view selected, we show the Lookup Picker in the ui
+                                         if View Definition is selected, we show the View Def picker
+                                         so this field should only be enabled if DataType = Reference
+                                         use case is for menus, which will have a View Picker field
+                                         another use case if for this class FieldDefinition which has a lookup key field
+                                        referenceViewId: String
+                                          */
 ): ModelObject(), IBeanDataEntity  {
 
     var name: String by Delegates.observable(name, observer)
@@ -38,6 +35,7 @@ class FieldDefinition(override var id: Long = 0,
     var filterable: Boolean by Delegates.observable(filterable, observer)
     var default: String by Delegates.observable(default, observer)
     var config: String by Delegates.observable(config, observer)
+    var sequence: Int by Delegates.observable(sequence, observer)
     //var referenceViewId: String by Delegates.observable(referenceViewId, observer)
     
 
@@ -63,6 +61,7 @@ class FieldDefinition(override var id: Long = 0,
             6 -> "$filterable"
             7 -> "$default"
             8 -> "$config"
+            9 -> "$sequence"
             /*
             8 -> {
                 if (referenceViewId != "") {
@@ -92,7 +91,8 @@ class FieldDefinition(override var id: Long = 0,
                  LookupPicker.dataSource[0].key,
                 false,
                "",
-                 ""
+                 "",
+                0
             )
         }
     }

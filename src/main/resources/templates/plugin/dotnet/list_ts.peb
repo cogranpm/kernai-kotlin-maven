@@ -48,10 +48,10 @@ $(function () {
         columns: [
             {
                 data: function (data: {{viewDef.entityDef.name | capitalize}}ForList) {
-                    return `<a href="javascript:;" class="editLink" data-id="${data.id}">${data.id}</a>`;
+                    return `<button class="btn btn-primary btn-sm editLink" data-id="${data.id}" id="btnCreate" data-bs-toggle="modal" data-bs-target="#addModal">${data.id}</button>`;
                 }
             },
-{% for field in viewDef.fieldDefinitions %}
+{% for field in viewDef.sortedFields%}
 {% set showInList = field.configMap.getOrDefault("showInList", true) %}
 {% if showInList == true and (field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME") %}
             { data: '{{ field.nameAsField}}String' },
@@ -87,7 +87,7 @@ $(function () {
             let editLinks: HTMLCollectionOf<HTMLAnchorElement> = document.getElementsByClassName("editLink") as HTMLCollectionOf<HTMLAnchorElement>;
             for (const element of editLinks) {
                 element.addEventListener("click", async (event: Event) => {
-                    const id = (event.currentTarget as HTMLAnchorElement).dataset.id;
+                    const id = (event.currentTarget as HTMLButtonElement).dataset.id;
                     load(id);
                 });
             }
@@ -179,7 +179,7 @@ const modalConfig = (loading: boolean = false) => {
     {{ field.nameAsField }}Combo.select2({
         placeholder: 'Choose {{ field.title }}',
         allowClear: false,
-        dropdownParent: $('#modal'),
+        dropdownParent: $('#addModal'),
         ajax: {
             type: 'GET',
             url: `/{{viewDef.entityDef.name | capitalize}}s/{{ field.lookupKeyAsField }}s`,
@@ -238,7 +238,7 @@ export function load(id: string) {
                     isLoading = false;
                 }
                 else {
-                    let modal = $('#modal') as any;
+                    let modal = $('#addModal') as any;
                     modalConfig(true);
                     modal.modal({ focus: true });
                     isLoading = false;
@@ -261,7 +261,7 @@ export function create() {
                     isLoading = false;
                 }
                 else {
-                    let modal = $('#modal') as any;
+                    let modal = $('#addModal') as any;
                     modalConfig(false);
                     modal.modal({ focus: true });
                     isLoading = false;
