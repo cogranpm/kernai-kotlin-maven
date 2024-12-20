@@ -50,8 +50,8 @@ namespace Portal.Repository
         )
         {
             Entities = context.{{viewDef.entityDef.name | capitalize}}s;
-            this._serviceBase = new ProductEarningTypeLookupServiceBase(context);
- {% for field in viewDef.fieldDefinitions %}
+            this._serviceBase = new {{viewDef.entityDef.name | capitalize}}ServiceBase(context);
+{% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty %}
     	    this._{{ field.lookupKeyAsField }}Repository = {{ field.lookupKeyAsField }}Repository;
 {% endif %}
@@ -104,8 +104,7 @@ namespace Portal.Repository
             return filteredViewModel;
         }
 
-
- 	public {{viewDef.entityDef.name | capitalize}} Add({{viewDef.entityDef.name | capitalize}} entity)
+ 	    public {{viewDef.entityDef.name | capitalize}} Add({{viewDef.entityDef.name | capitalize}} entity)
 		{
 			this._serviceBase.Add(entity);
 			this._serviceBase.SaveChanges();
@@ -136,5 +135,6 @@ namespace Portal.Repository
 			{
 			}
 		}
+
     }
 }

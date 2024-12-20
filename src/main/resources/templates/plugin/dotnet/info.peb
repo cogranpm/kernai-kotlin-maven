@@ -1,5 +1,5 @@
 @using Portal.Core
-@model Portal.Web.Models.ProductEarningTypeLookupInfo
+@model Portal.Web.Models.{{viewDef.entityDef.name | capitalize}}Info
 @{
     Layout = "_EmptyLayout";
 }
@@ -10,6 +10,7 @@
 		@Html.AntiForgeryToken()
 		@Html.ValidationSummary(true)
 		@Html.HiddenFor(model => model.Id)
+	    @Html.HiddenFor(model => model.TimeStamp)
     {% for field in viewDef.sortedFields%}
 
 		<div class="row mg-b-5">

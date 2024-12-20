@@ -25,7 +25,8 @@ CREATE TABLE [dbo].[{{vDef.entityDef.name | capitalize}}] (
     [CreatedOn]     DATETIME2 (3)  NOT NULL,
     [CreatedBy]     NVARCHAR (50)  NOT NULL,
     [ModifiedOn]    DATETIME2 (3)  NOT NULL,
-    [ModifiedBy]    NVARCHAR (50)  NOT NULL
+    [ModifiedBy]    NVARCHAR (50)  NOT NULL,
+    [TimeStamp]     timestamp      NOT NULL,
 )
 GO
 

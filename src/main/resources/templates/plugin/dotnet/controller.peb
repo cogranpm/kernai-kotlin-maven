@@ -181,7 +181,8 @@ namespace Portal.Web.Controllers
 {% for field in viewDef.fieldDefinitions %}
                     {{ field.name | capitalize}} = entity.{{ field.name | capitalize}},
 {% endfor %}
-				    Id = entity.Id
+				    Id = entity.Id,
+				    TimeStamp = entity.TimeStamp
 				};
 			}
 
@@ -192,7 +193,8 @@ namespace Portal.Web.Controllers
 {% for field in viewDef.fieldDefinitions %}
                     {{ field.name | capitalize}} = info.{{ field.name | capitalize}},
 {% endfor %}
-				    Id = info.Id
+				    Id = info.Id,
+				    TimeStamp = info.TimeStamp
 				};
 			}
 

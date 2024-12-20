@@ -12,9 +12,8 @@ namespace Portal.Service
     public interface I{{viewDef.entityDef.name | capitalize}}Service : IService<{{viewDef.entityDef.name | capitalize}}, int>
     {
     	IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search);
-
-        void Update(ProductEarningTypeLookup entity);
-        ProductEarningTypeLookup Add(ProductEarningTypeLookup entity);
+        void Update({{viewDef.entityDef.name | capitalize}} entity);
+        {{viewDef.entityDef.name | capitalize}} Add({{viewDef.entityDef.name | capitalize}} entity);
         void Delete(int id);
     }
 

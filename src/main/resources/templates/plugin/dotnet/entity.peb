@@ -2,26 +2,52 @@ using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Portal.Repository.Model.Enums;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Portal.Repository.Model.ConklinCentral {
 
+{{  entityClass(vDef = viewDef) }}
 
-    public class {{viewDef.entityDef.name | capitalize}} : AuditTracking {
-
-        public int Id { get; set; }
-{% for field in viewDef.fieldDefinitions %}
-        public {{ field.dataTypeDef.dataTypeToCSharpDef }}{% if not field.required  %}?{% endif %} {{ field.name | capitalize}} { get; set; }
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+{{  entityClass(vDef = ownerAssociation.ownedViewDef, parentViewDef = viewDef) }}
+{% endif %}
 {% endfor %}
 
+{% macro entityClass(type="text", vDef, parentViewDef) %}
+
+    public class {{vDef.entityDef.name | capitalize}} : AuditTracking {
+
+        public int Id { get; set; }
+{%  if parentViewDef is not null %}
+        [Required]
+        public int {{ parentViewDef.entityDef.name | capitalize }}Id { get; set; }
+        public {{ parentViewDef.entityDef.name | capitalize }} {{ parentViewDef.entityDef.name | capitalize }} { get; set; } = null!;
+{% endif %}
+{% for field in vDef.sortedFields%}
+{% if field.required == true %}
+       [Required]
+{% endif %}
+        public {{ field.dataTypeDef.dataTypeToCSharpDef }}{% if not field.required  %}?{% endif %} {{ field.name | capitalize}} { get; set; }
+{% endfor %}
+{% for ownerAssociation in vDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" and ownerAssociation.ownedType == "many"%}
+        public ICollection<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}> {{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s { get; } = new List<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}>();
+{% endif %}
+{% endfor %}
+        [Timestamp]
+        public Byte[] TimeStamp { get; set; }
     }
 
-    public class {{viewDef.entityDef.name | capitalize}}Config
+    public class {{vDef.entityDef.name | capitalize}}Config
     {
-        public {{viewDef.entityDef.name | capitalize}}Config(ModelBuilder modelBuilder)
+        public {{vDef.entityDef.name | capitalize}}Config(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<{{viewDef.entityDef.name | capitalize}}>().ToTable("{{viewDef.entityDef.name | capitalize}}");
-            modelBuilder.Entity<{{viewDef.entityDef.name | capitalize}}>().HasKey(x => x.Id);
+            modelBuilder.Entity<{{vDef.entityDef.name | capitalize}}>().ToTable("{{vDef.entityDef.name | capitalize}}");
+            modelBuilder.Entity<{{vDef.entityDef.name | capitalize}}>().HasKey(x => x.Id);
         }
     }
 
+{% endmacro %}
 }
