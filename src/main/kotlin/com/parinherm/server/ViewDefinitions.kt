@@ -1,5 +1,6 @@
 package com.parinherm.server
 
+import com.parinherm.ApplicationData
 import com.parinherm.entity.FieldDefinition
 import com.parinherm.entity.ViewDefinition
 import com.parinherm.entity.schema.FieldDefinitionMapper
@@ -650,54 +651,14 @@ object DefaultViewDefinitions {
         val viewDefs = views.map{
             val fields = FieldDefinitionMapper.getAll(mapOf("viewDefinitionId" to it.id))
             if(loadChildren) {
-                val childViews = loadChildViews(it.id)
-                mapViewDefinitionToViewDef(it, fields, childViews)
+                val childViews = ApplicationData.loadChildViews(it.id)
+               ApplicationData.mapViewDefinitionToViewDef(it, fields, childViews)
             } else {
-                mapViewDefinitionToViewDef(it, fields, listOf())
+               ApplicationData.mapViewDefinitionToViewDef(it, fields, listOf())
             }
         }
         return viewDefs.get(0)
     }
-
-    fun loadChildViews(parentViewId: Long): List<ViewDef> {
-        val views = ViewDefinitionMapper.getAllByParent(mapOf("viewDefinitionId" to parentViewId))
-        return views.map {
-            val fields = FieldDefinitionMapper.getAll(mapOf("viewDefinitionId" to it.id))
-            mapViewDefinitionToViewDef(it, fields, loadChildViews(it.id))
-        }
-    }
-
-    fun mapViewDefinitionToViewDef(viewDefinition: ViewDefinition, fields: List<FieldDefinition>, childViews: List<ViewDef>): ViewDef =
-        ViewDef(
-            viewDefinition.id,
-            viewDefinition.viewId,
-            viewDefinition.title,
-            viewDefinition.listWeight,
-            viewDefinition.editWeight,
-            SashOrientationDef.unMappedOrientation(viewDefinition.sashOrientation),
-            fields.map { mapFieldDefinitionToFieldDef(it) },
-            viewDefinition.config,
-            EntityDef(viewDefinition.entityName),
-            childViews,
-            false
-        )
-
-    fun mapFieldDefinitionToFieldDef(fieldDefinition: FieldDefinition): FieldDef =
-        FieldDef(
-            fieldDefinition.name,
-            fieldDefinition.title,
-            fieldDefinition.required,
-            SizeDef.unMappedSize(fieldDefinition.size),
-            DataTypeDef.unMappedDataType(fieldDefinition.dataType),
-            fieldDefinition.lookupKey,
-            fieldDefinition.filterable,
-            fieldDefinition.default,
-            fieldDefinition.config,
-            fieldDefinition.sequence,
-            null
-        )
-
-
 }
 
 /*

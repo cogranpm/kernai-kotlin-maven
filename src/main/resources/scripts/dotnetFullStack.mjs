@@ -182,4 +182,12 @@ writeBatchCommands(
     pathsMap
     );
 
+let sqlFolder = viewDef.getEntityDef().getName() + "/SQL";
+let tableFile = "schema.sql";
+writeTemplate(
+    sqlFolder,
+    tableFile,
+    viewDef,
+   ApplicationData.getPebbleEngine().getTemplate(`${basepath}sqlTable.peb`));
+
 print("Completed");

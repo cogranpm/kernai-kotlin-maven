@@ -163,4 +163,31 @@ data class FieldDef(
                 DataTypeDef.BLOB -> "?"
                 else -> ""
             }
+
+    val dataTypeToSqlDef: String
+        get()
+            {
+            val length: Int = when(this.sizeHint ){
+                SizeDef.MEDIUM -> 500
+                SizeDef.SMALL -> 50
+                SizeDef.LARGE -> 1000
+            }
+               return when (this.dataTypeDef) {
+
+                    DataTypeDef.SOURCE,
+                    DataTypeDef.TEXT,
+                    DataTypeDef.LOOKUP,
+                    DataTypeDef.FILE -> "NVARCHAR($length)"
+                    DataTypeDef.MEMO, -> "NVARCHAR(MAX)"
+                    DataTypeDef.FLOAT -> "FLOAT"
+                    DataTypeDef.MONEY -> "DECIMAL (9, 2)"
+                    DataTypeDef.INT -> "INT"
+                    DataTypeDef.DATETIME -> "DATETIME2 (3)"
+                    DataTypeDef.TIME -> "DATETIME2 (3)"
+                    DataTypeDef.DATE -> "DATE"
+                    DataTypeDef.BOOLEAN -> "BIT"
+                    DataTypeDef.REFERENCE -> "LONG"
+                    DataTypeDef.BLOB -> "VARBINARY"
+                }
+            }
 }

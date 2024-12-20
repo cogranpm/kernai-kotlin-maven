@@ -598,7 +598,7 @@
                 </executions>
                 <configuration>
                     <nowarn>true</nowarn>  <!-- Disable warnings -->
-                    <jvmTarget>1.8</jvmTarget>
+                    <jvmTarget>21</jvmTarget>
                     <args>
                         <arg>-Xjsr305=strict</arg> <!-- Enable strict mode for JSR-305 annotations -->
                         <arg>-Xcoroutines=enable</arg>

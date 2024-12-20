@@ -68,7 +68,23 @@ object AssociationDefinitionMapper  : IMapper<AssociationDefinition>{
                 )
             }
         }
+        for (associationDefinition in list) {
+            if(associationDefinition.owningEntity > 0){
+                associationDefinition.ownerViewDef = this.loadViewDef(associationDefinition.owningEntity)
+            }
+            if(associationDefinition.ownedEntity > 0){
+                associationDefinition.ownedViewDef = this.loadViewDef(associationDefinition.ownedEntity)
+            }
+        }
        return list;
+    }
+
+    private fun loadViewDef(entityId: Long) : ViewDef?{
+        val view: ViewDefinition = ViewDefinitionMapper.getById(entityId);
+            val fields = FieldDefinitionMapper.getAll(mapOf("viewDefinitionId" to view.id))
+            val childViews = ApplicationData.loadChildViews(view.id)
+        val viewDef = ApplicationData.mapViewDefinitionToViewDef(view, fields, childViews)
+        return viewDef
     }
 
     fun getAllAsOwned(viewDef: ViewDef) : List<AssociationDefinition> {
@@ -90,6 +106,14 @@ object AssociationDefinitionMapper  : IMapper<AssociationDefinition>{
                         it[table.config]?: ""
                     )
                 )
+            }
+        }
+        for (associationDefinition in list) {
+             if(associationDefinition.owningEntity > 0){
+                associationDefinition.ownerViewDef = this.loadViewDef(associationDefinition.owningEntity)
+            }
+            if(associationDefinition.ownedEntity > 0){
+                associationDefinition.ownedViewDef = this.loadViewDef(associationDefinition.ownedEntity)
             }
         }
         return list;

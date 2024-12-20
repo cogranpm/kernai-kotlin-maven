@@ -1,8 +1,11 @@
 package com.parinherm.entity
 
-import com.parinherm.entity.schema.ViewDefinitionMapper
+import com.parinherm.form.definitions.ViewDef
 import com.parinherm.lookups.LookupUtils
 import kotlin.properties.Delegates
+import com.parinherm.entity.schema.FieldDefinitionMapper
+import com.parinherm.entity.schema.ViewDefinitionMapper
+import com.parinherm.ApplicationData
 
 class AssociationDefinition(
     override var id: Long = 0,
@@ -22,6 +25,9 @@ class AssociationDefinition(
     var owningType: String by Delegates.observable(owningType, observer)
     var ownedType: String by Delegates.observable(ownedType, observer)
     var config: String by Delegates.observable(config, observer)
+    private var _ownedViewDef: ViewDef? = null
+    private var _ownerViewDef: ViewDef? = null
+
 
     override fun getColumnValueByIndex(index: Int): String {
         return when (index) {
@@ -52,6 +58,35 @@ class AssociationDefinition(
     fun ownerViewDefinition() : ViewDefinition {
         return ViewDefinitionMapper.getById(owningEntity)
     }
+
+    var ownedViewDef: ViewDef?
+        get() = this._ownedViewDef
+        set(value) {
+          this._ownedViewDef = value
+        }
+
+    var ownerViewDef: ViewDef?
+        get() = this._ownerViewDef
+        set(value) {
+          this._ownerViewDef = value
+        }
+
+    /*
+    fun ownedViewDef(): ViewDef?{
+        if(this._ownedViewDef == null){
+            this._ownedViewDef = this.loadViewDef(ownedEntity)
+        }
+        return this._ownedViewDef
+    }
+
+    fun ownerViewDef() : ViewDef?{
+        if(this._ownerViewDef == null){
+            this._ownerViewDef = this.loadViewDef(owningEntity)
+        }
+        return this._ownerViewDef
+    }
+
+     */
 
 
     companion object Factory {

@@ -1,0 +1,33 @@
+{{  tableDDL(vDef = viewDef) }}
+
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+{{  tableDDL(vDef = ownerAssociation.ownedViewDef, parentViewDef = viewDef) }}
+{% endif %}
+{% endfor %}
+
+{% macro tableDDL(type="text", vDef, parentViewDef) %}
+CREATE TABLE [dbo].[{{vDef.entityDef.name | capitalize}}] (
+    [Id] INT IDENTITY (1, 1) NOT NULL,
+{%  if parentViewDef is not null %}
+    [{{ parentViewDef.entityDef.name | capitalize }}Id] INT NOT NULL,
+{% endif %}
+{% for field in vDef.sortedFields%}
+    [{{ field.name | capitalize }}] {{ field.dataTypeToSqlDef }} {% if field.required  %}NOT {% endif %} NULL,
+{% endfor %}
+    [CreatedOn]     DATETIME2 (3)  NOT NULL,
+    [CreatedBy]     NVARCHAR (50)  NOT NULL,
+    [ModifiedOn]    DATETIME2 (3)  NOT NULL,
+    [ModifiedBy]    NVARCHAR (50)  NOT NULL
+);
+
+ALTER TABLE [dbo].[{{vDef.entityDef.name | capitalize}}]
+    ADD CONSTRAINT [PK_{{vDef.entityDef.name | capitalize}}] PRIMARY KEY CLUSTERED ([Id] ASC);
+
+ALTER TABLE [dbo].[{{vDef.entityDef.name | capitalize}}]
+    ADD CONSTRAINT [DF_{{vDef.entityDef.name | capitalize}}_CreatedOn] DEFAULT (sysdatetime()) FOR [CreatedOn];
+
+ALTER TABLE [dbo].[{{vDef.entityDef.name | capitalize}}]
+    ADD CONSTRAINT [DF_{{vDef.entityDef.name | capitalize}}_ModifiedOn] DEFAULT (sysdatetime()) FOR [ModifiedOn];
+
+{% endmacro %}

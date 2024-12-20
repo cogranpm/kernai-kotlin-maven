@@ -4,27 +4,28 @@ import com.parinherm.form.widgets.LookupPicker
 import com.parinherm.lookups.LookupUtils
 import kotlin.properties.Delegates
 
-class FieldDefinition(override var id: Long = 0,
-                      var viewDefinitionId: Long,
-                      name: String, title: String,
-                      required: Boolean,
-                      size: String,
-                      dataType: String,
-                      lookupKey: String,
-                      filterable: Boolean,
-                      default: String,
-                      config: String,
-                      sequence: Int
-                      /*,
-                                          if the datatype is reference, which view definition are we referencing
-                                         for example, if Lookup is the view selected, we show the Lookup Picker in the ui
-                                         if View Definition is selected, we show the View Def picker
-                                         so this field should only be enabled if DataType = Reference
-                                         use case is for menus, which will have a View Picker field
-                                         another use case if for this class FieldDefinition which has a lookup key field
-                                        referenceViewId: String
-                                          */
-): ModelObject(), IBeanDataEntity  {
+class FieldDefinition(
+    override var id: Long = 0,
+    var viewDefinitionId: Long,
+    name: String, title: String,
+    required: Boolean,
+    size: String,
+    dataType: String,
+    lookupKey: String,
+    filterable: Boolean,
+    default: String,
+    config: String,
+    sequence: Int
+    /*,
+    if the datatype is reference, which view definition are we referencing
+   for example, if Lookup is the view selected, we show the Lookup Picker in the ui
+   if View Definition is selected, we show the View Def picker
+   so this field should only be enabled if DataType = Reference
+   use case is for menus, which will have a View Picker field
+   another use case if for this class FieldDefinition which has a lookup key field
+  referenceViewId: String
+    */
+) : ModelObject(), IBeanDataEntity {
 
     var name: String by Delegates.observable(name, observer)
     var title: String by Delegates.observable(title, observer)
@@ -37,30 +38,35 @@ class FieldDefinition(override var id: Long = 0,
     var config: String by Delegates.observable(config, observer)
     var sequence: Int by Delegates.observable(sequence, observer)
     //var referenceViewId: String by Delegates.observable(referenceViewId, observer)
-    
+
 
     override fun getColumnValueByIndex(index: Int): String {
         return when (index) {
-             0 -> name
-             1 -> title
-             2 -> "$required"
-             3 ->  {
-                val listItem = LookupUtils.getLookupByKey(LookupUtils.fieldSizeLookupKey, false).find { it.code == size}
+            0 -> name
+            1 -> title
+            2 -> "$required"
+            3 -> {
+                val listItem =
+                    LookupUtils.getLookupByKey(LookupUtils.fieldSizeLookupKey, false).find { it.code == size }
                 "${listItem?.label}"
             }
-             4 ->  {
-                val listItem = LookupUtils.getLookupByKey(LookupUtils.dataTypeLookupKey, false).find { it.code == dataType}
+
+            4 -> {
+                val listItem =
+                    LookupUtils.getLookupByKey(LookupUtils.dataTypeLookupKey, false).find { it.code == dataType }
                 "${listItem?.label}"
             }
-             5 -> {
-                 if (lookupKey  != "") {
-                     val listItem = LookupPicker.dataSource.find { it.key == lookupKey}
-                     "${listItem?.label}"
-                 } else  ""
-             }
+
+            5 -> {
+                if (lookupKey != "") {
+                    val listItem = LookupPicker.dataSource.find { it.key == lookupKey }
+                    "${listItem?.label}"
+                } else ""
+            }
+
             6 -> "$filterable"
             7 -> "$default"
-            8 -> "$config"
+            8 -> "$sequence"
             9 -> "$sequence"
             /*
             8 -> {
@@ -79,19 +85,19 @@ class FieldDefinition(override var id: Long = 0,
     }
 
     companion object Factory {
-        fun make(viewDefinitionId: Long): FieldDefinition{
+        fun make(viewDefinitionId: Long): FieldDefinition {
             return FieldDefinition(
                 0,
                 viewDefinitionId,
-                 "" , 
-                 "" , 
-                 false , 
-                 LookupUtils.getLookupByKey(LookupUtils.fieldSizeLookupKey, false)[0].code ,
-                LookupUtils.getLookupByKey(LookupUtils.dataTypeLookupKey, false)[0].code ,
-                 LookupPicker.dataSource[0].key,
+                "",
+                "",
                 false,
-               "",
-                 "",
+                LookupUtils.getLookupByKey(LookupUtils.fieldSizeLookupKey, false)[0].code,
+                LookupUtils.getLookupByKey(LookupUtils.dataTypeLookupKey, false)[0].code,
+                LookupPicker.dataSource[0].key,
+                false,
+                "",
+                "",
                 0
             )
         }
