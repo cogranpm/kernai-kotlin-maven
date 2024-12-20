@@ -129,15 +129,16 @@ namespace Portal.Web.Controllers
 			return id;
         }
 
-
- {% for childViewDef in viewDef.childViews %}
+{# routes for child views #}
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
         [HttpGet]
-        [Route("{{ childViewDef.id }}/{id}")]
-        public ViewResult {{ childViewDef.id | capitalize }}List(int id)
+        [Route("{{ ownerAssociation.ownedViewDef.id }}/{id}")]
+        public ViewResult {{ ownerAssociation.ownedViewDef.id | capitalize }}List(int id)
         {
-            var entity = this._service.GetFirstWhereIncluding(x => x.Id == id, ["{{ childViewDef.entityDef.name | capitalize  }}s"]);
+            var entity = this._service.GetFirstWhereIncluding(x => x.Id == id, ["{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize  }}s"]);
 
-            var display = new {{ parentViewDef.entityDef.name }}Display()
+            var display = new {{ ownerAssociation.ownerViewDef.entityDef.name }}Display()
             {
                 Id = entity.Id,
                 Name = entity.Name,
@@ -147,18 +148,22 @@ namespace Portal.Web.Controllers
                 Amount = entity.Amount
             };
 
-            display.{{ childViewDef.entityDef.name | capitalize }} = entity.{{ childViewDef.entityDef.name | capitalize }}.Select(x =>
-                    new Portal.Web.Models.{{ childViewDef.entityDef.name | capitalize }}()
+            display.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s = entity.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s.Select(x =>
+                    new Portal.Web.Models.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}()
                     {
                         Id = x.Id,
                         ProductId = x.ProductId,
                         UnitsPerQty = x.UnitsPerQty.Value,
-                        {{ parentViewDef.entityDef.name }}Id = x.Id,
-                        {{ parentViewDef.entityDef.name }} = display
+                        {{ ownerAssociation.ownerViewDef.entityDef.name }}Id = x.Id,
+                        {{ ownerAssociation.ownerViewDef.entityDef.name }} = display
                     }).ToList();
-            return View("{{ childViewDef.id  }}Index", display);
+            return View("{{ ownerAssociation.ownedViewDef.id  }}Index", display);
         }
+{% endif %}
 {% endfor %}
+
+
+
 
 {% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
