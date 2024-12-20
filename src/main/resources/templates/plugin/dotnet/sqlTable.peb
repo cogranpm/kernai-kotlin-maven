@@ -19,14 +19,16 @@ CREATE TABLE [dbo].[{{vDef.entityDef.name | capitalize}}] (
 {% if field.referenceViewDefinition is not null and field.dataTypeDef  == "REFERENCE"%}
      [{{ field.name | capitalize }}] {{ field.referenceViewDefinition.configMap["sqlKeyType"] }} {% if field.required  %}NOT {% endif %} NULL,
 {% else %}
-     [{{ field.name | capitalize }}] {{ field.dataTypeToSqlDef }} {% if field.required  %}NOT {% endif %} NULL,
+{%  set defaultValue = "" %}
+{% if field.default is not empty and field.default == "YEAR" %}{% set defaultValue = "DEFAULT YEAR(GETDATE())" %}{% endif %}
+     [{{ field.name | capitalize }}] {{ field.dataTypeToSqlDef }} {% if field.required  %}NOT {% endif %} NULL {{ defaultValue }},
 {% endif %}
 {% endfor %}
     [CreatedOn]     DATETIME2 (3)  NOT NULL,
     [CreatedBy]     NVARCHAR (50)  NOT NULL,
     [ModifiedOn]    DATETIME2 (3)  NOT NULL,
     [ModifiedBy]    NVARCHAR (50)  NOT NULL,
-    [TimeStamp]     timestamp      NOT NULL,
+    [TimeStamp]     timestamp      NOT NULL
 )
 GO
 

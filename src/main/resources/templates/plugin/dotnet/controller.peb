@@ -129,6 +129,37 @@ namespace Portal.Web.Controllers
 			return id;
         }
 
+
+ {% for childViewDef in viewDef.childViews %}
+        [HttpGet]
+        [Route("{{ childViewDef.id }}/{id}")]
+        public ViewResult {{ childViewDef.id | capitalize }}List(int id)
+        {
+            var entity = this._service.GetFirstWhereIncluding(x => x.Id == id, ["{{ childViewDef.entityDef.name | capitalize  }}s"]);
+
+            var display = new {{ parentViewDef.entityDef.name }}Display()
+            {
+                Id = entity.Id,
+                Name = entity.Name,
+                Year = entity.Year,
+                StartDate = entity.StartDate,
+                EndDate = entity.EndDate,
+                Amount = entity.Amount
+            };
+
+            display.{{ childViewDef.entityDef.name | capitalize }} = entity.{{ childViewDef.entityDef.name | capitalize }}.Select(x =>
+                    new Portal.Web.Models.{{ childViewDef.entityDef.name | capitalize }}()
+                    {
+                        Id = x.Id,
+                        ProductId = x.ProductId,
+                        UnitsPerQty = x.UnitsPerQty.Value,
+                        {{ parentViewDef.entityDef.name }}Id = x.Id,
+                        {{ parentViewDef.entityDef.name }} = display
+                    }).ToList();
+            return View("{{ childViewDef.id  }}Index", display);
+        }
+{% endfor %}
+
 {% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
 		[HttpGet]

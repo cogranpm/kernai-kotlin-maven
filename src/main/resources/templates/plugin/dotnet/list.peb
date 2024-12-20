@@ -15,6 +15,10 @@
 {% set numCols = numCols + 1 %}
 {% endif %}
 {% endfor %}
+{% for childViewDef in viewDef.childViews %}
+        <th class="border-bottom">{{ childViewDef.title }}</th>
+ {% set numCols = numCols + 1 %}
+ {% endfor %}
             <th class="border-bottom"></th>
         </tr>
         </thead>

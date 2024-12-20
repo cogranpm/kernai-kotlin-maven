@@ -25,6 +25,21 @@ const writeTemplate = (folder, fileName, viewDef, pebbleTemplate) => {
     fw.close();
 };
 
+const writeTemplateChild = (folder, fileName, parentViewDef, childViewDef, pebbleTemplate) => {
+    print('writing template');
+    const tempOutputPath = Paths.get(tempOutputDirectory, "models", folder);
+    Files.createDirectories(tempOutputPath);
+    const filePath = tempOutputPath.resolve(fileName);
+    const writer = new StringWriter();
+    let context = new HashMap();
+    context.put("parentViewDef", parentViewDef);
+    context.put("childViewDef", childViewDef);
+    pebbleTemplate.evaluate(writer, context);
+    const output = writer.toString();
+    const fw = new FileWriter(filePath.toString());
+    fw.write(output);
+    fw.close();
+};
 
 const writeBatchCommands = (folder, fileName, pebbleTemplate, pathsMap) => {
     print('writing template');
@@ -126,6 +141,43 @@ writeTemplate(
     viewDef,
     ApplicationData.getPebbleEngine().getTemplate(`${basepath}info.peb`));
 pathsMap.push(getXCopyCommand(infoViewFileName, viewsFolder, viewsTargetFolder));
+
+if(viewDef.getChildViews()){
+    for (let childViewDef of viewDef.getChildViews()) {
+
+        let childViewId = childViewDef.getId();
+        childViewId = ApplicationData.decapitalize(childViewId);
+
+        let childIndexFileName = `${childViewId}Index.cshtml`;
+        let viewsTargetFolder = `Portal.Web/Views/${viewDef.getEntityDef().getName()}s`;
+        writeTemplateChild(
+            viewsFolder,
+            childIndexFileName,
+             viewDef,
+            childViewDef,
+            ApplicationData.getPebbleEngine().getTemplate(`${basepath}childIndex.peb`));
+        pathsMap.push(getXCopyCommand(childIndexFileName, viewsFolder, viewsTargetFolder));
+
+        let childInfoViewFileName = `_${childViewId}Info.cshtml`;
+        writeTemplateChild(
+            viewsFolder,
+            childInfoViewFileName,
+            viewDef,
+            childViewDef,
+            ApplicationData.getPebbleEngine().getTemplate(`${basepath}childInfo.peb`));
+        pathsMap.push(getXCopyCommand(childInfoViewFileName, viewsFolder, viewsTargetFolder));
+
+        let childListFileName = `_${childViewId}List.cshtml`;
+        writeTemplateChild(
+            viewsFolder,
+            childListFileName,
+            viewDef,
+            childViewDef,
+            ApplicationData.getPebbleEngine().getTemplate(`${basepath}childList.peb`));
+        pathsMap.push(getXCopyCommand(childListFileName, viewsFolder, viewsTargetFolder));
+
+    }
+}
 
 
 let viewModelFolder = viewDef.getEntityDef().getName() + "/ViewModel";

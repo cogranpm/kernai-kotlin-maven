@@ -61,6 +61,13 @@ $(function () {
             { data: '{{ field.nameAsField}}' },
 {% endif %}
 {% endfor %}
+{% for childViewDef in viewDef.childViews %}
+            {
+                data: function (data: {{viewDef.entityDef.name | capitalize}}ForList) {
+                    return `<a href="/{{viewDef.entityDef.name | capitalize}}s/{{ childViewDef.id }}/${data.id}">{{ childViewDef.title }}</a>`;
+                }
+            },
+{% endfor %}
             {
                 data: function (data: {{viewDef.entityDef.name | capitalize}}ForList) {
                     return `<a href="javascript:;" class="deleteLink" data-id="${data.id}"><i class="fa fa-trash"></i></a>`;
