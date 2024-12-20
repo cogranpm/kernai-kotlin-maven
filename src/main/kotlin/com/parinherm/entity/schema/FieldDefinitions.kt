@@ -15,4 +15,5 @@ object FieldDefinitions: LongIdTable() {
     val default = varchar("default", 255).nullable().default("")
     val config = text("config").nullable() //is a long text field that takes json
     var sequence = integer(name="sequence").nullable()
+    var referenceViewId = long("referenceViewId").nullable()
 }

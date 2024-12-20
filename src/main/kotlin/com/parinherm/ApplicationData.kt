@@ -10,11 +10,13 @@ import com.parinherm.entity.FieldDefinition
 import com.parinherm.entity.ViewDefinition
 import com.parinherm.entity.schema.AppVersionMapper
 import com.parinherm.entity.schema.FieldDefinitionMapper
+import com.parinherm.entity.schema.FieldDefinitions.referenceViewId
 import com.parinherm.entity.schema.SchemaBuilder
 import com.parinherm.entity.schema.ViewDefinitionMapper
 import com.parinherm.font.FontUtils
 import com.parinherm.form.definitions.*
 import com.parinherm.form.dialogs.FirstTimeSetupDialog
+import com.parinherm.form.widgets.ViewPicker
 import com.parinherm.image.ImageUtils
 import com.parinherm.lookups.LookupUtils
 import com.parinherm.model.TemplateHelpers
@@ -98,20 +100,28 @@ object ApplicationData {
         createUserPath()
     }
 
-    fun mapViewDefinitionToViewDef(viewDefinition: ViewDefinition, fields: List<FieldDefinition>, childViews: List<ViewDef>): ViewDef =
-        ViewDef(
-            viewDefinition.id,
-            viewDefinition.viewId,
-            viewDefinition.title,
-            viewDefinition.listWeight,
-            viewDefinition.editWeight,
-            SashOrientationDef.unMappedOrientation(viewDefinition.sashOrientation),
-            fields.map { mapFieldDefinitionToFieldDef(it) },
-            viewDefinition.config,
-            EntityDef(viewDefinition.entityName),
-            childViews,
-            false
-        )
+    fun mapViewDefinitionToViewDef(viewDefinition: ViewDefinition, fields: List<FieldDefinition>, childViews: List<ViewDef>): ViewDef {
+        //if (viewDefinition != null) {
+            return ViewDef(
+                viewDefinition.id,
+                viewDefinition.viewId,
+                viewDefinition.title,
+                viewDefinition.listWeight,
+                viewDefinition.editWeight,
+                SashOrientationDef.unMappedOrientation(viewDefinition.sashOrientation),
+                fields.map { mapFieldDefinitionToFieldDef(it) },
+                viewDefinition.config,
+                EntityDef(viewDefinition.entityName),
+                childViews,
+                false
+            )
+        /*
+        } else {
+            return null
+        }
+         */
+    }
+
 
     fun mapFieldDefinitionToFieldDef(fieldDefinition: FieldDefinition): FieldDef =
         FieldDef(
@@ -125,7 +135,8 @@ object ApplicationData {
             fieldDefinition.default,
             fieldDefinition.config,
             fieldDefinition.sequence,
-            null
+            ViewPicker.dataSource.find { it.id == fieldDefinition.referenceViewId},
+            ReferenceDef(EntityDef(""))
      )
 
      fun loadChildViews(parentViewId: Long): List<ViewDef> {

@@ -5,6 +5,10 @@ import com.parinherm.lookups.LookupUtils
 import java.time.LocalDate
 import java.time.LocalDateTime
 import kotlin.properties.Delegates
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+
 
 class ViewDefinition(
     override var id: Long = 0,
@@ -49,6 +53,18 @@ class ViewDefinition(
     override fun toString(): String {
         return "viewDefinition(id=$id, viewId=$viewId, title=$title, listWeight=$listWeight, editWeight=$editWeight, sashOrientation=$sashOrientation, entityName=$entityName)"
     }
+
+
+        val configMap: Map<String, String>
+        get() {
+            if(this.config.isNotEmpty()){
+                val json = Json.parseToJsonElement(this.config)
+                val map = json.jsonObject.toMutableMap().mapValues { it.value.jsonPrimitive.toString() }
+                return map
+            } else {
+                return mapOf()
+            }
+        }
 
     companion object Factory {
         fun make(parentId: Long = 0): ViewDefinition {

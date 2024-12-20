@@ -26,8 +26,9 @@ object FieldDefinitionMapper : IMapper<FieldDefinition> {
         statement[table.viewDefinitionId] = item.viewDefinitionId
         statement[table.filterable] = item.filterable
         statement[table.default] = item.default
-        statement[table.config]= item.config
+        statement[table.config] = item.config
         statement[table.sequence] = item.sequence
+        statement[table.referenceViewId] = item.referenceViewId
     }
 
     override fun getAll(keys: Map<String, Long>): List<FieldDefinition> {
@@ -48,7 +49,8 @@ object FieldDefinitionMapper : IMapper<FieldDefinition> {
                 it[table.filterable],
                 it[table.default] ?: "",
                 it[table.config] ?: "",
-                it[table.sequence] ?: 0
+                it[table.sequence] ?: 0,
+                it[table.referenceViewId] ?: 0
             )
         }
     }

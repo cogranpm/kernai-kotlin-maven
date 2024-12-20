@@ -1,6 +1,8 @@
 package com.parinherm.form.definitions
 
+import com.parinherm.ApplicationData
 import com.parinherm.entity.LookupDetail
+import com.parinherm.entity.ViewDefinition
 import com.parinherm.lookups.LookupUtils
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -20,6 +22,7 @@ data class FieldDef(
     val default: String = "",
     val config: String = "",
     val sequence: Int = 0,
+    val referenceViewDefinition: ViewDefinition?,
     val referenceDef: ReferenceDef? = null
 ) {
 
@@ -190,4 +193,5 @@ data class FieldDef(
                     DataTypeDef.BLOB -> "VARBINARY"
                 }
             }
+
 }

@@ -3,6 +3,7 @@ package com.parinherm.entity
 import com.parinherm.form.widgets.LookupPicker
 import com.parinherm.lookups.LookupUtils
 import kotlin.properties.Delegates
+import com.parinherm.form.widgets.ViewPicker
 
 class FieldDefinition(
     override var id: Long = 0,
@@ -15,7 +16,8 @@ class FieldDefinition(
     filterable: Boolean,
     default: String,
     config: String,
-    sequence: Int
+    sequence: Int,
+    referenceViewId: Long?
     /*,
     if the datatype is reference, which view definition are we referencing
    for example, if Lookup is the view selected, we show the Lookup Picker in the ui
@@ -37,7 +39,7 @@ class FieldDefinition(
     var default: String by Delegates.observable(default, observer)
     var config: String by Delegates.observable(config, observer)
     var sequence: Int by Delegates.observable(sequence, observer)
-    //var referenceViewId: String by Delegates.observable(referenceViewId, observer)
+    var referenceViewId: Long? by Delegates.observable(referenceViewId, observer)
 
 
     override fun getColumnValueByIndex(index: Int): String {
@@ -68,14 +70,12 @@ class FieldDefinition(
             7 -> "$default"
             8 -> "$sequence"
             9 -> "$sequence"
-            /*
             8 -> {
-                if (referenceViewId != "") {
-                    val listItem = ViewPicker.dataSource.find { it.viewId == referenceViewId}
+                if (referenceViewId != null) {
+                    val listItem = ViewPicker.dataSource.find { it.id == referenceViewId}
                     "${listItem?.viewId}"
                 } else ""
             }
-             */
             else -> ""
         }
     }
@@ -98,6 +98,7 @@ class FieldDefinition(
                 false,
                 "",
                 "",
+                0,
                 0
             )
         }

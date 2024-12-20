@@ -36,7 +36,8 @@ object DefaultViewDefinitions {
             filterable,
             default,
             config,
-            sequence
+            sequence,
+            0
         )
     }
 

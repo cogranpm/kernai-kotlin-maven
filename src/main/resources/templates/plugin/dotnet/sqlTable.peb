@@ -7,27 +7,55 @@
 {% endfor %}
 
 {% macro tableDDL(type="text", vDef, parentViewDef) %}
+DROP TABLE IF EXISTS [dbo].[{{vDef.entityDef.name | capitalize}}]
+GO
+
 CREATE TABLE [dbo].[{{vDef.entityDef.name | capitalize}}] (
     [Id] INT IDENTITY (1, 1) NOT NULL,
 {%  if parentViewDef is not null %}
     [{{ parentViewDef.entityDef.name | capitalize }}Id] INT NOT NULL,
 {% endif %}
 {% for field in vDef.sortedFields%}
-    [{{ field.name | capitalize }}] {{ field.dataTypeToSqlDef }} {% if field.required  %}NOT {% endif %} NULL,
+{% if field.referenceViewDefinition is not null and field.dataTypeDef  == "REFERENCE"%}
+     [{{ field.name | capitalize }}] {{ field.referenceViewDefinition.configMap["sqlKeyType"] }} {% if field.required  %}NOT {% endif %} NULL,
+{% else %}
+     [{{ field.name | capitalize }}] {{ field.dataTypeToSqlDef }} {% if field.required  %}NOT {% endif %} NULL,
+{% endif %}
 {% endfor %}
     [CreatedOn]     DATETIME2 (3)  NOT NULL,
     [CreatedBy]     NVARCHAR (50)  NOT NULL,
     [ModifiedOn]    DATETIME2 (3)  NOT NULL,
     [ModifiedBy]    NVARCHAR (50)  NOT NULL
-);
+)
+GO
 
 ALTER TABLE [dbo].[{{vDef.entityDef.name | capitalize}}]
     ADD CONSTRAINT [PK_{{vDef.entityDef.name | capitalize}}] PRIMARY KEY CLUSTERED ([Id] ASC);
+GO
 
 ALTER TABLE [dbo].[{{vDef.entityDef.name | capitalize}}]
     ADD CONSTRAINT [DF_{{vDef.entityDef.name | capitalize}}_CreatedOn] DEFAULT (sysdatetime()) FOR [CreatedOn];
+GO
 
 ALTER TABLE [dbo].[{{vDef.entityDef.name | capitalize}}]
     ADD CONSTRAINT [DF_{{vDef.entityDef.name | capitalize}}_ModifiedOn] DEFAULT (sysdatetime()) FOR [ModifiedOn];
+GO
+
+{%  if parentViewDef is not null %}
+-- FOREIGN KEY FOR PARENT {{ parentViewDef.entityDef.name | capitalize }}
+
+ALTER TABLE [dbo].[{{vDef.entityDef.name | capitalize}}]
+ADD CONSTRAINT FK_{{vDef.entityDef.name | capitalize}}_{{ parentViewDef.entityDef.name | capitalize }} FOREIGN KEY ({{ parentViewDef.entityDef.name | capitalize }}Id)
+    REFERENCES {{ parentViewDef.entityDef.name | capitalize }}(Id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+GO
+{% endif %}
+
+{% for field in vDef.sortedFields%}
+{% if field.referenceViewDefinition is not null and field.dataTypeDef  == "REFERENCE"%}
+-- future foreign key for pickers{{vDef.entityDef.name | capitalize}}_{{ field.referenceViewDefinition.entityName }} FOREIGN KEY ()
+{% endif %}
+{% endfor %}
 
 {% endmacro %}
