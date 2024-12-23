@@ -28,6 +28,7 @@ object FieldDefinitionMapper : IMapper<FieldDefinition> {
         statement[table.default] = item.default
         statement[table.config] = item.config
         statement[table.sequence] = item.sequence
+        statement[table.length] = item.length
         statement[table.referenceViewId] = item.referenceViewId
     }
 
@@ -50,6 +51,7 @@ object FieldDefinitionMapper : IMapper<FieldDefinition> {
                 it[table.default] ?: "",
                 it[table.config] ?: "",
                 it[table.sequence] ?: 0,
+                it[table.length] ?: 0,
                 it[table.referenceViewId] ?: 0
             )
         }

@@ -22,6 +22,7 @@ data class FieldDef(
     val default: String = "",
     val config: String = "",
     val sequence: Int = 0,
+    val length: Int? = 0,
     val referenceViewDefinition: ViewDefinition?,
     val referenceDef: ReferenceDef? = null
 ) {
@@ -31,7 +32,7 @@ data class FieldDef(
      */
     val configMap: Map<String, String>
         get() {
-            if(this.config.isNotEmpty()){
+            if (this.config.isNotEmpty()) {
                 val json = Json.parseToJsonElement(this.config)
                 val map = json.jsonObject.toMutableMap().mapValues { it.value.jsonPrimitive.toString() }
                 return map
@@ -43,7 +44,7 @@ data class FieldDef(
 
     val someValue: Map<String, String>
         get() {
-            if(this.config.isNotEmpty()){
+            if (this.config.isNotEmpty()) {
                 val json = Json.parseToJsonElement(this.config)
                 val map = json.jsonObject.toMutableMap().mapValues { it.value.jsonPrimitive.toString() }
                 return map
@@ -54,7 +55,7 @@ data class FieldDef(
 
     val lookups: List<LookupDetail>
         get() {
-            if(this.lookupKey != null){
+            if (this.lookupKey != null) {
                 return LookupUtils.getLookupByKey(this.lookupKey, false)
             } else {
                 return listOf()
@@ -68,6 +69,7 @@ data class FieldDef(
             DataTypeDef.SOURCE,
             DataTypeDef.TEXT,
             DataTypeDef.FILE -> name
+
             DataTypeDef.FLOAT,
             DataTypeDef.MONEY,
             DataTypeDef.INT,
@@ -76,10 +78,12 @@ data class FieldDef(
             DataTypeDef.DATE,
             DataTypeDef.BOOLEAN,
             DataTypeDef.REFERENCE -> """"${'$'}${name}""""
+
             DataTypeDef.LOOKUP -> """ {
-                val listItem = LookupUtils.getLookupByKey("${lookupKey}", ${if(required) "false" else "true"}).find { it.code == ${name}}
+                val listItem = LookupUtils.getLookupByKey("${lookupKey}", ${if (required) "false" else "true"}).find { it.code == ${name}}
                 "${'$'}{listItem?.label}"
             }"""
+
             DataTypeDef.BLOB -> ""
         }
 
@@ -90,7 +94,8 @@ data class FieldDef(
             DataTypeDef.SOURCE,
             DataTypeDef.TEXT,
             DataTypeDef.FILE -> "\"\""
-            DataTypeDef.LOOKUP -> """LookupUtils.getLookupByKey("${lookupKey}", ${if(required) "false" else "true"})[0].code"""
+
+            DataTypeDef.LOOKUP -> """LookupUtils.getLookupByKey("${lookupKey}", ${if (required) "false" else "true"})[0].code"""
             DataTypeDef.FLOAT -> "0.0"
             DataTypeDef.MONEY -> "BigDecimal(0.0)"
             DataTypeDef.INT -> "0"
@@ -108,6 +113,7 @@ data class FieldDef(
             DataTypeDef.SOURCE,
             DataTypeDef.TEXT,
             DataTypeDef.FILE -> "''"
+
             DataTypeDef.LOOKUP -> "''"
             DataTypeDef.FLOAT -> "0.0"
             DataTypeDef.MONEY -> "0.0"
@@ -125,7 +131,8 @@ data class FieldDef(
             DataTypeDef.SOURCE,
             DataTypeDef.TEXT,
             DataTypeDef.FILE -> "compareString(entity1.${name}, entity2.${name})"
-            DataTypeDef.LOOKUP -> """compareLookups(entity1.${name}, entity2.${name}, LookupUtils.getLookupByKey("${lookupKey}", ${if(required) "false" else "true"}))"""
+
+            DataTypeDef.LOOKUP -> """compareLookups(entity1.${name}, entity2.${name}, LookupUtils.getLookupByKey("${lookupKey}", ${if (required) "false" else "true"}))"""
             DataTypeDef.FLOAT,
             DataTypeDef.MONEY,
             DataTypeDef.INT,
@@ -134,26 +141,27 @@ data class FieldDef(
             DataTypeDef.DATE,
             DataTypeDef.BOOLEAN,
             DataTypeDef.REFERENCE -> "entity1.${name}.compareTo(entity2.${name})"
+
             DataTypeDef.BLOB -> """compareString("a", "b")"""
         }
 
     val maxLength: Int
         get() =
-        when (this.sizeHint) {
-            SizeDef.LARGE -> 2000
-            SizeDef.MEDIUM -> 750
-            SizeDef.SMALL -> 150
-        }
+            when (this.sizeHint) {
+                SizeDef.LARGE -> 2000
+                SizeDef.MEDIUM -> 750
+                SizeDef.SMALL -> 150
+            }
 
     val nameAsField: String
         get() = this.name.replaceFirstChar { it.lowercase() }
 
     val lookupKeyAsField: String?
-    get() = this.lookupKey?.replaceFirstChar { it.lowercase() }
+        get() = this.lookupKey?.replaceFirstChar { it.lowercase() }
 
     val cSharpNullablePostfix: String
         get() =
-             when (this.dataTypeDef) {
+            when (this.dataTypeDef) {
                 DataTypeDef.MEMO, DataTypeDef.SOURCE, DataTypeDef.TEXT, DataTypeDef.LOOKUP, DataTypeDef.FILE -> ""
                 DataTypeDef.FLOAT -> "?"
                 DataTypeDef.MONEY -> "?"
@@ -168,30 +176,35 @@ data class FieldDef(
             }
 
     val dataTypeToSqlDef: String
-        get()
-            {
-            val length: Int = when(this.sizeHint ){
-                SizeDef.MEDIUM -> 500
-                SizeDef.SMALL -> 50
-                SizeDef.LARGE -> 1000
-            }
-               return when (this.dataTypeDef) {
-
-                    DataTypeDef.SOURCE,
-                    DataTypeDef.TEXT,
-                    DataTypeDef.LOOKUP,
-                    DataTypeDef.FILE -> "NVARCHAR($length)"
-                    DataTypeDef.MEMO, -> "NVARCHAR(MAX)"
-                    DataTypeDef.FLOAT -> "FLOAT"
-                    DataTypeDef.MONEY -> "DECIMAL (9, 2)"
-                    DataTypeDef.INT -> "INT"
-                    DataTypeDef.DATETIME -> "DATETIME2 (3)"
-                    DataTypeDef.TIME -> "DATETIME2 (3)"
-                    DataTypeDef.DATE -> "DATE"
-                    DataTypeDef.BOOLEAN -> "BIT"
-                    DataTypeDef.REFERENCE -> "LONG"
-                    DataTypeDef.BLOB -> "VARBINARY"
+        get() {
+            var length: Int = 0;
+            if (this.length != null && this.length > 0) {
+                length = this.length
+            } else {
+                length = when (this.sizeHint) {
+                    SizeDef.MEDIUM -> 500
+                    SizeDef.SMALL -> 50
+                    SizeDef.LARGE -> 1000
                 }
             }
+            return when (this.dataTypeDef) {
+
+                DataTypeDef.SOURCE,
+                DataTypeDef.TEXT,
+                DataTypeDef.LOOKUP,
+                DataTypeDef.FILE -> "NVARCHAR($length)"
+
+                DataTypeDef.MEMO -> "NVARCHAR(MAX)"
+                DataTypeDef.FLOAT -> "FLOAT"
+                DataTypeDef.MONEY -> "DECIMAL (9, 2)"
+                DataTypeDef.INT -> "INT"
+                DataTypeDef.DATETIME -> "DATETIME2 (3)"
+                DataTypeDef.TIME -> "DATETIME2 (3)"
+                DataTypeDef.DATE -> "DATE"
+                DataTypeDef.BOOLEAN -> "BIT"
+                DataTypeDef.REFERENCE -> "LONG"
+                DataTypeDef.BLOB -> "VARBINARY"
+            }
+        }
 
 }

@@ -17,6 +17,7 @@ class FieldDefinition(
     default: String,
     config: String,
     sequence: Int,
+    length: Int?,
     referenceViewId: Long?
     /*,
     if the datatype is reference, which view definition are we referencing
@@ -39,6 +40,7 @@ class FieldDefinition(
     var default: String by Delegates.observable(default, observer)
     var config: String by Delegates.observable(config, observer)
     var sequence: Int by Delegates.observable(sequence, observer)
+    var length: Int? by Delegates.observable(length, observer)
     var referenceViewId: Long? by Delegates.observable(referenceViewId, observer)
 
 
@@ -68,8 +70,8 @@ class FieldDefinition(
 
             6 -> "$filterable"
             7 -> "$default"
-            8 -> "$sequence"
-            9 -> "$sequence"
+            8 -> "$sequence ?: 0"
+            9 -> "$length"
             8 -> {
                 if (referenceViewId != null) {
                     val listItem = ViewPicker.dataSource.find { it.id == referenceViewId}
@@ -98,6 +100,7 @@ class FieldDefinition(
                 false,
                 "",
                 "",
+                0,
                 0,
                 0
             )

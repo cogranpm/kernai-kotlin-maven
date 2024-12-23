@@ -135,6 +135,7 @@ object ApplicationData {
             fieldDefinition.default,
             fieldDefinition.config,
             fieldDefinition.sequence,
+            fieldDefinition.length ?: 0,
             ViewPicker.dataSource.find { it.id == fieldDefinition.referenceViewId},
             ReferenceDef(EntityDef(""))
      )
