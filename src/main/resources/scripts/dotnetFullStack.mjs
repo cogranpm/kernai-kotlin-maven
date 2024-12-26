@@ -106,8 +106,11 @@ writeTemplate(
     ApplicationData.getPebbleEngine().getTemplate(`${basepath}service.peb`));
 pathsMap.push(getXCopyCommand(serviceClassFile, serviceFolder, serviceTargetFolder));
 
-let controllerFolder = viewDef.getEntityDef().getName() + "/Controllers"
-let controllerClassFile = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) +  "sController.cs";
+
+const viewBaseFolderName = ApplicationData.makeCapital(viewDef.getId());
+
+let controllerFolder = viewBaseFolderName + "/Controllers"
+let controllerClassFile = viewBaseFolderName +  "sController.cs";
 let controllerTargetFolder = "Portal.Web/Controllers";
 writeTemplate(
     controllerFolder ,
@@ -116,9 +119,9 @@ writeTemplate(
     ApplicationData.getPebbleEngine().getTemplate(`${basepath}controller.peb`));
 pathsMap.push(getXCopyCommand(controllerClassFile, controllerFolder, controllerTargetFolder));
 
-let viewsFolder = viewDef.getEntityDef().getName() + "/Views/" + viewDef.getEntityDef().getName() + "s";
+let viewsFolder = viewBaseFolderName + "/Views/" + viewDef.getEntityDef().getName() + "s";
 let indexFileName = "Index.cshtml";
-let viewsTargetFolder = `Portal.Web/Views/${viewDef.getEntityDef().getName()}s`;
+let viewsTargetFolder = `Portal.Web/Views/${viewBaseFolderName}s`;
 writeTemplate(
     viewsFolder,
     indexFileName,
@@ -142,6 +145,58 @@ writeTemplate(
     ApplicationData.getPebbleEngine().getTemplate(`${basepath}info.peb`));
 pathsMap.push(getXCopyCommand(infoViewFileName, viewsFolder, viewsTargetFolder));
 
+
+
+let viewModelFolder = viewBaseFolderName + "/ViewModel";
+let listJsonFileName = viewBaseFolderName + "ListJson.cs";
+let viewModelTargetFolder = "Portal.Web/Models";
+writeTemplate(
+    viewModelFolder,
+    listJsonFileName,
+    viewDef,
+    ApplicationData.getPebbleEngine().getTemplate(`${basepath}listJson.peb`));
+pathsMap.push(getXCopyCommand(listJsonFileName, viewModelFolder, viewModelTargetFolder));
+
+let infoClassName = viewBaseFolderName + "Info.cs";
+writeTemplate(
+    viewModelFolder,
+    infoClassName,
+    viewDef,
+   ApplicationData.getPebbleEngine().getTemplate(`${basepath}viewModelInfo.peb`));
+pathsMap.push(getXCopyCommand(infoClassName, viewModelFolder, viewModelTargetFolder));
+
+
+let searchViewModelClassName = viewBaseFolderName + "Search.cs";
+writeTemplate(
+    viewModelFolder,
+    searchViewModelClassName,
+    viewDef,
+   ApplicationData.getPebbleEngine().getTemplate(`${basepath}search.peb`));
+pathsMap.push(getXCopyCommand(searchViewModelClassName, viewModelFolder, viewModelTargetFolder));
+
+/*
+let searchCriteriaClassName = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "SearchCriteria.cs";
+writeTemplate(
+    viewModelFolder,
+    searchCriteriaClassName,
+    viewDef,
+   ApplicationData.getPebbleEngine().getTemplate(`${basepath}searchCriteria.peb`));
+pathsMap.push(getXCopyCommand(searchCriteriaClassName, viewModelFolder, viewModelTargetFolder));
+*/
+
+let wwwrootFolder = viewBaseFolderName + "/wwwroot/" + viewDef.getEntityDef().getName();
+let listtsFileName = "list.ts";
+let wwwrootTargetFolder = `Portal.Web/wwwroot/${viewBaseFolderName}`;
+writeTemplate(
+    wwwrootFolder,
+    listtsFileName,
+    viewDef,
+   ApplicationData.getPebbleEngine().getTemplate(`${basepath}list_ts.peb`));
+pathsMap.push(getXCopyCommand(listtsFileName, wwwrootFolder, wwwrootTargetFolder));
+
+/***************************************
+child views
+ */
 if(viewDef.getChildViews()){
     for (let childViewDef of viewDef.getChildViews()) {
 
@@ -149,7 +204,7 @@ if(viewDef.getChildViews()){
         childViewId = ApplicationData.decapitalize(childViewId);
 
         let childIndexFileName = `${childViewId}Index.cshtml`;
-        let viewsTargetFolder = `Portal.Web/Views/${viewDef.getEntityDef().getName()}s`;
+        let viewsTargetFolder = `Portal.Web/Views/${viewBaseFolderName}s`;
         writeTemplateChild(
             viewsFolder,
             childIndexFileName,
@@ -176,56 +231,17 @@ if(viewDef.getChildViews()){
             ApplicationData.getPebbleEngine().getTemplate(`${basepath}childList.peb`));
         pathsMap.push(getXCopyCommand(childListFileName, viewsFolder, viewsTargetFolder));
 
+        let childScriptFileName = `${childViewId}.ts`;
+        writeTemplateChild(
+            wwwrootFolder,
+            childScriptFileName,
+            viewDef,
+            childViewDef,
+           ApplicationData.getPebbleEngine().getTemplate(`${basepath}childlist_ts.peb`));
+        pathsMap.push(getXCopyCommand(childScriptFileName, wwwrootFolder, wwwrootTargetFolder));
+
     }
 }
-
-
-let viewModelFolder = viewDef.getEntityDef().getName() + "/ViewModel";
-let listJsonFileName = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "ListJson.cs";
-let viewModelTargetFolder = "Portal.Web/Models";
-writeTemplate(
-    viewModelFolder,
-    listJsonFileName,
-    viewDef,
-    ApplicationData.getPebbleEngine().getTemplate(`${basepath}listJson.peb`));
-pathsMap.push(getXCopyCommand(listJsonFileName, viewModelFolder, viewModelTargetFolder));
-
-let infoClassName = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Info.cs";
-writeTemplate(
-    viewModelFolder,
-    infoClassName,
-    viewDef,
-   ApplicationData.getPebbleEngine().getTemplate(`${basepath}viewModelInfo.peb`));
-pathsMap.push(getXCopyCommand(infoClassName, viewModelFolder, viewModelTargetFolder));
-
-
-let searchViewModelClassName = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Search.cs";
-writeTemplate(
-    viewModelFolder,
-    searchViewModelClassName,
-    viewDef,
-   ApplicationData.getPebbleEngine().getTemplate(`${basepath}search.peb`));
-pathsMap.push(getXCopyCommand(searchViewModelClassName, viewModelFolder, viewModelTargetFolder));
-
-/*
-let searchCriteriaClassName = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "SearchCriteria.cs";
-writeTemplate(
-    viewModelFolder,
-    searchCriteriaClassName,
-    viewDef,
-   ApplicationData.getPebbleEngine().getTemplate(`${basepath}searchCriteria.peb`));
-pathsMap.push(getXCopyCommand(searchCriteriaClassName, viewModelFolder, viewModelTargetFolder));
-*/
-
-let wwwrootFolder = viewDef.getEntityDef().getName() + "/wwwroot/" + viewDef.getEntityDef().getName();
-let listtsFileName = "list.ts";
-let wwwrootTargetFolder = `Portal.Web/wwwroot/${viewDef.getEntityDef().getName()}`;
-writeTemplate(
-    wwwrootFolder,
-    listtsFileName,
-    viewDef,
-   ApplicationData.getPebbleEngine().getTemplate(`${basepath}list_ts.peb`));
-pathsMap.push(getXCopyCommand(listtsFileName, wwwrootFolder, wwwrootTargetFolder));
 
 writeBatchCommands(
     viewDef.getEntityDef().getName(),
