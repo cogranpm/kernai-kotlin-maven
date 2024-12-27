@@ -20,6 +20,8 @@ import com.parinherm.form.widgets.ViewPicker
 import com.parinherm.image.ImageUtils
 import com.parinherm.lookups.LookupUtils
 import com.parinherm.model.TemplateHelpers
+import com.parinherm.script.DecapitalizeExtenstion
+import com.parinherm.script.DecapitalizeFilter
 import com.parinherm.security.Cryptographer
 import com.parinherm.settings.Setting
 import com.parinherm.settings.SettingsDialog
@@ -100,31 +102,48 @@ object ApplicationData {
         createUserPath()
     }
 
-    fun mapViewDefinitionToViewDef(viewDefinition: ViewDefinition, fields: List<FieldDefinition>, childViews: List<ViewDef>): ViewDef {
+    fun mapViewDefinitionToViewDef(
+        viewDefinition: ViewDefinition,
+        fields: List<FieldDefinition>,
+        childViews: List<ViewDef>
+    ): ViewDef {
         //if (viewDefinition != null) {
-            return ViewDef(
-                viewDefinition.id,
-                viewDefinition.viewId,
-                viewDefinition.title,
-                viewDefinition.listWeight,
-                viewDefinition.editWeight,
-                SashOrientationDef.unMappedOrientation(viewDefinition.sashOrientation),
-                fields.map { mapFieldDefinitionToFieldDef(it) },
-                viewDefinition.config,
-                EntityDef(viewDefinition.entityName),
-                childViews,
-                false
-            )
-        /*
-        } else {
-            return null
+        val def = ViewDef(
+            viewDefinition.id,
+            viewDefinition.viewId,
+            viewDefinition.title,
+            viewDefinition.listWeight,
+            viewDefinition.editWeight,
+            SashOrientationDef.unMappedOrientation(viewDefinition.sashOrientation),
+            fields.map { mapFieldDefinitionToFieldDef(it) },
+            viewDefinition.config,
+            EntityDef(viewDefinition.entityName),
+            childViews,
+            false,
+            mutableListOf()
+        )
+        for (fieldDefinition in def.fieldDefinitions) {
+            if (fieldDefinition.referenceViewDefinition != null) {
+                if (!def.referenceViewsList.contains(fieldDefinition.referenceViewDefinition)) {
+                    def.referenceViewsList.add(fieldDefinition.referenceViewDefinition);
+                }
+            }
         }
-         */
+        for (viewDefinition in def.childViews) {
+            for (fieldDefinition in viewDefinition.fieldDefinitions) {
+                if (fieldDefinition.referenceViewDefinition != null) {
+                    if (!def.referenceViewsList.contains(fieldDefinition.referenceViewDefinition)) {
+                        def.referenceViewsList.add(fieldDefinition.referenceViewDefinition);
+                    }
+                }
+            }
+        }
+        return def;
     }
 
 
-    fun mapFieldDefinitionToFieldDef(fieldDefinition: FieldDefinition): FieldDef =
-        FieldDef(
+    fun mapFieldDefinitionToFieldDef(fieldDefinition: FieldDefinition): FieldDef {
+        val fieldDef = FieldDef(
             fieldDefinition.name,
             fieldDefinition.title,
             fieldDefinition.required,
@@ -136,11 +155,19 @@ object ApplicationData {
             fieldDefinition.config,
             fieldDefinition.sequence,
             fieldDefinition.length ?: 0,
-            ViewPicker.dataSource.find { it.id == fieldDefinition.referenceViewId},
+            when (fieldDefinition.referenceViewId != null && fieldDefinition.referenceViewId!! > 0){
+                true ->  ViewPicker.dataSource.find { it.id == fieldDefinition.referenceViewId }
+                else -> null
+            },
             ReferenceDef(EntityDef(""))
-     )
+        )
+        if(fieldDefinition.referenceViewId != null && fieldDefinition.referenceViewId!! > 0){
+            println(fieldDefinition.name)
+        }
+        return fieldDef
+    }
 
-     fun loadChildViews(parentViewId: Long): List<ViewDef> {
+    fun loadChildViews(parentViewId: Long): List<ViewDef> {
         val views = ViewDefinitionMapper.getAllByParent(mapOf("viewDefinitionId" to parentViewId))
         return views.map {
             val fields = FieldDefinitionMapper.getAll(mapOf("viewDefinitionId" to it.id))
@@ -269,7 +296,7 @@ object ApplicationData {
             //presume first time in setting up
             val dialog = SettingsDialog(display.activeShell)
             if (dialog.open() != Window.OK) {
-               showErrorDialog("Settings cancelled, the program must now exit", null)
+                showErrorDialog("Settings cancelled, the program must now exit", null)
                 return false
             }
             setting.read()
@@ -292,15 +319,17 @@ object ApplicationData {
         }
     }
 
-    fun initializeTemplateEngines(){
+    fun initializeTemplateEngines() {
         val fileLoader = FileLoader()
-        fileLoader.prefix = "${userPath}${TEMPLATE_PATH}${File.separator}${version}${File.separator}${PLUGIN_TEMPLATE_PATH}${File.separator}${DOTNET_TEMPLATE_PATH}"
+        fileLoader.prefix =
+            "${userPath}${TEMPLATE_PATH}${File.separator}${version}${File.separator}${PLUGIN_TEMPLATE_PATH}${File.separator}${DOTNET_TEMPLATE_PATH}"
         this.pebbleEngine = PebbleEngine.Builder()
             .cacheActive(false)
             .templateCache(null)
             .tagCache(null)
             .autoEscaping(false)
             .loader(fileLoader)
+            .extension(DecapitalizeExtenstion())
             .build()
 
         val loader = ClassPathTemplateLoader()
@@ -313,30 +342,31 @@ object ApplicationData {
 
     fun copyTemplates() {
         copyTemplate("/$TEMPLATE_PATH/", "", "entity.hbs")
-        copyTemplate("/$TEMPLATE_PATH/","","mapper.hbs")
-        copyTemplate("/$TEMPLATE_PATH/","","schema.hbs")
-        copyTemplate("/$TEMPLATE_PATH/","","view.hbs")
-        copyTemplate("/$TEMPLATE_PATH/","","viewModel.hbs")
-        copyTemplate("/$TEMPLATE_PATH/","","bootstrap.hbs")
+        copyTemplate("/$TEMPLATE_PATH/", "", "mapper.hbs")
+        copyTemplate("/$TEMPLATE_PATH/", "", "schema.hbs")
+        copyTemplate("/$TEMPLATE_PATH/", "", "view.hbs")
+        copyTemplate("/$TEMPLATE_PATH/", "", "viewModel.hbs")
+        copyTemplate("/$TEMPLATE_PATH/", "", "bootstrap.hbs")
 
         //plugin templates
         val outputSuffixPlugins = "${PLUGIN_TEMPLATE_PATH}${File.separator}"
         val basePathPlugins = "${TEMPLATE_PATH}/${PLUGIN_TEMPLATE_PATH}"
         copyTemplate(basePathPlugins, outputSuffixPlugins, "entity.hbs")
-        copyTemplate(basePathPlugins, outputSuffixPlugins,"mapper.hbs")
-        copyTemplate(basePathPlugins, outputSuffixPlugins,"schema.hbs")
-        copyTemplate(basePathPlugins, outputSuffixPlugins,"view.hbs")
-        copyTemplate(basePathPlugins, outputSuffixPlugins,"viewModel.hbs")
+        copyTemplate(basePathPlugins, outputSuffixPlugins, "mapper.hbs")
+        copyTemplate(basePathPlugins, outputSuffixPlugins, "schema.hbs")
+        copyTemplate(basePathPlugins, outputSuffixPlugins, "view.hbs")
+        copyTemplate(basePathPlugins, outputSuffixPlugins, "viewModel.hbs")
 
-        val outputSuffixPluginsDotnet = "${PLUGIN_TEMPLATE_PATH}${File.separator}${DOTNET_TEMPLATE_PATH}${File.separator}"
+        val outputSuffixPluginsDotnet =
+            "${PLUGIN_TEMPLATE_PATH}${File.separator}${DOTNET_TEMPLATE_PATH}${File.separator}"
         val basePathPluginsDotnet = "/${TEMPLATE_PATH}/${PLUGIN_TEMPLATE_PATH}/${DOTNET_TEMPLATE_PATH}"
         copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet, "dto.peb")
-        copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet,"endpoint.peb")
-        copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet,"form.peb")
-        copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet,"functions.peb")
-        copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet,"repositoryClass.peb")
-        copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet,"repositoryInterface.peb")
-        copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet,"viewModel.peb")
+        copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet, "endpoint.peb")
+        copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet, "form.peb")
+        copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet, "functions.peb")
+        copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet, "repositoryClass.peb")
+        copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet, "repositoryInterface.peb")
+        copyTemplate(basePathPluginsDotnet, outputSuffixPluginsDotnet, "viewModel.peb")
     }
 
     private fun copyTemplate(basePath: String, outputSuffix: String, fileName: String) {
@@ -350,7 +380,7 @@ object ApplicationData {
                     Files.copy(it, outputFile.toPath())
                 };
             } catch (e: Exception) {
-                ApplicationData.logError(e,"Error copying template $fileName Message: ${e.message}")
+                ApplicationData.logError(e, "Error copying template $fileName Message: ${e.message}")
             }
         }
     }
@@ -371,7 +401,7 @@ object ApplicationData {
     }
 
     fun showErrorDialog(errMessage: String, exception: Exception?, title: String = "Error") {
-       ErrorDialog.openError(
+        ErrorDialog.openError(
             Display.getDefault().activeShell,
             title,
             errMessage,
@@ -419,16 +449,16 @@ object ApplicationData {
         }
     }
 
-/*
-    suspend fun testConnection(setting: Setting) : Pair<Boolean, Exception?> {
-        return try {
-            val db = SchemaBuilder.connect(setting)
-            Pair(true, null)
-        } catch(e: Exception){
-            Pair(false, e)
+    /*
+        suspend fun testConnection(setting: Setting) : Pair<Boolean, Exception?> {
+            return try {
+                val db = SchemaBuilder.connect(setting)
+                Pair(true, null)
+            } catch(e: Exception){
+                Pair(false, e)
+            }
         }
-    }
- */
+     */
 
     private fun checkVersion() {
         var versionList = listOf<AppVersion>()
@@ -463,12 +493,12 @@ object ApplicationData {
         logger.error(moreInfo, e)
     }
 
-    fun close(){
+    fun close() {
         try {
             AudioClient.close()
             SpeechRecognition.close()
             SchemaBuilder.close()
-        } catch(e: Exception){
+        } catch (e: Exception) {
             logger.error("Error in closing down", e)
         }
 

@@ -70,7 +70,7 @@ class FieldDefinition(
 
             6 -> "$filterable"
             7 -> "$default"
-            8 -> "$sequence ?: 0"
+            8 -> "$sequence" ?: "0"
             9 -> "$length"
             8 -> {
                 if (referenceViewId != null) {

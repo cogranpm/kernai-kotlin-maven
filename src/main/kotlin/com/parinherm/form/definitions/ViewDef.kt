@@ -2,6 +2,7 @@ package com.parinherm.form.definitions
 
 
 import com.parinherm.entity.AssociationDefinition
+import com.parinherm.entity.ViewDefinition
 import com.parinherm.entity.schema.AssociationDefinitionMapper
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
@@ -20,7 +21,8 @@ data class ViewDef(
     val config: String,
     val entityDef: EntityDef,
     val childViews: List<ViewDef> = listOf(),
-    val selfReference: Boolean = false // does this allow a list of itself as a child, ie with a nullable parent id
+    val selfReference: Boolean = false, // does this allow a list of itself as a child, ie with a nullable parent id
+    var referenceViewsList: MutableList<ViewDefinition>
 ) {
 
     // record the parents useful for stuff like code generation
@@ -68,5 +70,7 @@ data class ViewDef(
         childViews.forEach{
             it.parentViews.add(this.id)
         }
+
+
     }
 }

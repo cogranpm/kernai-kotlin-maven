@@ -12,38 +12,46 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Portal.Web.Controllers
 {
-
-    [Route("{{viewDef.entityDef.name | capitalize}}s")]
-    public class {{viewDef.entityDef.name | capitalize}}sController : Controller
+    [Route("{{viewDef.id | capitalize}}s")]
+    public class {{viewDef.id | capitalize}}sController : Controller
     {
         public const string Heading = "{{viewDef.title}}s";
         private readonly I{{viewDef.entityDef.name | capitalize}}Service _service;
+		private const string USER_ID = "system";
+		private readonly EntityMapper mapper;
 {% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty %}
         private readonly I{{ field.lookupKey }}Repository _{{ field.lookupKeyAsField }}Repository;
 {% endif %}
 {% endfor %}
+{% for referenceView in viewDef.referenceViewsList %}
+        private readonly I{{ referenceView.viewId }} _{{ referenceView.viewId | decapitalizeFilter  }};
+{% endfor %}
 
-
-        public {{viewDef.entityDef.name | capitalize}}sController(
+        public {{viewDef.id | capitalize}}sController(
         I{{viewDef.entityDef.name | capitalize}}Service service
 {% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty %}
         , I{{ field.lookupKey }}Repository {{ field.lookupKeyAsField }}Repository
 {% endif %}
 {% endfor %}
-
+{% for referenceView in viewDef.referenceViewsList %}
+        , I{{ referenceView.viewId }} {{ referenceView.viewId | decapitalizeFilter  }}
+{% endfor %}
         ){
             this._service = service;
 {% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty %}
             this._{{ field.lookupKeyAsField }}Repository = {{ field.lookupKeyAsField }}Repository;
 {% endif %}{% endfor %}
+{% for referenceView in viewDef.referenceViewsList %}
+            this._{{ referenceView.viewId | decapitalizeFilter  }} = {{ referenceView.viewId | decapitalizeFilter  }};
+{% endfor %}
         }
 
         public ViewResult Index(string search = null)
         {
-            return View("Index", new {{viewDef.entityDef.name | capitalize}}Search()
+            return View("Index", new {{viewDef.id | capitalize}}Search()
             {
                 Title = Heading,
                 Search = search
@@ -52,9 +60,9 @@ namespace Portal.Web.Controllers
 
         [HttpGet]
         [Route("info/{id}")]
-        public ViewResult Info(int? id, [FromQuery]{{viewDef.entityDef.name | capitalize}}Search criteria)
+        public ViewResult Info(int? id, [FromQuery]{{viewDef.id | capitalize}}Search criteria)
         {
-            var entityInfo = new  {{viewDef.entityDef.name | capitalize}}Info();
+            var entityInfo = new  {{viewDef.id | capitalize}}Edit();
             var entity = this._service.GetFirstWhere(x => x.Id == id);
             return View("_info", this.MakeEntityViewModel(criteria, null, entity));
         }
@@ -66,7 +74,7 @@ namespace Portal.Web.Controllers
             int length,
             [Bind(Prefix = "order[0][column]")] int orderCol,
             [Bind(Prefix = "order[0][dir]")] string orderDir,
-            {{viewDef.entityDef.name | capitalize}}Search searchCriteria
+            {{viewDef.id | capitalize}}Search searchCriteria
            )
         {
             var dataSort = new DataSortParameters { Length = length, OrderDir = orderDir, OrderCol = orderCol, Start = start };
@@ -75,7 +83,7 @@ namespace Portal.Web.Controllers
             var firstRecord = records.FirstOrDefault();
             var total = firstRecord?.NumRows ?? 0;
 
-            var result = new {{viewDef.entityDef.name | capitalize}}ListJson
+            var result = new {{viewDef.id | capitalize}}ListJson
             {
                 Draw = draw,
                 RecordsTotal = total,
@@ -87,34 +95,35 @@ namespace Portal.Web.Controllers
 
         [HttpPost]
         [Route("edit")]
-        public ActionResult Edit([Bind()] {{viewDef.entityDef.name | capitalize}}Info entity)
+        public ActionResult Edit([Bind()] {{viewDef.id | capitalize}}Edit entity)
         {
-			var mapper = new EntityMapper();
 			if (ModelState.IsValid)
 			{
 				Response.StatusCode = StatusCodes.Status202Accepted;
 				var domainInstance = mapper.ToDomain(entity);
 				if (entity.Id < 1)
 				{
-					mapper.SetAudit(domainInstance, "system", true);
+					mapper.SetAudit(domainInstance, true);
 					var updatedDomain = this._service.Add(domainInstance);
                     var updatedInfo = this.MakeEntityViewModel(null, null, updatedDomain);
-					return View("_info", updatedInfo);
+					updatedInfo.LocationRedirect = "/{{viewDef.id | capitalize}}s";
+					return Json(updatedInfo);
 				}
 				else
 				{
 					mapper.SetAudit(domainInstance, "system", false);
 					this._service.Update(domainInstance);
-                    return View("_info", this.MakeEntityViewModel(null, entity, null));
+					var viewModel = this.MakeEntityViewModel(null, entity, null);
+					viewModel.LocationRedirect = "/{{viewDef.id | capitalize}}s";
+					return Json(viewModel);
 				}
 			}
 			return View("_info", this.MakeEntityViewModel(null, entity, null));
         }
 
-
         [HttpGet]
         [Route("create")]
-        public ViewResult Create([FromQuery] {{viewDef.entityDef.name | capitalize}}Search criteria)
+        public ViewResult Create([FromQuery] {{viewDef.id | capitalize}}Search criteria)
         {
             return View("_info", this.MakeEntityViewModel(criteria));
         }
@@ -138,32 +147,127 @@ namespace Portal.Web.Controllers
         {
             var entity = this._service.GetFirstWhereIncluding(x => x.Id == id, ["{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize  }}s"]);
 
-            var display = new {{ ownerAssociation.ownerViewDef.entityDef.name }}Display()
-            {
-                Id = entity.Id,
-                Name = entity.Name,
-                Year = entity.Year,
-                StartDate = entity.StartDate,
-                EndDate = entity.EndDate,
-                Amount = entity.Amount
-            };
-
-            display.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s = entity.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s.Select(x =>
-                    new Portal.Web.Models.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}()
-                    {
-                        Id = x.Id,
-                        ProductId = x.ProductId,
-                        UnitsPerQty = x.UnitsPerQty.Value,
-                        {{ ownerAssociation.ownerViewDef.entityDef.name }}Id = x.Id,
-                        {{ ownerAssociation.ownerViewDef.entityDef.name }} = display
-                    }).ToList();
-            return View("{{ ownerAssociation.ownedViewDef.id  }}Index", display);
+			var entityForDisplay = this.mapper.ToViewModel(entity);
+			entityForDisplay.{{ ownerAssociation.ownedViewDef.id | capitalize }}s = entity.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s.Select(x =>
+			{
+				var childForDisplay = this.mapper.ToViewModel(x);
+				childForDisplay.{{viewDef.id | capitalize}} = entityForDisplay;
+				return childForDisplay;
+			}).ToList();
+			return View("{{ ownerAssociation.ownedViewDef.id | capitalize }}Index", entityForDisplay);
         }
+
+
+
+		[HttpGet]
+		[Route("{id}/FertilizerRebateDefinitionProducts/create")]
+		public PartialViewResult FertilizerRebateDefinitionProductCreate(int id)
+		{
+			var entity = this._service.GetFirstWhereIncluding(x => x.Id == id, ["FertilizerRebateDefinitionProducts"]);
+			var productList = this._productLookup.GetAll("", 1);
+			if (entity != null)
+			{
+				var entityForEdit = mapper.ToViewModel(entity);
+				var childForDisplay = new FertilizerRebateDefinitionProductEdit()
+				{
+					FertilizerRebateDefinitionId = entity.Id,
+					FertilizerRebateDefinition = entityForEdit
+				};
+				ModelState.Clear();
+				return PartialView("_fertilizerRebateDefinitionProductInfo", childForDisplay);
+			}
+			else
+			{
+				return PartialView("_fertilizerRebateDefinitionProductInfo", null);
+			}
+		}
+
+
+		[HttpGet]
+		[Route("{id}/FertilizerRebateDefinitionProducts/edit/{fertilizerRebateDefinitionProductId}")]
+		public PartialViewResult FertilizerRebateDefinitionProductEdit(int id, int fertilizerRebateDefinitionProductId)
+		{
+			var entity = this._service.GetFirstWhereIncluding(x => x.Id == id, ["FertilizerRebateDefinitionProducts"]);
+			var childEntity = entity.FertilizerRebateDefinitionProducts.FirstOrDefault(x => x.Id == fertilizerRebateDefinitionProductId);
+			if (entity != null)
+			{
+				var entityForEdit = mapper.ToViewModel(entity);
+				var childForEdit = mapper.ToViewModel(childEntity);
+				childForEdit.FertilizerRebateDefinition = entityForEdit;
+				ModelState.Clear();
+				return PartialView("_fertilizerRebateDefinitionProductInfo", childForEdit);
+			}
+			else
+			{
+				return PartialView("_fertilizerRebateDefinitionProductInfo", null);
+			}
+		}
+
+		[IgnoreAntiforgeryToken]
+		[HttpPost]
+		[Route("FertilizerRebateDefinitionProducts/edit")]
+		public ActionResult FertilizerRebateDefinitionProductPost([FromBody] FertilizerRebateDefinitionProductEdit entity)
+		{
+			try
+			{
+				if (ModelState.IsValid)
+				{
+					var parent = this._service.GetFirstWhereIncluding(x => x.Id == entity.FertilizerRebateDefinitionId, ["FertilizerRebateDefinitionProducts"]);
+					if (parent == null)
+					{
+						Response.StatusCode = StatusCodes.Status404NotFound;
+						ModelState.AddModelError("Entity Error", $"Fertilizer Rebate Definition Product has no parent with Id {entity.FertilizerRebateDefinitionId}");
+						return PartialView("_fertilizerRebateDefinitionProductInfo", entity);
+					}
+					//find and paint state
+					var existing = parent.FertilizerRebateDefinitionProducts
+						.FirstOrDefault(x => x.Id == entity.Id);
+					if (existing == null)
+					{
+						var newEntity = mapper.ToDomain(entity);
+						newEntity.FertilizerRebateDefinition = parent;
+						mapper.SetAudit(newEntity, true);
+						parent.FertilizerRebateDefinitionProducts.Add(newEntity);
+					}
+					else
+					{
+						existing.UnitsPerQty = entity.UnitsPerQty;
+						existing.ProductId = entity.ProductId;
+						mapper.SetAudit(existing, false);
+
+					}
+					mapper.SetAudit(parent, false);
+					this._service.Update(parent);
+
+					Response.StatusCode = StatusCodes.Status202Accepted;
+					Response.Headers.Add("Location", $"/FertilizerRebateDefinitions/{entity.FertilizerRebateDefinitionId}/FertilizerRebateDefinitionProducts");
+					entity.LocationRedirect = $"/FertilizerRebateDefinitions/{entity.FertilizerRebateDefinitionId}/FertilizerRebateDefinitionProducts";
+					return Json(entity); // PartialView("_fertilizerRebateDefinitionProductInfo", entity);
+				}
+
+				return PartialView("_fertilizerRebateDefinitionProductInfo", entity);
+
+			}
+			catch (Exception ex)
+			{
+				var message = ex.Message;
+				ModelState.AddModelError("", message);
+				return PartialView("_fertilizerRebateDefinitionProductInfo", entity);
+
+			}
+		}
+
+		[IgnoreAntiforgeryToken]
+		[HttpPost]
+		[Route("{id}/FertilizerRebateDefinitionProducts/delete/{fertilizerRebateDefinitionProductId}")]
+		public JsonResult FertilizerRebateDefinitionProductDelete(int id, int fertilizerRebateDefinitionProductId)
+		{
+			this._service.DeleteFertilizerRebateDefintionProduct(id, fertilizerRebateDefinitionProductId);
+			return Json(new { LocationRedirect = $"/FertilizerRebateDefinitions/{id}/FertilizerRebateDefinitionProducts" });
+		}
+
 {% endif %}
 {% endfor %}
-
-
-
 
 {% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
