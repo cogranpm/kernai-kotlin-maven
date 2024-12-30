@@ -31,7 +31,7 @@ const configureModal = async () => {
             dropdownParent: $('#addModal'),
             ajax: {
                 type: 'GET',
-                url: `/ProductEarningTypeLookups/products`,
+                url: `/{{ field.referenceViewDefinition.viewId | capitalize }}s`,
                 dataType: 'json'
             },
         });
