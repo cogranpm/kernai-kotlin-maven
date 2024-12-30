@@ -194,7 +194,7 @@ namespace Portal.Web.Controllers
 			{
 				var entityForEdit = mapper.ToViewModel(entity);
 				var childForEdit = mapper.ToViewModel(childEntity);
-				childForEdit.FertilizerRebateDefinition = entityForEdit;
+				childForEdit.{{ viewDef.entityDef.name | capitalize }} = entityForEdit;
 				ModelState.Clear();
 				return PartialView("_{{ childEntityViewId | decapitalizeFilter }}Info", childForEdit);
 			}
@@ -221,7 +221,7 @@ namespace Portal.Web.Controllers
 						return PartialView("_{{ childEntityViewId | capitalize}}Info", entity);
 					}
 					//find and paint state
-					var existing = parent.FertilizerRebateDefinitionProducts.FirstOrDefault(x => x.Id == entity.Id);
+					var existing = parent.{{ childEntityDefName | capitalize }}s.FirstOrDefault(x => x.Id == entity.Id);
 					if (existing == null)
 					{
 						var newEntity = mapper.ToDomain(entity);

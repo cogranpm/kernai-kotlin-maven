@@ -1,11 +1,11 @@
 @using Portal.Core
-@model Portal.Web.Models.{{viewDef.entityDef.name | capitalize}}Edit
+@model Portal.Web.Models.{{viewDef.id | capitalize}}Edit
 @{
     Layout = "_EmptyLayout";
 }
 
 <div>
-	@using (Html.BeginForm("Edit", "{{viewDef.entityDef.name | capitalize}}s", FormMethod.Post, new { id = "editForm" }))
+	@using (Html.BeginForm("Edit", "{{viewDef.id | capitalize}}s", FormMethod.Post, new { id = "editForm" }))
 	{
 		@Html.AntiForgeryToken()
 		@Html.ValidationSummary(true)

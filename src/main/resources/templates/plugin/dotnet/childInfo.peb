@@ -1,1 +1,77 @@
-<h1>Child Info Here</h1>
+@using Portal.Core
+@model Portal.Web.Models.{{childViewDef.id | capitalize}}Edit
+@{
+    Layout = "_EmptyLayout";
+}
+
+<div>
+    <form id="editForm">
+		@Html.ValidationSummary(true)
+		@Html.HiddenFor(model => model.Id)
+		@Html.HiddenFor(model => model.{{ parentViewDef.entityDef.name }}Id)
+	    @Html.HiddenFor(model => model.TimeStamp)
+{% for field in childViewDef.sortedFields%}
+
+		<div class="row mg-b-5">
+		    <div class="col-sm-3">
+			<label for="{{ field.nameAsField }}" class="col-form-label">{{ field.title }}:</label>
+			</div>
+			<div class="col-sm-9">
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
+                    @Html.DropDownListFor(model => model.{{ field.name | capitalize }},
+                        new List<SelectListItem>(){new SelectListItem(){Text=@Model.{{ field.name | capitalize }}String, Value = @Model.{{ field.name | capitalize }}, Selected=true}},
+                        "-- Select {{ field.title }}--",
+                        new {
+                        data_{{ field.nameAsField }}=$"{@Model.{{ field.name | capitalize }}}",
+                        style="width: 100%",
+                        name = "{{ field.nameAsField }}",
+                        id="{{ field.nameAsField }}",
+                        @class = "form-select, select2" })
+{% elseif field.lookupKey is not empty %}
+                @Html.DropDownListFor(model => model.{{ field.name | capitalize }}, Model.{{ field.lookupKey }}s, "-- Select {{ field.title }}--", new { name = "{{ field.nameAsField }}", @class = "form-select", placeholder = "Enter {{ field.title }}" })
+ {% elseif field.referenceViewDefinition is not empty %}
+				@Html.DropDownListFor(
+					model => model.{{ field.name | capitalize }},
+					new List<SelectListItem>() { new SelectListItem()
+						{ Text = @Model.{{ field.name | capitalize }}String, Value = @Model.{{ field.name | capitalize }}, Selected = true }
+					},
+					"-- Select {{ field.title }} --",
+					new
+					{
+						data_productid = $"{@Model.{{ field.name | capitalize }} }",
+						style = "width: 100%",
+						name = "{{ field.name | decapitalizeFilter }}",
+						id = "{{ field.name | decapitalizeFilter }}",
+						@required="required",
+						@class = "form-select, select2"
+					})
+{% else %}
+				@Html.EditorFor(model => model.{{ field.name | capitalize }}, new
+				{
+				    htmlAttributes = new
+				    {
+				        name = "{{ field.nameAsField }}",
+				        @class = "form-control",
+				        placeholder = "Enter {{ field.title}}"
+						@data_val="true",
+{% if field.required == true %}
+                        , @required = "required"
+{% endif %}
+{% if field.dataTypeDef == "TEXT" and field.length is not empty %}
+                        , maxlength = "{{ field.length }}"
+{% endif %}
+{% if field.configMap.get("minRange") is not empty and field.configMap.get("maxRange") is not empty %}
+                        , min = {{ field.configMap.get("minRange") }}
+
+                        , max = {{ field.configMap.get("maxRange") }}
+{% endif %}
+
+				    }
+				})
+{% endif %}
+				@Html.ValidationMessageFor(model => model.{{ field.name | capitalize }})
+			</div>
+		</div>
+    {% endfor %}
+    </form>
+</div>

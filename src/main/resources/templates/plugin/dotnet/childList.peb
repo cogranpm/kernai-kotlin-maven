@@ -41,12 +41,6 @@
 	</div>
 </div>
 
-<script>
-
-
-
-</script>
-
 <script type="module">
     import { initApplication } from "./{{ parentViewDef.id | capitalize }}/{{ childViewDef.id | decapitalizeFilter }}.js";
 	const model = {
