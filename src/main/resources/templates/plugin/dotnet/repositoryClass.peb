@@ -26,19 +26,24 @@ namespace Portal.Repository
         {{viewDef.entityDef.name | capitalize}} Add({{viewDef.entityDef.name | capitalize}} entity);
 		void Update({{viewDef.entityDef.name | capitalize}} entity);
 		void Delete(int id);
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+        void Delete{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}(int parentId, int childId);
+{% endif %}
+{% endfor %}
     }
 
     public class {{viewDef.entityDef.name | capitalize}}Repository : BaseRepository<{{viewDef.entityDef.name | capitalize}}, int>, I{{viewDef.entityDef.name | capitalize}}Repository
     {
         protected sealed override DbSet<{{viewDef.entityDef.name | capitalize}}> Entities { get; set; }
 		private {{viewDef.entityDef.name | capitalize}}ServiceBase _serviceBase;
+        private ConklinCentralDataEntities _context;
 
 {% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty %}
     	private I{{ field.lookupKey | capitalize}}Repository _{{ field.lookupKeyAsField }}Repository;
 {% endif %}
 {% endfor %}
-
 
         public {{viewDef.entityDef.name | capitalize}}Repository(
             ConklinCentralDataEntities context
@@ -56,12 +61,18 @@ namespace Portal.Repository
     	    this._{{ field.lookupKeyAsField }}Repository = {{ field.lookupKeyAsField }}Repository;
 {% endif %}
 {% endfor %}
+            this._context = context;
         }
 
         public IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search)
         {
-
-            var results = this.Entities;
+            var results = this.Entities.AsNoTracking()
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+            .Include(x => x.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s)
+{% endif %}
+{% endfor %}
+            ;
             var viewModel = results
             .Select(x => new {{viewDef.entityDef.name | capitalize}}ForList ()
             {
@@ -70,9 +81,13 @@ namespace Portal.Repository
 {% endfor %}
                 Id = x.Id,
                 NumRows = Count()
+ {% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+            , {{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}sCount = x.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s.Count()
+{% endif %}
+{% endfor %}
             }).ToList();
 
-            var viewModelList = viewModel.ToList();
 {% if hasLookups == 1 %}
             viewModelList.ForEach(i =>
             {
@@ -84,11 +99,11 @@ namespace Portal.Repository
             });
 {% endif %}
 
-            var filteredViewModel = viewModelList;
+            var filteredViewModel = viewModel;
 {%  if hasSearchFields == 1 %}
             if (!string.IsNullOrEmpty(search))
             {
-                filteredViewModel = viewModelList.Where(
+                filteredViewModel = viewModel.Where(
                     x =>
 {% for field in viewDef.searchFields %}
 {% if field.lookupKey is not empty %}
@@ -119,6 +134,7 @@ namespace Portal.Repository
 				//viewmodel does not have existing audit info
 				entity.CreatedBy = existing.CreatedBy;
 				entity.CreatedOn = existing.CreatedOn;
+                this._context.Entry(entity).State = EntityState.Modified;
 				this._serviceBase.Update(entity);
 				this._serviceBase.SaveChanges();
 			}
@@ -128,6 +144,29 @@ namespace Portal.Repository
 			this._serviceBase.Delete(id);
 			this._serviceBase.SaveChanges();
 		}
+
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+        public void Delete{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}(int parentId, int childId)
+        {
+			var existing = this.Entities
+                .Include(x => x.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s)
+                .FirstOrDefault(x => x.Id == parentId);
+            if (existing != null)
+            {
+                var firstChild = existing.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s.FirstOrDefault(x => x.Id == childId);
+                if (firstChild != null)
+                {
+                    firstChild.{{viewDef.entityDef.name | capitalize}} = null;
+                    existing.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s.Remove(firstChild);
+                    this._context.Entry(existing).State = EntityState.Modified;
+                    existing.ModifiedOn  = DateTime.Now;
+                    this._serviceBase.SaveChanges();
+                }
+            }
+        }
+{% endif %}
+{% endfor %}
 
 		class {{viewDef.entityDef.name | capitalize}}ServiceBase : ServiceBase<{{viewDef.entityDef.name | capitalize}}, ConklinCentralDataEntities>
 		{

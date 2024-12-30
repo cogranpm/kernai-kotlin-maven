@@ -6,7 +6,11 @@ export interface {{viewDef.entityDef.name | capitalize}}ForList {
     id: number;
 {% for field in viewDef.fieldDefinitions %}
     {{ field.nameAsField}}: {{ field.dataTypeDef.dataTypeToTypeScriptDef }};
-{% endfor %}}
+{% endfor %}
+{% for childViewDef in viewDef.childViews %}
+    {{ childViewDef.id | decapitalizeFilter }}sCount: number;
+{% endfor %}
+}
 
 export interface SearchCriteria {
     search: string;
@@ -40,31 +44,33 @@ $(function () {
         paging: false,
         order: [[1, 'asc']],
         ajax: {
-            url: '/{{viewDef.entityDef.name | capitalize}}s/list',
+            url: '/{{viewDef.id | capitalize}}s/list',
             data: function(d) {
                 return $.extend({}, d, model.criteria);
             }
         },
         columns: [
+{% for field in viewDef.showInListSortedFields%}
+{% if loop.first %}
             {
-                data: function (data: {{viewDef.entityDef.name | capitalize}}ForList) {
-                    return `<button class="btn btn-primary btn-sm editLink" data-id="${data.id}" id="btnCreate" data-bs-toggle="modal" data-bs-target="#addModal">${data.id}</button>`;
+                data: function (data: {{viewDef.id | capitalize}}ForList) {
+                    return `<a href="javascript:; "class="editLink" data-id="${data.id}" id="editLink" data-bs-toggle="modal" data-bs-target="#addModal">${data.{{ field.name | decapitalizeFilter }} }</button>`;
                 }
             },
-{% for field in viewDef.sortedFields%}
-{% set showInList = field.configMap.getOrDefault("showInList", true) %}
-{% if showInList == true and (field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME") %}
+{% else %}
+{% if (field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME") %}
             { data: '{{ field.nameAsField}}String' },
-{% elseif showInList == true and field.lookupKey is not empty %}
+{% elseif field.lookupKey is not empty %}
             { data: '{{ field.nameAsField}}String' },
-{% elseif showInList == true %}
+{% else %}
             { data: '{{ field.nameAsField}}' },
+{% endif %}
 {% endif %}
 {% endfor %}
 {% for childViewDef in viewDef.childViews %}
             {
-                data: function (data: {{viewDef.entityDef.name | capitalize}}ForList) {
-                    return `<a href="/{{viewDef.entityDef.name | capitalize}}s/{{ childViewDef.id }}/${data.id}">{{ childViewDef.title }}</a>`;
+                data: function (data: {{viewDef.id | capitalize}}ForList) {
+                    return `<a href="/{{viewDef.id | capitalize}}s/${data.id}/{{ childViewDef.id | decapitalizeFilter }}s">${data.{{ childViewDef.id | decapitalizeFilter }}sCount}</a>`;
                 }
             },
 {% endfor %}
@@ -177,6 +183,8 @@ function getInfoElement() {
 
 let isLoading = false;
 
+
+{# THIS IS A COMMENT
 const modalConfig = (loading: boolean = false) => {
 {% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
@@ -199,8 +207,13 @@ const modalConfig = (loading: boolean = false) => {
 {% endif %}
 {% endfor %}
 }
-
+#}
 export function save(){
+    const validator = $('#editForm').validate();
+    if (!validator.form()) {
+        return;
+    }
+
     const el: HTMLFormElement = document.getElementById('editForm') as HTMLFormElement;
     if (el) {
        let viewModel = {};
@@ -221,7 +234,8 @@ export function save(){
                 }
                 else {
                     if (xhr.status == 202) {
-                        window.location.href = "/{{viewDef.entityDef.name | capitalize}}s";
+                        var jsonData = JSON.parse(response);
+                        window.location.href = jsonData.locationRedirect;
                     }
                 }
             }
@@ -246,7 +260,6 @@ export function load(id: string) {
                 }
                 else {
                     let modal = $('#addModal') as any;
-                    modalConfig(true);
                     modal.modal({ focus: true });
                     isLoading = false;
                 }
@@ -269,7 +282,6 @@ export function create() {
                 }
                 else {
                     let modal = $('#addModal') as any;
-                    modalConfig(false);
                     modal.modal({ focus: true });
                     isLoading = false;
                 }

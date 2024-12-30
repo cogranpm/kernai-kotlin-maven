@@ -61,9 +61,9 @@
                         , maxlength = "{{ field.length }}"
 {% endif %}
 {% if field.configMap.get("minRange") is not empty and field.configMap.get("maxRange") is not empty %}
-                        , min = {{ field.configMap.get("minRange") }}
+                        , min = "{{ field.configMap.get("minRange") }}"
 
-                        , max = {{ field.configMap.get("maxRange") }}
+                        , max = "{{ field.configMap.get("maxRange") }}"
 {% endif %}
 
 				    }

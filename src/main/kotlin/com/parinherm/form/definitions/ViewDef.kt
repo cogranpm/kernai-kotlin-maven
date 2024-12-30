@@ -66,6 +66,12 @@ data class ViewDef(
             return this.fieldDefinitions.sortedBy { it.sequence }
         }
 
+     val showInListSortedFields : List<FieldDef>
+        get(){
+            return this.fieldDefinitions.filter { it.configMap.getOrDefault("showInList", "true") == "true" }.sortedBy { it.sequence }
+        }
+
+
     init {
         childViews.forEach{
             it.parentViews.add(this.id)

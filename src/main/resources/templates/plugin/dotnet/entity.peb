@@ -36,7 +36,11 @@ namespace Portal.Repository.Model.ConklinCentral {
         public ICollection<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}> {{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s { get; } = new List<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}>();
 {% endif %}
 {% endfor %}
+{%  if parentViewDef is not null %}
+        [NotMapped]
+{% else %}
         [Timestamp]
+{% endif %}
         public Byte[] TimeStamp { get; set; }
     }
 

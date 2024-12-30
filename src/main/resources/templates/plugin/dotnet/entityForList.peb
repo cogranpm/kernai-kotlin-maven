@@ -17,4 +17,7 @@ public class {{viewDef.entityDef.name | capitalize}}ForList
         public string {{ field.name | capitalize}}String { get; set; }
 {% endif %}
 {% endfor %}
+{% for childViewDef in viewDef.childViews %}
+	public int {{ childViewDef.id | capitalize }}sCount { get; set; } = 0;
+{% endfor %}
 }
