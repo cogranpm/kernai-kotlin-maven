@@ -47,6 +47,7 @@ namespace Portal.Web.Controllers
 {% for referenceView in viewDef.referenceViewsList %}
             this._{{ referenceView.viewId | decapitalizeFilter  }} = {{ referenceView.viewId | decapitalizeFilter  }};
 {% endfor %}
+            this.mapper = new EntityMapper({% for referenceView in viewDef.referenceViewsList %}{{ referenceView.viewId | decapitalizeFilter  }}{% if loop.last %}{% else %},{% endif %}{% endfor %});
         }
 
         public ViewResult Index(string search = null)
@@ -111,7 +112,7 @@ namespace Portal.Web.Controllers
 				}
 				else
 				{
-					mapper.SetAudit(domainInstance, "system", false);
+					mapper.SetAudit(domainInstance, false);
 					this._service.Update(domainInstance);
 					var viewModel = this.MakeEntityViewModel(null, entity, null);
 					viewModel.LocationRedirect = "/{{viewDef.id | capitalize}}s";
@@ -141,129 +142,122 @@ namespace Portal.Web.Controllers
 {# routes for child views #}
 {% for ownerAssociation in viewDef.ownerAssociations %}
 {% if ownerAssociation.owningType == "one" %}
+{%  set childEntityView = ownerAssociation.ownedViewDef %}
+{%  set childEntityViewId = ownerAssociation.ownedViewDef.id %}
+{%  set childEntityViewTitle = ownerAssociation.ownedViewDef.title %}
+{%  set childEntityDef = ownerAssociation.ownedViewDef.entityDef %}
+{%  set childEntityDefName = ownerAssociation.ownedViewDef.entityDef.name %}
         [HttpGet]
-        [Route("{{ ownerAssociation.ownedViewDef.id }}/{id}")]
-        public ViewResult {{ ownerAssociation.ownedViewDef.id | capitalize }}List(int id)
+        [Route("{id}/{{ childEntityViewId | decapitalizeFilter }}s")]
+        public ViewResult {{ childEntityViewId | capitalize }}List(int id)
         {
-            var entity = this._service.GetFirstWhereIncluding(x => x.Id == id, ["{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize  }}s"]);
-
+            var entity = this._service.GetFirstWhereIncluding(x => x.Id == id, ["{{ childEntityDefName | capitalize  }}s"]);
 			var entityForDisplay = this.mapper.ToViewModel(entity);
-			entityForDisplay.{{ ownerAssociation.ownedViewDef.id | capitalize }}s = entity.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s.Select(x =>
+			entityForDisplay.{{ childEntityViewId | capitalize }}s = entity.{{ childEntityDefName | capitalize }}s.Select(x =>
 			{
 				var childForDisplay = this.mapper.ToViewModel(x);
 				childForDisplay.{{viewDef.id | capitalize}} = entityForDisplay;
 				return childForDisplay;
 			}).ToList();
-			return View("{{ ownerAssociation.ownedViewDef.id | capitalize }}Index", entityForDisplay);
+			return View("{{ childEntityViewId | capitalize }}Index", entityForDisplay);
         }
 
-
-
 		[HttpGet]
-		[Route("{id}/FertilizerRebateDefinitionProducts/create")]
-		public PartialViewResult FertilizerRebateDefinitionProductCreate(int id)
+		[Route("{id}/{{ childEntityViewId | decapitalizeFilter }}s/create")]
+		public PartialViewResult {{ childEntityViewId | capitalize}}Create(int id)
 		{
-			var entity = this._service.GetFirstWhereIncluding(x => x.Id == id, ["FertilizerRebateDefinitionProducts"]);
-			var productList = this._productLookup.GetAll("", 1);
+			var entity = this._service.GetFirstWhereIncluding(x => x.Id == id, ["{{ childEntityDefName | capitalize  }}s"];
 			if (entity != null)
 			{
 				var entityForEdit = mapper.ToViewModel(entity);
-				var childForDisplay = new FertilizerRebateDefinitionProductEdit()
+				var childForDisplay = new {{ childEntityViewId | capitalize}}Edit()
 				{
-					FertilizerRebateDefinitionId = entity.Id,
-					FertilizerRebateDefinition = entityForEdit
+					{{ viewDef.entityDef.name | capitalize }}Id = entity.Id,
+					{{ viewDef.entityDef.name | capitalize }} = entityForEdit
 				};
 				ModelState.Clear();
-				return PartialView("_fertilizerRebateDefinitionProductInfo", childForDisplay);
+				return PartialView("_{{ childEntityViewId | decapitalizeFilter }}Info", childForDisplay);
 			}
 			else
 			{
-				return PartialView("_fertilizerRebateDefinitionProductInfo", null);
+				return PartialView("_{{ childEntityViewId | decapitalizeFilter }}Info", null);
 			}
 		}
 
-
 		[HttpGet]
-		[Route("{id}/FertilizerRebateDefinitionProducts/edit/{fertilizerRebateDefinitionProductId}")]
-		public PartialViewResult FertilizerRebateDefinitionProductEdit(int id, int fertilizerRebateDefinitionProductId)
+		[Route("{id}/{{ childEntityViewId | decapitalizeFilter }}s/edit/{ {{ childEntityDefName | decapitalizeFilter  }}Id}")]
+		public PartialViewResult {{ childEntityViewId | capitalize}}Edit(int id, int {{ childEntityDefName | decapitalizeFilter  }}Id)
 		{
-			var entity = this._service.GetFirstWhereIncluding(x => x.Id == id, ["FertilizerRebateDefinitionProducts"]);
-			var childEntity = entity.FertilizerRebateDefinitionProducts.FirstOrDefault(x => x.Id == fertilizerRebateDefinitionProductId);
+			var entity = this._service.GetFirstWhereIncluding(x => x.Id == id, ["{{ childEntityDefName | capitalize  }}s"]);
+			var childEntity = entity.{{ childEntityDefName | capitalize  }}s.FirstOrDefault(x => x.Id == {{ childEntityDefName | decapitalizeFilter  }}Id);
 			if (entity != null)
 			{
 				var entityForEdit = mapper.ToViewModel(entity);
 				var childForEdit = mapper.ToViewModel(childEntity);
 				childForEdit.FertilizerRebateDefinition = entityForEdit;
 				ModelState.Clear();
-				return PartialView("_fertilizerRebateDefinitionProductInfo", childForEdit);
+				return PartialView("_{{ childEntityViewId | decapitalizeFilter }}Info", childForEdit);
 			}
 			else
 			{
-				return PartialView("_fertilizerRebateDefinitionProductInfo", null);
+				return PartialView("_{{ childEntityViewId | decapitalizeFilter }}Info", null);
 			}
 		}
 
 		[IgnoreAntiforgeryToken]
 		[HttpPost]
-		[Route("FertilizerRebateDefinitionProducts/edit")]
-		public ActionResult FertilizerRebateDefinitionProductPost([FromBody] FertilizerRebateDefinitionProductEdit entity)
+		[Route("{{ childEntityViewId | decapitalizeFilter }}s/edit")]
+		public ActionResult {{ childEntityViewId | capitalize}}Post([FromBody] {{ childEntityViewId | capitalize}}Edit entity)
 		{
 			try
 			{
 				if (ModelState.IsValid)
 				{
-					var parent = this._service.GetFirstWhereIncluding(x => x.Id == entity.FertilizerRebateDefinitionId, ["FertilizerRebateDefinitionProducts"]);
+					var parent = this._service.GetFirstWhereIncluding(x => x.Id == entity.{{ viewDef.entityDef.name | capitalize }}Id, ["{{ childEntityDefName | capitalize }}s"]);
 					if (parent == null)
 					{
 						Response.StatusCode = StatusCodes.Status404NotFound;
-						ModelState.AddModelError("Entity Error", $"Fertilizer Rebate Definition Product has no parent with Id {entity.FertilizerRebateDefinitionId}");
-						return PartialView("_fertilizerRebateDefinitionProductInfo", entity);
+						ModelState.AddModelError("Entity Error", $"{{ childEntityViewTitle }} has no parent with Id {entity.{{ viewDef.entityDef.name | capitalize }}Id}");
+						return PartialView("_{{ childEntityViewId | capitalize}}Info", entity);
 					}
 					//find and paint state
-					var existing = parent.FertilizerRebateDefinitionProducts
-						.FirstOrDefault(x => x.Id == entity.Id);
+					var existing = parent.FertilizerRebateDefinitionProducts.FirstOrDefault(x => x.Id == entity.Id);
 					if (existing == null)
 					{
 						var newEntity = mapper.ToDomain(entity);
-						newEntity.FertilizerRebateDefinition = parent;
+						newEntity.{{ viewDef.entityDef.name | capitalize }} = parent;
 						mapper.SetAudit(newEntity, true);
-						parent.FertilizerRebateDefinitionProducts.Add(newEntity);
+						parent.{{ childEntityViewId | capitalize}}s.Add(newEntity);
 					}
 					else
 					{
-						existing.UnitsPerQty = entity.UnitsPerQty;
-						existing.ProductId = entity.ProductId;
+						existing = mapper.ToDomain(entity, existing);
 						mapper.SetAudit(existing, false);
-
 					}
 					mapper.SetAudit(parent, false);
 					this._service.Update(parent);
 
 					Response.StatusCode = StatusCodes.Status202Accepted;
-					Response.Headers.Add("Location", $"/FertilizerRebateDefinitions/{entity.FertilizerRebateDefinitionId}/FertilizerRebateDefinitionProducts");
-					entity.LocationRedirect = $"/FertilizerRebateDefinitions/{entity.FertilizerRebateDefinitionId}/FertilizerRebateDefinitionProducts";
-					return Json(entity); // PartialView("_fertilizerRebateDefinitionProductInfo", entity);
+					entity.LocationRedirect = $"/{{ viewDef.id | capitalize }}s/{entity.{{ viewDef.entityDef.name | capitalize }}Id}/{{ childEntityViewId | capitalize}}s";
+					return Json(entity); // PartialView("_{{ childEntityViewId | decapitalizeFilter }}Info", entity);
 				}
-
-				return PartialView("_fertilizerRebateDefinitionProductInfo", entity);
-
+				return PartialView("_{{ childEntityViewId | decapitalizeFilter }}Info", entity);
 			}
 			catch (Exception ex)
 			{
 				var message = ex.Message;
 				ModelState.AddModelError("", message);
-				return PartialView("_fertilizerRebateDefinitionProductInfo", entity);
-
+				return PartialView("_{{ childEntityViewId | decapitalizeFilter }}Info", entity);
 			}
 		}
 
 		[IgnoreAntiforgeryToken]
 		[HttpPost]
-		[Route("{id}/FertilizerRebateDefinitionProducts/delete/{fertilizerRebateDefinitionProductId}")]
-		public JsonResult FertilizerRebateDefinitionProductDelete(int id, int fertilizerRebateDefinitionProductId)
+		[Route("{id}/{{ childEntityViewId | decapitalizeFilter }}s/delete/{ {{ childEntityViewId | decapitalizeFilter }}Id}")]
+		public JsonResult {{ childEntityViewId | capitalize }}Delete(int id, int {{ childEntityViewId | decapitalizeFilter }}Id)
 		{
-			this._service.DeleteFertilizerRebateDefintionProduct(id, fertilizerRebateDefinitionProductId);
-			return Json(new { LocationRedirect = $"/FertilizerRebateDefinitions/{id}/FertilizerRebateDefinitionProducts" });
+			this._service.Delete{{ childEntityDefName }}(id, {{ childEntityViewId | decapitalizeFilter }}Id);
+			return Json(new { LocationRedirect = $"/{{ viewDef.id | decapitalizeFilter }}s/{id}/{{ childEntityViewId | capitalize }}s" });
 		}
 
 {% endif %}
@@ -281,15 +275,15 @@ namespace Portal.Web.Controllers
 {% endif %}
 {% endfor %}
 
-        private {{viewDef.entityDef.name | capitalize}}Info MakeEntityViewModel(
-            {{viewDef.entityDef.name | capitalize}}Search criteria,
-            {{viewDef.entityDef.name | capitalize}}Info existing = null,
+        private {{viewDef.id | capitalize}}Edit MakeEntityViewModel(
+            {{viewDef.id | capitalize}}Search criteria,
+            {{viewDef.id | capitalize}}Edit existing = null,
             {{viewDef.entityDef.name | capitalize}} domain = null)
         {
-            var entity = new {{viewDef.entityDef.name | capitalize}}Info();
+            var entity = new {{viewDef.entityDef.name | capitalize}}Edit();
             if (domain != null)
             {
-                entity = new EntityMapper().ToViewModel(domain);
+                entity = this.mapper.ToViewModel(domain);
             }
             else if(existing != null)
             {
@@ -306,27 +300,41 @@ namespace Portal.Web.Controllers
 			entity.{{ field.name | capitalize}}String = this._{{ field.lookupKeyAsField }}Repository.GetDescriptionById(entity.{{ field.name | capitalize}});
 {% endif %}
 {% endfor %}
-
             entity.Criteria = criteria;
             return entity;
         }
 
 		class EntityMapper
 		{
-			public EntityMapper() { }
-			public {{viewDef.entityDef.name | capitalize}}Info ToViewModel({{viewDef.entityDef.name | capitalize}} entity)
+{% for referenceView in viewDef.referenceViewsList %}
+            private readonly I{{ referenceView.viewId | capitalize }} _{{ referenceView.viewId | decapitalizeFilter }};
+{% endfor %}
+
+			public EntityMapper({% for referenceView in viewDef.referenceViewsList %}I{{ referenceView.viewId | capitalize }} {{ referenceView.viewId | decapitalizeFilter  }}{% if loop.last %}{% else %},{% endif %}{% endfor %})
 			{
-				return new {{viewDef.entityDef.name | capitalize}}Info()
+{% for referenceView in viewDef.referenceViewsList %}
+                this._{{ referenceView.viewId | decapitalizeFilter }} = {{ referenceView.viewId | decapitalizeFilter }};
+{% endfor %}
+			}
+
+			public {{viewDef.entityDef.name | capitalize}}Edit ToViewModel({{viewDef.entityDef.name | capitalize}} entity)
+			{
+				return new {{viewDef.entityDef.name | capitalize}}Edit()
 				{
 {% for field in viewDef.fieldDefinitions %}
                     {{ field.name | capitalize}} = entity.{{ field.name | capitalize}},
+{% endfor %}
+{% for field in viewDef.fieldDefinitions %}
+{% if field.referenceViewDefinition is not empty %}
+                viewModel.{{ field.name | capitalize}}String = this._{{ field.referenceViewDefinition.viewId | decapitalizeFilter }}.GetDescriptionById(entity.{{ field.name | capitalize}});
+{% endif %}
 {% endfor %}
 				    Id = entity.Id,
 				    TimeStamp = entity.TimeStamp
 				};
 			}
 
-			public {{viewDef.entityDef.name | capitalize}} ToDomain({{viewDef.entityDef.name | capitalize}}Info info)
+			public {{viewDef.entityDef.name | capitalize}} ToDomain({{viewDef.entityDef.name | capitalize}}Edit info)
 			{
 				return new {{viewDef.entityDef.name | capitalize}}()
 				{
@@ -338,16 +346,84 @@ namespace Portal.Web.Controllers
 				};
 			}
 
-			public void SetAudit({{viewDef.entityDef.name | capitalize}} entity, string user, bool creating = false)
+			public void SetAudit({{viewDef.entityDef.name | capitalize}} entity, bool creating = false)
 			{
 				if (creating)
 				{
-					entity.CreatedBy = user;
+					entity.CreatedBy = USER_ID;
 					entity.CreatedOn = DateTime.Now;
 				}
-				entity.ModifiedBy = user;
+				entity.ModifiedBy = USER_ID;
 				entity.ModifiedOn = DateTime.Now;
 			}
+	{# mappings for child views #}
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+{%  set childEntityView = ownerAssociation.ownedViewDef %}
+{%  set childEntityViewId = ownerAssociation.ownedViewDef.id %}
+{%  set childEntityViewTitle = ownerAssociation.ownedViewDef.title %}
+{%  set childEntityDef = ownerAssociation.ownedViewDef.entityDef %}
+{%  set childEntityDefName = ownerAssociation.ownedViewDef.entityDef.name %}
+
+			public {{ childEntityViewId | capitalize }}Edit ToViewModel({{ childEntityDefName | capitalize}} entity)
+			{
+				var viewModel = new {{ childEntityViewId | capitalize }}Edit();
+				mapViewModelFields(viewModel, entity);
+				viewModel.Id = entity.Id;
+				viewModel.{{ viewDef.entityDef.name | capitalize }}Id = entity.{{ viewDef.entityDef.name | capitalize }}Id;
+{% for field in childEntityView.fieldDefinitions %}
+{% if field.referenceViewDefinition is not empty %}
+                viewModel.{{ field.name | capitalize}}String = this._{{ field.referenceViewDefinition.viewId | decapitalizeFilter }}.GetDescriptionById(entity.{{ field.name | capitalize}});
+{% endif %}
+{% endfor %}
+				return viewModel;
+			}
+
+			public {{ childEntityDefName | capitalize}} ToDomain({{ childEntityViewId | capitalize }}Edit info, {{ childEntityDefName | capitalize}} existing = null)
+			{
+				if (existing != null)
+				{
+					mapDomainFields(info, existing);
+					return existing;
+				}
+				else
+				{
+					var newDomain = new {{ childEntityDefName | capitalize}}();
+					mapDomainFields(info, newDomain);
+					newDomain.Id = info.Id;
+					newDomain.{{ viewDef.entityDef.name | capitalize }}Id = info.{{ viewDef.entityDef.name | capitalize }}Id;
+					return newDomain;
+				}
+			}
+
+			private void mapDomainFields({{ childEntityViewId | capitalize }}Edit info, {{ childEntityDefName | capitalize}} domain)
+			{
+{% for field in childEntityView.fieldDefinitions %}
+                domain.{{ field.name | capitalize}} = info.{{ field.name | capitalize}};
+{% endfor %}
+				domain.TimeStamp = info.TimeStamp;
+			}
+
+			private void mapViewModelFields({{ childEntityViewId | capitalize }}Edit info, {{ childEntityDefName | capitalize}} domain)
+			{
+{% for field in childEntityView.fieldDefinitions %}
+                info.{{ field.name | capitalize}} = domain.{{ field.name | capitalize}};
+{% endfor %}
+				info.TimeStamp = domain.TimeStamp;
+			}
+
+            public void SetAudit({{  childEntityDefName | capitalize }} entity, bool creating = false)
+			{
+				if (creating)
+				{
+					entity.CreatedBy = USER_ID;
+					entity.CreatedOn = DateTime.Now;
+				}
+				entity.ModifiedBy = USER_ID;
+				entity.ModifiedOn = DateTime.Now;
+			}
+{% endif %}
+{% endfor %}
 		}
 
     }
