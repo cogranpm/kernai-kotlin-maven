@@ -1,5 +1,5 @@
 @using Portal.Core
-@model Portal.Web.Models.{{viewDef.entityDef.name | capitalize}}Info
+@model Portal.Web.Models.{{viewDef.entityDef.name | capitalize}}Edit
 @{
     Layout = "_EmptyLayout";
 }
@@ -31,7 +31,27 @@
 {% elseif field.lookupKey is not empty %}
                 @Html.DropDownListFor(model => model.{{ field.name | capitalize }}, Model.{{ field.lookupKey }}s, "-- Select {{ field.title }}--", new { name = "{{ field.nameAsField }}", @class = "form-select", placeholder = "Enter {{ field.title }}" })
 {% else %}
-				@Html.EditorFor(model => model.{{ field.name | capitalize }}, new { htmlAttributes = new { name = "{{ field.nameAsField }}", @class = "form-control", placeholder = "Enter {{ field.title}}" } })
+				@Html.EditorFor(model => model.{{ field.name | capitalize }}, new
+				{
+				    htmlAttributes = new
+				    {
+				        name = "{{ field.nameAsField }}",
+				        @class = "form-control",
+				        placeholder = "Enter {{ field.title}}"
+{% if field.required == true %}
+                        , @required = "required"
+{% endif %}
+{% if field.dataTypeDef == "TEXT" and field.length is not empty %}
+                        , maxlength = "{{ field.length }}"
+{% endif %}
+{% if field.configMap.get("minRange") is not empty and field.configMap.get("maxRange") is not empty %}
+                        , min = {{ field.configMap.get("minRange") }}
+
+                        , max = {{ field.configMap.get("maxRange") }}
+{% endif %}
+
+				    }
+				})
 {% endif %}
 				@Html.ValidationMessageFor(model => model.{{ field.name | capitalize }})
 			</div>

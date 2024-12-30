@@ -2,43 +2,65 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Portal.Web.Models
 {
-    public class {{viewDef.entityDef.name | capitalize}}Display
+    public class {{viewDef.entityDef.name | capitalize}}Edit
     {
-         public int Id { get; set; }
-         {{ fieldProperties(vDef = viewDef) }}
+        [Required]
+        public int Id { get; set; }
+        {{ fieldProperties(vDef = viewDef) }}
+
+        public bool ShouldUseBlankLayout { get; set; }
+        public {{viewDef.entityDef.name | capitalize}}Search Criteria { get; set; }
+        public Byte[] TimeStamp { get; set; }
 
 {% for ownerAssociation in viewDef.ownerAssociations %}
 {% if ownerAssociation.owningType == "one" and ownerAssociation.ownedType == "many"%}
         public ICollection<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}> {{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s { get; set; } = new List<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}>();
 {% endif %}
 {% endfor %}
+        public string LocationRedirect { get; set; }
+
+		public override string ToString()
+		{
+			return $"{{viewDef.entityDef.name | capitalize}}Edit: {% for field in viewDef.fieldDefinitions %}{{ field.name | capitalize}}:{this.{{ field.name | capitalize}}} {% endfor %}";
+		}
+    }
+
+
+{# view models for child views #}
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+{%  set childEntityView = ownerAssociation.ownedViewDef %}
+{%  set childEntityViewId = ownerAssociation.ownedViewDef.id %}
+{%  set childEntityViewTitle = ownerAssociation.ownedViewDef.title %}
+{%  set childEntityDef = ownerAssociation.ownedViewDef.entityDef %}
+{%  set childEntityDefName = ownerAssociation.ownedViewDef.entityDef.name %}
+
+	public class {{ childEntityViewId | capitalize }}Edit
+	{
+		public int Id { get; set; }
+
+{{ fieldProperties(vDef = childEntityView) }}
+
+		public int {{viewDef.entityDef.name | capitalize}}Id { get; set; }
+		public Byte[] TimeStamp { get; set; }
+		public string LocationRedirect { get; set; }
+		public {{viewDef.entityDef.name | capitalize}}Edit {{viewDef.entityDef.name | capitalize}} { get; set; } = null!;
 	}
 
-{% for ownerAssociation in viewDef.ownerAssociations %}
-{% if ownerAssociation.owningType == "one" and ownerAssociation.ownedType == "many"%}
-    public class {{ownerAssociation.ownedViewDef.entityDef.name | capitalize }}
-    {
-         public int Id { get; set; }
-         {{ fieldProperties(vDef = ownerAssociation.ownedViewDef) }}
-         public int {{ ownerAssociation.ownerViewDef.entityDef.name | capitalize }}Id { get; set; }
-         public {{ ownerAssociation.ownerViewDef.entityDef.name | capitalize }}Display {{ ownerAssociation.ownerViewDef.entityDef.name | capitalize }} { get; set; } = null!;
-	}
 {% endif %}
 {% endfor %}
 
+}
 
-    public class {{viewDef.entityDef.name | capitalize}}Info
-    {
-         [Required]
-         public int Id { get; set; }
-
-         {% for field in viewDef.fieldDefinitions %}
+{% macro fieldProperties(type="text", vDef) %}
+ {% for field in vDef.sortedFields %}
 
 {% if field.required == true %}
-         [Required]
+         [Required(ErrorMessage = "{{ field.title }} is required.")]
 {% endif %}
          [Display(Name = "{{ field.title }}")]
 {% if field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME" %}
@@ -49,9 +71,16 @@ namespace Portal.Web.Models
 {% if field.dataTypeDef == "DATETIME" %} {%  set defaultValue = "= DateTime.Now;" %}{% endif %}
 {% if field.dataTypeDef == "DATE" %} {%  set defaultValue = "= DateTime.Now;" %}{% endif %}
 {% if field.dataTypeDef == "TIME" %} {%  set defaultValue = "= DateTime.Now;" %}{% endif %}
-{% if field.default is not empty and field.default == "YEAR" %}{% set defaultValue = "= DateTime.Now.Year;" %}{% endif %}
+{% if field.default is not empty and field.default == "YEAR" %}
+{% set defaultValue = "= DateTime.Now.Year;" %}
+{% endif %}
+{% if field.configMap.get("minRange") is not empty and field.configMap.get("maxRange") is not empty %}
+        [Range({{ field.configMap.get("minRange") }}, {{ field.configMap.get("maxRange") }})]
+{% endif %}
+{% if field.dataTypeDef == "TEXT" and field.length is not empty %}
+        [StringLength({{ field.length }}, ErrorMessage = "{{ field.title }} can't be more than {{ field.length }}.")]
+{% endif %}
          public {{ field.dataTypeDef.dataTypeToCSharpDef }} {{ field.name | capitalize}} { get; set; } {{ defaultValue }}
-
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] != "true"  %}
         public IList<SelectListItem> {{ field.lookupKey }}s { get; set; }
 {% endif %}
@@ -59,28 +88,10 @@ namespace Portal.Web.Models
         public {{ field.dataTypeDef.dataTypeToCSharpDef }} {{ field.name | capitalize}}String { get; set; }
 {% endif %}
 
-{% endfor %}
-
-         public bool ShouldUseBlankLayout { get; set; }
-         public {{viewDef.entityDef.name | capitalize}}Search Criteria { get; set; }
-         public Byte[] TimeStamp { get; set; }
-
-		public override string ToString()
-		{
-			return $"{{viewDef.entityDef.name | capitalize}}Info: {% for field in viewDef.fieldDefinitions %}{{ field.name | capitalize}}:{this.{{ field.name | capitalize}}} {% endfor %}";
-		}
-    }
-}
-
-{% macro fieldProperties(type="text", vDef) %}
- {% for field in vDef.fieldDefinitions %}
-
-         [Display(Name = "{{ field.title }}")]
-{% if field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME" %}
-         [DataType(DataType.Date)]
-         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+{% if field.referenceViewDefinition is not empty %}
+        public string {{ field.name | capitalize}}String { get; set; }
 {% endif %}
-         public {{ field.dataTypeDef.dataTypeToCSharpDef }} {{ field.name | capitalize}} { get; set; }
+
 {% endfor %}
 
 {% endmacro %}

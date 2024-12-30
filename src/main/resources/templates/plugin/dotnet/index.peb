@@ -61,3 +61,7 @@
     <div class="alert alert-success" style="display: none;" id="alert-success-delete"><i class="fa fa-check mg-r-10"></i> Record deleted.</div>
     <div class="alert alert-danger" style="display: none;" id="alert-error"><i class="fa fa-exclamation-triangle mg-r-10"></i> Error saving changes.</div>
 </div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

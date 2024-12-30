@@ -7,8 +7,7 @@
     <table id="listTable" class="table table-hover table-sm table-hover">
         <thead>
         <tr>
-            <th class="border-bottom"></th>
-{%  set numCols = 2 %}
+{%  set numCols = 1 %}
 {% for field in viewDef.sortedFields %}
 {% set showInList = field.configMap.getOrDefault("showInList", true) %}
 {% if showInList == true %}              <th class="border-bottom">{{ field.title }}</th>

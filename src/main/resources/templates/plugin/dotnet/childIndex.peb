@@ -1,21 +1,50 @@
 @using Portal.Core
 @using Portal.Repository
 @using Portal.Repository.Model.Enums
-@model Portal.Web.Models.{{parentViewDef.entityDef.name | capitalize}}Display
+@model Portal.Web.Models.{{parentViewDef.entityDef.name | capitalize}}Edit
 
 @{
 	Layout = "~/Views/Shared/_Dashforge2Template.cshtml";
 }
 
 <div class="container pd-x-0 pd-lg-x-10 pd-xl-x-0">
-	<div class="tx-right pd-b-5">
-		<button class="btn btn-primary btn-sm" id="btnCreate" data-bs-toggle="modal" data-bs-target="#addModal">Add New</button>
-	</div>
+
 	<div class="card">
 		<div class="card-header">
-			<h5 class="mg-b-0">{{parentViewDef.title }}</h5>
+			<h3 class="mb-1 mt-1">
+				<strong>{{ parentViewDef.title }}: </strong> @Html.ActionLink(Model.Name, "", "{{ parentViewDef.id }}s")
+			</h3>
 		</div>
-		@await Html.PartialAsync("_{{ childViewDef.id }}list", Model)
+		<div class="card-body">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-md-6">
+{% for field in parentViewDef.sortedFields %}
+ 						<div class="row mt-2 mb-2">
+							<div class="col-sm-4 font-weight-bold">{{ field.title }}:</div>
+							<div class="col-sm-8">
+								<div class="col-sm-8">@Model.{{ field.name | capitalize }}</div>
+							</div>
+						</div>
+{% endfor %}
+				    </div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="card">
+		<div class="table-responsive">
+			<div>
+				<nav class="nav nav-line tx-medium pl-2">
+					@* the tabs for all the child lists *@
+					<a href="#details" class="nav-link active" data-toggle="tab">{{ childViewDef.title }}</a>
+				</nav>
+			</div>
+		</div>
+		<div class="tab-content pb-2">
+			@await Html.PartialAsync("_{{ childViewDef.id }}list", Model)
+		</div>
 	</div>
 </div>
 
@@ -32,9 +61,18 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="btnCancelModal" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="btnSaveShared">Save</button>
+                <button type="button" class="btn btn-primary" id="btnSave">Save</button>
             </div>
         </div>
     </div>
 </div>
 
+<div class="pos-absolute b-10 r-10">
+	<div class="alert alert-success" style="display: none;" id="alert-success-save"><i class="fa fa-check mg-r-10"></i> Changes saved.</div>
+	<div class="alert alert-success" style="display: none;" id="alert-success-delete"><i class="fa fa-check mg-r-10"></i> Record deleted.</div>
+	<div class="alert alert-danger" style="display: none;" id="alert-error"><i class="fa fa-exclamation-triangle mg-r-10"></i> Error saving changes.</div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

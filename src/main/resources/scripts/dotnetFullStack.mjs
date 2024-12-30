@@ -157,7 +157,7 @@ writeTemplate(
     ApplicationData.getPebbleEngine().getTemplate(`${basepath}listJson.peb`));
 pathsMap.push(getXCopyCommand(listJsonFileName, viewModelFolder, viewModelTargetFolder));
 
-let infoClassName = viewBaseFolderName + "Info.cs";
+let infoClassName = viewBaseFolderName + "Edit.cs";
 writeTemplate(
     viewModelFolder,
     infoClassName,
