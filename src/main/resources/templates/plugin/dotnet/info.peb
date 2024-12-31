@@ -49,7 +49,9 @@
 
                         , max = {{ field.configMap.get("maxRange") }}
 {% endif %}
-
+{% if field.dataTypeDef == "FLOAT" or  field.dataTypeDef == "MONEY" or field.dataTypeDef == "INT" %}
+                        , @type="number"
+{% endif %}
 				    }
 				})
 {% endif %}

@@ -6,26 +6,43 @@
 @{
 	Layout = "~/Views/Shared/_Dashforge2Template.cshtml";
 }
-
+{% set firstFieldName = "" %}
+{% for field in parentViewDef.showInListSortedFields %}
+{%  if loop.first %}
+{% set firstFieldName = field.name %}
+{% endif %}
+{% endfor %}
 <div class="container pd-x-0 pd-lg-x-10 pd-xl-x-0">
 
 	<div class="card">
 		<div class="card-header">
 			<h3 class="mb-1 mt-1">
-				<strong>{{ parentViewDef.title }}: </strong> @Html.ActionLink(Model.Name, "", "{{ parentViewDef.id }}s")
+				<strong>{{ parentViewDef.title }}: </strong> @Html.ActionLink(Model.{{ firstFieldName }}, "", "{{ parentViewDef.id }}s")
 			</h3>
 		</div>
 		<div class="card-body">
 			<div class="container-fluid">
 				<div class="row">
 					<div class="col-md-6">
-{% for field in parentViewDef.sortedFields %}
+{% set fieldDisplay = "" %}
+{% for field in parentViewDef.showInListSortedFields %}
+{%  if not loop.first %}
+{% if field.dataTypeDef == "DATE" %}
+{%  set fieldDisplay =  "@Model.#{field.name | capitalize}.ToShortDateString()" %}
+{% else %}
+{%  set fieldDisplay =  "@Model.#{field.name | capitalize}" %}
+{% endif %}
+{% if loop.index is odd and loop.index > 1 %}
+				</div>
+				<div class="col-md-6">
+{% endif %}
  						<div class="row mt-2 mb-2">
 							<div class="col-sm-4 font-weight-bold">{{ field.title }}:</div>
 							<div class="col-sm-8">
-								<div class="col-sm-8">@Model.{{ field.name | capitalize }}</div>
+								<div class="col-sm-8">{{ fieldDisplay }}</div>
 							</div>
 						</div>
+{% endif %}
 {% endfor %}
 				    </div>
 				</div>
