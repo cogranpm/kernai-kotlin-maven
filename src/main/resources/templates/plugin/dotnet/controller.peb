@@ -9,6 +9,7 @@ using Portal.Web.Models;
 using Portal.Repository.Model.ConklinCentral;
 using Portal.Repository;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Collections.Generic;
 
 namespace Portal.Web.Controllers
 {
@@ -20,7 +21,7 @@ namespace Portal.Web.Controllers
 		private const string USER_ID = "system";
 		private readonly EntityMapper mapper;
 {% for field in viewDef.fieldDefinitions %}
-{% if field.lookupKey is not empty %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
         private readonly I{{ field.lookupKey }}Repository _{{ field.lookupKeyAsField }}Repository;
 {% endif %}
 {% endfor %}
@@ -31,7 +32,7 @@ namespace Portal.Web.Controllers
         public {{viewDef.id | capitalize}}sController(
         I{{viewDef.entityDef.name | capitalize}}Service service
 {% for field in viewDef.fieldDefinitions %}
-{% if field.lookupKey is not empty %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
         , I{{ field.lookupKey }}Repository {{ field.lookupKeyAsField }}Repository
 {% endif %}
 {% endfor %}
@@ -41,7 +42,7 @@ namespace Portal.Web.Controllers
         ){
             this._service = service;
 {% for field in viewDef.fieldDefinitions %}
-{% if field.lookupKey is not empty %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
             this._{{ field.lookupKeyAsField }}Repository = {{ field.lookupKeyAsField }}Repository;
 {% endif %}{% endfor %}
 {% for referenceView in viewDef.referenceViewsList %}
@@ -292,10 +293,7 @@ namespace Portal.Web.Controllers
 
 {% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] != "true" %}
-            entity.{{ field.lookupKey }}s = this._{{ field.lookupKeyAsField }}Repository.GetAllForListLookup()
-            .Select(x => new SelectListItem(x.Title, x.Id.ToString(), x.Id == entity.{{ field.name | capitalize}}))
-            .OrderBy(e => e.Value)
-            .ToList();
+
 {% elseif field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
 			entity.{{ field.name | capitalize}}String = this._{{ field.lookupKeyAsField }}Repository.GetDescriptionById(entity.{{ field.name | capitalize}});
 {% endif %}

@@ -1,5 +1,6 @@
 package com.parinherm.entity
 
+import com.parinherm.lookups.LookupUtils
 import kotlin.properties.Delegates
 
 class Lookup (override var id: Long = 0,  key: String, label: String, encrypted: Boolean): ModelObject(), IBeanDataEntity  {
@@ -16,6 +17,10 @@ class Lookup (override var id: Long = 0,  key: String, label: String, encrypted:
         }
     }
 
+    val lookupDetails : List<LookupDetail>
+        get() {
+            return LookupUtils.getLookupByKey(this.key, false)
+        }
 
     override fun toString(): String {
         return "Lookup(id=$id, key=$key, label=$label, encrypted=$encrypted)"

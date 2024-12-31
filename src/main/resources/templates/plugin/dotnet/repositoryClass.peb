@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 {% set hasLookups = 0 %}
 {% for field in viewDef.fieldDefinitions %}
-{% if field.lookupKey is not empty %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
 {% set hasLookups = 1 %}
 {% endif %}
 {% endfor %}
@@ -40,7 +40,7 @@ namespace Portal.Repository
         private ConklinCentralDataEntities _context;
 
 {% for field in viewDef.fieldDefinitions %}
-{% if field.lookupKey is not empty %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
     	private I{{ field.lookupKey | capitalize}}Repository _{{ field.lookupKeyAsField }}Repository;
 {% endif %}
 {% endfor %}
@@ -48,7 +48,7 @@ namespace Portal.Repository
         public {{viewDef.entityDef.name | capitalize}}Repository(
             ConklinCentralDataEntities context
 {% for field in viewDef.fieldDefinitions %}
-{% if field.lookupKey is not empty %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
     	    , I{{ field.lookupKey | capitalize}}Repository {{ field.lookupKeyAsField }}Repository
 {% endif %}
 {% endfor %}
@@ -57,7 +57,7 @@ namespace Portal.Repository
             Entities = context.{{viewDef.entityDef.name | capitalize}}s;
             this._serviceBase = new {{viewDef.entityDef.name | capitalize}}ServiceBase(context);
 {% for field in viewDef.fieldDefinitions %}
-{% if field.lookupKey is not empty %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
     	    this._{{ field.lookupKeyAsField }}Repository = {{ field.lookupKeyAsField }}Repository;
 {% endif %}
 {% endfor %}
@@ -92,7 +92,7 @@ namespace Portal.Repository
             viewModelList.ForEach(i =>
             {
 {% for field in viewDef.fieldDefinitions %}
-{% if field.lookupKey is not empty %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
                 i.{{ field.name | capitalize }}String = this._{{ field.lookupKeyAsField }}Repository.GetDescriptionById(i.{{ field.name | capitalize }});
 {% endif %}
 {% endfor %}
@@ -106,10 +106,10 @@ namespace Portal.Repository
                 filteredViewModel = viewModel.Where(
                     x =>
 {% for field in viewDef.searchFields %}
-{% if field.lookupKey is not empty %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
                     x.{{ field.name | capitalize }}String.Contains(search, StringComparison.CurrentCultureIgnoreCase)
 {% else %}
-                     x.{{ field.name | capitalize }}.Contains(search, StringComparison.CurrentCultureIgnoreCase)
+                    x.{{ field.name | capitalize }}.Contains(search, StringComparison.CurrentCultureIgnoreCase)
 {% endif %}
 {% if not loop.last %} ||{% endif %}
 {% endfor %}

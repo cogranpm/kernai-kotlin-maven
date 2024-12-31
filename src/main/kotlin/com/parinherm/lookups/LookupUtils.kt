@@ -105,6 +105,11 @@ object LookupUtils {
         return lookups[0].id
     }
 
+    fun getLookupByKey(key: String): Lookup{
+        val lookups = LookupMapper.getByKey(key)
+        return lookups[0]
+    }
+
     fun createDefaults() {
         /*
         these lookup records must exist or errors will result

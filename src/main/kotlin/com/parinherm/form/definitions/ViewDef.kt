@@ -2,8 +2,10 @@ package com.parinherm.form.definitions
 
 
 import com.parinherm.entity.AssociationDefinition
+import com.parinherm.entity.Lookup
 import com.parinherm.entity.ViewDefinition
 import com.parinherm.entity.schema.AssociationDefinitionMapper
+import com.parinherm.lookups.LookupUtils
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -71,6 +73,13 @@ data class ViewDef(
             return this.fieldDefinitions.filter { it.configMap.getOrDefault("showInList", "true") == "true" }.sortedBy { it.sequence }
         }
 
+     val simpleLookups : List<Lookup>
+        get(){
+            return this.fieldDefinitions.filter {
+                        !it.lookupKey.isNullOrEmpty() &&
+                        it.configMap.getOrDefault("advancedLookup", "false") == "false"
+            }.distinct().map { LookupUtils.getLookupByKey(it.lookupKey.toString()) }
+        }
 
     init {
         childViews.forEach{
