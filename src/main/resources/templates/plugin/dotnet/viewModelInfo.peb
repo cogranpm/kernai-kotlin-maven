@@ -18,7 +18,7 @@ namespace Portal.Web.Models
 
 {% for ownerAssociation in viewDef.ownerAssociations %}
 {% if ownerAssociation.owningType == "one" and ownerAssociation.ownedType == "many"%}
-        public ICollection<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}> {{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s { get; set; } = new List<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}>();
+        public ICollection<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}Edit> {{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s { get; set; } = new List<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}Edit>();
 {% endif %}
 {% endfor %}
         public string LocationRedirect { get; set; }

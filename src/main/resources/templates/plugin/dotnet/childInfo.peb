@@ -38,7 +38,7 @@
 					"-- Select {{ field.title }} --",
 					new
 					{
-						data_productid = $"{@Model.{{ field.name | capitalize }} }",
+						data_productid = $"{@Model.{{ field.name | capitalize }}{{ "}" }}",
 						style = "width: 100%",
 						name = "{{ field.name | decapitalizeFilter }}",
 						id = "{{ field.name | decapitalizeFilter }}",
@@ -52,8 +52,8 @@
 				    {
 				        name = "{{ field.nameAsField }}",
 				        @class = "form-control",
-				        placeholder = "Enter {{ field.title}}"
-						@data_val="true",
+				        placeholder = "Enter {{ field.title}}",
+						@data_val="true"
 {% if field.required == true %}
                         , @required = "required"
 {% endif %}

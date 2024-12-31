@@ -23,7 +23,7 @@ const configureModal = async () => {
 {% if field.referenceViewDefinition is not empty %}
     const {{ field.name | decapitalizeFilter}}Combo = $('#{{ field.name | decapitalizeFilter}}');
     if ({{ field.name | decapitalizeFilter}}Combo) {
-        const current{{ field.name | capitalize}} = {{ field.name | decapitalizeFilter}}Combo.data("{{ field.name | decapitalizeFilter}}");
+        const current{{ field.name | capitalize}} = {{ field.name | decapitalizeFilter}}Combo.data("{{ field.name | lower }}");
 
         {{ field.name | decapitalizeFilter}}Combo.select2({
             placeholder: 'Choose {{ field.title }}',

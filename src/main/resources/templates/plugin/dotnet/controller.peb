@@ -166,7 +166,7 @@ namespace Portal.Web.Controllers
 		[Route("{id}/{{ childEntityViewId | decapitalizeFilter }}s/create")]
 		public PartialViewResult {{ childEntityViewId | capitalize}}Create(int id)
 		{
-			var entity = this._service.GetFirstWhereIncluding(x => x.Id == id, ["{{ childEntityDefName | capitalize  }}s"];
+			var entity = this._service.GetFirstWhereIncluding(x => x.Id == id, ["{{ childEntityDefName | capitalize  }}s"]);
 			if (entity != null)
 			{
 				var entityForEdit = mapper.ToViewModel(entity);
@@ -185,7 +185,7 @@ namespace Portal.Web.Controllers
 		}
 
 		[HttpGet]
-		[Route("{id}/{{ childEntityViewId | decapitalizeFilter }}s/edit/{ {{ childEntityDefName | decapitalizeFilter  }}Id}")]
+		[Route("{id}/{{ childEntityViewId | decapitalizeFilter }}s/edit/{{"{"}}{{ childEntityDefName | decapitalizeFilter }}Id}")]
 		public PartialViewResult {{ childEntityViewId | capitalize}}Edit(int id, int {{ childEntityDefName | decapitalizeFilter  }}Id)
 		{
 			var entity = this._service.GetFirstWhereIncluding(x => x.Id == id, ["{{ childEntityDefName | capitalize  }}s"]);
@@ -253,7 +253,7 @@ namespace Portal.Web.Controllers
 
 		[IgnoreAntiforgeryToken]
 		[HttpPost]
-		[Route("{id}/{{ childEntityViewId | decapitalizeFilter }}s/delete/{ {{ childEntityViewId | decapitalizeFilter }}Id}")]
+		[Route("{id}/{{ childEntityViewId | decapitalizeFilter }}s/delete/{{"{"}}{{ childEntityViewId | decapitalizeFilter }}Id}")]
 		public JsonResult {{ childEntityViewId | capitalize }}Delete(int id, int {{ childEntityViewId | decapitalizeFilter }}Id)
 		{
 			this._service.Delete{{ childEntityDefName }}(id, {{ childEntityViewId | decapitalizeFilter }}Id);
