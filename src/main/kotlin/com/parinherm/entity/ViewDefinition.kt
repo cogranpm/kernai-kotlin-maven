@@ -66,6 +66,19 @@ class ViewDefinition(
             }
         }
 
+        val customTableName: String
+        get() {
+            val json = Json.parseToJsonElement(this.config)
+            val map = json.jsonObject.toMap()
+            //return map.getOrDefault("customTableName", "").toString()
+            if(map.containsKey("customTableName")){
+                return map.get("customTableName").toString()
+            } else {
+                return this.entityName
+            }
+        }
+
+
     companion object Factory {
         fun make(parentId: Long = 0): ViewDefinition {
             return ViewDefinition(

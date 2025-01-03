@@ -48,6 +48,18 @@ data class ViewDef(
             return map
         }
 
+    val customTableName: String
+        get() {
+            val json = Json.parseToJsonElement(this.config)
+            val map = json.jsonObject.toMap()
+            //return map.getOrDefault("customTableName", "").toString()
+            if(map.containsKey("customTableName")){
+                return map.get("customTableName").toString()
+            } else {
+                return this.entityDef.name
+            }
+        }
+
     val ownerAssociations: List<AssociationDefinition>
         get() {
             return AssociationDefinitionMapper.getAllAsOwner(this);

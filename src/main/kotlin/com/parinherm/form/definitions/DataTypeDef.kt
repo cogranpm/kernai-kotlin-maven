@@ -34,7 +34,7 @@ enum class DataTypeDef {
 
     val dataTypeToCSharpDef: String
         get() = when (this) {
-            MEMO, SOURCE, TEXT, LOOKUP, FILE -> "String"
+            MEMO, SOURCE, TEXT, LOOKUP, FILE -> "string"
             FLOAT -> "float"
             MONEY -> "decimal"
             INT -> "int"

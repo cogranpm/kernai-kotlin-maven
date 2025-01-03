@@ -9,6 +9,7 @@ const ArrayList = Java.type('java.util.ArrayList');
 
 const tempOutputDirectory = `${ApplicationData.getUserPath()}${File.separator}`;
 const basepath = "";
+const targetFolderBase = "d:/projects/ConklinCentral/"; //note this should be environmental
 
 const writeTemplate = (folder, fileName, viewDef, pebbleTemplate) => {
     print('writing template');
@@ -41,7 +42,7 @@ const writeTemplateChild = (folder, fileName, parentViewDef, childViewDef, pebbl
     fw.close();
 };
 
-const writeBatchCommands = (folder, fileName, pebbleTemplate, pathsMap) => {
+const writeBatchCommands = (folder, fileName, pebbleTemplate, pathsMap, roboCopies) => {
     print('writing template');
     const tempOutputPath = Paths.get(tempOutputDirectory, "models", folder);
     Files.createDirectories(tempOutputPath);
@@ -53,11 +54,12 @@ const writeBatchCommands = (folder, fileName, pebbleTemplate, pathsMap) => {
     const output = writer.toString();
     const fw = new FileWriter(filePath.toString());
     fw.write(output);
+    fw.write(roboCopies);
     fw.close();
  }
 
 const getXCopyCommand = (modelFile, modelFolder, targetFolder) => {
-    const targetFolderBase = "d:/projects/ConklinCentral/";
+
     const tempOutputPath = Paths.get(tempOutputDirectory, "models", modelFolder);
     const targetFilePath = tempOutputPath.resolve(modelFile);
     return {"sourceFile": targetFilePath, "targetFolder": targetFolderBase + targetFolder};
@@ -86,15 +88,25 @@ writeTemplate(
 pathsMap.push(getXCopyCommand(forListModelFile, modelFolder, modelTargetFolder));
 
 let repoFolder = viewDef.getEntityDef().getName() + "/Repository";
-let repoClassFile = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Repository.cs";
+let repoClassBaseFile = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "RepositoryBase.cs";
 let repoTargetFolder = "Portal.Repository";
+writeTemplate(
+    repoFolder,
+    repoClassBaseFile,
+    viewDef,
+    ApplicationData.getPebbleEngine().getTemplate(`${basepath}repositoryBaseClass.peb`));
+
+pathsMap.push(getXCopyCommand(repoClassBaseFile, repoFolder, repoTargetFolder));
+
+let repoClassFile = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Repository.cs";
 writeTemplate(
     repoFolder,
     repoClassFile,
     viewDef,
     ApplicationData.getPebbleEngine().getTemplate(`${basepath}repositoryClass.peb`));
 
-pathsMap.push(getXCopyCommand(repoClassFile, repoFolder, repoTargetFolder));
+//pathsMap.push(getXCopyCommand(repoClassFile, repoFolder, repoTargetFolder));
+
 
 let serviceFolder = viewDef.getEntityDef().getName() + "/Service";
 let serviceClassFile = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Service.cs";
@@ -243,11 +255,18 @@ if(viewDef.getChildViews()){
     }
 }
 
+let roboCopies = "";
+const tempOutputPath = Paths.get(tempOutputDirectory, "models", repoFolder);
+const filePath = tempOutputPath.resolve(repoClassFile);
+
+//roboCopies = `robocopy ${filePath} ${targetFolderBase}${repoTargetFolder}/${repoClassFile} /E /XC /XN /XO`;
+roboCopies = `echo n | copy /-y "${filePath}" "${targetFolderBase}${repoTargetFolder}/${repoClassFile}"`;
 writeBatchCommands(
     viewDef.getEntityDef().getName(),
     'commands.bat',
     ApplicationData.getPebbleEngine().getTemplate(`${basepath}postWriteCommands.peb`),
-    pathsMap
+    pathsMap,
+    roboCopies
     );
 
 let sqlFolder = viewDef.getEntityDef().getName() + "/SQL";

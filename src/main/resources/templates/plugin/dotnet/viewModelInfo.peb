@@ -77,12 +77,12 @@ namespace Portal.Web.Models
 {% set defaultValue = "= DateTime.Now.Year;" %}
 {% endif %}
 {% if field.configMap.get("minRange") is not empty and field.configMap.get("maxRange") is not empty %}
-        [Range({{ field.configMap.get("minRange") }}, {{ field.configMap.get("maxRange") }})]
+         [Range({{ field.configMap.get("minRange") }}, {{ field.configMap.get("maxRange") }})]
 {% endif %}
 {% if field.dataTypeDef == "TEXT" and field.length is not empty %}
-        [StringLength({{ field.length }}, ErrorMessage = "{{ field.title }} can't be more than {{ field.length }}.")]
+         [StringLength({{ field.length }}, ErrorMessage = "{{ field.title }} can't be more than {{ field.length }}.")]
 {% endif %}
-         public {{ field.dataTypeDef.dataTypeToCSharpDef }} {{ field.name | capitalize}} { get; set; } {{ defaultValue }}
+         public {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.name | capitalize}} { get; set; } {{ defaultValue }}
 
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] != "true"  %}
         public IList<SelectListItem> {{ field.lookupKey }}s { get; } =

@@ -16,6 +16,8 @@ namespace Portal.Repository.Model.ConklinCentral {
 {% endfor %}
 
 {% macro entityClass(type="text", vDef, parentViewDef) %}
+{% set customTable = "" %}
+{% set customTable =  vDef.customTableName %}
 
     public class {{vDef.entityDef.name | capitalize}} : AuditTracking {
 
@@ -26,11 +28,13 @@ namespace Portal.Repository.Model.ConklinCentral {
         public {{ parentViewDef.entityDef.name | capitalize }} {{ parentViewDef.entityDef.name | capitalize }} { get; set; } = null!;
 {% endif %}
 {% for field in vDef.sortedFields%}
+
 {% if field.required == true %}
-       [Required]
+        [Required]
 {% endif %}
-        public {{ field.dataTypeDef.dataTypeToCSharpDef }}{% if not field.required  %}?{% endif %} {{ field.name | capitalize}} { get; set; }
+        public {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.name | capitalize}} { get; set; }
 {% endfor %}
+
 {% for ownerAssociation in vDef.ownerAssociations %}
 {% if ownerAssociation.owningType == "one" and ownerAssociation.ownedType == "many"%}
         public ICollection<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}> {{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s { get; } = new List<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}>();
@@ -48,7 +52,7 @@ namespace Portal.Repository.Model.ConklinCentral {
     {
         public {{vDef.entityDef.name | capitalize}}Config(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<{{vDef.entityDef.name | capitalize}}>().ToTable("{{vDef.entityDef.name | capitalize}}");
+            modelBuilder.Entity<{{vDef.entityDef.name | capitalize}}>().ToTable("{{ customTable }}");
             modelBuilder.Entity<{{vDef.entityDef.name | capitalize}}>().HasKey(x => x.Id);
         }
     }
