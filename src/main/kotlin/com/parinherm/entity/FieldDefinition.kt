@@ -1,5 +1,6 @@
 package com.parinherm.entity
 
+import com.parinherm.entity.schema.FieldDefinitionMapper
 import com.parinherm.form.widgets.LookupPicker
 import com.parinherm.lookups.LookupUtils
 import kotlin.properties.Delegates
@@ -71,8 +72,8 @@ class FieldDefinition(
             6 -> "$filterable"
             7 -> "$default"
             8 -> "$sequence" ?: "0"
-            9 -> "$length"
-            8 -> {
+            10 -> "$length"
+            9 -> {
                 if (referenceViewId != null) {
                     val listItem = ViewPicker.dataSource.find { it.id == referenceViewId}
                     "${listItem?.viewId}"
@@ -87,10 +88,11 @@ class FieldDefinition(
     }
 
     companion object Factory {
-        fun make(viewDefinitionId: Long): FieldDefinition {
+        fun make(viewDefinition: ViewDefinition): FieldDefinition {
+            var existingSeq = FieldDefinitionMapper.getNextSequence(viewDefinition.id)
             return FieldDefinition(
                 0,
-                viewDefinitionId,
+                viewDefinition.id,
                 "",
                 "",
                 false,
@@ -100,7 +102,7 @@ class FieldDefinition(
                 false,
                 "",
                 "",
-                0,
+                existingSeq,
                 0,
                 0
             )

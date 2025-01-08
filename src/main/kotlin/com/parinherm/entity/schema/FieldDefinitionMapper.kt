@@ -5,8 +5,12 @@ import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.statements.UpdateBuilder
 import com.parinherm.ApplicationData
+import org.jetbrains.exposed.sql.max
+import org.jetbrains.exposed.sql.select
 import java.time.LocalDate
 import java.time.LocalDateTime
+import org.jetbrains.exposed.sql.transactions.transaction
+
 
 object FieldDefinitionMapper : IMapper<FieldDefinition> {
 
@@ -66,5 +70,20 @@ object FieldDefinitionMapper : IMapper<FieldDefinition> {
     override fun delete(item: FieldDefinition) {
 
         MapperHelper.delete(table, table.id eq item.id)
+    }
+
+    fun getNextSequence(viewDefinitionId: Long) : Int
+    {
+        var maxNum = 10;
+            transaction {
+
+                val max =
+                    table.slice(table.sequence.max()).select(table.viewDefinitionId eq viewDefinitionId).firstOrNull()
+                val amt = max?.getOrNull(table.sequence.max())
+                if(amt != null){
+                    maxNum = amt + 10
+                }
+            }
+        return maxNum
     }
 }

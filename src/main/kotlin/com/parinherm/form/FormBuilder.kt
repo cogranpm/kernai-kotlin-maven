@@ -205,7 +205,7 @@ fun makeForm(fields: List<FieldDef>, parent: Composite)
         : Map<String, FormWidget> {
    // transform list of field definitions into  a map of widgets
     // with the fieldName as the key
-    val fieldsMap = fields.map {
+    val fieldsMap = fields.sortedBy { it.sequence }.map {
         val fieldName = it.name
         val fieldType = it.dataTypeDef
         val label = makeInputLabel(parent, it.title)

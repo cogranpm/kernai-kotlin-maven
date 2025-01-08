@@ -23,7 +23,7 @@ class FieldDefinitionViewModel(
     tabInfo: TabInfo) : FormViewModel<FieldDefinition>(
     FieldDefinitionView(tabInfo.folder, Comparator()),
     FieldDefinitionMapper,
-    { FieldDefinition.make(viewDefinition.id) },
+    { FieldDefinition.make(viewDefinition) },
     tabInfo) {
 
     init {

@@ -29,17 +29,17 @@ data class ViewDef(
 
     // record the parents useful for stuff like code generation
     // store the id only, so we don't get a circular reference
-   var parentViews: MutableSet<String> = mutableSetOf()
+    var parentViews: MutableSet<String> = mutableSetOf()
 
     val hasChildren: Boolean
-    get () {
-        return childViews.isNotEmpty()
-    }
+        get() {
+            return childViews.isNotEmpty()
+        }
 
     val isChild: Boolean
-    get() {
-        return parentViews.isNotEmpty()
-    }
+        get() {
+            return parentViews.isNotEmpty()
+        }
 
     val configMap: Map<String, JsonElement>
         get() {
@@ -50,14 +50,19 @@ data class ViewDef(
 
     val customTableName: String
         get() {
-            val json = Json.parseToJsonElement(this.config)
-            val map = json.jsonObject.toMap()
-            //return map.getOrDefault("customTableName", "").toString()
-            if(map.containsKey("customTableName")){
-                return map.get("customTableName").toString()
+            if (this.config.isNotEmpty()) {
+                val json = Json.parseToJsonElement(this.config)
+                val map = json.jsonObject.toMap()
+                //return map.getOrDefault("customTableName", "").toString()
+                if (map.containsKey("customTableName")) {
+                    return map.get("customTableName").toString()
+                } else {
+                    return this.entityDef.name
+                }
             } else {
                 return this.entityDef.name
             }
+
         }
 
     val ownerAssociations: List<AssociationDefinition>
@@ -66,35 +71,36 @@ data class ViewDef(
         }
 
     val ownedAssociations: List<AssociationDefinition>
-        get(){
+        get() {
             return AssociationDefinitionMapper.getAllAsOwned(this);
         }
 
-    val searchFields : List<FieldDef>
+    val searchFields: List<FieldDef>
         get() {
             return this.fieldDefinitions.filter { it.filterable }
         }
 
-    val sortedFields : List<FieldDef>
-        get(){
+    val sortedFields: List<FieldDef>
+        get() {
             return this.fieldDefinitions.sortedBy { it.sequence }
         }
 
-     val showInListSortedFields : List<FieldDef>
-        get(){
-            return this.fieldDefinitions.filter { it.configMap.getOrDefault("showInList", "true") == "true" }.sortedBy { it.sequence }
+    val showInListSortedFields: List<FieldDef>
+        get() {
+            return this.fieldDefinitions.filter { it.configMap.getOrDefault("showInList", "true") == "true" }
+                .sortedBy { it.sequence }
         }
 
-     val simpleLookups : List<Lookup>
-        get(){
+    val simpleLookups: List<Lookup>
+        get() {
             return this.fieldDefinitions.filter {
-                        !it.lookupKey.isNullOrEmpty() &&
+                !it.lookupKey.isNullOrEmpty() &&
                         it.configMap.getOrDefault("advancedLookup", "false") == "false"
             }.distinct().map { LookupUtils.getLookupByKey(it.lookupKey.toString()) }
         }
 
     init {
-        childViews.forEach{
+        childViews.forEach {
             it.parentViews.add(this.id)
         }
 
