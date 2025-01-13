@@ -57,7 +57,7 @@ $(function () {
                 data: function (data: {{viewDef.entityDef.name | capitalize}}ForList) {
                     return `<a href="javascript:;" class="deleteLink" data-id="${data.id}"><i class="fa fa-trash"></i></a>`;
                 }
-            }
+            },
 {% for field in viewDef.showInListSortedFields%}
 {% if loop.first %}
             {
