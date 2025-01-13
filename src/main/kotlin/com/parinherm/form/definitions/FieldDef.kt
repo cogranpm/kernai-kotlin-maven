@@ -197,7 +197,13 @@ data class FieldDef(
                 DataTypeDef.MEMO -> "NVARCHAR(MAX)"
                 DataTypeDef.FLOAT -> "FLOAT"
                 DataTypeDef.MONEY -> "DECIMAL (9, 2)"
-                DataTypeDef.INT -> "INT"
+                DataTypeDef.INT -> when(this.sizeHint)
+                {
+                    SizeDef.LARGE -> "BIGINT"
+                    SizeDef.MEDIUM -> "INT"
+                    SizeDef.SMALL -> "SMALLINT"
+                    else -> "INT"
+                }
                 DataTypeDef.DATETIME -> "DATETIME2 (3)"
                 DataTypeDef.TIME -> "DATETIME2 (3)"
                 DataTypeDef.DATE -> "DATE"
@@ -206,5 +212,25 @@ data class FieldDef(
                 DataTypeDef.BLOB -> "VARBINARY"
             }
         }
+
+        val dataTypeToCSharpDef: String
+        get() = when (this.dataTypeDef) {
+            DataTypeDef.MEMO, DataTypeDef.SOURCE, DataTypeDef.TEXT, DataTypeDef.LOOKUP, DataTypeDef.FILE -> "string"
+            DataTypeDef.FLOAT -> "float"
+            DataTypeDef.MONEY -> "decimal"
+            DataTypeDef.INT ->when (this.sizeHint) {
+                    SizeDef.MEDIUM ->  "int"
+                    SizeDef.SMALL -> "int"
+                    SizeDef.LARGE -> "long"
+                    else -> "int"
+                }
+            DataTypeDef.DATETIME -> "DateTime"
+            DataTypeDef.TIME -> "DateTime"
+            DataTypeDef.DATE -> "DateTime"
+            DataTypeDef.BOOLEAN -> "bool"
+            DataTypeDef.REFERENCE -> "long"
+            DataTypeDef.BLOB -> "byte[]"
+        }
+
 
 }

@@ -41,7 +41,10 @@ $(function () {
         processing: true,
         serverSide: false,
         info: false,
-        paging: false,
+        paging: true,
+        scrollX: true,
+        scrollY: "400px",
+        pageLength: 25,
         order: [[1, 'asc']],
         ajax: {
             url: '/{{viewDef.id | capitalize}}s/list',
@@ -50,6 +53,11 @@ $(function () {
             }
         },
         columns: [
+            {
+                data: function (data: {{viewDef.entityDef.name | capitalize}}ForList) {
+                    return `<a href="javascript:;" class="deleteLink" data-id="${data.id}"><i class="fa fa-trash"></i></a>`;
+                }
+            }
 {% for field in viewDef.showInListSortedFields%}
 {% if loop.first %}
             {
@@ -74,11 +82,7 @@ $(function () {
                 }
             },
 {% endfor %}
-            {
-                data: function (data: {{viewDef.entityDef.name | capitalize}}ForList) {
-                    return `<a href="javascript:;" class="deleteLink" data-id="${data.id}"><i class="fa fa-trash"></i></a>`;
-                }
-            }
+
         ],
         columnDefs: [
             { targets: 'no-sort', orderable: false },
@@ -93,7 +97,6 @@ $(function () {
         lengthChange: false,
         stateSave: false,
         stateDuration: -1,
-        pageLength: 500,
         searching: true,
         initComplete: function (settings, json: any) {
 

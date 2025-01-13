@@ -3,7 +3,7 @@ namespace webapi.DTO.Trips;
 public readonly record struct {{viewDef.entityDef.name | capitalize}}DTO(
 Guid Id,
 {% for field in viewDef.fieldDefinitions %}
-{{ field.dataTypeDef.dataTypeToCSharpDef }}{% if not field.required  %}?{% endif %} {{ field.name | capitalize}},
+{{ field.dataTypeToCSharpDef }}{% if not field.required  %}?{% endif %} {{ field.name | capitalize}},
 {% endfor %}
 {% for ownerAssociation in viewDef.ownerAssociations %}
 {% if ownerAssociation.owningType == "one" %}

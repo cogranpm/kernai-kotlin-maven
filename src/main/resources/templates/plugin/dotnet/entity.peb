@@ -32,7 +32,7 @@ namespace Portal.Repository.Model.ConklinCentral {
 {% if field.required == true %}
         [Required]
 {% endif %}
-        public {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.name | capitalize}} { get; set; }
+        public {{ field.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.name | capitalize}} { get; set; }
 {% endfor %}
 
 {% for ownerAssociation in vDef.ownerAssociations %}

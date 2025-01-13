@@ -15,7 +15,7 @@ message {{viewDef.entityDef.name | capitalize}}{
 	bool IsDeleted = 2;
     bool IsNew = 3;
 {% for field in viewDef.fieldDefinitions %}
-{{ field.dataTypeDef.dataTypeToCSharpDef }}{% if not field.required  %} optional{% endif %} {{ field.name | capitalize}} = {{ loop.index + 4 }};
+{{ field.dataTypeToCSharpDef }}{% if not field.required  %} optional{% endif %} {{ field.name | capitalize}} = {{ loop.index + 4 }};
 {% endfor %}
 
 }

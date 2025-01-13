@@ -82,7 +82,7 @@ namespace Portal.Web.Models
 {% if field.dataTypeDef == "TEXT" and field.length is not empty %}
          [StringLength({{ field.length }}, ErrorMessage = "{{ field.title }} can't be more than {{ field.length }}.")]
 {% endif %}
-         public {{ field.dataTypeDef.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.name | capitalize}} { get; set; } {{ defaultValue }}
+         public {{ field.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.name | capitalize}} { get; set; } {{ defaultValue }}
 
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] != "true"  %}
         public IList<SelectListItem> {{ field.lookupKey }}s { get; } =
@@ -90,7 +90,7 @@ namespace Portal.Web.Models
 {% endif %}
 
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true"  %}
-        public {{ field.dataTypeDef.dataTypeToCSharpDef }} {{ field.name | capitalize}}String { get; set; }
+        public {{ field.dataTypeToCSharpDef }} {{ field.name | capitalize}}String { get; set; }
 {% endif %}
 
 {% if field.referenceViewDefinition is not empty %}

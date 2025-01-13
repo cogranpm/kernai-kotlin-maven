@@ -7,8 +7,11 @@
 	ViewData["Title"] = Model.Title;
 	var searchUrl = "{{viewDef.entityDef.name | capitalize}}s";
 }
-
-<div class="container pd-x-0 pd-lg-x-10 pd-xl-x-0">
+{% set containerClass = "container pd-x-0 pd-lg-x-10 pd-xl-x-0" %}
+{% if viewDef.listWeight < viewDef.editWeight %}
+{% set containerClass = "fluid" %}
+{% endif %}
+<div class="{{ containerClass }}">
 	<div id="basicSearch" class="tab-pane fade active show bg-gray-100 mg-b-20">
 		<form action="@searchUrl" method="get">
 			<div class="row p-0 m-0 border-bottom">
