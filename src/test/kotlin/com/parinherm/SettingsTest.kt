@@ -1,9 +1,6 @@
 package com.parinherm
 
-import com.parinherm.settings.Setting
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 
 class SettingsTest {
 

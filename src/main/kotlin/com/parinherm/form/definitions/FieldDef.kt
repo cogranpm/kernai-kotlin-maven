@@ -10,7 +10,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 
-@Serializable
+//@Serializable
 data class FieldDef(
     val name: String,
     val title: String,

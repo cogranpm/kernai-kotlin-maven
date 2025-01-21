@@ -11,7 +11,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 
-@Serializable
+//@Serializable
 data class ViewDef(
     val viewDefinitionId: Long,
     val id: String,

@@ -1,2 +1,46 @@
-
+Manifest-Version: 1.0
+Main-Class: com.parinherm.HelloKt
+Class-Path: org.eclipse.equinox.common-3.19.100.jar kotlin-reflect-1.9.2
+ 1.jar kotlin-stdlib-jdk8-1.3.61.jar kotlin-scripting-common-1.9.22.jar 
+ exposed-json-0.48.0.jar xmlgraphics-commons-2.9.jar mysql-connector-j-9
+ .0.0.jar exposed-jdbc-0.48.0.jar org.eclipse.jface.databinding-1.15.300
+ .jar org.eclipse.core.databinding.observable-1.13.300.jar arrow-annotat
+ ions-1.0.1.jar icu4j-70.1.jar jsr305-1.3.9.jar guava-18.0.jar kotlin-sc
+ ripting-compiler-embeddable-1.9.22.jar batik-shared-resources-1.17.jar 
+ mssql-jdbc-12.8.1.jre11.jar org.eclipse.e4.ui.css.swt-0.15.400.jar comm
+ ons-logging-1.0.4.jar kotlin-scripting-compiler-impl-embeddable-1.9.22.
+ jar classgraph-4.8.176.jar org.eclipse.ui.forms-3.13.300.jar sqlite-jdb
+ c-3.46.1.3.jar xml-apis-ext-1.3.04.jar kotlinx-serialization-core-jvm-1
+ .3.2.jar humanize-slim-1.2.2.jar org.eclipse.core.runtime-3.32.0.jar ja
+ sypt-1.9.3.jar jna-jpms-5.12.1.jar kotlin-stdlib-common-1.6.0.jar anima
+ l-sniffer-annotations-1.19.jar postgresql-42.7.4.jar arrow-continuation
+ s-1.0.1.jar pebble-3.2.2.jar jlayer-1.0.3.jar org.eclipse.equinox.app-1
+ .7.200.jar org.osgi.service.prefs-1.1.2.jar annotations-13.0.jar kotlin
+ -stdlib-jdk7-1.3.61.jar ST4-4.3.1.jar kotlin-scripting-jvm-host-1.9.22.
+ jar antlr-runtime-3.5.2.jar truffle-api-23.0.3.jar regex-23.0.3.jar bat
+ ik-i18n-1.17.jar org.eclipse.core.jobs-3.15.400.jar exposed-java-time-0
+ .48.0.jar kotlinx-coroutines-swt-1.0.0.jar org.eclipse.swt-3.127.0.jar 
+ handlebars-humanize-4.3.0.jar kotlinx-coroutines-core-jvm-1.6.0.jar kot
+ lin-script-runtime-1.9.22.jar org.eclipse.core.commands-3.12.200.jar ht
+ tpcore5-5.2.4.jar handlebars-4.3.0.jar batik-constants-1.17.jar org.ecl
+ ipse.e4.ui.css.core-0.14.500.jar kotlinx-coroutines-core-1.6.0.jar org.
+ eclipse.equinox.preferences-3.11.200.jar httpcore5-h2-5.2.4.jar checker
+ -qual-3.42.0.jar js-23.0.3.jar kotlin-scripting-jvm-1.9.22.jar vosk-0.3
+ .45.jar draw2d-3.8.1.jar unidecode-0.0.7.jar org.eclipse.jface-3.35.0.j
+ ar jna-5.7.0.jar slf4j-api-2.0.9.jar httpclient5-5.3.1.jar graal-sdk-23
+ .0.3.jar org.eclipse.core.databinding.property-1.10.300.jar org.eclipse
+ .core.contenttype-3.9.600.jar org.eclipse.jface.text-3.19.0.jar kotlinx
+ -collections-immutable-jvm-0.3.5.jar exposed-dao-0.48.0.jar commons-io-
+ 2.11.0.jar log4j-slf4j-impl-2.24.0.jar osgi.annotation-8.0.1.jar kotlin
+ -daemon-embeddable-1.9.22.jar batik-util-1.17.jar kotlin-stdlib-1.9.22.
+ jar org.eclipse.jface.notifications-0.7.300.jar prettytime-3.2.5.Final.
+ jar log4j-core-2.24.0.jar exposed-core-0.48.0.jar org.eclipse.osgi-3.21
+ .0.jar kotlin-compiler-embeddable-1.9.22.jar unbescape-1.1.6.RELEASE.ja
+ r log4j-api-2.24.0.jar json-20240303.jar kotlin-scripting-jsr223-1.9.22
+ .jar org.eclipse.swt.win32.win32.x86_64-3.127.0.jar kotlinx-serializati
+ on-json-jvm-1.3.2.jar org.eclipse.equinox.registry-3.12.200.jar protobu
+ f-java-4.26.1.jar batik-css-1.17.jar org.eclipse.core.databinding.beans
+ -1.10.300.jar jna-platform-jpms-5.12.1.jar arrow-core-1.0.1.jar org.ecl
+ ipse.core.databinding-1.13.300.jar trove4j-1.0.20200330.jar org.eclipse
+ .text-3.12.0.jar
 
