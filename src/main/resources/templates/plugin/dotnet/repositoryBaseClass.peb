@@ -103,9 +103,10 @@ namespace Portal.Repository
 {%  if hasSearchFields == 1 %}
             if (!string.IsNullOrEmpty(search))
             {
+                filteredViewModel = viewModel.Where(x =>
 {% for field in viewDef.searchFields %}
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
-                    x.{{ field.name | capitalize }}String.Contains(search, StringComparison.CurrentCultureIgnoreCase)
+               x.{{ field.name | capitalize }}String.Contains(search, StringComparison.CurrentCultureIgnoreCase)
 {% else %}
 {%  set searchClause = "" %}
 {% if field.dataTypeDef == "INT" %}
@@ -120,24 +121,22 @@ namespace Portal.Repository
  {% if field.dataTypeDef == "BOOLEAN" %}
                 var typedSearch = Convert.ToBoolean(search);
 {% endif %}
-                filteredViewModel = viewModel.Where(
-                    x =>
 {% if field.dataTypeDef == "INT" or field.dataTypeDef == "FLOAT" or field.dataTypeDef == "MONEY" or field.dataTypeDef == "BOOLEAN" %}
 {% set searchClause = "Equals(typedSearch)" %}
 {%  else %}
-{% set searchClause = "Contains(search, StringComparison.CurrentCultureIgnoreCase)" %}
+{% set searchClause = "Equals(search, StringComparison.CurrentCultureIgnoreCase)" %}
 {% endif %}
-
 {% if field.dataTypeDef == "DATE" %} {%  set defaultValue = "= DateTime.Now;" %}{% endif %}
 {% if field.dataTypeDef == "TIME" %} {%  set defaultValue = "= DateTime.Now;" %}{% endif %}
 {% if field.default is not empty and field.default == "YEAR" %}
 {% set defaultValue = "= DateTime.Now.Year;" %}
 {% endif %}
-                    x.{{ field.name | capitalize }}.{{ searchClause }}
+                x.{{ field.name | capitalize }}.{{ searchClause }}
 {% endif %}
+{% if not loop.last %} || {% endif %}
 
-{% if not loop.last %} ||{% endif %}
 {% endfor %}
+
                 ).ToList();
             }
 {% endif %}

@@ -1,3 +1,7 @@
+{% set hasSearchFields = 0 %}
+{% for field in viewDef.searchFields %}
+{% set hasSearchFields = 1 %}
+{% endfor %}
 @using Portal.Core
 @using Portal.Repository
 @using Portal.Repository.Model.Enums
@@ -16,11 +20,21 @@
 		<form action="@searchUrl" method="get">
 			<div class="row p-0 m-0 border-bottom">
 				<div class="search-form col-lg-12 p-0 m-0">
-					<input type="search"
+{% set placeholderSearch = "" %}
+{%  if hasSearchFields == 1 %}
+{% set placeholderSearch = "Search by" %}
+{% for field in viewDef.searchFields %}
+{% set placeholderSearch = placeholderSearch + " " + field.title %}{% if loop.last %}{% else %}{% set placeholderSearch = placeholderSearch + "," %}{% endif %}
+{% endfor %}
+    					<input type="search"
 						   class="form-control border-0 border-right"
 						   name="search" id="search"
 						   value="@Model.Search"
-						   placeholder="">
+						   placeholder="{{ placeholderSearch }}"
+						   title="{{ placeholderSearch }}"
+						   >
+{% endif %}
+
 					<button type="submit"
 							class="btn border-0 bg-white">
 						<i data-feather="search" class="tx-primary"></i>
@@ -37,6 +51,7 @@
 			<h5 class="mg-b-0">{{viewDef.title }}</h5>
 		</div>
 		@await Html.PartialAsync("_list", Model)
+		<div id="pageInfo"></div>
 	</div>
 </div>
 

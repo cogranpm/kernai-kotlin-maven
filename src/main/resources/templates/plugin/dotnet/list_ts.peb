@@ -1,7 +1,7 @@
 import { toQueryString } from "../utils/url-utils.js";
 import { addOrRemoveClass, createJqSelectorBuilder as jqs } from "../utils/jquery-utils.js";
 
-export interface {{viewDef.entityDef.name | capitalize}}ForList {
+export interface {{viewDef.id | capitalize}}ForList {
     numRows: number;
     id: number;
 {% for field in viewDef.fieldDefinitions %}
@@ -16,7 +16,7 @@ export interface SearchCriteria {
     search: string;
 }
 
-export interface {{viewDef.entityDef.name | capitalize}}ListModel {
+export interface {{viewDef.id | capitalize}}ListModel {
     criteria: SearchCriteria,
     loadingHtml: string;
     loadingSmHtml: string;
@@ -26,9 +26,9 @@ export enum ElementIds {
     LIST_TABLE = "listTable"
 }
 
-let model: {{viewDef.entityDef.name | capitalize}}ListModel;
+let model: {{viewDef.id | capitalize}}ListModel;
 
-export function initialize(m: {{viewDef.entityDef.name | capitalize}}ListModel) {
+export function initialize(m: {{viewDef.id | capitalize}}ListModel) {
     model = m;
 }
 
@@ -54,15 +54,15 @@ $(function () {
         },
         columns: [
             {
-                data: function (data: {{viewDef.entityDef.name | capitalize}}ForList) {
-                    return `<a href="javascript:;" class="deleteLink" data-id="${data.id}"><i class="fa fa-trash"></i></a>`;
+                data: function (data: {{viewDef.id | capitalize}}ForList) {
+                    return `<a href="javascript:;" id="deleteLink" class="deleteLink" data-id="${data.id}"><i class="fa fa-trash"></i></a>`;
                 }
             },
 {% for field in viewDef.showInListSortedFields%}
 {% if loop.first %}
             {
                 data: function (data: {{viewDef.id | capitalize}}ForList) {
-                    return `<a href="javascript:; "class="editLink" data-id="${data.id}" id="editLink" data-bs-toggle="modal" data-bs-target="#addModal">${data.{{ field.name | decapitalizeFilter }} }</button>`;
+                    return `<a href="javascript:; "class="editLink" data-id="${data.id}" id="editLink">${data.{{ field.name | decapitalizeFilter }} }</a>`;
                 }
             },
 {% else %}
@@ -97,50 +97,26 @@ $(function () {
         lengthChange: false,
         stateSave: false,
         stateDuration: -1,
-        searching: true,
-        initComplete: function (settings, json: any) {
-
-            let editLinks: HTMLCollectionOf<HTMLAnchorElement> = document.getElementsByClassName("editLink") as HTMLCollectionOf<HTMLAnchorElement>;
-            for (const element of editLinks) {
-                element.addEventListener("click", async (event: Event) => {
-                    const id = (event.currentTarget as HTMLButtonElement).dataset.id;
-                    load(id);
-                });
-            }
-
-            let deleteLinks: HTMLCollectionOf<HTMLAnchorElement> = document.getElementsByClassName("deleteLink") as HTMLCollectionOf<HTMLAnchorElement>;
-            for (const element of deleteLinks) {
-                element.addEventListener("click", async (event: Event) => {
-                    if (confirm('Delete this record?')) {
-                        const id = (event.currentTarget as HTMLAnchorElement).dataset.id;
-                        const url = `/{{viewDef.entityDef.name | capitalize}}s/delete/${id}`;
-                        try {
-                            const response = await fetch(url);
-                            if (!response.ok) {
-                                throw new Error(`Response status: ${response.status}`);
-                            } else {
-                                window.location.href = "/{{viewDef.entityDef.name | capitalize}}s";
-                            }
-                        } catch (error) {
-                            console.error(error);
-                            $("#alert-error").fadeIn(200).delay(2000).slideUp(200);
-                        }
-                    }
-                });
-            }
-        }
+        searching: true
     });
 
     getJqListTable().wrap('<div class="table-responsive with-data-table"></div>');
 
-/*
-    jqs().id(ElementIds.LIST_TABLE).tbody().toJq().on('click', 'tr', function () {
-        let row = dataTable.row(this);
-        let data = row.data() as any;
-        let id = data.id;
-		load(id);
-	});
-*/
+    //delegated event handlers
+    jqs().id(ElementIds.LIST_TABLE).tbody().toJq().on('click', '.deleteLink', function (e) {
+        const id = (e.currentTarget as HTMLButtonElement).dataset.id;
+        removeItem(id);
+    });
+
+    jqs().id(ElementIds.LIST_TABLE).tbody().toJq().on('click', '.editLink', function (e) {
+        const id = (e.currentTarget as HTMLButtonElement).dataset.id;
+        load(id);
+    });
+
+    dataTable.on('page', function () {
+        var info = dataTable.page.info();
+        $('#pageInfo').html('Showing page: ' + (info.page + 1) + ' of ' + info.pages);
+    });
 
     dataTable.on('draw', function () {
         if (currentId != '') {
@@ -186,31 +162,28 @@ function getInfoElement() {
 
 let isLoading = false;
 
+export function removeItem(id: string) {
 
-{# THIS IS A COMMENT
-const modalConfig = (loading: boolean = false) => {
-{% for field in viewDef.fieldDefinitions %}
-{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
-    let {{ field.nameAsField }}Combo = $('#{{ field.nameAsField }}');
-    const current{{ field.name | capitalize }} = {{ field.nameAsField }}Combo.data("{{ field.nameAsField }}");
+    const serverPost = async (url) => {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        } else {
+            window.location.href = "/{{viewDef.id | capitalize}}s";
+        }
+    };
 
-    {{ field.nameAsField }}Combo.select2({
-        placeholder: 'Choose {{ field.title }}',
-        allowClear: false,
-        dropdownParent: $('#addModal'),
-        ajax: {
-            type: 'GET',
-            url: `/{{viewDef.entityDef.name | capitalize}}s/{{ field.lookupKeyAsField }}s`,
-            dataType: 'json'
-        },
-    });
-    if (current{{ field.name | capitalize }}) {
-        {{ field.nameAsField }}Combo.val(current{{ field.name | capitalize }}).trigger('change');
+    if (confirm('Delete this record?')) {
+        const url = `/{{viewDef.id | capitalize}}s/delete/${id}`;
+        try {
+            serverPost(url).then();
+        } catch (error) {
+            console.error(error);
+            $("#alert-error").fadeIn(200).delay(2000).slideUp(200);
+        }
     }
-{% endif %}
-{% endfor %}
 }
-#}
+
 export function save(){
     const validator = $('#editForm').validate();
     if (!validator.form()) {
@@ -229,7 +202,7 @@ export function save(){
         )
 
         getInfoElement().load(
-            `/{{viewDef.entityDef.name | capitalize}}s/edit`, viewModel,
+            `/{{viewDef.id | capitalize}}s/edit`, viewModel,
             function (response, status, xhr) {
                 if (status == 'error') {
                     getInfoElement().html('<div class="alert alert-warning">Could not load record</div>');
@@ -255,15 +228,14 @@ export function load(id: string) {
     $(function () {
         const qs = toQueryString({});
         getInfoElement().load(
-            `/{{viewDef.entityDef.name | capitalize}}s/info/${id}` + "?" + qs,
+            `/{{viewDef.id | capitalize}}s/info/${id}` + "?" + qs,
             function (response, status, xhr) {
                 if (status == 'error') {
                     getInfoElement().html('<div class="alert alert-warning">Could not load record</div>');
                     isLoading = false;
                 }
                 else {
-                    let modal = $('#addModal') as any;
-                    modal.modal({ focus: true });
+                    ($('#addModal') as any).modal("show");
                     isLoading = false;
                 }
             }
@@ -277,7 +249,7 @@ export function create() {
     $(function () {
         const qs = toQueryString({});
         getInfoElement().load(
-            `/{{viewDef.entityDef.name | capitalize}}s/create` + "?" + qs,
+            `/{{viewDef.id | capitalize}}s/create` + "?" + qs,
             function (response, status, xhr) {
                 if (status == 'error') {
                     getInfoElement().html('<div class="alert alert-warning">Could not load record</div>');
@@ -300,5 +272,3 @@ export function listViewBack(show: boolean) {
         addOrRemoveClass(!show, '#listViewBack', 'd-none');
     }
 }
-
-
