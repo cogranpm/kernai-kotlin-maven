@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Portal.Repository.Model.Enums;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace Portal.Repository.Model.ConklinCentral {
 
@@ -32,7 +33,7 @@ namespace Portal.Repository.Model.ConklinCentral {
 {% if field.required == true %}
         [Required]
 {% endif %}
-        public {{ field.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.name | capitalize}} { get; set; }
+        public {{ field.dataTypeToCSharpDef }}{% if field.required == false%}{{ field.cSharpNullablePostfix }}{% endif %} {{ field.name | capitalize}} { get; set; }
 {% endfor %}
 
 {% for ownerAssociation in vDef.ownerAssociations %}
