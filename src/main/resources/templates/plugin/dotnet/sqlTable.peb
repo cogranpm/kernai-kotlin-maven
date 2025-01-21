@@ -1,34 +1,51 @@
-{{  tableDDL(vDef = viewDef) }}
-
+{# child tables come first or the drop statement will fail due to foreign key constraint #}
 {% for ownerAssociation in viewDef.ownerAssociations %}
 {% if ownerAssociation.owningType == "one" %}
 {{  tableDDL(vDef = ownerAssociation.ownedViewDef, parentViewDef = viewDef) }}
 {% endif %}
 {% endfor %}
 
+{# current entity table #}
+{{  tableDDL(vDef = viewDef) }}
+
+{# child foreign key constraints at end of file #}
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+-- FOREIGN KEY FOR PARENT {{ parentViewDef.entityDef.name | capitalize }}
+
+ALTER TABLE [dbo].[{{ownerAssociation.ownedViewDef.entityDef.name | capitalize}}]
+ADD CONSTRAINT FK_{{ownerAssociation.ownedViewDef.entityDef.name | capitalize}}_{{ viewDef.entityDef.name | capitalize }} FOREIGN KEY ({{ viewDef.entityDef.name | capitalize }}Id)
+    REFERENCES {{ viewDef.entityDef.name | capitalize }}(Id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+GO
+{% endif %}
+
+{% endfor %}
+
+{# macro with common table ddl statements #}
 {% macro tableDDL(type="text", vDef, parentViewDef) %}
 DROP TABLE IF EXISTS [dbo].[{{vDef.entityDef.name | capitalize}}]
 GO
 
 CREATE TABLE [dbo].[{{vDef.entityDef.name | capitalize}}] (
-    [Id] INT IDENTITY (1, 1) NOT NULL,
+     [Id] INT IDENTITY (1, 1) NOT NULL,
 {%  if parentViewDef is not null %}
-    [{{ parentViewDef.entityDef.name | capitalize }}Id] INT NOT NULL,
+     [{{ parentViewDef.entityDef.name | capitalize }}Id] INT NOT NULL,
 {% endif %}
 {% for field in vDef.sortedFields%}
 {% if field.referenceViewDefinition is not null and field.dataTypeDef  == "REFERENCE"%}
-     [{{ field.name | capitalize }}] {{ field.referenceViewDefinition.configMap["sqlKeyType"] }} {% if field.required  %}NOT {% endif %} NULL,
+      [{{ field.name | capitalize }}] {{ field.referenceViewDefinition.configMap["sqlKeyType"] }} {% if field.required  %}NOT {% endif %} NULL,
 {% else %}
 {%  set defaultValue = "" %}
-{% if field.default is not empty and field.default == "YEAR" %}{% set defaultValue = "DEFAULT YEAR(GETDATE())" %}{% endif %}
-     [{{ field.name | capitalize }}] {{ field.dataTypeToSqlDef }} {% if field.required  %}NOT {% endif %} NULL {{ defaultValue }},
+     [{{ field.name | capitalize }}] {{ field.dataTypeToSqlDef }} {% if field.required  %}NOT {% endif %} NULL {{ field.defaultSqlTable }},
 {% endif %}
 {% endfor %}
-    [CreatedOn]     DATETIME2 (3)  NOT NULL,
-    [CreatedBy]     NVARCHAR (50)  NOT NULL,
-    [ModifiedOn]    DATETIME2 (3)  NOT NULL,
-    [ModifiedBy]    NVARCHAR (50)  NOT NULL,
-    [TimeStamp]     timestamp      NOT NULL
+     [CreatedOn]     DATETIME2 (3)  NOT NULL,
+     [CreatedBy]     NVARCHAR (50)  NOT NULL,
+     [ModifiedOn]    DATETIME2 (3)  NOT NULL,
+     [ModifiedBy]    NVARCHAR (50)  NOT NULL,
+     [TimeStamp]     timestamp      NOT NULL
 )
 GO
 
@@ -43,17 +60,6 @@ GO
 ALTER TABLE [dbo].[{{vDef.entityDef.name | capitalize}}]
     ADD CONSTRAINT [DF_{{vDef.entityDef.name | capitalize}}_ModifiedOn] DEFAULT (sysdatetime()) FOR [ModifiedOn];
 GO
-
-{%  if parentViewDef is not null %}
--- FOREIGN KEY FOR PARENT {{ parentViewDef.entityDef.name | capitalize }}
-
-ALTER TABLE [dbo].[{{vDef.entityDef.name | capitalize}}]
-ADD CONSTRAINT FK_{{vDef.entityDef.name | capitalize}}_{{ parentViewDef.entityDef.name | capitalize }} FOREIGN KEY ({{ parentViewDef.entityDef.name | capitalize }}Id)
-    REFERENCES {{ parentViewDef.entityDef.name | capitalize }}(Id)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE
-GO
-{% endif %}
 
 {% for field in vDef.sortedFields%}
 {% if field.referenceViewDefinition is not null and field.dataTypeDef  == "REFERENCE"%}

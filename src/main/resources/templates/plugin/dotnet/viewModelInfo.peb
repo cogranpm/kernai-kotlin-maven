@@ -85,7 +85,7 @@ namespace Portal.Web.Models
          public {{ field.dataTypeToCSharpDef }}{% if field.required == false%}{{ field.cSharpNullablePostfix }}{% endif %} {{ field.name | capitalize}} { get; set; } {{ defaultValue }}
 
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] != "true"  %}
-        public IList<SelectListItem> {{ field.lookupKey }}s { get; } =
+        public IList<SelectListItem> {{ field.name}}Lookups { get; } =
             {{ field.lookupKey }}Lookup.Items.Select( x => new SelectListItem() {Text = x.Value, Value = x.Key}).ToList();
 {% endif %}
 

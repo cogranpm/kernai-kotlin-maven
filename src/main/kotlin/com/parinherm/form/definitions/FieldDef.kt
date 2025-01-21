@@ -125,6 +125,42 @@ data class FieldDef(
             DataTypeDef.REFERENCE -> "''"
         }
 
+    val defaultSqlTable: String
+        get() = when (dataTypeDef) {
+            DataTypeDef.BLOB -> "[]"
+            DataTypeDef.MEMO,
+            DataTypeDef.SOURCE,
+            DataTypeDef.TEXT,
+            DataTypeDef.FILE,
+            DataTypeDef.LOOKUP,
+            DataTypeDef.FLOAT,
+            DataTypeDef.MONEY,
+            DataTypeDef.INT,
+            DataTypeDef.DATETIME,
+            DataTypeDef.TIME,
+            DataTypeDef.DATE -> when
+            {
+                default.isNotEmpty() -> " DEFAULT " + (when
+                {
+                    default.uppercase() == "YEAR" -> "YEAR(GETDATE())"
+                    else -> default
+                })
+                else -> ""
+            }
+            DataTypeDef.BOOLEAN -> when
+            {
+                default.isNotEmpty() -> " DEFAULT " + (when
+                {
+                    default.uppercase() == "FALSE" -> "0"
+                    default.uppercase() == "TRUE" -> "1"
+                    else -> default
+                })
+                else -> ""
+            }
+            DataTypeDef.REFERENCE -> ""
+        }
+
+
     val columnCompare: String
         get() = when (dataTypeDef) {
             DataTypeDef.MEMO,

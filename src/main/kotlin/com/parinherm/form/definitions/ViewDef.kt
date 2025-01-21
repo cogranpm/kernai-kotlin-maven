@@ -96,7 +96,7 @@ data class ViewDef(
             return this.fieldDefinitions.filter {
                 !it.lookupKey.isNullOrEmpty() &&
                         it.configMap.getOrDefault("advancedLookup", "false") == "false"
-            }.distinct().map { LookupUtils.getLookupByKey(it.lookupKey.toString()) }
+            }.distinctBy{it.lookupKey}.map { LookupUtils.getLookupByKey(it.lookupKey.toString()) }
         }
 
     init {

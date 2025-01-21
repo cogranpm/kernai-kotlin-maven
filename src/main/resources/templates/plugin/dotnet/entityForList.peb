@@ -8,7 +8,7 @@ public class {{viewDef.entityDef.name | capitalize}}ForList
 		public int NumRows { get; set; }
 		public int Id { get; set; }
 {% for field in viewDef.fieldDefinitions %}
-        public {{ field.dataTypeToCSharpDef }}{{ field.cSharpNullablePostfix }} {{ field.name | capitalize}} { get; set; }
+        public {{ field.dataTypeToCSharpDef }}{% if field.required == false%}{{ field.cSharpNullablePostfix }}{% endif %} {{ field.name | capitalize}} { get; set; }
 {% endfor %}
 {% for field in viewDef.fieldDefinitions %}
 {% if field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME" %}
