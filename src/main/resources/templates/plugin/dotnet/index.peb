@@ -5,10 +5,12 @@
 @using Portal.Core
 @using Portal.Repository
 @using Portal.Repository.Model.Enums
-@model Portal.Web.Models.{{viewDef.entityDef.name | capitalize}}Search
+@model Portal.Web.Management.Models.App.{{viewDef.entityDef.name | capitalize}}Search
 @{
 	Layout = "~/Views/Shared/_Dashforge2Template.cshtml";
 	ViewData["Title"] = Model.Title;
+{% if viewDef.configMap["menuTitle"] is not empty %}    ViewData["MenuActive"] = "{{ viewDef.configMap["menuTitle"] }}";{% endif %}
+
 	var searchUrl = "{{viewDef.entityDef.name | capitalize}}s";
 }
 {% set containerClass = "container pd-x-0 pd-lg-x-10 pd-xl-x-0" %}

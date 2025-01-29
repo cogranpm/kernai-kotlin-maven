@@ -1,7 +1,7 @@
 @using Portal.Core
 @using Portal.Repository
 @using Portal.Repository.Model.Enums
-@model Portal.Web.Models.{{ parentViewDef.id }}Edit
+@model Portal.Web.Management.Models.App.{{ parentViewDef.id }}Edit
 
 <div class="tx-right pd-b-5">
 	<button class="btn btn-primary btn-sm" id="btnCreate" data-id="@Model.Id" data-bs-toggle="modal" data-bs-target="#addModal">Add New</button>
@@ -42,7 +42,7 @@
 </div>
 
 <script type="module">
-    import { initApplication } from "./{{ parentViewDef.id | capitalize }}/{{ childViewDef.id | decapitalizeFilter }}.js";
+    import { initApplication } from "@Url.Content("~/{{ parentViewDef.id | capitalize }}/{{ childViewDef.id | decapitalizeFilter }}.js")";
 	const model = {
 		loadingHtml: '@await Html.PartialAsync("_loading")',
 		loadingSmHtml: '@await Html.PartialAsync("_loadingsm")'

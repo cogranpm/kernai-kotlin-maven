@@ -1,5 +1,5 @@
 @using Portal.Core
-@model Portal.Web.Models.{{childViewDef.id | capitalize}}Edit
+@model Portal.Web.Management.Models.App.{{childViewDef.id | capitalize}}Edit
 @{
     Layout = "_EmptyLayout";
 }

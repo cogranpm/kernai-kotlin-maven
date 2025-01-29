@@ -1,10 +1,11 @@
 @using Portal.Core
 @using Portal.Repository
 @using Portal.Repository.Model.Enums
-@model Portal.Web.Models.{{parentViewDef.entityDef.name | capitalize}}Edit
+@model Portal.Web.Management.Models.App.{{parentViewDef.entityDef.name | capitalize}}Edit
 
 @{
 	Layout = "~/Views/Shared/_Dashforge2Template.cshtml";
+    ViewData["MenuActive"] = "Rebates/Definition";
 }
 {% set firstFieldName = "" %}
 {% for field in parentViewDef.showInListSortedFields %}

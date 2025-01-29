@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Portal.Repository.Model.ConklinCentral;
 using System.Linq;
 
-namespace Portal.Web.Models
-{
+namespace Portal.Web.Management.Models.App;
+
     public class {{viewDef.entityDef.name | capitalize}}Edit
     {
         [Required]
@@ -15,15 +15,15 @@ namespace Portal.Web.Models
         {{ fieldProperties(vDef = viewDef) }}
 
         public bool ShouldUseBlankLayout { get; set; }
-        public {{viewDef.entityDef.name | capitalize}}Search Criteria { get; set; }
-        public Byte[] TimeStamp { get; set; }
+        public {{viewDef.entityDef.name | capitalize}}Search? Criteria { get; set; }
+        public Byte[]? TimeStamp { get; set; }
 
 {% for ownerAssociation in viewDef.ownerAssociations %}
 {% if ownerAssociation.owningType == "one" and ownerAssociation.ownedType == "many"%}
         public ICollection<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}Edit> {{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s { get; set; } = new List<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}Edit>();
 {% endif %}
 {% endfor %}
-        public string LocationRedirect { get; set; }
+        public string? LocationRedirect { get; set; }
 
 		public override string ToString()
 		{
@@ -49,14 +49,14 @@ namespace Portal.Web.Models
 
 		public int {{viewDef.entityDef.name | capitalize}}Id { get; set; }
 		public Byte[] TimeStamp { get; set; }
-		public string LocationRedirect { get; set; }
-		public {{viewDef.entityDef.name | capitalize}}Edit {{viewDef.entityDef.name | capitalize}} { get; set; } = null!;
+		public string? LocationRedirect { get; set; }
+		public {{viewDef.entityDef.name | capitalize}}Edit? {{viewDef.entityDef.name | capitalize}} { get; set; } = null!;
 	}
 
 {% endif %}
 {% endfor %}
 
-}
+
 
 {% macro fieldProperties(type="text", vDef) %}
  {% for field in vDef.sortedFields %}
@@ -82,7 +82,7 @@ namespace Portal.Web.Models
 {% if field.dataTypeDef == "TEXT" and field.length is not empty %}
          [StringLength({{ field.length }}, ErrorMessage = "{{ field.title }} can't be more than {{ field.length }}.")]
 {% endif %}
-         public {{ field.dataTypeToCSharpDef }}{% if field.required == false%}{{ field.cSharpNullablePostfix }}{% endif %} {{ field.name | capitalize}} { get; set; } {{ defaultValue }}
+         public {{ field.dataTypeToCSharpDef }}{% if field.required == false%}{{ "?" }}{% endif %} {{ field.name | capitalize}} { get; set; } {{ defaultValue }}
 
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] != "true"  %}
         public IList<SelectListItem> {{ field.name}}Lookups { get; } =
@@ -90,11 +90,11 @@ namespace Portal.Web.Models
 {% endif %}
 
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true"  %}
-        public {{ field.dataTypeToCSharpDef }} {{ field.name | capitalize}}String { get; set; }
+        public {{ field.dataTypeToCSharpDef }}? {{ field.name | capitalize}}String { get; set; }
 {% endif %}
 
 {% if field.referenceViewDefinition is not empty %}
-        public string {{ field.name | capitalize}}String { get; set; }
+        public string? {{ field.name | capitalize}}String { get; set; }
 {% endif %}
 
 {% endfor %}

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Portal.Core.ExtensionMethods;
 
-namespace Portal.Web.Models;
+namespace Portal.Web.Models.App;
 
 public class {{viewDef.entityDef.name | capitalize}}SearchCriteria
 {

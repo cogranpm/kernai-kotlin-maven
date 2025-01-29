@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Portal.Repository.Model.ConklinCentral;
 
-namespace Portal.Web.Models;
+namespace Portal.Web.Management.Models.App;
 
 public class {{viewDef.entityDef.name | capitalize}}ListJson
 {

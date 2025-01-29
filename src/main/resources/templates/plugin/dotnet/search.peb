@@ -1,7 +1,7 @@
-namespace Portal.Web.Models;
+namespace Portal.Web.Management.Models.App;
 
 public class {{viewDef.entityDef.name | capitalize}}Search
 {
-        public string Title { get; set; }
-	    public string Search { get; set; }
+        public string? Title { get; set; }
+	    public string? Search { get; set; }
  }

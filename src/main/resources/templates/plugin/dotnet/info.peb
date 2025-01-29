@@ -1,5 +1,5 @@
 @using Portal.Core
-@model Portal.Web.Models.{{viewDef.id | capitalize}}Edit
+@model Portal.Web.Management.Models.App.{{viewDef.id | capitalize}}Edit
 @{
     Layout = "_EmptyLayout";
 }
@@ -8,9 +8,10 @@
 	@using (Html.BeginForm("Edit", "{{viewDef.id | capitalize}}s", FormMethod.Post, new { id = "editForm" }))
 	{
 		@Html.AntiForgeryToken()
-		@Html.ValidationSummary(true)
 		@Html.HiddenFor(model => model.Id)
 	    @Html.HiddenFor(model => model.TimeStamp)
+
+		<div class="validation" asp-validation-summary="All"></div>
     {% for field in viewDef.sortedFields%}
 
 		<div class="row mg-b-5">

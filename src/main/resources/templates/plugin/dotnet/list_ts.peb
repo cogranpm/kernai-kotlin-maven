@@ -200,18 +200,21 @@ export function save(){
                 key, formData.getAll(key).length > 1 ? formData.getAll(key) : formData.get(key)
             ])
         )
-
+        getInfoElement().hide();
         getInfoElement().load(
             `/{{viewDef.id | capitalize}}s/edit`, viewModel,
             function (response, status, xhr) {
                 if (status == 'error') {
                     getInfoElement().html('<div class="alert alert-warning">Could not load record</div>');
                     isLoading = false;
+                    getInfoElement().show();
                 }
                 else {
                     if (xhr.status == 202) {
                         var jsonData = JSON.parse(response);
                         window.location.href = jsonData.locationRedirect;
+                    } else {
+                        getInfoElement().show();
                     }
                 }
             }

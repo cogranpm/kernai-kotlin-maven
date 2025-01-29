@@ -5,21 +5,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Portal.Core;
 using Portal.Service;
-using Portal.Web.Models;
 using Portal.Repository.Model.ConklinCentral;
 using Portal.Repository;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
+using static Portal.Web.Management.Security.Attributes;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Portal.Web.Management.Models.App;
 
 namespace Portal.Web.Controllers
 {
+{% if viewDef.configMap["permissionName"] is not empty %}
+    [UserHasPermission("{{ viewDef.configMap["permissionName"] }}")]{% endif %}
+
     [Route("{{viewDef.id | capitalize}}s")]
     public class {{viewDef.id | capitalize}}sController : Controller
     {
         public const string Heading = "{{viewDef.title}}s";
         private readonly I{{viewDef.entityDef.name | capitalize}}Service _service;
-		private const string USER_ID = "system";
 		private readonly EntityMapper mapper;
+
 {% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
         private readonly I{{ field.lookupKey }}Repository _{{ field.lookupKeyAsField }}Repository;
@@ -103,9 +108,10 @@ namespace Portal.Web.Controllers
 			{
 				Response.StatusCode = StatusCodes.Status202Accepted;
 				var domainInstance = mapper.ToDomain(entity);
+                var userName = User.Identity?.Name?.Replace(@"CONKLIN\", "")!;
 				if (entity.Id < 1)
 				{
-					mapper.SetAudit(domainInstance, true);
+					mapper.SetAudit(domainInstance, userName, true);
 					var updatedDomain = this._service.Add(domainInstance);
                     var updatedInfo = this.MakeEntityViewModel(null, null, updatedDomain);
 					updatedInfo.LocationRedirect = "/{{viewDef.id | capitalize}}s";
@@ -113,7 +119,7 @@ namespace Portal.Web.Controllers
 				}
 				else
 				{
-					mapper.SetAudit(domainInstance, false);
+					mapper.SetAudit(domainInstance, userName, false);
 					this._service.Update(domainInstance);
 					var viewModel = this.MakeEntityViewModel(null, entity, null);
 					viewModel.LocationRedirect = "/{{viewDef.id | capitalize}}s";
@@ -214,6 +220,7 @@ namespace Portal.Web.Controllers
 			{
 				if (ModelState.IsValid)
 				{
+				    var userName = User.Identity?.Name?.Replace(@"CONKLIN\", "")!;
 					var parent = this._service.GetFirstWhereIncluding(x => x.Id == entity.{{ viewDef.entityDef.name | capitalize }}Id, ["{{ childEntityDefName | capitalize }}s"]);
 					if (parent == null)
 					{
@@ -227,15 +234,15 @@ namespace Portal.Web.Controllers
 					{
 						var newEntity = mapper.ToDomain(entity);
 						newEntity.{{ viewDef.entityDef.name | capitalize }} = parent;
-						mapper.SetAudit(newEntity, true);
+						mapper.SetAudit(newEntity, userName, true);
 						parent.{{ childEntityViewId | capitalize}}s.Add(newEntity);
 					}
 					else
 					{
 						existing = mapper.ToDomain(entity, existing);
-						mapper.SetAudit(existing, false);
+						mapper.SetAudit(existing, userName, false);
 					}
-					mapper.SetAudit(parent, false);
+					mapper.SetAudit(parent, userName, false);
 					this._service.Update(parent);
 
 					Response.StatusCode = StatusCodes.Status202Accepted;
@@ -344,14 +351,14 @@ namespace Portal.Web.Controllers
 				};
 			}
 
-			public void SetAudit({{viewDef.entityDef.name | capitalize}} entity, bool creating = false)
+			public void SetAudit({{viewDef.entityDef.name | capitalize}} entity, string userName, bool creating = false)
 			{
 				if (creating)
 				{
-					entity.CreatedBy = USER_ID;
+					entity.CreatedBy = userName;
 					entity.CreatedOn = DateTime.Now;
 				}
-				entity.ModifiedBy = USER_ID;
+				entity.ModifiedBy = userName;
 				entity.ModifiedOn = DateTime.Now;
 			}
 	{# mappings for child views #}
@@ -410,14 +417,14 @@ namespace Portal.Web.Controllers
 				info.TimeStamp = domain.TimeStamp;
 			}
 
-            public void SetAudit({{  childEntityDefName | capitalize }} entity, bool creating = false)
+            public void SetAudit({{  childEntityDefName | capitalize }} entity, string userName, bool creating = false)
 			{
 				if (creating)
 				{
-					entity.CreatedBy = USER_ID;
+					entity.CreatedBy = userName;
 					entity.CreatedOn = DateTime.Now;
 				}
-				entity.ModifiedBy = USER_ID;
+				entity.ModifiedBy = userName;
 				entity.ModifiedOn = DateTime.Now;
 			}
 {% endif %}

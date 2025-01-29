@@ -123,7 +123,7 @@ const viewBaseFolderName = ApplicationData.makeCapital(viewDef.getId());
 
 let controllerFolder = viewBaseFolderName + "/Controllers"
 let controllerClassFile = viewBaseFolderName +  "sController.cs";
-let controllerTargetFolder = "Portal.Web/Controllers";
+let controllerTargetFolder = "Portal.Web.Management/Controllers";
 writeTemplate(
     controllerFolder ,
     controllerClassFile,
@@ -133,7 +133,7 @@ pathsMap.push(getXCopyCommand(controllerClassFile, controllerFolder, controllerT
 
 let viewsFolder = viewBaseFolderName + "/Views/" + viewDef.getEntityDef().getName() + "s";
 let indexFileName = "Index.cshtml";
-let viewsTargetFolder = `Portal.Web/Views/${viewBaseFolderName}s`;
+let viewsTargetFolder = `Portal.Web.Management/Views/${viewBaseFolderName}s`;
 writeTemplate(
     viewsFolder,
     indexFileName,
@@ -161,7 +161,7 @@ pathsMap.push(getXCopyCommand(infoViewFileName, viewsFolder, viewsTargetFolder))
 
 let viewModelFolder = viewBaseFolderName + "/ViewModel";
 let listJsonFileName = viewBaseFolderName + "ListJson.cs";
-let viewModelTargetFolder = "Portal.Web/Models";
+let viewModelTargetFolder = "Portal.Web.Management/Models/App";
 writeTemplate(
     viewModelFolder,
     listJsonFileName,
@@ -198,7 +198,7 @@ pathsMap.push(getXCopyCommand(searchCriteriaClassName, viewModelFolder, viewMode
 
 let wwwrootFolder = viewBaseFolderName + "/wwwroot/" + viewDef.getEntityDef().getName();
 let listtsFileName = "list.ts";
-let wwwrootTargetFolder = `Portal.Web/wwwroot/${viewBaseFolderName}`;
+let wwwrootTargetFolder = `Portal.Web.Management/wwwroot/${viewBaseFolderName}`;
 writeTemplate(
     wwwrootFolder,
     listtsFileName,
@@ -216,7 +216,7 @@ if(viewDef.getChildViews()){
         childViewId = ApplicationData.decapitalize(childViewId);
 
         let childIndexFileName = `${childViewId}Index.cshtml`;
-        let viewsTargetFolder = `Portal.Web/Views/${viewBaseFolderName}s`;
+        let viewsTargetFolder = `Portal.Web.Management/Views/${viewBaseFolderName}s`;
         writeTemplateChild(
             viewsFolder,
             childIndexFileName,

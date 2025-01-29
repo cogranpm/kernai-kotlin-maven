@@ -1,4 +1,4 @@
-@model Portal.Web.Models.{{viewDef.entityDef.name | capitalize}}Search
+@model Portal.Web.Management.Models.App.{{viewDef.entityDef.name | capitalize}}Search
 @{
     Layout = "_EmptyLayout";
 }
