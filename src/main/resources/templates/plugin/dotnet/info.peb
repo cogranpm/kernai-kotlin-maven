@@ -1,3 +1,4 @@
+{% set viewStyle = viewDef.configMap.getOrDefault("viewStyle", "table") | lower %}
 @using Portal.Core
 @model Portal.Web.Management.Models.App.{{viewDef.id | capitalize}}Edit
 @{

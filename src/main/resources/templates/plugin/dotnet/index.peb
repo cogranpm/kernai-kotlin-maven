@@ -2,6 +2,13 @@
 {% for field in viewDef.searchFields %}
 {% set hasSearchFields = 1 %}
 {% endfor %}
+{% set viewStyle = viewDef.configMap.getOrDefault("viewStyle", "table") | lower %}
+{% set cancelButtonCaption = "cancel" %}
+{% set showSaveButton = true %}
+{% if viewStyle equals "report" %}
+    {% set cancelButtonCaption = "close" %}
+    {% set showSaveButton = false %}
+{% endif %}
 @using Portal.Core
 @using Portal.Repository
 @using Portal.Repository.Model.Enums
@@ -45,9 +52,11 @@
 			</div>
 		</form>
 	</div>
+	{% if not viewStyle equals "report" %}
 	<div class="tx-right pd-b-5">
 		<button class="btn btn-primary btn-sm" id="btnCreate" data-bs-toggle="modal" data-bs-target="#addModal">Add New</button>
 	</div>
+	{% endif %}
 	<div class="card">
 		<div class="card-header">
 			<h5 class="mg-b-0">{{viewDef.title }}</h5>
@@ -69,8 +78,10 @@
                 <div id="info"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" id="btnCancelModal" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-secondary" id="btnCancelModal" data-bs-dismiss="modal">{{ cancelButtonCaption }}</button>
+{% if showSaveButton == true %}
                 <button type="button" class="btn btn-primary" id="btnSaveShared">Save</button>
+{% endif %}
             </div>
         </div>
     </div>

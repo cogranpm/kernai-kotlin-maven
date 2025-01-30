@@ -1,3 +1,12 @@
+{% set viewStyle = viewDef.configMap.getOrDefault("viewStyle", "table") | lower %}
+{% set noDelete = viewDef.configMap.getOrDefault("noDelete", "false") %}
+{% set showDeleteButton = true %}
+{% if viewStyle equals "report" %}
+    {% set showDeleteButton = false %}
+{% endif %}
+{% if noDelete != "false" %}
+    {% set showDeleteButton = false %}
+{% endif %}
 @model Portal.Web.Management.Models.App.{{viewDef.entityDef.name | capitalize}}Search
 @{
     Layout = "_EmptyLayout";
@@ -7,8 +16,14 @@
     <table id="listTable" width="100%" class="table table-hover table-sm table-hover">
         <thead>
         <tr>
+{% if showDeleteButton == true %}
             <th class="border-bottom"></th>
-{%  set numCols = 1 %}
+{% endif %}
+{% if not showDeleteButton %}
+    {%  set numCols = 0 %}
+{% else %}
+    {%  set numCols = 1 %}
+{% endif %}
 {% for field in viewDef.sortedFields %}
 {% set showInList = field.configMap.getOrDefault("showInList", true) %}
 {% if showInList == true %}              <th class="border-bottom">{{ field.title }}</th>

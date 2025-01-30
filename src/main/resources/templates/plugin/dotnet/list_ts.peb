@@ -1,3 +1,12 @@
+{% set viewStyle = viewDef.configMap.getOrDefault("viewStyle", "table") | lower %}
+{% set noDelete = viewDef.configMap.getOrDefault("noDelete", "false") %}
+{% set showDeleteButton = true %}
+{% if viewStyle equals "report" %}
+    {% set showDeleteButton = false %}
+{% endif %}
+{% if noDelete != "false" %}
+    {% set showDeleteButton = false %}
+{% endif %}
 import { toQueryString } from "../utils/url-utils.js";
 import { addOrRemoveClass, createJqSelectorBuilder as jqs } from "../utils/jquery-utils.js";
 
@@ -53,11 +62,13 @@ $(function () {
             }
         },
         columns: [
+{% if showDeleteButton == true %}
             {
                 data: function (data: {{viewDef.id | capitalize}}ForList) {
                     return `<a href="javascript:;" id="deleteLink" class="deleteLink" data-id="${data.id}"><i class="fa fa-trash"></i></a>`;
                 }
             },
+{% endif %}
 {% for field in viewDef.showInListSortedFields%}
 {% if loop.first %}
             {

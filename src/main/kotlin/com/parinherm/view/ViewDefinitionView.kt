@@ -32,6 +32,8 @@ class ViewDefinitionView(val parent: Composite, comparator: BeansViewerComparato
     val btnScaffold = Button(toolbar, SWT.PUSH)
     val txtProgress = Text(toolbar, SWT.BORDER or SWT.READ_ONLY)
     val commandOutput = Text(form.headerSection, SWT.READ_ONLY or SWT.MULTI or SWT.V_SCROLL)
+    val toolbarHelp = Composite(editToolbar, SWT.BORDER)
+    val txtHelp = Text(toolbarHelp, SWT.BORDER or SWT.READ_ONLY or SWT.MULTI)
 
     init {
         makeHeaderText(form.headerSection, "Run Scaffold to scaffold source code")
@@ -48,7 +50,12 @@ class ViewDefinitionView(val parent: Composite, comparator: BeansViewerComparato
         GridDataFactory.fillDefaults().grab(false, false).applyTo(btnScaffold)
 
         GridDataFactory.fillDefaults().grab(true, false).applyTo(txtProgress)
+
+
         GridDataFactory.fillDefaults().grab(true, false).applyTo(toolbar)
+        GridDataFactory.fillDefaults().grab(true, true).applyTo(toolbarHelp)
+        txtHelp.text = "permissionName, menuTitle, viewStyle(|report|table)";
+        GridDataFactory.fillDefaults().grab(true, true).applyTo(txtHelp)
     }
 
 }
