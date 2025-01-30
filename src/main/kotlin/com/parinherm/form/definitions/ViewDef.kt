@@ -7,9 +7,7 @@ import com.parinherm.entity.ViewDefinition
 import com.parinherm.entity.schema.AssociationDefinitionMapper
 import com.parinherm.lookups.LookupUtils
 import kotlinx.serialization.*
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.*
 
 //@Serializable
 data class ViewDef(
@@ -85,6 +83,8 @@ data class ViewDef(
             return this.fieldDefinitions.sortedBy { it.sequence }
         }
 
+
+
     val showInListSortedFields: List<FieldDef>
         get() {
             return this.fieldDefinitions.filter { it.configMap.getOrDefault("showInList", "true") == "true" }
@@ -98,6 +98,33 @@ data class ViewDef(
                         it.configMap.getOrDefault("advancedLookup", "false") == "false"
             }.distinctBy{it.lookupKey}.map { LookupUtils.getLookupByKey(it.lookupKey.toString()) }
         }
+
+    val linqSortBy: String
+        get() {
+            val sortBy = this.configMap["sortBy"];
+            if(sortBy != null ){
+                var fullSortBy = "";
+                var index = 0;
+                val sortByArray = sortBy as JsonArray
+                for (item: JsonElement in sortByArray)
+                {
+                    var orderClause = if (index == 0)  "OrderBy" else ".ThenBy"
+                    var itemObject = item as JsonObject
+                    val name = itemObject["name"]
+                    val dir = itemObject["dir"]
+                    fullSortBy += orderClause
+                    if(dir.toString() == "desc") {
+                        fullSortBy += "Descending"
+                    }
+                    fullSortBy += "(x => x.$name)"
+                    index++
+                }
+               return fullSortBy;
+            } else {
+                return "";
+            }
+        }
+
 
     init {
         childViews.forEach {

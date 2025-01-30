@@ -15,6 +15,7 @@ import org.eclipse.swt.layout.RowData
 import org.eclipse.swt.layout.RowLayout
 import org.eclipse.swt.widgets.Button
 import org.eclipse.swt.widgets.Composite
+import org.eclipse.swt.widgets.Label
 import org.eclipse.swt.widgets.Text
 
 class ViewDefinitionView(val parent: Composite, comparator: BeansViewerComparator)
@@ -33,6 +34,7 @@ class ViewDefinitionView(val parent: Composite, comparator: BeansViewerComparato
     val txtProgress = Text(toolbar, SWT.BORDER or SWT.READ_ONLY)
     val commandOutput = Text(form.headerSection, SWT.READ_ONLY or SWT.MULTI or SWT.V_SCROLL)
     val toolbarHelp = Composite(editToolbar, SWT.BORDER)
+    val lblHelp = Label(toolbarHelp, SWT.BORDER)
     val txtHelp = Text(toolbarHelp, SWT.BORDER or SWT.READ_ONLY or SWT.MULTI)
 
     init {
@@ -54,7 +56,13 @@ class ViewDefinitionView(val parent: Composite, comparator: BeansViewerComparato
 
         GridDataFactory.fillDefaults().grab(true, false).applyTo(toolbar)
         GridDataFactory.fillDefaults().grab(true, true).applyTo(toolbarHelp)
-        txtHelp.text = "permissionName, menuTitle, viewStyle(|report|table)";
+        toolbarHelp.layout = GridLayout(1, false)
+        GridDataFactory.fillDefaults().grab(true, false).applyTo(lblHelp)
+        lblHelp.text = "Config Options"
+        txtHelp.text = """permissionName, 
+            |menuTitle, 
+            |viewStyle(|report|table), 
+            |sortBy: [{ name: CreatedOn, dir: desc}, {name: OrderDate, dir: desc}]""".trimMargin();
         GridDataFactory.fillDefaults().grab(true, true).applyTo(txtHelp)
     }
 

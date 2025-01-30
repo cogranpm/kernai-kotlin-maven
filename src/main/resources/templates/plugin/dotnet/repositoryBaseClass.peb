@@ -67,12 +67,9 @@ namespace Portal.Repository
         public virtual IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search)
         {
             var results = this.Entities.AsNoTracking()
-{% for ownerAssociation in viewDef.ownerAssociations %}
-{% if ownerAssociation.owningType == "one" %}
-            .Include(x => x.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s)
-{% endif %}
-{% endfor %}
-            ;
+            {% if viewDef.linqSortBy is not empty %}.{{ viewDef.linqSortBy }}{% endif %}
+{% for ownerAssociation in viewDef.ownerAssociations %}{% if ownerAssociation.owningType == "one" %}
+            .Include(x => x.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s){% endif %}{% endfor %};
             var viewModel = results
             .Select(x => new {{viewDef.entityDef.name | capitalize}}ForList ()
             {
