@@ -43,6 +43,7 @@ data class ViewDef(
         get() {
             val json = Json.parseToJsonElement(this.config)
             val map = json.jsonObject.toMap()
+            //return map.mapValues { it.value.toString().replace("\"", "") }
             return map
         }
 

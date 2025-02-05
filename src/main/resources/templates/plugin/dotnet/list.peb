@@ -17,7 +17,7 @@
         <thead>
         <tr>
 {% if showDeleteButton == true %}
-            <th class="border-bottom"></th>
+                <th class="border-bottom"></th>
 {% endif %}
 {% if not showDeleteButton %}
     {%  set numCols = 0 %}
@@ -26,7 +26,7 @@
 {% endif %}
 {% for field in viewDef.sortedFields %}
 {% set showInList = field.configMap.getOrDefault("showInList", true) %}
-{% if showInList == true %}              <th class="border-bottom">{{ field.title }}</th>
+{% if showInList == true %}              <th class="border-bottom" style="white-space:nowrap;">{{ field.title }}</th>
 {% set numCols = numCols + 1 %}
 {% endif %}
 {% endfor %}

@@ -62,6 +62,8 @@ class ViewDefinitionView(val parent: Composite, comparator: BeansViewerComparato
         txtHelp.text = """permissionName, 
             |menuTitle, 
             |viewStyle(|report|table), 
+            | customTableName,
+            | customPrimaryKey,
             |sortBy: [{ name: CreatedOn, dir: desc}, {name: OrderDate, dir: desc}]""".trimMargin();
         GridDataFactory.fillDefaults().grab(true, true).applyTo(txtHelp)
     }

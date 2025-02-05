@@ -128,7 +128,7 @@ namespace Portal.Repository
 {% if field.default is not empty and field.default == "YEAR" %}
 {% set defaultValue = "= DateTime.Now.Year;" %}
 {% endif %}
-                x.{{ field.name | capitalize }}.{{ searchClause }}
+               (x.NetworkUser != null && x.{{ field.name | capitalize }}.{{ searchClause }})
 {% endif %}
 {% if not loop.last %} || {% endif %}
 

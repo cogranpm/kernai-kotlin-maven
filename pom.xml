@@ -15,7 +15,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>1.9.22</kotlin.version>
         <kotlin.code.style>official</kotlin.code.style>
-        <serialization.version>1.3.2</serialization.version>
+        <serialization.version>1.6.3</serialization.version>
         <junit.version>5.8.2</junit.version>
         <swt.version>3.127.0</swt.version>
         <exposed.version>0.48.0</exposed.version>

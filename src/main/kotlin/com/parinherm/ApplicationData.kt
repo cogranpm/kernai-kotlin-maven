@@ -10,7 +10,6 @@ import com.parinherm.entity.FieldDefinition
 import com.parinherm.entity.ViewDefinition
 import com.parinherm.entity.schema.AppVersionMapper
 import com.parinherm.entity.schema.FieldDefinitionMapper
-import com.parinherm.entity.schema.FieldDefinitions.referenceViewId
 import com.parinherm.entity.schema.SchemaBuilder
 import com.parinherm.entity.schema.ViewDefinitionMapper
 import com.parinherm.font.FontUtils
@@ -20,8 +19,8 @@ import com.parinherm.form.widgets.ViewPicker
 import com.parinherm.image.ImageUtils
 import com.parinherm.lookups.LookupUtils
 import com.parinherm.model.TemplateHelpers
-import com.parinherm.script.DecapitalizeExtenstion
-import com.parinherm.script.DecapitalizeFilter
+import com.parinherm.script.DecapitalizeExtension
+import com.parinherm.script.RemoveQuotesExtension
 import com.parinherm.security.Cryptographer
 import com.parinherm.settings.Setting
 import com.parinherm.settings.SettingsDialog
@@ -329,7 +328,8 @@ object ApplicationData {
             .tagCache(null)
             .autoEscaping(false)
             .loader(fileLoader)
-            .extension(DecapitalizeExtenstion())
+            .extension(DecapitalizeExtension())
+            .extension(RemoveQuotesExtension())
             .build()
 
         val loader = ClassPathTemplateLoader()

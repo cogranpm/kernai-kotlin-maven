@@ -1,3 +1,11 @@
+{# custom table name and primary key
+customTableName
+customPrimaryKey
+#}
+{% set primaryKeyDef = "INT IDENTITY (1, 1) NOT NULL" %}
+{% if viewDef.configMap["customPrimaryKey"] is not empty %}
+{% set primaryKeyDef = viewDef.configMap["customPrimaryKey"] | removeQuotes %}
+{% endif %}
 {# child tables come first or the drop statement will fail due to foreign key constraint #}
 {% for ownerAssociation in viewDef.ownerAssociations %}
 {% if ownerAssociation.owningType == "one" %}
@@ -6,7 +14,7 @@
 {% endfor %}
 
 {# current entity table #}
-{{  tableDDL(vDef = viewDef) }}
+{{  tableDDL(vDef = viewDef, customPrimaryKey = primaryKeyDef) }}
 
 {# child foreign key constraints at end of file #}
 {% for ownerAssociation in viewDef.ownerAssociations %}
@@ -15,7 +23,7 @@
 
 ALTER TABLE [dbo].[{{ownerAssociation.ownedViewDef.entityDef.name | capitalize}}]
 ADD CONSTRAINT FK_{{ownerAssociation.ownedViewDef.entityDef.name | capitalize}}_{{ viewDef.entityDef.name | capitalize }} FOREIGN KEY ({{ viewDef.entityDef.name | capitalize }}Id)
-    REFERENCES {{ viewDef.entityDef.name | capitalize }}(Id)
+    REFERENCES {{ viewDef.customTableName }}(Id)
     ON DELETE CASCADE
     ON UPDATE CASCADE
 GO
@@ -24,12 +32,12 @@ GO
 {% endfor %}
 
 {# macro with common table ddl statements #}
-{% macro tableDDL(type="text", vDef, parentViewDef) %}
-DROP TABLE IF EXISTS [dbo].[{{vDef.entityDef.name | capitalize}}]
+{% macro tableDDL(type="text", vDef, parentViewDef, customPrimaryKey) %}
+DROP TABLE IF EXISTS [dbo].[{{ vDef.customTableName }}]
 GO
 
-CREATE TABLE [dbo].[{{vDef.entityDef.name | capitalize}}] (
-     [Id] INT IDENTITY (1, 1) NOT NULL,
+CREATE TABLE [dbo].[{{ vDef.customTableName }}] (
+     [Id] {{ customPrimaryKey }},
 {%  if parentViewDef is not null %}
      [{{ parentViewDef.entityDef.name | capitalize }}Id] INT NOT NULL,
 {% endif %}
@@ -49,16 +57,16 @@ CREATE TABLE [dbo].[{{vDef.entityDef.name | capitalize}}] (
 )
 GO
 
-ALTER TABLE [dbo].[{{vDef.entityDef.name | capitalize}}]
-    ADD CONSTRAINT [PK_{{vDef.entityDef.name | capitalize}}] PRIMARY KEY CLUSTERED ([Id] ASC);
+ALTER TABLE [dbo].[{{ vDef.customTableName }}]
+    ADD CONSTRAINT [PK_{{vDef.customTableName}}] PRIMARY KEY CLUSTERED ([Id] ASC);
 GO
 
-ALTER TABLE [dbo].[{{vDef.entityDef.name | capitalize}}]
-    ADD CONSTRAINT [DF_{{vDef.entityDef.name | capitalize}}_CreatedOn] DEFAULT (sysdatetime()) FOR [CreatedOn];
+ALTER TABLE [dbo].[{{vDef.customTableName}}]
+    ADD CONSTRAINT [DF_{{vDef.customTableName}}_CreatedOn] DEFAULT (sysdatetime()) FOR [CreatedOn];
 GO
 
-ALTER TABLE [dbo].[{{vDef.entityDef.name | capitalize}}]
-    ADD CONSTRAINT [DF_{{vDef.entityDef.name | capitalize}}_ModifiedOn] DEFAULT (sysdatetime()) FOR [ModifiedOn];
+ALTER TABLE [dbo].[{{vDef.customTableName}}]
+    ADD CONSTRAINT [DF_{{vDef.customTableName}}_ModifiedOn] DEFAULT (sysdatetime()) FOR [ModifiedOn];
 GO
 
 {% for field in vDef.sortedFields%}

@@ -277,4 +277,12 @@ writeTemplate(
     viewDef,
    ApplicationData.getPebbleEngine().getTemplate(`${basepath}sqlTable.peb`));
 
+let insertFile = "insert.sql";
+writeTemplate(
+    sqlFolder,
+    insertFile,
+    viewDef,
+   ApplicationData.getPebbleEngine().getTemplate(`${basepath}sqlInsert.peb`));
+
+
 print("Completed");
