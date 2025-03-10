@@ -15,7 +15,7 @@ using Portal.Web.Management.Models.App;
 
 namespace Portal.Web.Controllers
 {
-{% if viewDef.configMap["permissionName"] is not empty %}
+{% if viewDef.configMap is not empty and viewDef.configMap.containsKey("permissionName") and viewDef.configMap["permissionName"] is not empty %}
     [UserHasPermission("{{ viewDef.configMap["permissionName"] }}")]{% endif %}
 
     [Route("{{viewDef.id | capitalize}}s")]

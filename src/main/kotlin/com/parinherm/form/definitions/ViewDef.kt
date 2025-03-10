@@ -41,10 +41,14 @@ data class ViewDef(
 
     val configMap: Map<String, JsonElement>
         get() {
-            val json = Json.parseToJsonElement(this.config)
-            val map = json.jsonObject.toMap()
-            //return map.mapValues { it.value.toString().replace("\"", "") }
-            return map
+            if(this.config.isNotEmpty()) {
+                val json = Json.parseToJsonElement(this.config)
+                val map = json.jsonObject.toMap()
+                //return map.mapValues { it.value.toString().replace("\"", "") }
+                return map
+            } else {
+                return emptyMap()
+            }
         }
 
     val customTableName: String
@@ -102,8 +106,8 @@ data class ViewDef(
 
     val linqSortBy: String
         get() {
-            val sortBy = this.configMap["sortBy"];
-            if(sortBy != null ){
+            if(this.configMap.containsKey("sortBy") ){
+                val sortBy =  this.configMap["sortBy"];
                 var fullSortBy = "";
                 var index = 0;
                 val sortByArray = sortBy as JsonArray
