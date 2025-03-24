@@ -256,7 +256,7 @@ data class FieldDef(
             DataTypeDef.MONEY -> "decimal"
             DataTypeDef.INT ->when (this.sizeHint) {
                     SizeDef.MEDIUM ->  "int"
-                    SizeDef.SMALL -> "int"
+                    SizeDef.SMALL -> "Int16"
                     SizeDef.LARGE -> "long"
                     else -> "int"
                 }
