@@ -118,7 +118,7 @@ object SchemaBuilder {
             addLogger(StdOutSqlLogger)
             //SchemaUtils.create(table)
             SchemaUtils.create(*tables.toTypedArray())
-            //SchemaUtils.createMissingTablesAndColumns(Answers, Questions)
+            SchemaUtils.createMissingTablesAndColumns(ViewDefinitions, FieldDefinitions)
         }
     }
 
