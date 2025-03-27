@@ -7,54 +7,54 @@ using Portal.Core;
 using Portal.Repository;
 using System.Collections.Generic;
 
-namespace Portal.Service
+namespace Portal.Service;
+
+public interface I{{viewDef.entityDef.name | capitalize}}Service : IService<{{viewDef.entityDef.name | capitalize}}, int>
 {
-    public interface I{{viewDef.entityDef.name | capitalize}}Service : IService<{{viewDef.entityDef.name | capitalize}}, int>
-    {
-    	IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search);
-        void Update({{viewDef.entityDef.name | capitalize}} entity);
-        {{viewDef.entityDef.name | capitalize}} Add({{viewDef.entityDef.name | capitalize}} entity);
-        void Delete(int id);
+    IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search);
+    void Update({{viewDef.entityDef.name | capitalize}} entity);
+    {{viewDef.entityDef.name | capitalize}} Add({{viewDef.entityDef.name | capitalize}} entity);
+    void Delete(int id);
 {% for ownerAssociation in viewDef.ownerAssociations %}
 {% if ownerAssociation.owningType == "one" %}
-        void Delete{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}(int parentId, int childId);
+    void Delete{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}(int parentId, int childId);
 {% endif %}
 {% endfor %}
-    }
-
-    public class {{viewDef.entityDef.name | capitalize}}Service : BaseService<{{viewDef.entityDef.name | capitalize}}, int, I{{viewDef.entityDef.name | capitalize}}Repository>, I{{viewDef.entityDef.name | capitalize}}Service
-    {
-    	public {{viewDef.entityDef.name | capitalize}}Service(I{{viewDef.entityDef.name | capitalize}}Repository repository) : base(repository) {
-
-        }
-
-        public IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search){
-            return this.Repository.GetForList(dataSort, search);
-        }
-
-        public void Update({{viewDef.entityDef.name | capitalize}} entity)
-        {
-            this.Repository.Update(entity);
-        }
-
-        public {{viewDef.entityDef.name | capitalize}} Add({{viewDef.entityDef.name | capitalize}} entity)
-        {
-            return this.Repository.Add(entity);
-        }
-
-        public void Delete(int id)
-        {
-            this.Repository.Delete(id);
-        }
-
-{% for ownerAssociation in viewDef.ownerAssociations %}
-{% if ownerAssociation.owningType == "one" %}
-        public void Delete{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}(int parentId, int childId)
-        {
-            this.Repository.Delete{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}(parentId, childId);
-        }
-{% endif %}
-{% endfor %}
-
-    }
 }
+
+public class {{viewDef.entityDef.name | capitalize}}Service : BaseService<{{viewDef.entityDef.name | capitalize}}, int, I{{viewDef.entityDef.name | capitalize}}Repository>, I{{viewDef.entityDef.name | capitalize}}Service
+{
+    public {{viewDef.entityDef.name | capitalize}}Service(I{{viewDef.entityDef.name | capitalize}}Repository repository) : base(repository) {
+
+    }
+
+    public IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search){
+        return this.Repository.GetForList(dataSort, search);
+    }
+
+    public void Update({{viewDef.entityDef.name | capitalize}} entity)
+    {
+        this.Repository.Update(entity);
+    }
+
+    public {{viewDef.entityDef.name | capitalize}} Add({{viewDef.entityDef.name | capitalize}} entity)
+    {
+        return this.Repository.Add(entity);
+    }
+
+    public void Delete(int id)
+    {
+        this.Repository.Delete(id);
+    }
+
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+    public void Delete{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}(int parentId, int childId)
+    {
+        this.Repository.Delete{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}(parentId, childId);
+    }
+{% endif %}
+{% endfor %}
+
+}
+
