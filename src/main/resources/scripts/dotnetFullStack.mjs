@@ -68,15 +68,16 @@ let pathsMap = [];
 
 
 let modelFolder = viewDef.getEntityDef().getName() + "/Model/ConklinCentral";
-let modelFile = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + ".cs";
+
+let baseModelFile = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "Base.cs";
 let modelTargetFolder = "Portal.Repository/Model/ConklinCentral";
 writeTemplate(
     modelFolder,
-    modelFile,
+    baseModelFile,
     viewDef,
-   ApplicationData.getPebbleEngine().getTemplate(`${basepath}entity.peb`),
+   ApplicationData.getPebbleEngine().getTemplate(`${basepath}entityBase.peb`),
    viewDef.getEntityDef().getName() + "/Model/ConklinCentral");
-pathsMap.push(getXCopyCommand(modelFile, modelFolder, modelTargetFolder));
+pathsMap.push(getXCopyCommand(baseModelFile, modelFolder, modelTargetFolder));
 
 let forListModelFile = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "ForList.cs";
 writeTemplate(
@@ -86,6 +87,14 @@ writeTemplate(
    ApplicationData.getPebbleEngine().getTemplate(`${basepath}entityForList.peb`));
 
 pathsMap.push(getXCopyCommand(forListModelFile, modelFolder, modelTargetFolder));
+
+let modelFile = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + ".cs";
+writeTemplate(
+    modelFolder,
+    modelFile,
+    viewDef,
+   ApplicationData.getPebbleEngine().getTemplate(`${basepath}entity.peb`));
+
 
 let repoFolder = viewDef.getEntityDef().getName() + "/Repository";
 let repoClassBaseFile = ApplicationData.makeCapital(viewDef.getEntityDef().getName()) + "RepositoryBase.cs";
@@ -257,10 +266,13 @@ if(viewDef.getChildViews()){
 
 let roboCopies = "";
 const tempOutputPath = Paths.get(tempOutputDirectory, "models", repoFolder);
-const filePath = tempOutputPath.resolve(repoClassFile);
+const repoClassFilePath = tempOutputPath.resolve(repoClassFile);
+const entityClassFilePath = tempOutputPath.resolve(modelFile);
 
 //roboCopies = `robocopy ${filePath} ${targetFolderBase}${repoTargetFolder}/${repoClassFile} /E /XC /XN /XO`;
-roboCopies = `echo n | copy /-y "${filePath}" "${targetFolderBase}${repoTargetFolder}/${repoClassFile}"`;
+roboCopies = `echo n | copy /-y "${repoClassFilePath}" "${targetFolderBase}${repoTargetFolder}/${repoClassFile}"`;
+roboCopies += `\n`;
+roboCopies += `echo n | copy /-y "${entityClassFilePath}" "${targetFolderBase}${repoTargetFolder}/${modelFile}"`;
 writeBatchCommands(
     viewDef.getEntityDef().getName(),
     'commands.bat',

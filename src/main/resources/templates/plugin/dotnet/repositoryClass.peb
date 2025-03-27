@@ -3,17 +3,26 @@ using Portal.Repository.Domain;
 using Portal.Repository.Model.ConklinCentral;
 using System.Collections.Generic;
 
-namespace Portal.Repository
-{
-	public class {{viewDef.entityDef.name | capitalize}}Repository : {{viewDef.entityDef.name | capitalize}}RepositoryBase
-	{
-		public {{viewDef.entityDef.name | capitalize}}Repository(ConklinCentralDataEntities context) : base(context)
-		{
-		}
+namespace Portal.Repository;
 
-		public override IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search)
-		{
-			return base.GetForList(dataSort, search);
-		}
-	}
+
+public interface I{{viewDef.entityDef.name | capitalize}}Repository : I{{viewDef.entityDef.name | capitalize}}RepositoryBase
+{
+
+}
+
+public class {{viewDef.entityDef.name | capitalize}}Repository : {{viewDef.entityDef.name | capitalize}}RepositoryBase, I{{viewDef.entityDef.name | capitalize}}Repository
+{
+
+	private readonly ConklinCentralDataEntities context;
+
+    public {{viewDef.entityDef.name | capitalize}}Repository(ConklinCentralDataEntities context) : base(context)
+    {
+		this.context = context;
+    }
+
+    public override IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search)
+    {
+        return base.GetForList(dataSort, search);
+    }
 }
