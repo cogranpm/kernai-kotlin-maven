@@ -7,15 +7,16 @@ using System.Linq;
 using Portal.Core;
 using Portal.Repository;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace Portal.Service;
 
 public interface I{{viewDef.entityDef.name | capitalize}}Service : IService<{{baseEntityName}}, int>
 {
     IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search);
-    void Update({{baseEntityName}} entity);
-    {{baseEntityName}} Add({{baseEntityName}} entity);
-    void Delete(int id);
+    void Update({{baseEntityName}} entity, string user);
+    {{baseEntityName}} Add({{baseEntityName}} entity, string user);
+    void Delete(int id, string user);
 {% for ownerAssociation in viewDef.ownerAssociations %}
 {% if ownerAssociation.owningType == "one" %}
     void Delete{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}(int parentId, int childId);
@@ -25,25 +26,35 @@ public interface I{{viewDef.entityDef.name | capitalize}}Service : IService<{{ba
 
 public class {{viewDef.entityDef.name | capitalize}}Service : BaseService<{{baseEntityName}}, int, I{{viewDef.entityDef.name | capitalize}}Repository>, I{{viewDef.entityDef.name | capitalize}}Service
 {
-    public {{viewDef.entityDef.name | capitalize}}Service(I{{viewDef.entityDef.name | capitalize}}Repository repository) : base(repository) {
 
+	private readonly ILogger<{{viewDef.entityDef.name | capitalize}}Service> logger;
+
+    public {{viewDef.entityDef.name | capitalize}}Service(
+		ILogger<{{viewDef.entityDef.name | capitalize}}Service> logger,
+        I{{viewDef.entityDef.name | capitalize}}Repository repository) : base(repository) {
+
+		    this.logger = logger;
     }
 
     public IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search){
         return this.Repository.GetForList(dataSort, search);
     }
 
-    public void Update({{baseEntityName}} entity)
+    public void Update({{baseEntityName}} entity, string user)
     {
+    	entity.ModifiedBy = user;
         this.Repository.Update(entity);
     }
 
-    public {{baseEntityName}} Add({{baseEntityName}} entity)
+    public {{baseEntityName}} Add({{baseEntityName}} entity, string user)
     {
+    	entity.CreatedBy = user;
+		entity.CreatedOn = DateTime.Now;
+		entity.ModifiedBy = user;
         return this.Repository.Add(entity);
     }
 
-    public void Delete(int id)
+    public void Delete(int id, string user)
     {
         this.Repository.Delete(id);
     }
