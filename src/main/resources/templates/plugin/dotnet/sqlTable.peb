@@ -33,9 +33,6 @@ GO
 
 {# macro with common table ddl statements #}
 {% macro tableDDL(type="text", vDef, parentViewDef, customPrimaryKey) %}
-DROP TABLE IF EXISTS [dbo].[{{ vDef.customTableName }}]
-GO
-
 CREATE TABLE [dbo].[{{ vDef.customTableName }}] (
      [Id] {{ customPrimaryKey }},
 {%  if parentViewDef is not null %}

@@ -17,7 +17,7 @@ public class {{vDef.entityDef.name | capitalize}} {
 
 	public {{vDef.entityDef.name | capitalize}}Base Instance { get; set; }
 
-	public {{vDef.entityDef.name | capitalize}}({{vDef.entityDef.name | capitalize}} baseInstance)
+	public {{vDef.entityDef.name | capitalize}}({{vDef.entityDef.name | capitalize}}Base baseInstance)
 	{
 		this.Instance = baseInstance;
 	}

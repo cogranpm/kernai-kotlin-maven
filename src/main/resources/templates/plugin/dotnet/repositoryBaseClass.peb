@@ -19,12 +19,12 @@ using System.Collections.Generic;
 {% endfor %}
 namespace Portal.Repository;
 
-public interface I{{viewDef.entityDef.name | capitalize}}RepositoryBase : IRepository<{{viewDef.entityDef.name | capitalize}}, int>
+public interface I{{viewDef.entityDef.name | capitalize}}RepositoryBase : IRepository<{{viewDef.entityDef.name | capitalize}}Base, int>
 {
     IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search);
 
-    {{viewDef.entityDef.name | capitalize}} Add({{viewDef.entityDef.name | capitalize}} entity);
-    void Update({{viewDef.entityDef.name | capitalize}} entity);
+    {{viewDef.entityDef.name | capitalize}}Base Add({{viewDef.entityDef.name | capitalize}}Base entity);
+    void Update({{viewDef.entityDef.name | capitalize}}Base entity);
     void Delete(int id);
 {% for ownerAssociation in viewDef.ownerAssociations %}
 {% if ownerAssociation.owningType == "one" %}
@@ -33,9 +33,9 @@ public interface I{{viewDef.entityDef.name | capitalize}}RepositoryBase : IRepos
 {% endfor %}
 }
 
-public class {{viewDef.entityDef.name | capitalize}}RepositoryBase : BaseRepository<{{viewDef.entityDef.name | capitalize}}, int>, I{{viewDef.entityDef.name | capitalize}}RepositoryBase
+public class {{viewDef.entityDef.name | capitalize}}RepositoryBase : BaseRepository<{{viewDef.entityDef.name | capitalize}}Base, int>, I{{viewDef.entityDef.name | capitalize}}RepositoryBase
 {
-    protected sealed override DbSet<{{viewDef.entityDef.name | capitalize}}> Entities { get; set; }
+    protected sealed override DbSet<{{viewDef.entityDef.name | capitalize}}Base> Entities { get; set; }
     private {{viewDef.entityDef.name | capitalize}}ServiceBase _serviceBase;
     private ConklinCentralDataEntities _context;
 
@@ -128,7 +128,7 @@ public class {{viewDef.entityDef.name | capitalize}}RepositoryBase : BaseReposit
 {% if field.default is not empty and field.default == "YEAR" %}
 {% set defaultValue = "= DateTime.Now.Year;" %}
 {% endif %}
-           (x.NetworkUser != null && x.{{ field.name | capitalize }}.{{ searchClause }})
+           (x.{{ field.name | capitalize }} != null && x.{{ field.name | capitalize }}.{{ searchClause }})
 {% endif %}
 {% if not loop.last %} || {% endif %}
 
@@ -140,14 +140,14 @@ public class {{viewDef.entityDef.name | capitalize}}RepositoryBase : BaseReposit
         return filteredViewModel;
     }
 
-    public virtual  {{viewDef.entityDef.name | capitalize}} Add({{viewDef.entityDef.name | capitalize}} entity)
+    public virtual {{viewDef.entityDef.name | capitalize}}Base Add({{viewDef.entityDef.name | capitalize}}Base entity)
     {
         this._serviceBase.Add(entity);
         this._serviceBase.SaveChanges();
         return entity;
     }
 
-    public virtual  void Update({{viewDef.entityDef.name | capitalize}} entity)
+    public virtual  void Update({{viewDef.entityDef.name | capitalize}}Base entity)
     {
         var existing = this.Entities.AsNoTracking().FirstOrDefault(x => x.Id == entity.Id);
         if (existing != null)
@@ -189,7 +189,7 @@ public class {{viewDef.entityDef.name | capitalize}}RepositoryBase : BaseReposit
 {% endif %}
 {% endfor %}
 
-    class {{viewDef.entityDef.name | capitalize}}ServiceBase : ServiceBase<{{viewDef.entityDef.name | capitalize}}, ConklinCentralDataEntities>
+    class {{viewDef.entityDef.name | capitalize}}ServiceBase : ServiceBase<{{viewDef.entityDef.name | capitalize}}Base, ConklinCentralDataEntities>
     {
         public {{viewDef.entityDef.name | capitalize}}ServiceBase(ConklinCentralDataEntities repo) : base(repo)
         {

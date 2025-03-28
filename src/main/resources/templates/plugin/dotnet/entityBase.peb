@@ -53,8 +53,8 @@ public class {{vDef.entityDef.name | capitalize}}Config
 {
     public {{vDef.entityDef.name | capitalize}}Config(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<{{vDef.entityDef.name | capitalize}}>().ToTable("{{ customTable }}");
-        modelBuilder.Entity<{{vDef.entityDef.name | capitalize}}>().HasKey(x => x.Id);
+        modelBuilder.Entity<{{vDef.entityDef.name | capitalize}}Base>().ToTable("{{ customTable }}");
+        modelBuilder.Entity<{{vDef.entityDef.name | capitalize}}Base>().HasKey(x => x.Id);
     }
 }
 

@@ -264,30 +264,16 @@ if(viewDef.getChildViews()){
     }
 }
 
-let roboCopies = "";
-const tempOutputPath = Paths.get(tempOutputDirectory, "models", repoFolder);
-const repoClassFilePath = tempOutputPath.resolve(repoClassFile);
-const entityClassFilePath = tempOutputPath.resolve(modelFile);
-
-//roboCopies = `robocopy ${filePath} ${targetFolderBase}${repoTargetFolder}/${repoClassFile} /E /XC /XN /XO`;
-roboCopies = `echo n | copy /-y "${repoClassFilePath}" "${targetFolderBase}${repoTargetFolder}/${repoClassFile}"`;
-roboCopies += `\n`;
-roboCopies += `echo n | copy /-y "${entityClassFilePath}" "${targetFolderBase}${repoTargetFolder}/${modelFile}"`;
-writeBatchCommands(
-    viewDef.getEntityDef().getName(),
-    'commands.bat',
-    ApplicationData.getPebbleEngine().getTemplate(`${basepath}postWriteCommands.peb`),
-    pathsMap,
-    roboCopies
-    );
-
 let sqlFolder = viewDef.getEntityDef().getName() + "/SQL";
-let tableFile = "schema.sql";
+let tableFile = viewDef.getEntityDef().getName() + ".sql";
 writeTemplate(
     sqlFolder,
     tableFile,
     viewDef,
    ApplicationData.getPebbleEngine().getTemplate(`${basepath}sqlTable.peb`));
+
+let portalDatabaseTargetFolder = "Portal.Database/Tables";
+pathsMap.push(getXCopyCommand(tableFile, sqlFolder, portalDatabaseTargetFolder));
 
 let insertFile = "insert.sql";
 writeTemplate(
@@ -295,6 +281,24 @@ writeTemplate(
     insertFile,
     viewDef,
    ApplicationData.getPebbleEngine().getTemplate(`${basepath}sqlInsert.peb`));
+
+let roboCopies = "";
+const tempOutputPath = Paths.get(tempOutputDirectory, "models", repoFolder);
+const tempModelOutputPath = Paths.get(tempOutputDirectory, "models", modelFolder);
+const repoClassFilePath = tempOutputPath.resolve(repoClassFile);
+const entityClassFilePath = tempModelOutputPath.resolve(modelFile);
+
+//roboCopies = `robocopy ${filePath} ${targetFolderBase}${repoTargetFolder}/${repoClassFile} /E /XC /XN /XO`;
+roboCopies = `echo n | copy /-y "${repoClassFilePath}" "${targetFolderBase}${repoTargetFolder}/${repoClassFile}"`;
+roboCopies += `\n`;
+roboCopies += `echo n | copy /-y "${entityClassFilePath}" "${targetFolderBase}${modelTargetFolder}/${modelFile}"`;
+writeBatchCommands(
+    viewDef.getEntityDef().getName(),
+    'commands.bat',
+    ApplicationData.getPebbleEngine().getTemplate(`${basepath}postWriteCommands.peb`),
+    pathsMap,
+    roboCopies
+    );
 
 
 print("Completed");
