@@ -54,6 +54,10 @@
 {% if field.dataTypeDef == "FLOAT" or  field.dataTypeDef == "MONEY" or field.dataTypeDef == "INT" %}
                         , @type="number"
 {% endif %}
+{% if field.dataTypeDef == "MEMO" %}
+                        , @rows = 20
+                        , cols = 50
+{% endif %}
 				    }
 				})
 {% endif %}

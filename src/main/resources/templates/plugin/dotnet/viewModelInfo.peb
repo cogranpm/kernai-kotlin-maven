@@ -8,28 +8,28 @@ using System.Linq;
 
 namespace Portal.Web.Management.Models.App;
 
-    public class {{viewDef.entityDef.name | capitalize}}Edit
-    {
-        [Required]
-        public int Id { get; set; }
-        {{ fieldProperties(vDef = viewDef) }}
+public class {{viewDef.entityDef.name | capitalize}}Edit
+{
+    [Required]
+    public int Id { get; set; }
+    {{ fieldProperties(vDef = viewDef) }}
 
-        public bool ShouldUseBlankLayout { get; set; }
-        public {{viewDef.entityDef.name | capitalize}}Search? Criteria { get; set; }
-        public Byte[]? TimeStamp { get; set; }
+    public bool ShouldUseBlankLayout { get; set; }
+    public {{viewDef.entityDef.name | capitalize}}Search? Criteria { get; set; }
+    public Byte[]? TimeStamp { get; set; }
 
 {% for ownerAssociation in viewDef.ownerAssociations %}
 {% if ownerAssociation.owningType == "one" and ownerAssociation.ownedType == "many"%}
-        public ICollection<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}Edit> {{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s { get; set; } = new List<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}Edit>();
+    public ICollection<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}Edit> {{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s { get; set; } = new List<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}Edit>();
 {% endif %}
 {% endfor %}
-        public string? LocationRedirect { get; set; }
+    public string? LocationRedirect { get; set; }
 
-		public override string ToString()
-		{
-			return $"{{viewDef.entityDef.name | capitalize}}Edit: {% for field in viewDef.fieldDefinitions %}{{ field.name | capitalize}}:{this.{{ field.name | capitalize}}} {% endfor %}";
-		}
+    public override string ToString()
+    {
+        return $"{{viewDef.entityDef.name | capitalize}}Edit: {% for field in viewDef.fieldDefinitions %}{{ field.name | capitalize}}:{this.{{ field.name | capitalize}}} {% endfor %}";
     }
+}
 
 {# view models for child views #}
 {% for ownerAssociation in viewDef.ownerAssociations %}
@@ -40,17 +40,17 @@ namespace Portal.Web.Management.Models.App;
 {%  set childEntityDef = ownerAssociation.ownedViewDef.entityDef %}
 {%  set childEntityDefName = ownerAssociation.ownedViewDef.entityDef.name %}
 
-	public class {{ childEntityViewId | capitalize }}Edit
-	{
-		public int Id { get; set; }
+public class {{ childEntityViewId | capitalize }}Edit
+{
+    public int Id { get; set; }
 
 {{ fieldProperties(vDef = childEntityView) }}
 
-		public int {{viewDef.entityDef.name | capitalize}}Id { get; set; }
-		public Byte[] TimeStamp { get; set; }
-		public string? LocationRedirect { get; set; }
-		public {{viewDef.entityDef.name | capitalize}}Edit? {{viewDef.entityDef.name | capitalize}} { get; set; } = null!;
-	}
+    public int {{viewDef.entityDef.name | capitalize}}Id { get; set; }
+    public Byte[] TimeStamp { get; set; }
+    public string? LocationRedirect { get; set; }
+    public {{viewDef.entityDef.name | capitalize}}Edit? {{viewDef.entityDef.name | capitalize}} { get; set; } = null!;
+}
 
 {% endif %}
 {% endfor %}
@@ -59,12 +59,12 @@ namespace Portal.Web.Management.Models.App;
  {% for field in vDef.sortedFields %}
 
 {% if field.required == true %}
-         [Required(ErrorMessage = "{{ field.title }} is required.")]
+    [Required(ErrorMessage = "{{ field.title }} is required.")]
 {% endif %}
-         [Display(Name = "{{ field.title }}")]
+    [Display(Name = "{{ field.title }}")]
 {% if field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME" %}
-         [DataType(DataType.Date)]
-         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+    [DataType(DataType.Date)]
+    [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
 {% endif %}
 {%  set defaultValue = "" %}
 {% if field.dataTypeDef == "DATETIME" %} {%  set defaultValue = "= DateTime.Now;" %}{% endif %}
@@ -74,29 +74,25 @@ namespace Portal.Web.Management.Models.App;
 {% set defaultValue = "= DateTime.Now.Year;" %}
 {% endif %}
 {% if field.configMap.get("minRange") is not empty and field.configMap.get("maxRange") is not empty %}
-         [Range({{ field.configMap.get("minRange") }}, {{ field.configMap.get("maxRange") }})]
+    [Range({{ field.configMap.get("minRange") }}, {{ field.configMap.get("maxRange") }})]
 {% endif %}
 {% if (field.dataTypeDef == "TEXT" or field.dataTypeDef == "MEMO") and field.length is not empty %}
-         [StringLength({{ field.length }}, ErrorMessage = "{{ field.title }} can't be more than {{ field.length }}.")]
+    [StringLength({{ field.length }}, ErrorMessage = "{{ field.title }} can't be more than {{ field.length }}.")]
 {% endif %}
 {% if field.dataTypeDef == "MEMO" %}
-         [DataType(DataType.MultilineText)]
+    [DataType(DataType.MultilineText)]
 {% endif %}
-         public {{ field.dataTypeToCSharpDef }}{% if field.required == false%}{{ "?" }}{% endif %} {{ field.name | capitalize}} { get; set; } {{ defaultValue }}
+    public {{ field.dataTypeToCSharpDef }}{% if field.required == false%}{{ "?" }}{% endif %} {{ field.name | capitalize}} { get; set; } {{ defaultValue }}
 
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] != "true"  %}
-        public IList<SelectListItem> {{ field.name}}Lookups { get; } =
-            {{ field.lookupKey }}Lookup.Items.Select( x => new SelectListItem() {Text = x.Value, Value = x.Key}).ToList();
+    public IList<SelectListItem> {{ field.name}}Lookups { get; } =
+        {{ field.lookupKey }}Lookup.Items.Select( x => new SelectListItem() {Text = x.Value, Value = x.Key}).ToList();
 {% endif %}
-
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true"  %}
-        public {{ field.dataTypeToCSharpDef }}? {{ field.name | capitalize}}String { get; set; }
+    public {{ field.dataTypeToCSharpDef }}? {{ field.name | capitalize}}String { get; set; }
 {% endif %}
-
 {% if field.referenceViewDefinition is not empty %}
-        public string? {{ field.name | capitalize}}String { get; set; }
+    public string? {{ field.name | capitalize}}String { get; set; }
 {% endif %}
-
 {% endfor %}
-
 {% endmacro %}

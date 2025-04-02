@@ -52,7 +52,7 @@
 			</div>
 		</form>
 	</div>
-	{% if not viewStyle equals "report" %}
+	{% if viewStyle != "report" %}
 	<div class="tx-right pd-b-5">
 		<button class="btn btn-primary btn-sm" id="btnCreate" data-bs-toggle="modal" data-bs-target="#addModal">Add New</button>
 	</div>
@@ -67,7 +67,7 @@
 </div>
 
 <div class="modal" id="addModal" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="lblModalTitle">{{viewDef.title }}</h5>
