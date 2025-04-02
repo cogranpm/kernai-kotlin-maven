@@ -71,7 +71,7 @@ namespace Portal.Web.Controllers
         {
             var entityInfo = new  {{viewDef.id | capitalize}}Edit();
             var entity = this._service.GetFirstWhere(x => x.Id == id);
-            return View("_info", this.MakeEntityViewModel(criteria, null, entity));
+            return View("_info", this.MakeEntityViewModel(criteria, null, new {{viewDef.entityDef.name | capitalize}}(entity)));
         }
 
         [HttpGet]
@@ -112,15 +112,15 @@ namespace Portal.Web.Controllers
 				if (entity.Id < 1)
 				{
 					mapper.SetAudit(domainInstance, userName, true);
-					var updatedDomain = this._service.Add(domainInstance);
-                    var updatedInfo = this.MakeEntityViewModel(null, null, updatedDomain);
+					var updatedDomain = this._service.Add(domainInstance.Instance, userName);
+                    var updatedInfo = this.MakeEntityViewModel(null, null, new {{viewDef.entityDef.name | capitalize}}(updatedDomain));
 					updatedInfo.LocationRedirect = "/{{viewDef.id | capitalize}}s";
 					return Json(updatedInfo);
 				}
 				else
 				{
 					mapper.SetAudit(domainInstance, userName, false);
-					this._service.Update(domainInstance);
+					this._service.Update(domainInstance.Instance, userName);
 					var viewModel = this.MakeEntityViewModel(null, entity, null);
 					viewModel.LocationRedirect = "/{{viewDef.id | capitalize}}s";
 					return Json(viewModel);
@@ -141,7 +141,8 @@ namespace Portal.Web.Controllers
         {
 			if (id != null)
 			{
-				this._service.Delete(id.Value);
+                var userName = User.Identity?.Name?.Replace(@"CONKLIN\", "")!;
+				this._service.Delete(id.Value, userName);
 			}
 			return id;
         }
@@ -327,39 +328,39 @@ namespace Portal.Web.Controllers
 				return new {{viewDef.entityDef.name | capitalize}}Edit()
 				{
 {% for field in viewDef.fieldDefinitions %}
-                    {{ field.name | capitalize}} = entity.{{ field.name | capitalize}},
+                    {{ field.name | capitalize}} = entity.Instance.{{ field.name | capitalize}},
 {% endfor %}
 {% for field in viewDef.fieldDefinitions %}
 {% if field.referenceViewDefinition is not empty %}
                 viewModel.{{ field.name | capitalize}}String = this._{{ field.referenceViewDefinition.viewId | decapitalizeFilter }}.GetDescriptionById(entity.{{ field.name | capitalize}});
 {% endif %}
 {% endfor %}
-				    Id = entity.Id,
-				    TimeStamp = entity.TimeStamp
+				    Id = entity.Instance.Id,
+				    TimeStamp = entity.Instance.TimeStamp
 				};
 			}
 
 			public {{viewDef.entityDef.name | capitalize}} ToDomain({{viewDef.entityDef.name | capitalize}}Edit info)
 			{
-				return new {{viewDef.entityDef.name | capitalize}}()
+				return new {{viewDef.entityDef.name | capitalize}}(new {{viewDef.entityDef.name | capitalize}}Base()
 				{
 {% for field in viewDef.fieldDefinitions %}
                     {{ field.name | capitalize}} = info.{{ field.name | capitalize}},
 {% endfor %}
 				    Id = info.Id,
 				    TimeStamp = info.TimeStamp
-				};
+				});
 			}
 
 			public void SetAudit({{viewDef.entityDef.name | capitalize}} entity, string userName, bool creating = false)
 			{
 				if (creating)
 				{
-					entity.CreatedBy = userName;
-					entity.CreatedOn = DateTime.Now;
+					entity.Instance.CreatedBy = userName;
+					entity.Instance.CreatedOn = DateTime.Now;
 				}
-				entity.ModifiedBy = userName;
-				entity.ModifiedOn = DateTime.Now;
+				entity.Instance.ModifiedBy = userName;
+				entity.Instance.ModifiedOn = DateTime.Now;
 			}
 	{# mappings for child views #}
 {% for ownerAssociation in viewDef.ownerAssociations %}

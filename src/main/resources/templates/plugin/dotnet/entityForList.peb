@@ -17,7 +17,7 @@ public class {{viewDef.entityDef.name | capitalize}}ForList
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] != "true" %}
         public string {{ field.name | capitalize}}String
         {
-            get => {{ field.lookupKey | capitalize }}Lookup.Resolve( {{ field.name | capitalize }});
+            get => {{ field.lookupKey | capitalize }}Lookup.Resolve( {{ field.name | capitalize }}.ToString());
         }
 {% elseif field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
         public string {{ field.name | capitalize}}String { get; set; }

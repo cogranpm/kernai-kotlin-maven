@@ -52,7 +52,6 @@ $(function () {
         info: false,
         paging: true,
         scrollX: true,
-        scrollY: "400px",
         pageLength: 25,
         order: [[1, 'asc']],
         ajax: {

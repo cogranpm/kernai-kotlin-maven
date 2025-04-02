@@ -31,7 +31,6 @@ namespace Portal.Web.Management.Models.App;
 		}
     }
 
-
 {# view models for child views #}
 {% for ownerAssociation in viewDef.ownerAssociations %}
 {% if ownerAssociation.owningType == "one" %}
@@ -56,8 +55,6 @@ namespace Portal.Web.Management.Models.App;
 {% endif %}
 {% endfor %}
 
-
-
 {% macro fieldProperties(type="text", vDef) %}
  {% for field in vDef.sortedFields %}
 
@@ -79,8 +76,11 @@ namespace Portal.Web.Management.Models.App;
 {% if field.configMap.get("minRange") is not empty and field.configMap.get("maxRange") is not empty %}
          [Range({{ field.configMap.get("minRange") }}, {{ field.configMap.get("maxRange") }})]
 {% endif %}
-{% if field.dataTypeDef == "TEXT" and field.length is not empty %}
+{% if (field.dataTypeDef == "TEXT" or field.dataTypeDef == "MEMO") and field.length is not empty %}
          [StringLength({{ field.length }}, ErrorMessage = "{{ field.title }} can't be more than {{ field.length }}.")]
+{% endif %}
+{% if field.dataTypeDef == "MEMO" %}
+         [DataType(DataType.MultilineText)]
 {% endif %}
          public {{ field.dataTypeToCSharpDef }}{% if field.required == false%}{{ "?" }}{% endif %} {{ field.name | capitalize}} { get; set; } {{ defaultValue }}
 
