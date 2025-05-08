@@ -88,6 +88,10 @@ data class ViewDef(
             return this.fieldDefinitions.sortedBy { it.sequence }
         }
 
+    val hasMemoListField: Boolean
+        get() {
+            return this.fieldDefinitions.any{ it.dataTypeDef == DataTypeDef.MEMO && it.configMap.getOrDefault("showInList", "true") == "true" }
+        }
 
 
     val showInListSortedFields: List<FieldDef>

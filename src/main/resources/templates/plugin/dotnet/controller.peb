@@ -25,6 +25,7 @@ namespace Portal.Web.Management.Controllers;
         private readonly I{{viewDef.entityDef.name | capitalize}}Service _service;
 	    protected I{{viewDef.entityDef.name | capitalize}}Service Service {  get { return _service; } }
 		private readonly EntityMapper mapper;
+	    private readonly ILogger<{{viewDef.id | capitalize}}sController> logger;
 
 {% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
@@ -45,6 +46,7 @@ namespace Portal.Web.Management.Controllers;
 {% for referenceView in viewDef.referenceViewsList %}
         , I{{ referenceView.viewId }} {{ referenceView.viewId | decapitalizeFilter  }}
 {% endfor %}
+		, ILogger<{{viewDef.id | capitalize}}sController> logger
         ){
             this._service = service;
 {% for field in viewDef.fieldDefinitions %}
@@ -55,6 +57,7 @@ namespace Portal.Web.Management.Controllers;
             this._{{ referenceView.viewId | decapitalizeFilter  }} = {{ referenceView.viewId | decapitalizeFilter  }};
 {% endfor %}
             this.mapper = new EntityMapper({% for referenceView in viewDef.referenceViewsList %}{{ referenceView.viewId | decapitalizeFilter  }}{% if loop.last %}{% else %},{% endif %}{% endfor %});
+            this.logger = logger;
         }
 
         public ViewResult Index(string search = null)
@@ -77,7 +80,7 @@ namespace Portal.Web.Management.Controllers;
 
         [HttpGet]
         [Route("list")]
-        public JsonResult ListJson(int draw,
+        public ActionResult ListJson(int draw,
             int start,
             int length,
             [Bind(Prefix = "order[0][column]")] int orderCol,
@@ -85,49 +88,67 @@ namespace Portal.Web.Management.Controllers;
             {{viewDef.id | capitalize}}Search searchCriteria
            )
         {
-            var dataSort = new DataSortParameters { Length = length, OrderDir = orderDir, OrderCol = orderCol, Start = start };
-            var records = this._service.GetForList(dataSort, searchCriteria.Search);
-
-            var firstRecord = records.FirstOrDefault();
-            var total = firstRecord?.NumRows ?? 0;
-
-            var result = new {{viewDef.id | capitalize}}ListJson
+            try
             {
-                Draw = draw,
-                RecordsTotal = total,
-                RecordsFiltered = total,
-                Data = records
-            };
-            return Json(result);
+                var dataSort = new DataSortParameters { Length = length, OrderDir = orderDir, OrderCol = orderCol, Start = start };
+                var records = this._service.GetForList(dataSort, searchCriteria.Search);
+
+                var firstRecord = records.FirstOrDefault();
+                var total = firstRecord?.NumRows ?? 0;
+
+                var result = new {{viewDef.id | capitalize}}ListJson
+                {
+                    Draw = draw,
+                    RecordsTotal = total,
+                    RecordsFiltered = total,
+                    Data = records
+                };
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+			    this.logger.LogError(ex, "Error in ListJSON action method");
+                String message = ex.GetBaseException().ToString();
+	            return Problem(detail: message, title: "Error occurred in List");
+            }
         }
 
         [HttpPost]
         [Route("edit")]
         public ActionResult Edit([Bind()] {{viewDef.id | capitalize}}Edit entity)
         {
-			if (ModelState.IsValid)
-			{
-				Response.StatusCode = StatusCodes.Status202Accepted;
-				var domainInstance = mapper.ToDomain(entity);
-                var userName = User.Identity?.Name?.Replace(@"CONKLIN\", "")!;
-				if (entity.Id < 1)
-				{
-					mapper.SetAudit(domainInstance, userName, true);
-					var updatedDomain = this._service.Add(domainInstance.Instance, userName);
-                    var updatedInfo = this.MakeEntityViewModel(null, null, new {{viewDef.entityDef.name | capitalize}}(updatedDomain));
-					updatedInfo.LocationRedirect = "/{{viewDef.id | capitalize}}s";
-					return Json(updatedInfo);
-				}
-				else
-				{
-					mapper.SetAudit(domainInstance, userName, false);
-					this._service.Update(domainInstance.Instance, userName);
-					var viewModel = this.MakeEntityViewModel(null, entity, null);
-					viewModel.LocationRedirect = "/{{viewDef.id | capitalize}}s";
-					return Json(viewModel);
-				}
-			}
-			return View("_info", this.MakeEntityViewModel(null, entity, null));
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    Response.StatusCode = StatusCodes.Status202Accepted;
+                    var domainInstance = mapper.ToDomain(entity);
+                    var userName = User.Identity?.Name?.Replace(@"CONKLIN\", "")!;
+                    if (entity.Id < 1)
+                    {
+                        mapper.SetAudit(domainInstance, userName, true);
+                        var updatedDomain = this._service.Add(domainInstance.Instance, userName);
+                        var updatedInfo = this.MakeEntityViewModel(null, null, new {{viewDef.entityDef.name | capitalize}}(updatedDomain));
+                        updatedInfo.LocationRedirect = "/{{viewDef.id | capitalize}}s";
+                        return Json(updatedInfo);
+                    }
+                    else
+                    {
+                        mapper.SetAudit(domainInstance, userName, false);
+                        this._service.Update(domainInstance.Instance, userName);
+                        var viewModel = this.MakeEntityViewModel(null, entity, null);
+                        viewModel.LocationRedirect = "/{{viewDef.id | capitalize}}s";
+                        return Json(viewModel);
+                    }
+                }
+                return View("_info", this.MakeEntityViewModel(null, entity, null));
+            }
+            catch (Exception ex)
+            {
+			    this.logger.LogError(ex, "Error in Edit action method");
+                String message = ex.GetBaseException().ToString();
+	            return Problem(detail: message, title: "Error occurred in Edit");
+            }
         }
 
         [HttpGet]
@@ -140,12 +161,20 @@ namespace Portal.Web.Management.Controllers;
         [Route("delete/{id}")]
         public int? Delete(int? id)
         {
-			if (id != null)
-			{
-                var userName = User.Identity?.Name?.Replace(@"CONKLIN\", "")!;
-				this._service.Delete(id.Value, userName);
-			}
-			return id;
+            try
+            {
+                if (id != null)
+                {
+                    var userName = User.Identity?.Name?.Replace(@"CONKLIN\", "")!;
+                    this._service.Delete(id.Value, userName);
+                }
+                return id;
+            }
+            catch (Exception ex)
+            {
+			    this.logger.LogError(ex, "Error in Delete action method");
+			    throw;
+            }
         }
 
 {# routes for child views #}
@@ -285,7 +314,7 @@ namespace Portal.Web.Management.Controllers;
 {% endif %}
 {% endfor %}
 
-        public {{viewDef.id | capitalize}}Edit MakeEntityViewModel(
+        protected {{viewDef.id | capitalize}}Edit MakeEntityViewModel(
             {{viewDef.id | capitalize}}Search criteria,
             {{viewDef.id | capitalize}}Edit existing = null,
             {{viewDef.entityDef.name | capitalize}} domain = null)
@@ -311,7 +340,7 @@ namespace Portal.Web.Management.Controllers;
             return entity;
         }
 
-		public class EntityMapper
+		protected class EntityMapper
 		{
 {% for referenceView in viewDef.referenceViewsList %}
             private readonly I{{ referenceView.viewId | capitalize }} _{{ referenceView.viewId | decapitalizeFilter }};

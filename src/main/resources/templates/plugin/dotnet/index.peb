@@ -21,7 +21,7 @@
 	var searchUrl = "{{viewDef.entityDef.name | capitalize}}s";
 }
 {% set containerClass = "container pd-x-0 pd-lg-x-10 pd-xl-x-0" %}
-{% if viewDef.listWeight < viewDef.editWeight %}
+{% if viewDef.listWeight > viewDef.editWeight %}
 {% set containerClass = "fluid" %}
 {% endif %}
 <div class="{{ containerClass }}">

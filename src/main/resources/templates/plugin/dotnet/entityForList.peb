@@ -26,18 +26,20 @@ public class {{viewDef.entityDef.name | capitalize}}ForList
 {% for childViewDef in viewDef.childViews %}
 	public int {{ childViewDef.id | capitalize }}sCount { get; set; } = 0;
 {% endfor %}
+
+    {% for lookup in viewDef.simpleLookups %}
+    public sealed class {{ lookup.key | capitalize }}Lookup
+    {
+        public static string Resolve(string code) => code != null ? Items.GetValueOrDefault(code, string.Empty) : string.Empty;
+
+        public static Dictionary<string, string> Items => new Dictionary<string, string>() {
+    {%  for lookupDetail in lookup.lookupDetails %}
+            { "{{ lookupDetail.code }}", "{{ lookupDetail.label }}"},
+    {% endfor %}
+        };
+    }
+    {% endfor %}
 }
 
-{% for lookup in viewDef.simpleLookups %}
-public sealed class {{ lookup.key | capitalize }}Lookup
-{
-    public static string Resolve(string code) => code != null ? Items.GetValueOrDefault(code, string.Empty) : string.Empty;
 
-    public static Dictionary<string, string> Items => new Dictionary<string, string>() {
-{%  for lookupDetail in lookup.lookupDetails %}
-        { "{{ lookupDetail.code }}", "{{ lookupDetail.label }}"},
-{% endfor %}
-    };
-}
-{% endfor %}
 

@@ -1,4 +1,8 @@
 {% set viewStyle = viewDef.configMap.getOrDefault("viewStyle", "table") | lower %}
+{% set pageLength = 25 %}
+{% if viewDef.hasMemoListField %}
+{% set pageLength = 9 %}
+{% endif %}
 {% set noDelete = viewDef.configMap.getOrDefault("noDelete", "false") %}
 {% set showDeleteButton = true %}
 {% if viewStyle equals "report" %}
@@ -14,6 +18,9 @@ export interface {{viewDef.id | capitalize}}ForList {
     numRows: number;
     id: number;
 {% for field in viewDef.fieldDefinitions %}
+{% if field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME" %}
+    {{ field.name | decapitalizeFilter}}String: String;
+{% endif %}
     {{ field.nameAsField}}: {{ field.dataTypeDef.dataTypeToTypeScriptDef }};
 {% endfor %}
 {% for childViewDef in viewDef.childViews %}
@@ -52,8 +59,9 @@ $(function () {
         info: false,
         paging: true,
         scrollX: true,
-        pageLength: 25,
-        order: [[1, 'asc']],
+        scrollCollapse: true,
+        autoWidth: false,
+        pageLength: {{ pageLength }},
         ajax: {
             url: '/{{viewDef.id | capitalize}}s/list',
             data: function(d) {
@@ -70,14 +78,21 @@ $(function () {
 {% endif %}
 {% for field in viewDef.showInListSortedFields%}
 {% if loop.first %}
+
+{% set firstLoopFieldName = field.name | decapitalizeFilter %}
+{% if field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME" %}
+{% set firstLoopFieldName = field.name | decapitalizeFilter + "String" %}
+{% endif %}
             {
                 data: function (data: {{viewDef.id | capitalize}}ForList) {
-                    return `<a href="javascript:; "class="editLink" data-id="${data.id}" id="editLink">${data.{{ field.name | decapitalizeFilter }} }</a>`;
+                    return `<a href="javascript:; "class="editLink" data-id="${data.id}" id="editLink">${data.{{ firstLoopFieldName }} }</a>`;
                 }
             },
 {% else %}
 {% if (field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME") %}
             { data: '{{ field.nameAsField}}String' },
+ {% elseif (field.dataTypeDef == "MEMO") %}
+            { data: '{{ field.nameAsField}}', width: '860px'  },
 {% elseif field.lookupKey is not empty %}
             { data: '{{ field.nameAsField}}String' },
 {% else %}
@@ -100,7 +115,6 @@ $(function () {
         ],
         language: {
             infoFiltered: '',
-            processing: model.loadingSmHtml,
             searchPlaceholder: 'Filter Results',
             search: ''
         },

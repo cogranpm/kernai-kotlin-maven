@@ -86,7 +86,7 @@ public class {{ childEntityViewId | capitalize }}Edit
 
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] != "true"  %}
     public IList<SelectListItem> {{ field.name}}Lookups { get; } =
-        {{ field.lookupKey }}Lookup.Items.Select( x => new SelectListItem() {Text = x.Value, Value = x.Key}).ToList();
+        {{vDef.entityDef.name | capitalize}}ForList.{{ field.lookupKey }}Lookup.Items.Select( x => new SelectListItem() {Text = x.Value, Value = x.Key}).ToList();
 {% endif %}
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true"  %}
     public {{ field.dataTypeToCSharpDef }}? {{ field.name | capitalize}}String { get; set; }
