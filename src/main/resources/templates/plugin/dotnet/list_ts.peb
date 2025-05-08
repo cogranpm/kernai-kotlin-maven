@@ -150,11 +150,12 @@ $(function () {
         save();
     });
 
-    const btnCreate: HTMLButtonElement = document.getElementById("btnCreate") as HTMLButtonElement;
+{% if viewStyle != "report" %}
+	const btnCreate: HTMLButtonElement = document.getElementById("btnCreate") as HTMLButtonElement;
     btnCreate.addEventListener("click", async (event: Event) => {
         create();
     });
-
+{% endif %}
 });
 
 let currentId = '';

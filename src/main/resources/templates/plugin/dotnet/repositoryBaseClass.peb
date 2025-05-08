@@ -71,7 +71,7 @@ public class {{viewDef.entityDef.name | capitalize}}RepositoryBase : BaseReposit
 {% for ownerAssociation in viewDef.ownerAssociations %}{% if ownerAssociation.owningType == "one" %}
         .Include(x => x.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s){% endif %}{% endfor %};
         var viewModel = results
-        .Select(x => new {{viewDef.entityDef.name | capitalize}}ForList ()
+        .Select(x => new {{viewDef.entityDef.name | capitalize}}ForList()
         {
 {% for field in viewDef.fieldDefinitions %}
             {{ field.name | capitalize}} = x.{{ field.name | capitalize}},
@@ -147,7 +147,7 @@ public class {{viewDef.entityDef.name | capitalize}}RepositoryBase : BaseReposit
         return entity;
     }
 
-    public virtual  void Update({{viewDef.entityDef.name | capitalize}}Base entity)
+    public virtual void Update({{viewDef.entityDef.name | capitalize}}Base entity)
     {
         var existing = this.Entities.AsNoTracking().FirstOrDefault(x => x.Id == entity.Id);
         if (existing != null)
@@ -160,7 +160,7 @@ public class {{viewDef.entityDef.name | capitalize}}RepositoryBase : BaseReposit
             this._serviceBase.SaveChanges();
         }
     }
-    public virtual  void Delete(int id)
+    public virtual void Delete(int id)
     {
         this._serviceBase.Delete(id);
         this._serviceBase.SaveChanges();
