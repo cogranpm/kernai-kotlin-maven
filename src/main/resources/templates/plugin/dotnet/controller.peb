@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using static Portal.Web.Management.Security.Attributes;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Portal.Web.Management.Models.App;
+using Portal.Web.Management.Helpers;
 
 namespace Portal.Web.Management.Controllers;
 
@@ -23,9 +24,10 @@ namespace Portal.Web.Management.Controllers;
     {
         public const string Heading = "{{viewDef.title}}s";
         private readonly I{{viewDef.entityDef.name | capitalize}}Service _service;
-	    protected I{{viewDef.entityDef.name | capitalize}}Service Service {  get { return _service; } }
+	    protected I{{viewDef.entityDef.name | capitalize}}Service Service { get { return _service; } }
 		private readonly EntityMapper mapper;
 	    private readonly ILogger<{{viewDef.id | capitalize}}sController> logger;
+	    private readonly ISearchHelperService searchHelperService;
 
 {% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
@@ -37,7 +39,8 @@ namespace Portal.Web.Management.Controllers;
 {% endfor %}
 
         public {{viewDef.id | capitalize}}sController(
-        I{{viewDef.entityDef.name | capitalize}}Service service
+        I{{viewDef.entityDef.name | capitalize}}Service service,
+        ISearchHelperService searchHelperService
 {% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
         , I{{ field.lookupKey }}Repository {{ field.lookupKeyAsField }}Repository
@@ -49,6 +52,7 @@ namespace Portal.Web.Management.Controllers;
 		, ILogger<{{viewDef.id | capitalize}}sController> logger
         ){
             this._service = service;
+            this.searchHelperService = searchHelperService;
 {% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
             this._{{ field.lookupKeyAsField }}Repository = {{ field.lookupKeyAsField }}Repository;
@@ -60,12 +64,38 @@ namespace Portal.Web.Management.Controllers;
             this.logger = logger;
         }
 
-        public ViewResult Index(string search = null)
+{% set hasCycleSearch = false %}
+{% set hasDateSearch = false %}
+{% set dateSearchVariables = ""%}
+{% set cycleSearchVariables = ""%}
+{% for field in viewDef.searchFields %}
+{% if field.isDateType %}
+{% set dateSearchVariables =  dateSearchVariables + ", string " +  field.name | decapitalizeFilter + "Timespan = \"yesterday\", " + field.dataTypeToCSharpDef + "? " + field.name | decapitalizeFilter + "Start = null, " + field.dataTypeToCSharpDef + "? " + field.name | decapitalizeFilter + "End = null" %}
+{% endif %}
+{#  cycle is a special search type that maps to a list of 0, 1, 2, 3 #}
+{% if field.isCycleSearch %}
+{% set cycleSearchVariables = ", " + field.dataTypeToCSharpDef + "? " + field.name | decapitalizeFilter + " = 0"%}
+{% endif %}
+{% endfor %}
+
+
+        public ViewResult Index(string search = null{{ dateSearchVariables }}{{ cycleSearchVariables }})
         {
             return View("Index", new {{viewDef.id | capitalize}}Search()
             {
                 Title = Heading,
                 Search = search
+{% for field in viewDef.searchFields %}
+{% if field.isDateType %}
+                ,{{ field.name | capitalize }}Timespan = {{ field.name | decapitalizeFilter }}Timespan
+                ,{{ field.name | capitalize }}Start = {{ field.name | decapitalizeFilter }}Start
+                ,{{ field.name | capitalize }}End = {{ field.name | decapitalizeFilter }}End
+{% endif %}
+{% if field.isCycleSearch %}
+                ,{{ field.name | capitalize }} = {{ field.name | decapitalizeFilter }}
+{% endif %}
+{% endfor %}
+
             });
         }
 
@@ -73,7 +103,7 @@ namespace Portal.Web.Management.Controllers;
         [Route("info/{id}")]
         public ViewResult Info(int? id, [FromQuery]{{viewDef.id | capitalize}}Search criteria)
         {
-            var entityInfo = new  {{viewDef.id | capitalize}}Edit();
+            var entityInfo = new {{viewDef.id | capitalize}}Edit();
             var entity = this._service.GetFirstWhere(x => x.Id == id);
             return View("_info", this.MakeEntityViewModel(criteria, null, new {{viewDef.entityDef.name | capitalize}}(entity)));
         }
@@ -91,7 +121,26 @@ namespace Portal.Web.Management.Controllers;
             try
             {
                 var dataSort = new DataSortParameters { Length = length, OrderDir = orderDir, OrderCol = orderCol, Start = start };
-                var records = this._service.GetForList(dataSort, searchCriteria.Search);
+{% for field in viewDef.searchFields %}
+{% if field.isDateType %}
+			    if (searchCriteria.{{ field.name | capitalize }}Timespan == null) searchCriteria.{{ field.name | capitalize }}Timespan = "yesterday";
+			    var ({{ field.name | decapitalizeFilter }}Start, {{ field.name | decapitalizeFilter }}End) = searchHelperService.GetTimespanDates(searchCriteria.{{ field.name | capitalize }}Timespan, searchCriteria.{{ field.name | capitalize }}Start, searchCriteria.{{ field.name | capitalize }}End);
+{% endif %}
+{% endfor %}
+                var records = this._service
+                .GetForList(
+                    dataSort,
+                    searchCriteria.Search
+{% for field in viewDef.searchFields %}
+{% if field.isDateType %}
+                    , {{ field.name | decapitalizeFilter }}Start
+                    , {{ field.name | decapitalizeFilter }}End
+{% endif %}
+{% if field.isCycleSearch %}
+                    , searchCriteria.{{ field.name | capitalize }}??0
+{% endif %}
+{% endfor %}
+                );
 
                 var firstRecord = records.FirstOrDefault();
                 var total = firstRecord?.NumRows ?? 0;

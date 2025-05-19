@@ -11,6 +11,7 @@
 {% if noDelete != "false" %}
     {% set showDeleteButton = false %}
 {% endif %}
+
 import { toQueryString } from "../utils/url-utils.js";
 import { addOrRemoveClass, createJqSelectorBuilder as jqs } from "../utils/jquery-utils.js";
 
@@ -18,7 +19,7 @@ export interface {{viewDef.id | capitalize}}ForList {
     numRows: number;
     id: number;
 {% for field in viewDef.fieldDefinitions %}
-{% if field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME" %}
+{% if field.isDateType%}
     {{ field.name | decapitalizeFilter}}String: String;
 {% endif %}
     {{ field.nameAsField}}: {{ field.dataTypeDef.dataTypeToTypeScriptDef }};
@@ -30,6 +31,17 @@ export interface {{viewDef.id | capitalize}}ForList {
 
 export interface SearchCriteria {
     search: string;
+{% for field in viewDef.searchFields %}
+{% if field.isDateType %}
+    {{ field.name | decapitalizeFilter}}Start: {{ field.dataTypeDef.dataTypeToTypeScriptDef }};
+    {{ field.name | decapitalizeFilter}}End: {{ field.dataTypeDef.dataTypeToTypeScriptDef }};
+    {{ field.name | decapitalizeFilter}}Timespan: string
+{% endif %}
+{#  cycle is a special search type that maps to a list of 0, 1, 2, 3 #}
+{% if field.isCycleSearch %}
+    {{ field.name | decapitalizeFilter}}: {{ field.dataTypeDef.dataTypeToTypeScriptDef }};
+{% endif %}
+{% endfor %}
 }
 
 export interface {{viewDef.id | capitalize}}ListModel {
@@ -54,6 +66,7 @@ function getJqListTable(): JQuery<HTMLTableElement> {
 
 $(function () {
     let dataTable = getJqListTable().DataTable({
+        order: [],
         processing: true,
         serverSide: false,
         info: false,
@@ -66,6 +79,15 @@ $(function () {
             url: '/{{viewDef.id | capitalize}}s/list',
             data: function(d) {
                 return $.extend({}, d, model.criteria);
+            },
+            error: async function (xhr, error, code) {
+                const errorJson = xhr.responseJSON;
+                console.log(xhr, code);
+                var errorMessage = "There was an error";
+                if (errorJson && errorJson.detail) {
+                    errorMessage += ": " + errorJson.detail;
+                }
+                $('.div-datatables').html(`<div class="alert alert-danger" role="alert">${errorMessage}</div>`);
             }
         },
         columns: [
@@ -80,7 +102,7 @@ $(function () {
 {% if loop.first %}
 
 {% set firstLoopFieldName = field.name | decapitalizeFilter %}
-{% if field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME" %}
+{% if field.isDateType %}
 {% set firstLoopFieldName = field.name | decapitalizeFilter + "String" %}
 {% endif %}
             {
@@ -89,7 +111,7 @@ $(function () {
                 }
             },
 {% else %}
-{% if (field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME") %}
+{% if (field.isDateType) %}
             { data: '{{ field.nameAsField}}String' },
  {% elseif (field.dataTypeDef == "MEMO") %}
             { data: '{{ field.nameAsField}}', width: '860px'  },

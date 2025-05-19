@@ -14,14 +14,26 @@ using System.Collections.Generic;
 {% endfor %}
 
 {% set hasSearchFields = 0 %}
-{% for field in viewDef.searchFields %}
+{% for field in viewDef.freeTextSearchFields %}
 {% set hasSearchFields = 1 %}
 {% endfor %}
 namespace Portal.Repository;
 
 public interface I{{viewDef.entityDef.name | capitalize}}RepositoryBase : IRepository<{{viewDef.entityDef.name | capitalize}}Base, int>
 {
-    IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search);
+    IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
+        DataSortParameters dataSort,
+        string search
+{% for field in viewDef.searchFields %}{% if field.isDateType %}
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}Start
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}End
+{% endif %}
+{% if field.isCycleSearch %}
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}
+{% endif %}
+{% endfor %}
+
+    );
 
     {{viewDef.entityDef.name | capitalize}}Base Add({{viewDef.entityDef.name | capitalize}}Base entity);
     void Update({{viewDef.entityDef.name | capitalize}}Base entity);
@@ -64,15 +76,11 @@ public class {{viewDef.entityDef.name | capitalize}}RepositoryBase : BaseReposit
         this._context = context;
     }
 
-    public virtual IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search)
-    {
-        var results = this.Entities.AsNoTracking()
-        {% if viewDef.linqSortBy is not empty %}.{{ viewDef.linqSortBy }}{% endif %}
-{% for ownerAssociation in viewDef.ownerAssociations %}{% if ownerAssociation.owningType == "one" %}
-        .Include(x => x.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s){% endif %}{% endfor %};
-        var viewModel = results
-        .Select(x => new {{viewDef.entityDef.name | capitalize}}ForList()
-        {
+    protected IList<{{viewDef.entityDef.name | capitalize}}ForList> TransformResults(IQueryable<{{viewDef.entityDef.name | capitalize}}Base> results)
+	{
+		var viewModelList = results
+		.Select(x => new {{viewDef.entityDef.name | capitalize}}ForList()
+		{
 {% for field in viewDef.fieldDefinitions %}
             {{ field.name | capitalize}} = x.{{ field.name | capitalize}},
 {% endfor %}
@@ -95,49 +103,78 @@ public class {{viewDef.entityDef.name | capitalize}}RepositoryBase : BaseReposit
 {% endfor %}
         });
 {% endif %}
+        return viewModelList;
+	}
 
-        var filteredViewModel = viewModel;
+    public virtual IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
+        DataSortParameters dataSort,
+        string search
+{% for field in viewDef.searchFields %}{% if field.isDateType %}
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}Start
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}End
+{% endif %}
+{% if field.isCycleSearch %}
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}
+{% endif %}
+{% endfor %}
+
+        )
+    {
+        var results = this.Entities
+        .AsNoTracking()
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+        .Include(x => x.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s)
+{% endif %}
+{% endfor %};
+
 {%  if hasSearchFields == 1 %}
         if (!string.IsNullOrEmpty(search))
         {
-            filteredViewModel = viewModel.Where(x =>
-{% for field in viewDef.searchFields %}
-{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
-           x.{{ field.name | capitalize }}String.Contains(search, StringComparison.CurrentCultureIgnoreCase)
+            results = results.Where(x =>
+{% for field in viewDef.freeTextSearchFields %}
+{% if field.lookupKey is not empty %}
+           {% if not loop.first %}|| {% endif %}x.{{ field.name | capitalize }}String.ToLower().IndexOf(search.ToLower()) > -1
 {% else %}
-{%  set searchClause = "" %}
-{% if field.dataTypeDef == "INT" %}
-            var typedSearch = Convert.ToInt32(search);
+{% set searchClause = "ToLower().IndexOf(search) > -1" %}
+           {% if not loop.first %}|| {% endif %}(x.{{ field.name | capitalize }} != null && x.{{ field.name | capitalize }}.{{ searchClause }})
 {% endif %}
-{% if field.dataTypeDef == "FLOAT" %}
-            var typedSearch = Convert.ToSingle(search);
-{% endif %}
-{% if field.dataTypeDef == "MONEY" %}
-            var typedSearch = Convert.ToDecimal(search);
-{% endif %}
-{% if field.dataTypeDef == "BOOLEAN" %}
-            var typedSearch = Convert.ToBoolean(search);
-{% endif %}
-{% if field.dataTypeDef == "INT" or field.dataTypeDef == "FLOAT" or field.dataTypeDef == "MONEY" or field.dataTypeDef == "BOOLEAN" %}
-{% set searchClause = "Equals(typedSearch)" %}
-{%  else %}
-{% set searchClause = "Equals(search, StringComparison.CurrentCultureIgnoreCase)" %}
-{% endif %}
-{% if field.dataTypeDef == "DATE" %} {%  set defaultValue = "= DateTime.Now;" %}{% endif %}
-{% if field.dataTypeDef == "TIME" %} {%  set defaultValue = "= DateTime.Now;" %}{% endif %}
-{% if field.default is not empty and field.default == "YEAR" %}
-{% set defaultValue = "= DateTime.Now.Year;" %}
-{% endif %}
-           (x.{{ field.name | capitalize }} != null && x.{{ field.name | capitalize }}.{{ searchClause }})
-{% endif %}
-{% if not loop.last %} || {% endif %}
-
 {% endfor %}
-
-            ).ToList();
+            );
         }
 {% endif %}
-        return filteredViewModel;
+{#  Date Search Logic #}
+{% for field in viewDef.searchFields %}
+{% if field.isDateType %}
+
+		if ({{ field.name | decapitalizeFilter }}Start.HasValue && !{{ field.name | decapitalizeFilter }}End.HasValue)
+		{
+			{{ field.name | decapitalizeFilter }}End = {{ field.name | decapitalizeFilter }}Start.Value;
+		}
+
+		if (!{{ field.name | decapitalizeFilter }}Start.HasValue && {{ field.name | decapitalizeFilter }}End.HasValue)
+		{
+			{{ field.name | decapitalizeFilter }}Start = {{ field.name | decapitalizeFilter }}End.Value;
+		}
+
+		if ({{ field.name | decapitalizeFilter }}Start.Value > {{ field.name | decapitalizeFilter }}End.Value)
+		{
+			var tempDate = {{ field.name | decapitalizeFilter }}Start.Value;
+			{{ field.name | decapitalizeFilter }}Start = {{ field.name | decapitalizeFilter }}End.Value;
+			{{ field.name | decapitalizeFilter }}End = tempDate;
+		}
+		results = results.Where(x => (x.{{ field.name | capitalize }} >= {{ field.name | decapitalizeFilter }}Start.Value && x.{{ field.name | capitalize }} <= {{ field.name | decapitalizeFilter }}End.Value));
+{% endif %}
+{#  Cycle Search Logic #}
+{% if field.isCycleSearch %}
+		results = results.Where(x => x.{{ field.name | capitalize }} >= {{ field.name | decapitalizeFilter }});
+{% endif %}
+{% endfor %}
+{% if viewDef.linqSortBy is not empty %}
+        results = results.{{ viewDef.linqSortBy }};
+{% endif %}
+
+		return TransformResults(results);
     }
 
     public virtual {{viewDef.entityDef.name | capitalize}}Base Add({{viewDef.entityDef.name | capitalize}}Base entity)

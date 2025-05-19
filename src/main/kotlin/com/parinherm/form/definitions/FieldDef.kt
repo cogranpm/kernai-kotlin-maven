@@ -189,6 +189,16 @@ data class FieldDef(
                 SizeDef.SMALL -> 150
             }
 
+    val isDateType : Boolean
+        get() =
+            dataTypeDef == DataTypeDef.DATE
+            || dataTypeDef == DataTypeDef.TIME
+            || dataTypeDef == DataTypeDef.DATETIME
+
+    val isCycleSearch : Boolean
+        get() = configMap.getOrDefault("searchType", "") == "cycle"
+
+
     val nameAsField: String
         get() = this.name.replaceFirstChar { it.lowercase() }
 

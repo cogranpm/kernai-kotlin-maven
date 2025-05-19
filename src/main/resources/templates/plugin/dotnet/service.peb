@@ -13,7 +13,18 @@ namespace Portal.Service;
 
 public interface I{{viewDef.entityDef.name | capitalize}}Service : IService<{{baseEntityName}}, int>
 {
-    IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search);
+    IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
+        DataSortParameters dataSort,
+        string search
+{% for field in viewDef.searchFields %}{% if field.isDateType %}
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}Start
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}End
+{% endif %}
+{% if field.isCycleSearch %}
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}
+{% endif %}
+{% endfor %}
+);
     void Update({{baseEntityName}} entity, string user);
     {{baseEntityName}} Add({{baseEntityName}} entity, string user);
     void Delete(int id, string user);
@@ -36,8 +47,34 @@ public class {{viewDef.entityDef.name | capitalize}}Service : BaseService<{{base
 		    this.logger = logger;
     }
 
-    public IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(DataSortParameters dataSort, string search){
-        return this.Repository.GetForList(dataSort, search);
+    public IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
+        DataSortParameters dataSort,
+        string search
+{% for field in viewDef.searchFields %}{% if field.isDateType %}
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}Start
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}End
+{% endif %}
+{% if field.isCycleSearch %}
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}
+{% endif %}
+{% endfor %}
+
+        ){
+        return this.Repository
+            .GetForList(
+                dataSort,
+                search
+{% for field in viewDef.searchFields %}
+{% if field.isDateType %}
+                ,{{ field.name | decapitalizeFilter }}Start
+                ,{{ field.name | decapitalizeFilter }}End
+{% endif %}
+{% if field.isCycleSearch %}
+                ,{{ field.name | decapitalizeFilter }}
+{% endif %}
+{% endfor %}
+
+            );
     }
 
     public void Update({{baseEntityName}} entity, string user)

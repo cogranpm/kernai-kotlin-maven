@@ -12,8 +12,14 @@
 		@Html.HiddenFor(model => model.Id)
 	    @Html.HiddenFor(model => model.TimeStamp)
 
+		<fieldset{% if viewStyle == "report"%} disabled{% endif %}>
 		<div class="validation" asp-validation-summary="All"></div>
     {% for field in viewDef.sortedFields%}
+
+{% set editorForMethodName = "EditorFor" %}
+{% if field.dataTypeDef == "BOOLEAN" and field.required == true %}
+{% set editorForMethodName = "CheckBoxFor" %}
+{% endif %}
 
 		<div class="row mg-b-5">
 		    <div class="col-sm-3">
@@ -33,7 +39,7 @@
 {% elseif field.lookupKey is not empty %}
                 @Html.DropDownListFor(model => model.{{ field.name | capitalize }}, Model.{{ field.name}}Lookups, "-- Select {{ field.title }}--", new { name = "{{ field.nameAsField }}", @class = "form-select", placeholder = "Enter {{ field.title }}" })
 {% else %}
-				@Html.EditorFor(model => model.{{ field.name | capitalize }}, new
+				@Html.{{ editorForMethodName }}(model => model.{{ field.name | capitalize }}, new
 				{
 				    htmlAttributes = new
 				    {
@@ -65,5 +71,6 @@
 			</div>
 		</div>
     {% endfor %}
+		</fieldset>
 	}
 </div>

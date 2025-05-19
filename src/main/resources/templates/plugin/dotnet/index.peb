@@ -1,5 +1,5 @@
 {% set hasSearchFields = 0 %}
-{% for field in viewDef.searchFields %}
+{% for field in viewDef.freeTextSearchFields %}
 {% set hasSearchFields = 1 %}
 {% endfor %}
 {% set viewStyle = viewDef.configMap.getOrDefault("viewStyle", "table") | lower %}
@@ -9,6 +9,7 @@
     {% set cancelButtonCaption = "close" %}
     {% set showSaveButton = false %}
 {% endif %}
+
 @using Portal.Core
 @using Portal.Repository
 @using Portal.Repository.Model.Enums
@@ -25,14 +26,16 @@
 {% set containerClass = "fluid" %}
 {% endif %}
 <div class="{{ containerClass }}">
-	<div id="basicSearch" class="tab-pane fade active show bg-gray-100 mg-b-20">
-		<form action="@searchUrl" method="get">
-			<div class="row p-0 m-0 border-bottom">
-				<div class="search-form col-lg-12 p-0 m-0">
+	<form action="@searchUrl" method="get" id="frmSearch"  autocomplete="off">
+		<div class="card mt-3 mb-3">
+			<div class="card-body pt-2 pb-1">
+				<div class="row border-top pt-2">
+					<div class="col-md-4">
+
 {% set placeholderSearch = "" %}
-{%  if hasSearchFields == 1 %}
+{% if hasSearchFields == 1 %}
 {% set placeholderSearch = "Search by" %}
-{% for field in viewDef.searchFields %}
+{% for field in viewDef.freeTextSearchFields %}
 {% set placeholderSearch = placeholderSearch + " " + field.title %}{% if loop.last %}{% else %}{% set placeholderSearch = placeholderSearch + "," %}{% endif %}
 {% endfor %}
     					<input type="search"
@@ -43,15 +46,71 @@
 						   title="{{ placeholderSearch }}"
 						   >
 {% endif %}
+					</div>
+				</div>
+{% for field in viewDef.searchFields %}
+{% if field.isCycleSearch %}
+				<div class="row border-top pt-2">
+					<div class="col-md-4">
+						<div class="row mb-2">
+							<div class="col-xl-3 pt-2 tx-xl-right">{{ field.title }}:</div>
+							<div class="col-xl-9">
+								@Html.DropDownList(
+								"{{ field.name | capitalize }}",
+								new SelectList(Model.Cycles, "Value", "Text", @Model.{{ field.name | capitalize }}),
+								new { id = "{{ field.name | capitalize }}", Class = "form-control" }
+								)
+							</div>
+						</div>
+					</div>
+				</div>
+{% endif %}
+{% if field.isDateType %}
+				<div class="row border-top pt-2">
+					<div class="col-md-4">
+						<div class="row mb-2">
+							<div class="col-xl-3 pt-2 tx-xl-right">{{ field.title }}:</div>
+							<div class="col-xl-9">
+								@Html.DropDownList(
+								"{{ field.name | decapitalizeFilter }}Timespan",
+								new SelectList(Model.Timespans, "Value", "Text", @Model.{{ field.name | capitalize }}Timespan),
+								new { id = "{{ field.name | decapitalizeFilter }}timespan", Class = "form-control" }
+								)
+							</div>
+						</div>
+					</div>
+					<div class="col-md-5" id="div{{ field.name | capitalize }}">
+						<div class="row mb-2">
+							<div class="col-xl-5">
+								<input type="text"
+									id="{{ field.name | decapitalizeFilter }}Start"
+									name="{{ field.name | decapitalizeFilter }}Start"
+									class="form-control hasDatePicker"
+									value="@Model.{{ field.name | capitalize }}Start?.ToString("MM/dd/yyyy")"
+									placeholder="Start Date" />
+							</div>
+							<div class="col-xl-2 pt-2 pl-0 pr-0 tx-center">through</div>
+							<div class="col-xl-5">
+								<input type="text"
+									id="{{ field.name | decapitalizeFilter }}End"
+									name="{{ field.name | decapitalizeFilter }}End"
+									class="form-control hasDatePicker"
+									value="@Model.{{ field.name | capitalize }}End?.ToString("MM/dd/yyyy")" placeholder="End Date" />
+							</div>
+						</div>
+					</div>
+{% endif %}
+{% endfor %}
 
-					<button type="submit"
-							class="btn border-0 bg-white">
-						<i data-feather="search" class="tx-primary"></i>
-					</button>
+
 				</div>
 			</div>
-		</form>
-	</div>
+			<div class="card-footer tx-right pt-1 pb-2">
+				<button type="submit" class="btn btn-primary submitbtn-filter-mg-dist" id="btnSearch">Submit</button>
+			</div>
+		</div>
+	</form>
+
 	{% if viewStyle != "report" %}
 	<div class="tx-right pd-b-5">
 		<button class="btn btn-primary btn-sm" id="btnCreate" data-bs-toggle="modal" data-bs-target="#addModal">Add New</button>
@@ -64,7 +123,6 @@
 		@await Html.PartialAsync("_list", Model)
 		<div id="pageInfo"></div>
 	</div>
-</div>
 
 <div class="modal" id="addModal" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
@@ -94,5 +152,73 @@
 </div>
 
 @section Scripts {
-    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+		<script>
+		$(function () {
+{% set hasDateSearch = false %}
+{% for field in viewDef.searchFields %}
+{% if field.isDateType %}
+{% set hasDateSearch = true %}
+{% endif %}
+{% endfor %}
+
+{% if hasDateSearch %}
+
+			const dateFormat = 'mm/dd/yy';
+
+{% for field in viewDef.searchFields %}
+{% if field.isDateType %}
+			$('#{{ field.name | decapitalizeFilter }}timespan').change(function() {
+				toggleDates();
+			});
+
+			let	{{ field.name | decapitalizeFilter }}initMinDate = getDate('{{ field.name | decapitalizeFilter }}Start');
+			let	{{ field.name | decapitalizeFilter }}initMaxDate = getDate('{{ field.name | decapitalizeFilter }}End');
+			let	{{ field.name | decapitalizeFilter }}from = $('#{{ field.name | decapitalizeFilter }}Start')
+					.datepicker({
+						numberOfMonths: 1,
+						maxDate: {{ field.name | decapitalizeFilter }}initMaxDate
+					})
+					.on('change', function () {
+						{{ field.name | decapitalizeFilter }}to.datepicker('option', 'minDate', getDate(this.id));
+					});
+			let	{{ field.name | decapitalizeFilter }}to = $('#{{ field.name | decapitalizeFilter }}End')
+					.datepicker({
+						numberOfMonths: 1,
+						minDate: {{ field.name | decapitalizeFilter }}initMinDate
+					})
+					.on('change', function () {
+						{{ field.name | decapitalizeFilter }}from.datepicker('option', 'maxDate', getDate(this.id));
+					});
+
+			function getDate(elementId) {
+				var date;
+				try {
+					date = $.datepicker.parseDate(dateFormat, $('#' + elementId).val());
+				} catch (error) {
+					date = null;
+				}
+				return date;
+			}
+{% endif %}
+{% endfor %}
+			toggleDates();
+			function toggleDates() {
+{% for field in viewDef.searchFields %}
+{% if field.isDateType %}
+				if ($('#{{ field.name | decapitalizeFilter }}timespan').val() == 'thesedates') {
+					$('#div{{ field.name | capitalize}}').show();
+				}
+				else {
+					$('#div{{ field.name | capitalize}}').hide();
+				}
+{% endif %}
+{% endfor %}
+			}
+{% endif %}
+		});
+		</script>
+	}
 }

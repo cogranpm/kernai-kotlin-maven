@@ -78,6 +78,12 @@ data class ViewDef(
             return AssociationDefinitionMapper.getAllAsOwned(this);
         }
 
+     val freeTextSearchFields : List<FieldDef>
+        get() {
+            return this.fieldDefinitions.filter { it.filterable && !it.isDateType && !it.isCycleSearch  }
+        }
+
+
     val searchFields: List<FieldDef>
         get() {
             return this.fieldDefinitions.filter { it.filterable }
