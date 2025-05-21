@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Portal.Web.Management.Helpers;
 
 namespace Portal.Web.Management.Models.App;
 {% set hasCycleSearch = false %}
@@ -23,17 +24,7 @@ public class {{viewDef.entityDef.name | capitalize}}Search
 {% endfor %}
 
 {% if hasDateSearch == true %}
-	public IEnumerable<SelectListItem> Timespans => new[]
-	{
-		new SelectListItem("Yesterday", "yesterday"),
-		new SelectListItem("This Week", "thisweek"),
-		new SelectListItem("Last Week", "lastweek"),
-		new SelectListItem("This Month", "thismonth"),
-		new SelectListItem("Last Month", "lastmonth"),
-		new SelectListItem("This Year", "thisyear"),
-		new SelectListItem("Last Year", "lastyear"),
-		new SelectListItem("These Dates...", "thesedates")
-	};
+        public IEnumerable<SelectListItem> Timespans => (IEnumerable<SelectListItem>)SearchHelperService.Timespans.ToArray().Clone();
 {% endif %}
 {% if hasCycleSearch == true %}
 	public IEnumerable<SelectListItem> Cycles => new[]

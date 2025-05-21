@@ -78,9 +78,9 @@ class ViewDefinitionViewModel(tabInfo: TabInfo) : FormViewModel<ViewDefinition>(
         val view = view as ViewDefinitionView
         view.btnMake.addSelectionListener(object : SelectionAdapter() {
             override fun widgetSelected(e: SelectionEvent?) {
-                if (currentEntity != null){
+                if (currentEntity != null) {
                     val viewId = currentEntity?.viewId
-                    if(viewId != null){
+                    if (viewId != null) {
                         Display.getDefault().activeShell.cursor = Display.getDefault().getSystemCursor(SWT.CURSOR_WAIT)
                         view.txtProgress.text = "Generating scripts ..."
                         var targetFiles = mutableListOf<String>()
@@ -92,8 +92,8 @@ class ViewDefinitionViewModel(tabInfo: TabInfo) : FormViewModel<ViewDefinition>(
                                 ApplicationData.logError(e, "Error generating scripts")
                             } finally {
                                 var completeMessage = "Complete"
-                                if(!targetFiles.isEmpty()){
-                                   completeMessage += ", Script written to: ${targetFiles[0]} "
+                                if (!targetFiles.isEmpty()) {
+                                    completeMessage += ", Script written to: ${targetFiles[0]} "
                                 }
                                 view.txtProgress.text = completeMessage
                                 Display.getDefault().activeShell.cursor = null
@@ -107,31 +107,13 @@ class ViewDefinitionViewModel(tabInfo: TabInfo) : FormViewModel<ViewDefinition>(
 
         view.btnScaffold.addSelectionListener(object : SelectionAdapter() {
             override fun widgetSelected(e: SelectionEvent?) {
-                if (currentEntity != null) {
-                    val viewId = currentEntity?.viewId
-                    if(viewId != null){
-                        Display.getDefault().asyncExec {
-                            try {
-                                Display.getDefault().activeShell.cursor =
-                                    Display.getDefault().getSystemCursor(SWT.CURSOR_WAIT)
-                                view.txtProgress.text = "Enhanced scaffolding ..."
-                                val viewDef = DefaultViewDefinitions.loadView(viewId)
-                                GraalScriptRunner.runScriptFile(view.commandOutput, viewDef)
-                            } catch (e: Exception) {
-                                Display.getDefault().timerExec(200) {
-                                    view.commandOutput.text = """
-                                *************  Error *****************
-                                ${e.message}
-                                ${e.stackTrace}
-                            """.trimIndent()
-                                }
-                            } finally {
-                                Display.getDefault().activeShell.cursor = null
-                                view.txtProgress.text = "Complete"
-                            }
-                        }
-                    }
-                }
+                runScaffold(view, false);
+            }
+        })
+
+        view.btnScaffoldAdvanced.addSelectionListener(object : SelectionAdapter() {
+            override fun widgetSelected(e: SelectionEvent?) {
+                runScaffold(view, true);
             }
         })
 
@@ -139,20 +121,50 @@ class ViewDefinitionViewModel(tabInfo: TabInfo) : FormViewModel<ViewDefinition>(
         loadData(mapOf())
     }
 
+    private fun runScaffold(view: ViewDefinitionView, advanced: Boolean) {
+        if (currentEntity != null) {
+            val viewId = currentEntity?.viewId
+            if (viewId != null) {
+                Display.getDefault().asyncExec {
+                    try {
+                        Display.getDefault().activeShell.cursor =
+                            Display.getDefault().getSystemCursor(SWT.CURSOR_WAIT)
+                        view.txtProgress.text = "Enhanced scaffolding ..."
+                        val viewDef = DefaultViewDefinitions.loadView(viewId)
+                        GraalScriptRunner.runScriptFile(view.commandOutput, viewDef, advanced)
+                    } catch (e: Exception) {
+                        Display.getDefault().timerExec(200) {
+                            view.commandOutput.text = """
+                                *************  Error *****************
+                                ${e.message}
+                                ${e.stackTrace}
+                            """.trimIndent()
+                        }
+                    } finally {
+                        Display.getDefault().activeShell.cursor = null
+                        view.txtProgress.text = "Complete"
+                    }
+                }
+            }
+        }
+    }
+
     private fun makeFieldDefinitionsViewModel(currentChild: FieldDefinition?): IFormViewModel<FieldDefinition> {
         return FieldDefinitionViewModel(
             currentEntity!!,
             currentChild,
             tabId,
-           tabInfo.copy(caption = "Field Definition")
+            tabInfo.copy(caption = "Field Definition")
         )
     }
 
     private fun makeChildDefinitionsViewModel(currentChild: ViewDefinition?): IFormViewModel<ViewDefinition> {
-        return ChildViewDefinitionViewModel(currentEntity!!,
+        return ChildViewDefinitionViewModel(
+            currentEntity!!,
             currentChild,
             tabId,
-            tabInfo.copy(caption = "Child Form Definition") )
+            tabInfo.copy(caption = "Child Form Definition")
+        )
     }
 
     private fun clearAndAddFieldDefinition() {

@@ -157,13 +157,17 @@ public class {{viewDef.entityDef.name | capitalize}}RepositoryBase : BaseReposit
 			{{ field.name | decapitalizeFilter }}Start = {{ field.name | decapitalizeFilter }}End.Value;
 		}
 
-		if ({{ field.name | decapitalizeFilter }}Start.Value > {{ field.name | decapitalizeFilter }}End.Value)
+		if ({{ field.name | decapitalizeFilter }}Start.HasValue && {{ field.name | decapitalizeFilter }}End.HasValue && {{ field.name | decapitalizeFilter }}Start.Value > {{ field.name | decapitalizeFilter }}End.Value)
 		{
 			var tempDate = {{ field.name | decapitalizeFilter }}Start.Value;
 			{{ field.name | decapitalizeFilter }}Start = {{ field.name | decapitalizeFilter }}End.Value;
 			{{ field.name | decapitalizeFilter }}End = tempDate;
 		}
-		results = results.Where(x => (x.{{ field.name | capitalize }} >= {{ field.name | decapitalizeFilter }}Start.Value && x.{{ field.name | capitalize }} <= {{ field.name | decapitalizeFilter }}End.Value));
+
+        if({{ field.name | decapitalizeFilter }}Start.HasValue && {{ field.name | decapitalizeFilter }}End.HasValue)
+        {
+		    results = results.Where(x => (x.{{ field.name | capitalize }} >= {{ field.name | decapitalizeFilter }}Start.Value && x.{{ field.name | capitalize }} <= {{ field.name | decapitalizeFilter }}End.Value));
+		}
 {% endif %}
 {#  Cycle Search Logic #}
 {% if field.isCycleSearch %}

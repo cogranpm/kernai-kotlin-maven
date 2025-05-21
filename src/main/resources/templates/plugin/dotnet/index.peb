@@ -50,7 +50,7 @@
 				</div>
 {% for field in viewDef.searchFields %}
 {% if field.isCycleSearch %}
-				<div class="row border-top pt-2">
+				<div class="row pt-2">
 					<div class="col-md-4">
 						<div class="row mb-2">
 							<div class="col-xl-3 pt-2 tx-xl-right">{{ field.title }}:</div>
@@ -64,9 +64,8 @@
 						</div>
 					</div>
 				</div>
-{% endif %}
-{% if field.isDateType %}
-				<div class="row border-top pt-2">
+{% elseif field.isDateType %}
+				<div class="row pt-2">
 					<div class="col-md-4">
 						<div class="row mb-2">
 							<div class="col-xl-3 pt-2 tx-xl-right">{{ field.title }}:</div>
@@ -99,16 +98,14 @@
 							</div>
 						</div>
 					</div>
+				</div>
 {% endif %}
 {% endfor %}
-
-
 				</div>
 			</div>
 			<div class="card-footer tx-right pt-1 pb-2">
 				<button type="submit" class="btn btn-primary submitbtn-filter-mg-dist" id="btnSearch">Submit</button>
 			</div>
-		</div>
 	</form>
 
 	{% if viewStyle != "report" %}
@@ -123,6 +120,7 @@
 		@await Html.PartialAsync("_list", Model)
 		<div id="pageInfo"></div>
 	</div>
+</div>
 
 <div class="modal" id="addModal" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">

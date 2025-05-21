@@ -20,7 +20,7 @@ object GraalScriptRunner {
         return script?.readText(Charsets.UTF_8) ?: ""
     }
 
-    fun runScriptFile(outputWidget: Text, viewDef: ViewDef){
+    fun runScriptFile(outputWidget: Text, viewDef: ViewDef, advanced: Boolean){
         val bs = ByteArrayOutputStream()
         val ps = PrintStream(bs)
         val context =
@@ -38,7 +38,7 @@ object GraalScriptRunner {
             bindings.putMember("viewDef", viewDef);
 
             it.eval(utilsSource)
-            val mainSource = Source.newBuilder("js", loadScript("dotnetFullStack.mjs"), "testing")
+            val mainSource = Source.newBuilder("js", loadScript( if (advanced) "dotnetFullStackImproved.mjs" else  "dotnetFullStack.mjs"), "testing")
                 .buildLiteral() // .bu.mimeType("application/javascript+module")
             it.eval(mainSource)
            // slight delay on the output
