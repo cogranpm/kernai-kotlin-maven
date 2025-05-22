@@ -1,0 +1,324 @@
+{% set viewStyle = viewDef.configMap.getOrDefault("viewStyle", "table") | lower %}
+{% set pageLength = 25 %}
+{% if viewDef.hasMemoListField %}
+{% set pageLength = 9 %}
+{% endif %}
+{% set noDelete = viewDef.configMap.getOrDefault("noDelete", "false") %}
+{% set showDeleteButton = true %}
+{% if viewStyle equals "report" %}
+    {% set showDeleteButton = false %}
+{% endif %}
+{% if noDelete != "false" %}
+    {% set showDeleteButton = false %}
+{% endif %}
+
+import { toQueryString } from "../utils/url-utils.js";
+import { addOrRemoveClass, createJqSelectorBuilder as jqs } from "../utils/jquery-utils.js";
+
+export interface {{viewDef.id | capitalize}}ForList {
+    numRows: number;
+    id: number;
+{% for field in viewDef.fieldDefinitions %}
+{% if field.isDateType%}
+    {{ field.name | decapitalizeFilter}}String: String;
+{% endif %}
+    {{ field.nameAsField}}: {{ field.dataTypeDef.dataTypeToTypeScriptDef }};
+{% endfor %}
+{% for childViewDef in viewDef.childViews %}
+    {{ childViewDef.id | decapitalizeFilter }}sCount: number;
+{% endfor %}
+}
+
+export interface SearchCriteria {
+    search: string;
+{% for field in viewDef.searchFields %}
+{% if field.isDateType %}
+    {{ field.name | decapitalizeFilter}}Start: {{ field.dataTypeDef.dataTypeToTypeScriptDef }};
+    {{ field.name | decapitalizeFilter}}End: {{ field.dataTypeDef.dataTypeToTypeScriptDef }};
+    {{ field.name | decapitalizeFilter}}Timespan: string
+{% endif %}
+{#  cycle is a special search type that maps to a list of 0, 1, 2, 3 #}
+{% if field.isCycleSearch %}
+    {{ field.name | decapitalizeFilter}}: {{ field.dataTypeDef.dataTypeToTypeScriptDef }};
+{% endif %}
+{% endfor %}
+}
+
+export interface {{viewDef.id | capitalize}}ListModel {
+    criteria: SearchCriteria,
+    loadingHtml: string;
+    loadingSmHtml: string;
+}
+
+export enum ElementIds {
+    LIST_TABLE = "listTable"
+}
+
+let model: {{viewDef.id | capitalize}}ListModel;
+
+export function initialize(m: {{viewDef.id | capitalize}}ListModel) {
+    model = m;
+}
+
+function getJqListTable(): JQuery<HTMLTableElement> {
+    return $<HTMLTableElement>(`#${ElementIds.LIST_TABLE}`);
+}
+
+$(function () {
+    let dataTable = getJqListTable().DataTable({
+        order: [],
+        processing: true,
+        serverSide: false,
+        info: false,
+        paging: true,
+        scrollX: true,
+        scrollCollapse: true,
+        autoWidth: false,
+        pageLength: {{ pageLength }},
+        ajax: {
+            url: '/{{viewDef.id | capitalize}}s/list',
+            data: function(d) {
+                return $.extend({}, d, model.criteria);
+            },
+            error: async function (xhr, error, code) {
+                const errorJson = xhr.responseJSON;
+                console.log(xhr, code);
+                var errorMessage = "There was an error";
+                if (errorJson && errorJson.detail) {
+                    errorMessage += ": " + errorJson.detail;
+                }
+                $('.div-datatables').html(`<div class="alert alert-danger" role="alert">${errorMessage}</div>`);
+            }
+        },
+        columns: [
+{% if showDeleteButton == true %}
+            {
+                data: function (data: {{viewDef.id | capitalize}}ForList) {
+                    return `<a href="javascript:;" id="deleteLink" class="deleteLink" data-id="${data.id}"><i class="fa fa-trash"></i></a>`;
+                }
+            },
+{% endif %}
+{% for field in viewDef.showInListSortedFields%}
+{% if loop.first %}
+
+{% set firstLoopFieldName = field.name | decapitalizeFilter %}
+{% if field.isDateType %}
+{% set firstLoopFieldName = field.name | decapitalizeFilter + "String" %}
+{% endif %}
+            {
+                data: function (data: {{viewDef.id | capitalize}}ForList) {
+                    return `<a href="javascript:; "class="editLink" data-id="${data.id}" id="editLink">${data.{{ firstLoopFieldName }} }</a>`;
+                }
+            },
+{% else %}
+{% if (field.isDateType) %}
+            { data: '{{ field.nameAsField}}String' },
+ {% elseif (field.dataTypeDef == "MEMO") %}
+            { data: '{{ field.nameAsField}}', width: '860px'  },
+{% elseif field.lookupKey is not empty %}
+            { data: '{{ field.nameAsField}}String' },
+{% else %}
+            { data: '{{ field.nameAsField}}' },
+{% endif %}
+{% endif %}
+{% endfor %}
+{% for childViewDef in viewDef.childViews %}
+            {
+                data: function (data: {{viewDef.id | capitalize}}ForList) {
+                    return `<a href="/{{viewDef.id | capitalize}}s/${data.id}/{{ childViewDef.id | decapitalizeFilter }}s">${data.{{ childViewDef.id | decapitalizeFilter }}sCount}</a>`;
+                }
+            },
+{% endfor %}
+
+        ],
+        columnDefs: [
+            { targets: 'no-sort', orderable: false },
+            { targets: 'date', type: 'date' }
+        ],
+        language: {
+            infoFiltered: '',
+            searchPlaceholder: 'Filter Results',
+            search: ''
+        },
+        lengthChange: false,
+        stateSave: false,
+        stateDuration: -1,
+        searching: true
+    });
+
+    getJqListTable().wrap('<div class="table-responsive with-data-table"></div>');
+
+    //delegated event handlers
+    jqs().id(ElementIds.LIST_TABLE).tbody().toJq().on('click', '.deleteLink', function (e) {
+        const id = (e.currentTarget as HTMLButtonElement).dataset.id;
+        removeItem(id);
+    });
+
+    jqs().id(ElementIds.LIST_TABLE).tbody().toJq().on('click', '.editLink', function (e) {
+        const id = (e.currentTarget as HTMLButtonElement).dataset.id;
+        load(id);
+    });
+
+    dataTable.on('page', function () {
+        var info = dataTable.page.info();
+        $('#pageInfo').html('Showing page: ' + (info.page + 1) + ' of ' + info.pages);
+    });
+
+    dataTable.on('draw', function () {
+        if (currentId != '') {
+            highlight(currentId);
+        }
+    });
+
+    $(window).resize(function () {
+		listViewBack(false);
+	});
+
+    $(window).on('popstate', function (event) {
+        let hashedId = $(location).attr('hash').replace('#', '');
+        if (!isLoading && hashedId != '' && hashedId != currentId) {
+            //load(hashedId);
+        }
+    });
+
+     $('#btnSaveShared').on('click', function (e) {
+        e.preventDefault();
+        save();
+    });
+
+{% if viewStyle != "report" %}
+	const btnCreate: HTMLButtonElement = document.getElementById("btnCreate") as HTMLButtonElement;
+    btnCreate.addEventListener("click", async (event: Event) => {
+        create();
+    });
+{% endif %}
+});
+
+let currentId = '';
+
+function highlight(id: string) {
+    currentId = id;
+    jqs().id(ElementIds.LIST_TABLE).tbody().tr().toJq().removeClass('alert-info');
+    jqs().tr().contains(id as string).toJq().addClass('alert-info');
+    $(location).attr('hash', id);
+}
+
+function getInfoElement() {
+    return jqs().id("info").toJq();
+}
+
+let isLoading = false;
+
+export function removeItem(id: string) {
+
+    const serverPost = async (url) => {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        } else {
+            window.location.href = "/{{viewDef.id | capitalize}}s";
+        }
+    };
+
+    if (confirm('Delete this record?')) {
+        const url = `/{{viewDef.id | capitalize}}s/delete/${id}`;
+        try {
+            serverPost(url).then();
+        } catch (error) {
+            console.error(error);
+            $("#alert-error").fadeIn(200).delay(2000).slideUp(200);
+        }
+    }
+}
+
+export function save(){
+    const validator = $('#editForm').validate();
+    if (!validator.form()) {
+        return;
+    }
+
+    const el: HTMLFormElement = document.getElementById('editForm') as HTMLFormElement;
+    if (el) {
+       let viewModel = {};
+
+        let formData = new FormData(el);
+        viewModel = Object.fromEntries(
+            Array.from(formData.keys()).map(key => [
+                key, formData.getAll(key).length > 1 ? formData.getAll(key) : formData.get(key)
+            ])
+        )
+        getInfoElement().hide();
+        getInfoElement().load(
+            `/{{viewDef.id | capitalize}}s/edit`, viewModel,
+            function (response, status, xhr) {
+                if (status == 'error') {
+                    getInfoElement().html('<div class="alert alert-warning">Could not load record</div>');
+                    isLoading = false;
+                    getInfoElement().show();
+                }
+                else {
+                    if (xhr.status == 202) {
+                        var jsonData = JSON.parse(response);
+                        window.location.href = jsonData.locationRedirect;
+                    } else {
+                        getInfoElement().show();
+                    }
+                }
+            }
+        );
+    }
+}
+
+export function load(id: string) {
+    isLoading = true;
+	listViewBack(false);
+    highlight(id);
+    listViewBack(true);
+    getInfoElement().html(model.loadingHtml);
+    $(function () {
+        const qs = toQueryString({});
+        getInfoElement().load(
+            `/{{viewDef.id | capitalize}}s/info/${id}` + "?" + qs,
+            function (response, status, xhr) {
+                if (status == 'error') {
+                    getInfoElement().html('<div class="alert alert-warning">Could not load record</div>');
+                    isLoading = false;
+                }
+                else {
+                    ($('#addModal') as any).modal("show");
+                    isLoading = false;
+                }
+            }
+        );
+    });
+}
+
+export function create() {
+    isLoading = true;
+    getInfoElement().html(model.loadingHtml);
+    $(function () {
+        const qs = toQueryString({});
+        getInfoElement().load(
+            `/{{viewDef.id | capitalize}}s/create` + "?" + qs,
+            function (response, status, xhr) {
+                if (status == 'error') {
+                    getInfoElement().html('<div class="alert alert-warning">Could not load record</div>');
+                    isLoading = false;
+                }
+                else {
+                    let modal = $('#addModal') as any;
+                    modal.modal({ focus: true });
+                    isLoading = false;
+                }
+            }
+        );
+    });
+}
+
+export function listViewBack(show: boolean) {
+    if (window.matchMedia("(max-width: 991.98px)").matches) {
+        addOrRemoveClass(show, '.list-viewer', 'list-content-show');
+        addOrRemoveClass(show, '#mainMenuOpen', 'd-none');
+        addOrRemoveClass(!show, '#listViewBack', 'd-none');
+    }
+}

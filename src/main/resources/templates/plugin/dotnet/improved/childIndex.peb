@@ -1,0 +1,96 @@
+@using Portal.Core
+@using Portal.Repository
+@using Portal.Repository.Model.Enums
+@model Portal.Web.Management.Models.App.{{parentViewDef.entityDef.name | capitalize}}Edit
+
+@{
+	Layout = "~/Views/Shared/_Dashforge2Template.cshtml";
+    ViewData["MenuActive"] = "Rebates/Definition";
+}
+{% set firstFieldName = "" %}
+{% for field in parentViewDef.showInListSortedFields %}
+{%  if loop.first %}
+{% set firstFieldName = field.name %}
+{% endif %}
+{% endfor %}
+<div class="container pd-x-0 pd-lg-x-10 pd-xl-x-0">
+
+	<div class="card">
+		<div class="card-header">
+			<h3 class="mb-1 mt-1">
+				<strong>{{ parentViewDef.title }}: </strong> @Html.ActionLink(Model.{{ firstFieldName }}, "", "{{ parentViewDef.id }}s")
+			</h3>
+		</div>
+		<div class="card-body">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-md-6">
+{% set fieldDisplay = "" %}
+{% for field in parentViewDef.showInListSortedFields %}
+{%  if not loop.first %}
+{% if field.dataTypeDef == "DATE" %}
+{%  set fieldDisplay =  "@Model.#{field.name | capitalize}.ToShortDateString()" %}
+{% else %}
+{%  set fieldDisplay =  "@Model.#{field.name | capitalize}" %}
+{% endif %}
+{% if loop.index is odd and loop.index > 1 %}
+				</div>
+				<div class="col-md-6">
+{% endif %}
+ 						<div class="row mt-2 mb-2">
+							<div class="col-sm-4 font-weight-bold">{{ field.title }}:</div>
+							<div class="col-sm-8">
+								<div class="col-sm-8">{{ fieldDisplay }}</div>
+							</div>
+						</div>
+{% endif %}
+{% endfor %}
+				    </div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="card">
+		<div class="table-responsive">
+			<div>
+				<nav class="nav nav-line tx-medium pl-2">
+					@* the tabs for all the child lists *@
+					<a href="#details" class="nav-link active" data-toggle="tab">{{ childViewDef.title }}</a>
+				</nav>
+			</div>
+		</div>
+		<div class="tab-content pb-2">
+			@await Html.PartialAsync("_{{ childViewDef.id }}list", Model)
+		</div>
+	</div>
+</div>
+
+<div class="modal" id="addModal" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="lblModalTitle">{{childViewDef.title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="info"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="btnCancelModal" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSave">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="pos-absolute b-10 r-10">
+	<div class="alert alert-success" style="display: none;" id="alert-success-save"><i class="fa fa-check mg-r-10"></i> Changes saved.</div>
+	<div class="alert alert-success" style="display: none;" id="alert-success-delete"><i class="fa fa-check mg-r-10"></i> Record deleted.</div>
+	<div class="alert alert-danger" style="display: none;" id="alert-error"><i class="fa fa-exclamation-triangle mg-r-10"></i> Error saving changes.</div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

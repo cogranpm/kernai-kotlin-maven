@@ -1,0 +1,26 @@
+using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+using Portal.Repository.Model.Enums;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+
+namespace Portal.Repository.Model.ConklinCentral;
+
+{{  entityClass(vDef = viewDef) }}
+
+
+{% macro entityClass(type="text", vDef, parentViewDef) %}
+
+public class {{vDef.entityDef.name | capitalize}} {
+
+	public {{vDef.entityDef.name | capitalize}}Base Instance { get; set; }
+
+	public {{vDef.entityDef.name | capitalize}}({{vDef.entityDef.name | capitalize}}Base baseInstance)
+	{
+		this.Instance = baseInstance;
+	}
+}
+
+{% endmacro %}

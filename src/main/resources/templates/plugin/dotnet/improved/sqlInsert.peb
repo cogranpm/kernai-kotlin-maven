@@ -1,0 +1,11 @@
+INSERT INTO [dbo].[{{ viewDef.customTableName }}]
+(
+{% for field in viewDef.sortedFields%}
+      [{{ field.name | capitalize }}],
+{% endfor %}
+     [CreatedOn],
+     [CreatedBy],
+     [ModifiedOn],
+     [ModifiedBy],
+     [TimeStamp]
+)

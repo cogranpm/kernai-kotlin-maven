@@ -1,0 +1,109 @@
+{% set baseEntityName = viewDef.entityDef.name | capitalize + "Base" %}
+using Microsoft.EntityFrameworkCore;
+using Portal.Repository.Domain;
+using Portal.Repository.Model.ConklinCentral;
+using System;
+using System.Linq;
+using Portal.Core;
+using Portal.Repository;
+using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
+
+namespace Portal.Service;
+
+public interface I{{viewDef.entityDef.name | capitalize}}Service : IService<{{baseEntityName}}, int>
+{
+    IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
+        DataSortParameters dataSort,
+        string search
+{% for field in viewDef.searchFields %}{% if field.isDateType %}
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}Start
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}End
+{% endif %}
+{% if field.isCycleSearch %}
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}
+{% endif %}
+{% endfor %}
+);
+    void Update({{baseEntityName}} entity, string user);
+    {{baseEntityName}} Add({{baseEntityName}} entity, string user);
+    void Delete(int id, string user);
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+    void Delete{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}(int parentId, int childId);
+{% endif %}
+{% endfor %}
+}
+
+public class {{viewDef.entityDef.name | capitalize}}Service : BaseService<{{baseEntityName}}, int, I{{viewDef.entityDef.name | capitalize}}Repository>, I{{viewDef.entityDef.name | capitalize}}Service
+{
+
+	private readonly ILogger<{{viewDef.entityDef.name | capitalize}}Service> logger;
+
+    public {{viewDef.entityDef.name | capitalize}}Service(
+		ILogger<{{viewDef.entityDef.name | capitalize}}Service> logger,
+        I{{viewDef.entityDef.name | capitalize}}Repository repository) : base(repository) {
+
+		    this.logger = logger;
+    }
+
+    public IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
+        DataSortParameters dataSort,
+        string search
+{% for field in viewDef.searchFields %}{% if field.isDateType %}
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}Start
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}End
+{% endif %}
+{% if field.isCycleSearch %}
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}
+{% endif %}
+{% endfor %}
+
+        ){
+        return this.Repository
+            .GetForList(
+                dataSort,
+                search
+{% for field in viewDef.searchFields %}
+{% if field.isDateType %}
+                ,{{ field.name | decapitalizeFilter }}Start
+                ,{{ field.name | decapitalizeFilter }}End
+{% endif %}
+{% if field.isCycleSearch %}
+                ,{{ field.name | decapitalizeFilter }}
+{% endif %}
+{% endfor %}
+
+            );
+    }
+
+    public void Update({{baseEntityName}} entity, string user)
+    {
+    	entity.ModifiedBy = user;
+        this.Repository.Update(entity);
+    }
+
+    public {{baseEntityName}} Add({{baseEntityName}} entity, string user)
+    {
+    	entity.CreatedBy = user;
+		entity.CreatedOn = DateTime.Now;
+		entity.ModifiedBy = user;
+        return this.Repository.Add(entity);
+    }
+
+    public void Delete(int id, string user)
+    {
+        this.Repository.Delete(id);
+    }
+
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+    public void Delete{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}(int parentId, int childId)
+    {
+        this.Repository.Delete{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}(parentId, childId);
+    }
+{% endif %}
+{% endfor %}
+
+}
+

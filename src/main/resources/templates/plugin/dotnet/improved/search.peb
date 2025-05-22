@@ -1,0 +1,38 @@
+
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Portal.Web.Management.Helpers;
+
+namespace Portal.Web.Management.Models.App;
+{% set hasCycleSearch = false %}
+{% set hasDateSearch = false %}
+public class {{viewDef.entityDef.name | capitalize}}Search
+{
+        public string? Title { get; set; }
+	    public string? Search { get; set; }
+{% for field in viewDef.searchFields %}
+{% if field.isDateType %}
+{% set hasDateSearch = true %}
+        public {{ field.dataTypeToCSharpDef }}? {{ field.name | capitalize}}Start { get; set; }
+        public {{ field.dataTypeToCSharpDef }}? {{ field.name | capitalize}}End { get; set; }
+        public string? {{ field.name | capitalize}}Timespan { get; set; }
+{% endif %}
+{#  cycle is a special search type that maps to a list of 0, 1, 2, 3 #}
+{% if field.isCycleSearch %}
+{% set hasCycleSearch = true %}
+        public {{ field.dataTypeToCSharpDef }}? {{ field.name | capitalize}} { get; set; }
+{% endif %}
+{% endfor %}
+
+{% if hasDateSearch == true %}
+        public IEnumerable<SelectListItem> Timespans => (IEnumerable<SelectListItem>)SearchHelperService.Timespans.ToArray().Clone();
+{% endif %}
+{% if hasCycleSearch == true %}
+	public IEnumerable<SelectListItem> Cycles => new[]
+	{
+		new SelectListItem("Any", "0"),
+		new SelectListItem("One", "1"),
+		new SelectListItem("Two", "2"),
+		new SelectListItem("Three", "3")
+	};
+{% endif %}
+}

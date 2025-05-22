@@ -1,0 +1,240 @@
+using Microsoft.EntityFrameworkCore;
+using Portal.Repository.Domain;
+using Portal.Repository.Model.ConklinCentral;
+using System;
+using System.Linq;
+using Portal.Core;
+using System.Collections.Generic;
+
+{% set hasLookups = 0 %}
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
+{% set hasLookups = 1 %}
+{% endif %}
+{% endfor %}
+
+{% set hasSearchFields = 0 %}
+{% for field in viewDef.freeTextSearchFields %}
+{% set hasSearchFields = 1 %}
+{% endfor %}
+namespace Portal.Repository;
+
+public interface I{{viewDef.entityDef.name | capitalize}}RepositoryBase : IRepository<{{viewDef.entityDef.name | capitalize}}Base, int>
+{
+    IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
+        DataSortParameters dataSort,
+        string search
+{% for field in viewDef.searchFields %}{% if field.isDateType %}
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}Start
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}End
+{% endif %}
+{% if field.isCycleSearch %}
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}
+{% endif %}
+{% endfor %}
+
+    );
+
+    {{viewDef.entityDef.name | capitalize}}Base Add({{viewDef.entityDef.name | capitalize}}Base entity);
+    void Update({{viewDef.entityDef.name | capitalize}}Base entity);
+    void Delete(int id);
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+    void Delete{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}(int parentId, int childId);
+{% endif %}
+{% endfor %}
+}
+
+public class {{viewDef.entityDef.name | capitalize}}RepositoryBase : BaseRepository<{{viewDef.entityDef.name | capitalize}}Base, int>, I{{viewDef.entityDef.name | capitalize}}RepositoryBase
+{
+    protected sealed override DbSet<{{viewDef.entityDef.name | capitalize}}Base> Entities { get; set; }
+    private {{viewDef.entityDef.name | capitalize}}ServiceBase _serviceBase;
+    private ConklinCentralDataEntities _context;
+
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
+    private I{{ field.lookupKey | capitalize}}Repository _{{ field.lookupKeyAsField }}Repository;
+{% endif %}
+{% endfor %}
+
+    public {{viewDef.entityDef.name | capitalize}}RepositoryBase(
+        ConklinCentralDataEntities context
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
+        , I{{ field.lookupKey | capitalize}}Repository {{ field.lookupKeyAsField }}Repository
+{% endif %}
+{% endfor %}
+    )
+    {
+        Entities = context.{{viewDef.entityDef.name | capitalize}}s;
+        this._serviceBase = new {{viewDef.entityDef.name | capitalize}}ServiceBase(context);
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
+        this._{{ field.lookupKeyAsField }}Repository = {{ field.lookupKeyAsField }}Repository;
+{% endif %}
+{% endfor %}
+        this._context = context;
+    }
+
+    protected IList<{{viewDef.entityDef.name | capitalize}}ForList> TransformResults(IQueryable<{{viewDef.entityDef.name | capitalize}}Base> results)
+	{
+		var viewModelList = results
+		.Select(x => new {{viewDef.entityDef.name | capitalize}}ForList()
+		{
+{% for field in viewDef.fieldDefinitions %}
+            {{ field.name | capitalize}} = x.{{ field.name | capitalize}},
+{% endfor %}
+            Id = x.Id,
+            NumRows = Count()
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+        , {{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}sCount = x.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s.Count()
+{% endif %}
+{% endfor %}
+        }).ToList();
+
+{% if hasLookups == 1 %}
+        viewModelList.ForEach(i =>
+        {
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
+            i.{{ field.name | capitalize }}String = this._{{ field.lookupKeyAsField }}Repository.GetDescriptionById(i.{{ field.name | capitalize }});
+{% endif %}
+{% endfor %}
+        });
+{% endif %}
+        return viewModelList;
+	}
+
+    public virtual IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
+        DataSortParameters dataSort,
+        string search
+{% for field in viewDef.searchFields %}{% if field.isDateType %}
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}Start
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}End
+{% endif %}
+{% if field.isCycleSearch %}
+        ,{{ field.dataTypeToCSharpDef }}? {{ field.name | decapitalizeFilter }}
+{% endif %}
+{% endfor %}
+
+        )
+    {
+        var results = this.Entities
+        .AsNoTracking()
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+        .Include(x => x.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s)
+{% endif %}
+{% endfor %};
+
+{%  if hasSearchFields == 1 %}
+        if (!string.IsNullOrEmpty(search))
+        {
+            results = results.Where(x =>
+{% for field in viewDef.freeTextSearchFields %}
+{% if field.lookupKey is not empty %}
+           {% if not loop.first %}|| {% endif %}x.{{ field.name | capitalize }}String.ToLower().IndexOf(search.ToLower()) > -1
+{% else %}
+{% set searchClause = "ToLower().IndexOf(search) > -1" %}
+           {% if not loop.first %}|| {% endif %}(x.{{ field.name | capitalize }} != null && x.{{ field.name | capitalize }}.{{ searchClause }})
+{% endif %}
+{% endfor %}
+            );
+        }
+{% endif %}
+{#  Date Search Logic #}
+{% for field in viewDef.searchFields %}
+{% if field.isDateType %}
+
+		if ({{ field.name | decapitalizeFilter }}Start.HasValue && !{{ field.name | decapitalizeFilter }}End.HasValue)
+		{
+			{{ field.name | decapitalizeFilter }}End = {{ field.name | decapitalizeFilter }}Start.Value;
+		}
+
+		if (!{{ field.name | decapitalizeFilter }}Start.HasValue && {{ field.name | decapitalizeFilter }}End.HasValue)
+		{
+			{{ field.name | decapitalizeFilter }}Start = {{ field.name | decapitalizeFilter }}End.Value;
+		}
+
+		if ({{ field.name | decapitalizeFilter }}Start.HasValue && {{ field.name | decapitalizeFilter }}End.HasValue && {{ field.name | decapitalizeFilter }}Start.Value > {{ field.name | decapitalizeFilter }}End.Value)
+		{
+			var tempDate = {{ field.name | decapitalizeFilter }}Start.Value;
+			{{ field.name | decapitalizeFilter }}Start = {{ field.name | decapitalizeFilter }}End.Value;
+			{{ field.name | decapitalizeFilter }}End = tempDate;
+		}
+
+        if({{ field.name | decapitalizeFilter }}Start.HasValue && {{ field.name | decapitalizeFilter }}End.HasValue)
+        {
+		    results = results.Where(x => (x.{{ field.name | capitalize }} >= {{ field.name | decapitalizeFilter }}Start.Value && x.{{ field.name | capitalize }} <= {{ field.name | decapitalizeFilter }}End.Value));
+		}
+{% endif %}
+{#  Cycle Search Logic #}
+{% if field.isCycleSearch %}
+		results = results.Where(x => x.{{ field.name | capitalize }} >= {{ field.name | decapitalizeFilter }});
+{% endif %}
+{% endfor %}
+{% if viewDef.linqSortBy is not empty %}
+        results = results.{{ viewDef.linqSortBy }};
+{% endif %}
+
+		return TransformResults(results);
+    }
+
+    public virtual {{viewDef.entityDef.name | capitalize}}Base Add({{viewDef.entityDef.name | capitalize}}Base entity)
+    {
+        this._serviceBase.Add(entity);
+        this._serviceBase.SaveChanges();
+        return entity;
+    }
+
+    public virtual void Update({{viewDef.entityDef.name | capitalize}}Base entity)
+    {
+        var existing = this.Entities.AsNoTracking().FirstOrDefault(x => x.Id == entity.Id);
+        if (existing != null)
+        {
+            //viewmodel does not have existing audit info
+            entity.CreatedBy = existing.CreatedBy;
+            entity.CreatedOn = existing.CreatedOn;
+            this._context.Entry(entity).State = EntityState.Modified;
+            this._serviceBase.Update(entity);
+            this._serviceBase.SaveChanges();
+        }
+    }
+    public virtual void Delete(int id)
+    {
+        this._serviceBase.Delete(id);
+        this._serviceBase.SaveChanges();
+    }
+
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+    public void Delete{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}(int parentId, int childId)
+    {
+        var existing = this.Entities
+            .Include(x => x.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s)
+            .FirstOrDefault(x => x.Id == parentId);
+        if (existing != null)
+        {
+            var firstChild = existing.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s.FirstOrDefault(x => x.Id == childId);
+            if (firstChild != null)
+            {
+                firstChild.{{viewDef.entityDef.name | capitalize}} = null;
+                existing.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s.Remove(firstChild);
+                this._context.Entry(existing).State = EntityState.Modified;
+                existing.ModifiedOn  = DateTime.Now;
+                this._serviceBase.SaveChanges();
+            }
+        }
+    }
+{% endif %}
+{% endfor %}
+
+    class {{viewDef.entityDef.name | capitalize}}ServiceBase : ServiceBase<{{viewDef.entityDef.name | capitalize}}Base, ConklinCentralDataEntities>
+    {
+        public {{viewDef.entityDef.name | capitalize}}ServiceBase(ConklinCentralDataEntities repo) : base(repo)
+        {
+        }
+    }
+
+}

@@ -1,0 +1,76 @@
+{% set viewStyle = viewDef.configMap.getOrDefault("viewStyle", "table") | lower %}
+@using Portal.Core
+@model Portal.Web.Management.Models.App.{{viewDef.id | capitalize}}Edit
+@{
+    Layout = "_EmptyLayout";
+}
+
+<div>
+	@using (Html.BeginForm("Edit", "{{viewDef.id | capitalize}}s", FormMethod.Post, new { id = "editForm" }))
+	{
+		@Html.AntiForgeryToken()
+		@Html.HiddenFor(model => model.Id)
+	    @Html.HiddenFor(model => model.TimeStamp)
+
+		<fieldset{% if viewStyle == "report"%} disabled{% endif %}>
+		<div class="validation" asp-validation-summary="All"></div>
+    {% for field in viewDef.sortedFields%}
+
+{% set editorForMethodName = "EditorFor" %}
+{% if field.dataTypeDef == "BOOLEAN" and field.required == true %}
+{% set editorForMethodName = "CheckBoxFor" %}
+{% endif %}
+
+		<div class="row mg-b-5">
+		    <div class="col-sm-3">
+			<label for="{{ field.nameAsField }}" class="col-form-label">{{ field.title }}:</label>
+			</div>
+			<div class="col-sm-9">
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
+                    @Html.DropDownListFor(model => model.{{ field.name | capitalize }},
+                        new List<SelectListItem>(){new SelectListItem(){Text=@Model.{{ field.name | capitalize }}String, Value = @Model.{{ field.name | capitalize }}, Selected=true}},
+                        "-- Select {{ field.title }}--",
+                        new {
+                        data_{{ field.nameAsField }}=$"{@Model.{{ field.name | capitalize }}}",
+                        style="width: 100%",
+                        name = "{{ field.nameAsField }}",
+                        id="{{ field.nameAsField }}",
+                        @class = "form-select, select2" })
+{% elseif field.lookupKey is not empty %}
+                @Html.DropDownListFor(model => model.{{ field.name | capitalize }}, Model.{{ field.name}}Lookups, "-- Select {{ field.title }}--", new { name = "{{ field.nameAsField }}", @class = "form-select", placeholder = "Enter {{ field.title }}" })
+{% else %}
+				@Html.{{ editorForMethodName }}(model => model.{{ field.name | capitalize }}, new
+				{
+				    htmlAttributes = new
+				    {
+				        name = "{{ field.nameAsField }}",
+				        @class = "form-control",
+				        placeholder = "Enter {{ field.title}}"
+{% if field.required == true %}
+                        , @required = "required"
+{% endif %}
+{% if field.dataTypeDef == "TEXT" and field.length is not empty %}
+                        , maxlength = "{{ field.length }}"
+{% endif %}
+{% if field.configMap.get("minRange") is not empty and field.configMap.get("maxRange") is not empty %}
+                        , min = {{ field.configMap.get("minRange") }}
+
+                        , max = {{ field.configMap.get("maxRange") }}
+{% endif %}
+{% if field.dataTypeDef == "FLOAT" or  field.dataTypeDef == "MONEY" or field.dataTypeDef == "INT" %}
+                        , @type="number"
+{% endif %}
+{% if field.dataTypeDef == "MEMO" %}
+                        , @rows = 20
+                        , cols = 50
+{% endif %}
+				    }
+				})
+{% endif %}
+				@Html.ValidationMessageFor(model => model.{{ field.name | capitalize }})
+			</div>
+		</div>
+    {% endfor %}
+		</fieldset>
+	}
+</div>

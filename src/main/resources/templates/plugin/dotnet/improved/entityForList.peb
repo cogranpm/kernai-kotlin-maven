@@ -1,0 +1,45 @@
+using System;
+using System.Collections.Generic;
+
+namespace Portal.Repository.Model.ConklinCentral;
+
+public class {{viewDef.entityDef.name | capitalize}}ForList
+{
+		public int NumRows { get; set; }
+		public int Id { get; set; }
+{% for field in viewDef.fieldDefinitions %}
+        public {{ field.dataTypeToCSharpDef }}{% if field.required == false%}{{ field.cSharpNullablePostfix }}{% endif %} {{ field.name | capitalize}} { get; set; }
+{% endfor %}
+{% for field in viewDef.fieldDefinitions %}
+{% if field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME" %}
+        public string {{ field.name | capitalize}}String => {{ field.name | capitalize}}{% if field.required == false%}{{ field.cSharpNullablePostfix }}{% endif %}.ToString("MM/dd/yyyy");
+{% endif %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] != "true" %}
+        public string {{ field.name | capitalize}}String
+        {
+            get => {{ field.lookupKey | capitalize }}Lookup.Resolve( {{ field.name | capitalize }}.ToString());
+        }
+{% elseif field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
+        public string {{ field.name | capitalize}}String { get; set; }
+{% endif %}
+{% endfor %}
+{% for childViewDef in viewDef.childViews %}
+	public int {{ childViewDef.id | capitalize }}sCount { get; set; } = 0;
+{% endfor %}
+
+    {% for lookup in viewDef.simpleLookups %}
+    public sealed class {{ lookup.key | capitalize }}Lookup
+    {
+        public static string Resolve(string code) => code != null ? Items.GetValueOrDefault(code, string.Empty) : string.Empty;
+
+        public static Dictionary<string, string> Items => new Dictionary<string, string>() {
+    {%  for lookupDetail in lookup.lookupDetails %}
+            { "{{ lookupDetail.code }}", "{{ lookupDetail.label }}"},
+    {% endfor %}
+        };
+    }
+    {% endfor %}
+}
+
+
+

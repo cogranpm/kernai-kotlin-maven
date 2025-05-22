@@ -1,0 +1,514 @@
+using System;
+using System.Linq;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Portal.Core;
+using Portal.Service;
+using Portal.Repository.Model.ConklinCentral;
+using Portal.Repository;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Collections.Generic;
+using static Portal.Web.Management.Security.Attributes;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Portal.Web.Management.Models.App;
+using Portal.Web.Management.Helpers;
+
+namespace Portal.Web.Management.Controllers;
+
+{% if viewDef.configMap is not empty and viewDef.configMap.containsKey("permissionName") and viewDef.configMap["permissionName"] is not empty %}
+    [UserHasPermission("{{ viewDef.configMap["permissionName"] }}")]{% endif %}
+
+    [Route("{{viewDef.id | capitalize}}s")]
+    public class {{viewDef.id | capitalize}}sController : Controller
+    {
+        public const string Heading = "{{viewDef.title}}s";
+        private readonly I{{viewDef.entityDef.name | capitalize}}Service _service;
+	    protected I{{viewDef.entityDef.name | capitalize}}Service Service { get { return _service; } }
+		private readonly EntityMapper mapper;
+	    private readonly ILogger<{{viewDef.id | capitalize}}sController> logger;
+	    private readonly ISearchHelperService searchHelperService;
+
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
+        private readonly I{{ field.lookupKey }}Repository _{{ field.lookupKeyAsField }}Repository;
+{% endif %}
+{% endfor %}
+{% for referenceView in viewDef.referenceViewsList %}
+        private readonly I{{ referenceView.viewId }} _{{ referenceView.viewId | decapitalizeFilter  }};
+{% endfor %}
+
+        public {{viewDef.id | capitalize}}sController(
+        I{{viewDef.entityDef.name | capitalize}}Service service,
+        ISearchHelperService searchHelperService
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
+        , I{{ field.lookupKey }}Repository {{ field.lookupKeyAsField }}Repository
+{% endif %}
+{% endfor %}
+{% for referenceView in viewDef.referenceViewsList %}
+        , I{{ referenceView.viewId }} {{ referenceView.viewId | decapitalizeFilter  }}
+{% endfor %}
+		, ILogger<{{viewDef.id | capitalize}}sController> logger
+        ){
+            this._service = service;
+            this.searchHelperService = searchHelperService;
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
+            this._{{ field.lookupKeyAsField }}Repository = {{ field.lookupKeyAsField }}Repository;
+{% endif %}{% endfor %}
+{% for referenceView in viewDef.referenceViewsList %}
+            this._{{ referenceView.viewId | decapitalizeFilter  }} = {{ referenceView.viewId | decapitalizeFilter  }};
+{% endfor %}
+            this.mapper = new EntityMapper({% for referenceView in viewDef.referenceViewsList %}{{ referenceView.viewId | decapitalizeFilter  }}{% if loop.last %}{% else %},{% endif %}{% endfor %});
+            this.logger = logger;
+        }
+
+{% set hasCycleSearch = false %}
+{% set hasDateSearch = false %}
+{% set dateSearchVariables = ""%}
+{% set cycleSearchVariables = ""%}
+{% for field in viewDef.searchFields %}
+{% if field.isDateType %}
+{% set dateSearchVariables =  dateSearchVariables + ", string " +  field.name | decapitalizeFilter + "Timespan = \"yesterday\", " + field.dataTypeToCSharpDef + "? " + field.name | decapitalizeFilter + "Start = null, " + field.dataTypeToCSharpDef + "? " + field.name | decapitalizeFilter + "End = null" %}
+{% endif %}
+{#  cycle is a special search type that maps to a list of 0, 1, 2, 3 #}
+{% if field.isCycleSearch %}
+{% set cycleSearchVariables = ", " + field.dataTypeToCSharpDef + "? " + field.name | decapitalizeFilter + " = 0"%}
+{% endif %}
+{% endfor %}
+
+
+        public ViewResult Index(string search = null{{ dateSearchVariables }}{{ cycleSearchVariables }})
+        {
+            return View("Index", new {{viewDef.id | capitalize}}Search()
+            {
+                Title = Heading,
+                Search = search
+{% for field in viewDef.searchFields %}
+{% if field.isDateType %}
+                ,{{ field.name | capitalize }}Timespan = {{ field.name | decapitalizeFilter }}Timespan
+                ,{{ field.name | capitalize }}Start = {{ field.name | decapitalizeFilter }}Start
+                ,{{ field.name | capitalize }}End = {{ field.name | decapitalizeFilter }}End
+{% endif %}
+{% if field.isCycleSearch %}
+                ,{{ field.name | capitalize }} = {{ field.name | decapitalizeFilter }}
+{% endif %}
+{% endfor %}
+
+            });
+        }
+
+        [HttpGet]
+        [Route("info/{id}")]
+        public ViewResult Info(int? id, [FromQuery]{{viewDef.id | capitalize}}Search criteria)
+        {
+            var entityInfo = new {{viewDef.id | capitalize}}Edit();
+            var entity = this._service.GetFirstWhere(x => x.Id == id);
+            return View("_info", this.MakeEntityViewModel(criteria, null, new {{viewDef.entityDef.name | capitalize}}(entity)));
+        }
+
+        [HttpGet]
+        [Route("list")]
+        public ActionResult ListJson(int draw,
+            int start,
+            int length,
+            [Bind(Prefix = "order[0][column]")] int orderCol,
+            [Bind(Prefix = "order[0][dir]")] string orderDir,
+            {{viewDef.id | capitalize}}Search searchCriteria
+           )
+        {
+            try
+            {
+                var dataSort = new DataSortParameters { Length = length, OrderDir = orderDir, OrderCol = orderCol, Start = start };
+{% for field in viewDef.searchFields %}
+{% if field.isDateType %}
+			    if (searchCriteria.{{ field.name | capitalize }}Timespan == null) searchCriteria.{{ field.name | capitalize }}Timespan = "yesterday";
+			    var ({{ field.name | decapitalizeFilter }}Start, {{ field.name | decapitalizeFilter }}End) = searchHelperService.GetTimespanDates(searchCriteria.{{ field.name | capitalize }}Timespan, searchCriteria.{{ field.name | capitalize }}Start, searchCriteria.{{ field.name | capitalize }}End);
+{% endif %}
+{% endfor %}
+                var records = this._service
+                .GetForList(
+                    dataSort,
+                    searchCriteria.Search
+{% for field in viewDef.searchFields %}
+{% if field.isDateType %}
+                    , {{ field.name | decapitalizeFilter }}Start
+                    , {{ field.name | decapitalizeFilter }}End
+{% endif %}
+{% if field.isCycleSearch %}
+                    , searchCriteria.{{ field.name | capitalize }}??0
+{% endif %}
+{% endfor %}
+                );
+
+                var firstRecord = records.FirstOrDefault();
+                var total = firstRecord?.NumRows ?? 0;
+
+                var result = new {{viewDef.id | capitalize}}ListJson
+                {
+                    Draw = draw,
+                    RecordsTotal = total,
+                    RecordsFiltered = total,
+                    Data = records
+                };
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+			    this.logger.LogError(ex, "Error in ListJSON action method");
+                String message = ex.GetBaseException().ToString();
+	            return Problem(detail: message, title: "Error occurred in List");
+            }
+        }
+
+        [HttpPost]
+        [Route("edit")]
+        public ActionResult Edit([Bind()] {{viewDef.id | capitalize}}Edit entity)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    Response.StatusCode = StatusCodes.Status202Accepted;
+                    var domainInstance = mapper.ToDomain(entity);
+                    var userName = User.Identity?.Name?.Replace(@"CONKLIN\", "")!;
+                    if (entity.Id < 1)
+                    {
+                        mapper.SetAudit(domainInstance, userName, true);
+                        var updatedDomain = this._service.Add(domainInstance.Instance, userName);
+                        var updatedInfo = this.MakeEntityViewModel(null, null, new {{viewDef.entityDef.name | capitalize}}(updatedDomain));
+                        updatedInfo.LocationRedirect = "/{{viewDef.id | capitalize}}s";
+                        return Json(updatedInfo);
+                    }
+                    else
+                    {
+                        mapper.SetAudit(domainInstance, userName, false);
+                        this._service.Update(domainInstance.Instance, userName);
+                        var viewModel = this.MakeEntityViewModel(null, entity, null);
+                        viewModel.LocationRedirect = "/{{viewDef.id | capitalize}}s";
+                        return Json(viewModel);
+                    }
+                }
+                return View("_info", this.MakeEntityViewModel(null, entity, null));
+            }
+            catch (Exception ex)
+            {
+			    this.logger.LogError(ex, "Error in Edit action method");
+                String message = ex.GetBaseException().ToString();
+	            return Problem(detail: message, title: "Error occurred in Edit");
+            }
+        }
+
+        [HttpGet]
+        [Route("create")]
+        public ViewResult Create([FromQuery] {{viewDef.id | capitalize}}Search criteria)
+        {
+            return View("_info", this.MakeEntityViewModel(criteria));
+        }
+
+        [Route("delete/{id}")]
+        public int? Delete(int? id)
+        {
+            try
+            {
+                if (id != null)
+                {
+                    var userName = User.Identity?.Name?.Replace(@"CONKLIN\", "")!;
+                    this._service.Delete(id.Value, userName);
+                }
+                return id;
+            }
+            catch (Exception ex)
+            {
+			    this.logger.LogError(ex, "Error in Delete action method");
+			    throw;
+            }
+        }
+
+{# routes for child views #}
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+{%  set childEntityView = ownerAssociation.ownedViewDef %}
+{%  set childEntityViewId = ownerAssociation.ownedViewDef.id %}
+{%  set childEntityViewTitle = ownerAssociation.ownedViewDef.title %}
+{%  set childEntityDef = ownerAssociation.ownedViewDef.entityDef %}
+{%  set childEntityDefName = ownerAssociation.ownedViewDef.entityDef.name %}
+        [HttpGet]
+        [Route("{id}/{{ childEntityViewId | decapitalizeFilter }}s")]
+        public ViewResult {{ childEntityViewId | capitalize }}List(int id)
+        {
+            var entity = this._service.GetFirstWhereIncluding(x => x.Id == id, ["{{ childEntityDefName | capitalize  }}s"]);
+			var entityForDisplay = this.mapper.ToViewModel(entity);
+			entityForDisplay.{{ childEntityViewId | capitalize }}s = entity.{{ childEntityDefName | capitalize }}s.Select(x =>
+			{
+				var childForDisplay = this.mapper.ToViewModel(x);
+				childForDisplay.{{viewDef.id | capitalize}} = entityForDisplay;
+				return childForDisplay;
+			}).ToList();
+			return View("{{ childEntityViewId | capitalize }}Index", entityForDisplay);
+        }
+
+		[HttpGet]
+		[Route("{id}/{{ childEntityViewId | decapitalizeFilter }}s/create")]
+		public PartialViewResult {{ childEntityViewId | capitalize}}Create(int id)
+		{
+			var entity = this._service.GetFirstWhereIncluding(x => x.Id == id, ["{{ childEntityDefName | capitalize  }}s"]);
+			if (entity != null)
+			{
+				var entityForEdit = mapper.ToViewModel(entity);
+				var childForDisplay = new {{ childEntityViewId | capitalize}}Edit()
+				{
+					{{ viewDef.entityDef.name | capitalize }}Id = entity.Id,
+					{{ viewDef.entityDef.name | capitalize }} = entityForEdit
+				};
+				ModelState.Clear();
+				return PartialView("_{{ childEntityViewId | decapitalizeFilter }}Info", childForDisplay);
+			}
+			else
+			{
+				return PartialView("_{{ childEntityViewId | decapitalizeFilter }}Info", null);
+			}
+		}
+
+		[HttpGet]
+		[Route("{id}/{{ childEntityViewId | decapitalizeFilter }}s/edit/{{"{"}}{{ childEntityDefName | decapitalizeFilter }}Id}")]
+		public PartialViewResult {{ childEntityViewId | capitalize}}Edit(int id, int {{ childEntityDefName | decapitalizeFilter  }}Id)
+		{
+			var entity = this._service.GetFirstWhereIncluding(x => x.Id == id, ["{{ childEntityDefName | capitalize  }}s"]);
+			var childEntity = entity.{{ childEntityDefName | capitalize  }}s.FirstOrDefault(x => x.Id == {{ childEntityDefName | decapitalizeFilter  }}Id);
+			if (entity != null)
+			{
+				var entityForEdit = mapper.ToViewModel(entity);
+				var childForEdit = mapper.ToViewModel(childEntity);
+				childForEdit.{{ viewDef.entityDef.name | capitalize }} = entityForEdit;
+				ModelState.Clear();
+				return PartialView("_{{ childEntityViewId | decapitalizeFilter }}Info", childForEdit);
+			}
+			else
+			{
+				return PartialView("_{{ childEntityViewId | decapitalizeFilter }}Info", null);
+			}
+		}
+
+		[IgnoreAntiforgeryToken]
+		[HttpPost]
+		[Route("{{ childEntityViewId | decapitalizeFilter }}s/edit")]
+		public ActionResult {{ childEntityViewId | capitalize}}Post([FromBody] {{ childEntityViewId | capitalize}}Edit entity)
+		{
+			try
+			{
+				if (ModelState.IsValid)
+				{
+				    var userName = User.Identity?.Name?.Replace(@"CONKLIN\", "")!;
+					var parent = this._service.GetFirstWhereIncluding(x => x.Id == entity.{{ viewDef.entityDef.name | capitalize }}Id, ["{{ childEntityDefName | capitalize }}s"]);
+					if (parent == null)
+					{
+						Response.StatusCode = StatusCodes.Status404NotFound;
+						ModelState.AddModelError("Entity Error", $"{{ childEntityViewTitle }} has no parent with Id {entity.{{ viewDef.entityDef.name | capitalize }}Id}");
+						return PartialView("_{{ childEntityViewId | capitalize}}Info", entity);
+					}
+					//find and paint state
+					var existing = parent.{{ childEntityDefName | capitalize }}s.FirstOrDefault(x => x.Id == entity.Id);
+					if (existing == null)
+					{
+						var newEntity = mapper.ToDomain(entity);
+						newEntity.{{ viewDef.entityDef.name | capitalize }} = parent;
+						mapper.SetAudit(newEntity, userName, true);
+						parent.{{ childEntityViewId | capitalize}}s.Add(newEntity);
+					}
+					else
+					{
+						existing = mapper.ToDomain(entity, existing);
+						mapper.SetAudit(existing, userName, false);
+					}
+					mapper.SetAudit(parent, userName, false);
+					this._service.Update(parent);
+
+					Response.StatusCode = StatusCodes.Status202Accepted;
+					entity.LocationRedirect = $"/{{ viewDef.id | capitalize }}s/{entity.{{ viewDef.entityDef.name | capitalize }}Id}/{{ childEntityViewId | capitalize}}s";
+					return Json(entity); // PartialView("_{{ childEntityViewId | decapitalizeFilter }}Info", entity);
+				}
+				return PartialView("_{{ childEntityViewId | decapitalizeFilter }}Info", entity);
+			}
+			catch (Exception ex)
+			{
+				var message = ex.Message;
+				ModelState.AddModelError("", message);
+				return PartialView("_{{ childEntityViewId | decapitalizeFilter }}Info", entity);
+			}
+		}
+
+		[IgnoreAntiforgeryToken]
+		[HttpPost]
+		[Route("{id}/{{ childEntityViewId | decapitalizeFilter }}s/delete/{{"{"}}{{ childEntityViewId | decapitalizeFilter }}Id}")]
+		public JsonResult {{ childEntityViewId | capitalize }}Delete(int id, int {{ childEntityViewId | decapitalizeFilter }}Id)
+		{
+			this._service.Delete{{ childEntityDefName }}(id, {{ childEntityViewId | decapitalizeFilter }}Id);
+			return Json(new { LocationRedirect = $"/{{ viewDef.id | decapitalizeFilter }}s/{id}/{{ childEntityViewId | capitalize }}s" });
+		}
+
+{% endif %}
+{% endfor %}
+
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
+		[HttpGet]
+		[Route("{{ field.lookupKeyAsField }}s")]
+		public JsonResult Get{{ field.lookupKey | capitalize }}s(string term, string q, string _type, int? page)
+		{
+			Console.WriteLine($"term: {term} q: {q} page: {page}");
+			return Json(this._{{ field.lookupKeyAsField }}Repository.GetAllForListLookup(term, page));
+		}
+{% endif %}
+{% endfor %}
+
+        protected {{viewDef.id | capitalize}}Edit MakeEntityViewModel(
+            {{viewDef.id | capitalize}}Search criteria,
+            {{viewDef.id | capitalize}}Edit existing = null,
+            {{viewDef.entityDef.name | capitalize}} domain = null)
+        {
+            var entity = new {{viewDef.entityDef.name | capitalize}}Edit();
+            if (domain != null)
+            {
+                entity = this.mapper.ToViewModel(domain);
+            }
+            else if(existing != null)
+            {
+                entity = existing;
+            }
+
+{% for field in viewDef.fieldDefinitions %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] != "true" %}
+
+{% elseif field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
+			entity.{{ field.name | capitalize}}String = this._{{ field.lookupKeyAsField }}Repository.GetDescriptionById(entity.{{ field.name | capitalize}});
+{% endif %}
+{% endfor %}
+            entity.Criteria = criteria;
+            return entity;
+        }
+
+		protected class EntityMapper
+		{
+{% for referenceView in viewDef.referenceViewsList %}
+            private readonly I{{ referenceView.viewId | capitalize }} _{{ referenceView.viewId | decapitalizeFilter }};
+{% endfor %}
+
+			public EntityMapper({% for referenceView in viewDef.referenceViewsList %}I{{ referenceView.viewId | capitalize }} {{ referenceView.viewId | decapitalizeFilter  }}{% if loop.last %}{% else %},{% endif %}{% endfor %})
+			{
+{% for referenceView in viewDef.referenceViewsList %}
+                this._{{ referenceView.viewId | decapitalizeFilter }} = {{ referenceView.viewId | decapitalizeFilter }};
+{% endfor %}
+			}
+
+			public {{viewDef.entityDef.name | capitalize}}Edit ToViewModel({{viewDef.entityDef.name | capitalize}} entity)
+			{
+				return new {{viewDef.entityDef.name | capitalize}}Edit()
+				{
+{% for field in viewDef.fieldDefinitions %}
+                    {{ field.name | capitalize}} = entity.Instance.{{ field.name | capitalize}},
+{% endfor %}
+{% for field in viewDef.fieldDefinitions %}
+{% if field.referenceViewDefinition is not empty %}
+                viewModel.{{ field.name | capitalize}}String = this._{{ field.referenceViewDefinition.viewId | decapitalizeFilter }}.GetDescriptionById(entity.{{ field.name | capitalize}});
+{% endif %}
+{% endfor %}
+				    Id = entity.Instance.Id,
+				    TimeStamp = entity.Instance.TimeStamp
+				};
+			}
+
+			public {{viewDef.entityDef.name | capitalize}} ToDomain({{viewDef.entityDef.name | capitalize}}Edit info)
+			{
+				return new {{viewDef.entityDef.name | capitalize}}(new {{viewDef.entityDef.name | capitalize}}Base()
+				{
+{% for field in viewDef.fieldDefinitions %}
+                    {{ field.name | capitalize}} = info.{{ field.name | capitalize}},
+{% endfor %}
+				    Id = info.Id,
+				    TimeStamp = info.TimeStamp
+				});
+			}
+
+			public void SetAudit({{viewDef.entityDef.name | capitalize}} entity, string userName, bool creating = false)
+			{
+				if (creating)
+				{
+					entity.Instance.CreatedBy = userName;
+					entity.Instance.CreatedOn = DateTime.Now;
+				}
+				entity.Instance.ModifiedBy = userName;
+				entity.Instance.ModifiedOn = DateTime.Now;
+			}
+	{# mappings for child views #}
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+{%  set childEntityView = ownerAssociation.ownedViewDef %}
+{%  set childEntityViewId = ownerAssociation.ownedViewDef.id %}
+{%  set childEntityViewTitle = ownerAssociation.ownedViewDef.title %}
+{%  set childEntityDef = ownerAssociation.ownedViewDef.entityDef %}
+{%  set childEntityDefName = ownerAssociation.ownedViewDef.entityDef.name %}
+
+			public {{ childEntityViewId | capitalize }}Edit ToViewModel({{ childEntityDefName | capitalize}} entity)
+			{
+				var viewModel = new {{ childEntityViewId | capitalize }}Edit();
+				mapViewModelFields(viewModel, entity);
+				viewModel.Id = entity.Id;
+				viewModel.{{ viewDef.entityDef.name | capitalize }}Id = entity.{{ viewDef.entityDef.name | capitalize }}Id;
+{% for field in childEntityView.fieldDefinitions %}
+{% if field.referenceViewDefinition is not empty %}
+                viewModel.{{ field.name | capitalize}}String = this._{{ field.referenceViewDefinition.viewId | decapitalizeFilter }}.GetDescriptionById(entity.{{ field.name | capitalize}});
+{% endif %}
+{% endfor %}
+				return viewModel;
+			}
+
+			public {{ childEntityDefName | capitalize}} ToDomain({{ childEntityViewId | capitalize }}Edit info, {{ childEntityDefName | capitalize}} existing = null)
+			{
+				if (existing != null)
+				{
+					mapDomainFields(info, existing);
+					return existing;
+				}
+				else
+				{
+					var newDomain = new {{ childEntityDefName | capitalize}}();
+					mapDomainFields(info, newDomain);
+					newDomain.Id = info.Id;
+					newDomain.{{ viewDef.entityDef.name | capitalize }}Id = info.{{ viewDef.entityDef.name | capitalize }}Id;
+					return newDomain;
+				}
+			}
+
+			private void mapDomainFields({{ childEntityViewId | capitalize }}Edit info, {{ childEntityDefName | capitalize}} domain)
+			{
+{% for field in childEntityView.fieldDefinitions %}
+                domain.{{ field.name | capitalize}} = info.{{ field.name | capitalize}};
+{% endfor %}
+				domain.TimeStamp = info.TimeStamp;
+			}
+
+			private void mapViewModelFields({{ childEntityViewId | capitalize }}Edit info, {{ childEntityDefName | capitalize}} domain)
+			{
+{% for field in childEntityView.fieldDefinitions %}
+                info.{{ field.name | capitalize}} = domain.{{ field.name | capitalize}};
+{% endfor %}
+				info.TimeStamp = domain.TimeStamp;
+			}
+
+            public void SetAudit({{  childEntityDefName | capitalize }} entity, string userName, bool creating = false)
+			{
+				if (creating)
+				{
+					entity.CreatedBy = userName;
+					entity.CreatedOn = DateTime.Now;
+				}
+				entity.ModifiedBy = userName;
+				entity.ModifiedOn = DateTime.Now;
+			}
+{% endif %}
+{% endfor %}
+		}
+
+    }

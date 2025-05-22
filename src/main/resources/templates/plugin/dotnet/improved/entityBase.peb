@@ -1,0 +1,61 @@
+using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+using Portal.Repository.Model.Enums;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+
+namespace Portal.Repository.Model.ConklinCentral;
+
+{{  entityClass(vDef = viewDef) }}
+
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+{{  entityClass(vDef = ownerAssociation.ownedViewDef, parentViewDef = viewDef) }}
+{% endif %}
+{% endfor %}
+
+{% macro entityClass(type="text", vDef, parentViewDef) %}
+{% set customTable = "" %}
+{% set customTable =  vDef.customTableName %}
+
+public class {{vDef.entityDef.name | capitalize}}Base : AuditTracking {
+
+    public int Id { get; set; }
+{%  if parentViewDef is not null %}
+    [Required]
+    public int {{ parentViewDef.entityDef.name | capitalize }}Id { get; set; }
+    public {{ parentViewDef.entityDef.name | capitalize }} {{ parentViewDef.entityDef.name | capitalize }} { get; set; } = null!;
+{% endif %}
+{% for field in vDef.sortedFields%}
+
+{% if field.required == true %}
+    [Required]
+{% endif %}
+    public {{ field.dataTypeToCSharpDef }}{% if field.required == false%}{{ field.cSharpNullablePostfix }}{% endif %} {{ field.name | capitalize}} { get; set; }
+{% endfor %}
+
+{% for ownerAssociation in vDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" and ownerAssociation.ownedType == "many"%}
+    public ICollection<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}> {{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s { get; } = new List<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}>();
+{% endif %}
+{% endfor %}
+{%  if parentViewDef is not null %}
+    [NotMapped]
+{% else %}
+    [Timestamp]
+{% endif %}
+    public Byte[] TimeStamp { get; set; }
+}
+
+public class {{vDef.entityDef.name | capitalize}}Config
+{
+    public {{vDef.entityDef.name | capitalize}}Config(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<{{vDef.entityDef.name | capitalize}}Base>().ToTable("{{ customTable }}");
+        modelBuilder.Entity<{{vDef.entityDef.name | capitalize}}Base>().HasKey(x => x.Id);
+    }
+}
+
+{% endmacro %}

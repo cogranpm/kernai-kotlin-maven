@@ -1,0 +1,65 @@
+{% set viewStyle = viewDef.configMap.getOrDefault("viewStyle", "table") | lower %}
+{% set noDelete = viewDef.configMap.getOrDefault("noDelete", "false") %}
+{% set showDeleteButton = true %}
+{% if viewStyle equals "report" %}
+    {% set showDeleteButton = false %}
+{% endif %}
+{% if noDelete != "false" %}
+    {% set showDeleteButton = false %}
+{% endif %}
+@model Portal.Web.Management.Models.App.{{viewDef.entityDef.name | capitalize}}Search
+@{
+    Layout = "_EmptyLayout";
+}
+
+<div class="div-datatables">
+    <table id="listTable" width="100%" class="table table-hover table-sm table-hover">
+        <thead>
+        <tr>
+{% if showDeleteButton == true %}
+                <th class="border-bottom"></th>
+{% endif %}
+{% if not showDeleteButton %}
+    {%  set numCols = 0 %}
+{% else %}
+    {%  set numCols = 1 %}
+{% endif %}
+{% for field in viewDef.sortedFields %}
+{% set showInList = field.configMap.getOrDefault("showInList", true) %}
+{% if showInList == true %}              <th class="border-bottom" style="white-space:nowrap;">{{ field.title }}</th>
+{% set numCols = numCols + 1 %}
+{% endif %}
+{% endfor %}
+{% for childViewDef in viewDef.childViews %}
+        <th class="border-bottom">{{ childViewDef.title }}</th>
+ {% set numCols = numCols + 1 %}
+ {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td colspan="{{ numCols }}" class="pt-4">@await Html.PartialAsync("_loadingsm")</td>
+        </tr>
+        <tr>
+            <td colspan="{{ numCols }}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<style type="text/css">
+    #invoiceListTable_filter {
+        display: none;
+    }
+</style>
+<script type="module">
+    import { initialize, load, listViewBack } from "./{{viewDef.entityDef.name}}/list.js";
+    const model = {
+        criteria: @Portal.Web.Helpers.MvcStringHelpers.ToJavaScriptObjectString(Model),
+        loadingHtml: '@await Html.PartialAsync("_loading")',
+        loadingSmHtml: '@await Html.PartialAsync("_loadingsm")'
+    }
+    initialize(model);
+    window.load = load;
+    window.listViewBack = listViewBack;
+
+</script>

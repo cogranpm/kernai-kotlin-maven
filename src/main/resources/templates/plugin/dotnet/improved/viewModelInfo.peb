@@ -1,0 +1,98 @@
+using System;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Portal.Repository.Model.ConklinCentral;
+using System.Linq;
+
+namespace Portal.Web.Management.Models.App;
+
+public class {{viewDef.entityDef.name | capitalize}}Edit
+{
+    [Required]
+    public int Id { get; set; }
+    {{ fieldProperties(vDef = viewDef) }}
+
+    public bool ShouldUseBlankLayout { get; set; }
+    public {{viewDef.entityDef.name | capitalize}}Search? Criteria { get; set; }
+    public Byte[]? TimeStamp { get; set; }
+
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" and ownerAssociation.ownedType == "many"%}
+    public ICollection<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}Edit> {{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s { get; set; } = new List<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}Edit>();
+{% endif %}
+{% endfor %}
+    public string? LocationRedirect { get; set; }
+
+    public override string ToString()
+    {
+        return $"{{viewDef.entityDef.name | capitalize}}Edit: {% for field in viewDef.fieldDefinitions %}{{ field.name | capitalize}}:{this.{{ field.name | capitalize}}} {% endfor %}";
+    }
+}
+
+{# view models for child views #}
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+{%  set childEntityView = ownerAssociation.ownedViewDef %}
+{%  set childEntityViewId = ownerAssociation.ownedViewDef.id %}
+{%  set childEntityViewTitle = ownerAssociation.ownedViewDef.title %}
+{%  set childEntityDef = ownerAssociation.ownedViewDef.entityDef %}
+{%  set childEntityDefName = ownerAssociation.ownedViewDef.entityDef.name %}
+
+public class {{ childEntityViewId | capitalize }}Edit
+{
+    public int Id { get; set; }
+
+{{ fieldProperties(vDef = childEntityView) }}
+
+    public int {{viewDef.entityDef.name | capitalize}}Id { get; set; }
+    public Byte[] TimeStamp { get; set; }
+    public string? LocationRedirect { get; set; }
+    public {{viewDef.entityDef.name | capitalize}}Edit? {{viewDef.entityDef.name | capitalize}} { get; set; } = null!;
+}
+
+{% endif %}
+{% endfor %}
+
+{% macro fieldProperties(type="text", vDef) %}
+ {% for field in vDef.sortedFields %}
+
+{% if field.required == true %}
+    [Required(ErrorMessage = "{{ field.title }} is required.")]
+{% endif %}
+    [Display(Name = "{{ field.title }}")]
+{% if field.dataTypeDef == "DATETIME" or field.dataTypeDef == "DATE" or field.dataTypeDef == "TIME" %}
+    [DataType(DataType.Date)]
+    [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+{% endif %}
+{%  set defaultValue = "" %}
+{% if field.dataTypeDef == "DATETIME" %} {%  set defaultValue = "= DateTime.Now;" %}{% endif %}
+{% if field.dataTypeDef == "DATE" %} {%  set defaultValue = "= DateTime.Now;" %}{% endif %}
+{% if field.dataTypeDef == "TIME" %} {%  set defaultValue = "= DateTime.Now;" %}{% endif %}
+{% if field.default is not empty and field.default == "YEAR" %}
+{% set defaultValue = "= DateTime.Now.Year;" %}
+{% endif %}
+{% if field.configMap.get("minRange") is not empty and field.configMap.get("maxRange") is not empty %}
+    [Range({{ field.configMap.get("minRange") }}, {{ field.configMap.get("maxRange") }})]
+{% endif %}
+{% if (field.dataTypeDef == "TEXT" or field.dataTypeDef == "MEMO") and field.length is not empty %}
+    [StringLength({{ field.length }}, ErrorMessage = "{{ field.title }} can't be more than {{ field.length }}.")]
+{% endif %}
+{% if field.dataTypeDef == "MEMO" %}
+    [DataType(DataType.MultilineText)]
+{% endif %}
+    public {{ field.dataTypeToCSharpDef }}{% if field.required == false%}{{ "?" }}{% endif %} {{ field.name | capitalize}} { get; set; } {{ defaultValue }}
+
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] != "true"  %}
+    public IList<SelectListItem> {{ field.name}}Lookups { get; } =
+        {{vDef.entityDef.name | capitalize}}ForList.{{ field.lookupKey }}Lookup.Items.Select( x => new SelectListItem() {Text = x.Value, Value = x.Key}).ToList();
+{% endif %}
+{% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true"  %}
+    public {{ field.dataTypeToCSharpDef }}? {{ field.name | capitalize}}String { get; set; }
+{% endif %}
+{% if field.referenceViewDefinition is not empty %}
+    public string? {{ field.name | capitalize}}String { get; set; }
+{% endif %}
+{% endfor %}
+{% endmacro %}

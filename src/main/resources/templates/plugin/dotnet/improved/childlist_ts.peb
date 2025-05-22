@@ -1,0 +1,190 @@
+{% set parentUrlSegement = parentViewDef.id | capitalize %}
+{% set childUrlSegement = childViewDef.id | capitalize %}
+import { createJqSelectorBuilder as jqs } from "../utils/jquery-utils.js";
+
+export interface {{ childUrlSegement }}Model {
+    loadingHtml: string;
+    loadingSmHtml: string;
+}
+
+let model: {{ childUrlSegement }}Model;
+
+function getInfoElement() {
+    return jqs().id("info").toJq();
+}
+
+const setModalBody = async (html: string) => {
+    await getInfoElement().html(html);
+}
+
+const configureModal = async () => {
+
+{% for field in childViewDef.sortedFields%}
+{% if field.referenceViewDefinition is not empty %}
+    const {{ field.name | decapitalizeFilter}}Combo = $('#{{ field.name | decapitalizeFilter}}');
+    if ({{ field.name | decapitalizeFilter}}Combo) {
+        const current{{ field.name | capitalize}} = {{ field.name | decapitalizeFilter}}Combo.data("{{ field.name | lower }}");
+
+        {{ field.name | decapitalizeFilter}}Combo.select2({
+            placeholder: 'Choose {{ field.title }}',
+            allowClear: false,
+            dropdownParent: $('#addModal'),
+            ajax: {
+                type: 'GET',
+                url: `/{{ field.referenceViewDefinition.viewId | capitalize }}s`,
+                dataType: 'json'
+            },
+        });
+        {{ field.name | decapitalizeFilter}}Combo.val(current{{ field.name | capitalize}}).trigger('change');
+    }
+
+{% endif %}
+
+{% endfor %}
+}
+
+const loadModal = async (url) => {
+    try {
+        getInfoElement().html(model.loadingHtml);
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        getInfoElement().load(url, async (response, status, xhr) => {
+            if (status == 'error') {
+                getInfoElement().html('<div class="alert alert-warning">Could not load record</div>');
+            }
+            else {
+                await configureModal();
+                ($('#addModal') as any).modal("show");
+            }
+        })
+    } catch (error) {
+        console.error(error.message);
+    }
+}
+
+const save = async () => {
+    const validator = $('#editForm').validate();
+    if (!validator.form()) {
+        return;
+    }
+
+    const form = document.getElementById('editForm') as HTMLFormElement;
+    if (form) {
+        let viewModel = {};
+        let formData = new FormData(form);
+        viewModel = Object.fromEntries(
+            Array.from(formData.keys()).map(key => [
+                key, formData.getAll(key).length > 1 ? formData.getAll(key) : formData.get(key)
+            ])
+        )
+{% for field in childViewDef.sortedFields%}
+{% if (field.dataTypeDef == "MONEY" or field.dataTypeDef == "FLOAT" or field.dataTypeDef == "INT") and field.default is not empty %}
+        //model binding hack for non null numeric properties
+        const {{ field.nameAsField }} = (viewModel as any).{{ field.name | capitalize}};
+        if ({{ field.nameAsField }} === '') {
+            (viewModel as any).{{ field.name | capitalize}} = {{ field.default }};
+        }
+{% endif %}
+{% endfor %}
+
+        getInfoElement().html(model.loadingHtml);
+        const response = await fetch("/{{parentUrlSegement}}s/{{childUrlSegement}}s/edit", {
+            headers: {
+                "Content-Type": "application/json",
+            },
+            method: "POST",
+            body: JSON.stringify(viewModel)
+        });
+        if (response.ok) {
+            if (response.status == 202) {
+                const responseBody = await response.json();
+                window.location.href = responseBody.locationRedirect;
+            } else {
+                const html = await response.text();
+                await setModalBody(html);
+                await configureModal();
+            }
+        } else {
+            console.error(response.statusText);
+            await setModalBody(await response.text());
+            await configureModal();
+        }
+    }
+}
+
+const deleteEntity = async (childId: string, parentId: string) => {
+    getInfoElement().html(model.loadingHtml);
+    const url = `/{{parentUrlSegement}}s/${parentId}/{{childUrlSegement}}s/delete/${childId}`
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+        });
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        } else {
+            const responseData = await response.json();
+            window.location.href = responseData.locationRedirect;
+        }
+    } catch (error) {
+        console.error(error);
+        $("#alert-error").fadeIn(200).delay(2000).slideUp(200);
+    }
+
+}
+
+
+export const initApplication = (m: {{ childUrlSegement }}Model) => {
+    const modal = document.getElementById("addModal");
+    model = m;
+
+    /************************ set up the modal ****************************/
+    const firstInput = document.getElementById('productId')
+    modal.addEventListener('shown.bs.modal', function () {
+        if (firstInput) {
+            firstInput.focus()
+        }
+    })
+
+    /***************** create button ****************************/
+    const btnCreate = document.getElementById("btnCreate");
+    btnCreate.addEventListener("click", async (event) => {
+        const parentId = btnCreate.dataset.id;
+        const url = `/{{parentUrlSegement}}s/${parentId}/{{childUrlSegement}}s/create`;
+        await loadModal(url);
+    });
+
+    /******************** edit links ***************************/
+    const editLinks = Object.values(document.getElementsByClassName("editLink"));
+    editLinks.forEach(link => {
+        link.addEventListener("click", async (event) => {
+            const editLink = (link as HTMLAnchorElement);
+            const childId = editLink.dataset.id;
+            const parentId = editLink.dataset.parentId;
+            const url = `/{{parentUrlSegement}}s/${parentId}/{{childUrlSegement}}s/edit/${childId}`
+            await loadModal(url);
+        });
+    });
+
+    /******************** delete links ***************************/
+    let deleteLinks: HTMLCollectionOf<HTMLAnchorElement> = document.getElementsByClassName("deleteLink") as HTMLCollectionOf<HTMLAnchorElement>;
+    for (const element of deleteLinks) {
+        element.addEventListener("click", async (event: Event) => {
+            if (confirm('Delete this record?')) {
+                const childId = element.dataset.id;
+                const parentId = element.dataset.parentId;
+                await deleteEntity(childId, parentId);
+            }
+        });
+    }
+
+    /******************** modal save ******************************/
+    const btnSave = document.getElementById("btnSave");
+    btnSave.addEventListener("click", async (event) => {
+        await save();
+    });
+
+};
+
