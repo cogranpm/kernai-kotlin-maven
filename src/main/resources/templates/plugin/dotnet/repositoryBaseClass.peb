@@ -48,8 +48,8 @@ public interface I{{viewDef.entityDef.name | capitalize}}RepositoryBase : IRepos
 public class {{viewDef.entityDef.name | capitalize}}RepositoryBase : BaseRepository<{{viewDef.entityDef.name | capitalize}}Base, int>, I{{viewDef.entityDef.name | capitalize}}RepositoryBase
 {
     protected sealed override DbSet<{{viewDef.entityDef.name | capitalize}}Base> Entities { get; set; }
-    private {{viewDef.entityDef.name | capitalize}}ServiceBase _serviceBase;
-    private ConklinCentralDataEntities _context;
+    protected {{viewDef.entityDef.name | capitalize}}ServiceBase ServiceBase { get; set; }
+    protected ConklinCentralDataEntities Context { get; set; }
 
 {% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
@@ -67,13 +67,13 @@ public class {{viewDef.entityDef.name | capitalize}}RepositoryBase : BaseReposit
     )
     {
         Entities = context.{{viewDef.entityDef.name | capitalize}}s;
-        this._serviceBase = new {{viewDef.entityDef.name | capitalize}}ServiceBase(context);
+        this.ServiceBase = new {{viewDef.entityDef.name | capitalize}}ServiceBase(context);
 {% for field in viewDef.fieldDefinitions %}
 {% if field.lookupKey is not empty and field.configMap["advancedLookup"] == "true" %}
         this._{{ field.lookupKeyAsField }}Repository = {{ field.lookupKeyAsField }}Repository;
 {% endif %}
 {% endfor %}
-        this._context = context;
+        this.Context = context;
     }
 
     protected IList<{{viewDef.entityDef.name | capitalize}}ForList> TransformResults(IQueryable<{{viewDef.entityDef.name | capitalize}}Base> results)
@@ -103,6 +103,11 @@ public class {{viewDef.entityDef.name | capitalize}}RepositoryBase : BaseReposit
 {% endfor %}
         });
 {% endif %}
+{#  futher filtering on results - this won't work lookups need to be exact search #}
+{% for field in viewDef.freeTextSearchFields %}
+{% if field.lookupKey is not empty %}
+{% endif %}
+{% endfor %}
         return viewModelList;
 	}
 
@@ -134,7 +139,6 @@ public class {{viewDef.entityDef.name | capitalize}}RepositoryBase : BaseReposit
             results = results.Where(x =>
 {% for field in viewDef.freeTextSearchFields %}
 {% if field.lookupKey is not empty %}
-           {% if not loop.first %}|| {% endif %}x.{{ field.name | capitalize }}String.ToLower().IndexOf(search.ToLower()) > -1
 {% else %}
 {% set searchClause = "ToLower().IndexOf(search) > -1" %}
            {% if not loop.first %}|| {% endif %}(x.{{ field.name | capitalize }} != null && x.{{ field.name | capitalize }}.{{ searchClause }})
@@ -183,8 +187,8 @@ public class {{viewDef.entityDef.name | capitalize}}RepositoryBase : BaseReposit
 
     public virtual {{viewDef.entityDef.name | capitalize}}Base Add({{viewDef.entityDef.name | capitalize}}Base entity)
     {
-        this._serviceBase.Add(entity);
-        this._serviceBase.SaveChanges();
+        this.ServiceBase.Add(entity);
+        this.ServiceBase.SaveChanges();
         return entity;
     }
 
@@ -196,15 +200,15 @@ public class {{viewDef.entityDef.name | capitalize}}RepositoryBase : BaseReposit
             //viewmodel does not have existing audit info
             entity.CreatedBy = existing.CreatedBy;
             entity.CreatedOn = existing.CreatedOn;
-            this._context.Entry(entity).State = EntityState.Modified;
-            this._serviceBase.Update(entity);
-            this._serviceBase.SaveChanges();
+            this.Context.Entry(entity).State = EntityState.Modified;
+            this.ServiceBase.Update(entity);
+            this.ServiceBase.SaveChanges();
         }
     }
     public virtual void Delete(int id)
     {
-        this._serviceBase.Delete(id);
-        this._serviceBase.SaveChanges();
+        this.ServiceBase.Delete(id);
+        this.ServiceBase.SaveChanges();
     }
 
 {% for ownerAssociation in viewDef.ownerAssociations %}
@@ -221,16 +225,16 @@ public class {{viewDef.entityDef.name | capitalize}}RepositoryBase : BaseReposit
             {
                 firstChild.{{viewDef.entityDef.name | capitalize}} = null;
                 existing.{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s.Remove(firstChild);
-                this._context.Entry(existing).State = EntityState.Modified;
+                this.Context.Entry(existing).State = EntityState.Modified;
                 existing.ModifiedOn  = DateTime.Now;
-                this._serviceBase.SaveChanges();
+                this.ServiceBase.SaveChanges();
             }
         }
     }
 {% endif %}
 {% endfor %}
 
-    class {{viewDef.entityDef.name | capitalize}}ServiceBase : ServiceBase<{{viewDef.entityDef.name | capitalize}}Base, ConklinCentralDataEntities>
+    protected class {{viewDef.entityDef.name | capitalize}}ServiceBase : ServiceBase<{{viewDef.entityDef.name | capitalize}}Base, ConklinCentralDataEntities>
     {
         public {{viewDef.entityDef.name | capitalize}}ServiceBase(ConklinCentralDataEntities repo) : base(repo)
         {

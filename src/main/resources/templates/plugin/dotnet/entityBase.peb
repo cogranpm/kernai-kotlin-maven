@@ -34,6 +34,11 @@ public class {{vDef.entityDef.name | capitalize}}Base : AuditTracking {
     [Required]
 {% endif %}
     public {{ field.dataTypeToCSharpDef }}{% if field.required == false%}{{ field.cSharpNullablePostfix }}{% endif %} {{ field.name | capitalize}} { get; set; }
+
+{% if field.referenceViewDefinition is not empty %}
+    [ForeignKey("{{ field.name | capitalize }}")]
+    public {{ field.referenceViewDefinition.entityName}} {{ field.referenceViewDefinition.entityName}} { get; set; }
+{% endif %}
 {% endfor %}
 
 {% for ownerAssociation in vDef.ownerAssociations %}

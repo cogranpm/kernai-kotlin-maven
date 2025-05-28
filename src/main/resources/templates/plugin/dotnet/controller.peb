@@ -26,7 +26,7 @@ namespace Portal.Web.Management.Controllers;
         private readonly I{{viewDef.entityDef.name | capitalize}}Service _service;
 	    protected I{{viewDef.entityDef.name | capitalize}}Service Service { get { return _service; } }
 		private readonly EntityMapper mapper;
-	    private readonly ILogger<{{viewDef.id | capitalize}}sController> logger;
+	    private readonly IConsolidatedLoggingService consolidatedLoggingService;
 	    private readonly ISearchHelperService searchHelperService;
 
 {% for field in viewDef.fieldDefinitions %}
@@ -35,10 +35,11 @@ namespace Portal.Web.Management.Controllers;
 {% endif %}
 {% endfor %}
 {% for referenceView in viewDef.referenceViewsList %}
-        private readonly I{{ referenceView.viewId }} _{{ referenceView.viewId | decapitalizeFilter  }};
+        //private readonly I{{ referenceView.viewId }} _{{ referenceView.viewId | decapitalizeFilter  }};
 {% endfor %}
 
         public {{viewDef.id | capitalize}}sController(
+		IConsolidatedLoggingService consolidatedLoggingService,
         I{{viewDef.entityDef.name | capitalize}}Service service,
         ISearchHelperService searchHelperService
 {% for field in viewDef.fieldDefinitions %}
@@ -47,10 +48,10 @@ namespace Portal.Web.Management.Controllers;
 {% endif %}
 {% endfor %}
 {% for referenceView in viewDef.referenceViewsList %}
-        , I{{ referenceView.viewId }} {{ referenceView.viewId | decapitalizeFilter  }}
+        //, I{{ referenceView.viewId }} {{ referenceView.viewId | decapitalizeFilter  }}
 {% endfor %}
-		, ILogger<{{viewDef.id | capitalize}}sController> logger
         ){
+		    this.consolidatedLoggingService = consolidatedLoggingService;
             this._service = service;
             this.searchHelperService = searchHelperService;
 {% for field in viewDef.fieldDefinitions %}
@@ -58,10 +59,9 @@ namespace Portal.Web.Management.Controllers;
             this._{{ field.lookupKeyAsField }}Repository = {{ field.lookupKeyAsField }}Repository;
 {% endif %}{% endfor %}
 {% for referenceView in viewDef.referenceViewsList %}
-            this._{{ referenceView.viewId | decapitalizeFilter  }} = {{ referenceView.viewId | decapitalizeFilter  }};
+            //this._{{ referenceView.viewId | decapitalizeFilter  }} = {{ referenceView.viewId | decapitalizeFilter  }};
 {% endfor %}
-            this.mapper = new EntityMapper({% for referenceView in viewDef.referenceViewsList %}{{ referenceView.viewId | decapitalizeFilter  }}{% if loop.last %}{% else %},{% endif %}{% endfor %});
-            this.logger = logger;
+            this.mapper = new EntityMapper();
         }
 
 {% set hasCycleSearch = false %}
@@ -78,6 +78,7 @@ namespace Portal.Web.Management.Controllers;
 {% endif %}
 {% endfor %}
 
+	    private string GetUserName() => User.Identity?.Name?.Replace(@"CONKLIN\", "")!;
 
         public ViewResult Index(string search = null{{ dateSearchVariables }}{{ cycleSearchVariables }})
         {
@@ -118,6 +119,8 @@ namespace Portal.Web.Management.Controllers;
             {{viewDef.id | capitalize}}Search searchCriteria
            )
         {
+
+		    var userName = this.GetUserName();
             try
             {
                 var dataSort = new DataSortParameters { Length = length, OrderDir = orderDir, OrderCol = orderCol, Start = start };
@@ -156,8 +159,8 @@ namespace Portal.Web.Management.Controllers;
             }
             catch (Exception ex)
             {
-			    this.logger.LogError(ex, "Error in ListJSON action method");
                 String message = ex.GetBaseException().ToString();
+                this.consolidatedLoggingService.Log(ex, message, $"{nameof({{viewDef.id | capitalize}}sController)}.ListJson", LogLevel.Error, userName);
 	            return Problem(detail: message, title: "Error occurred in List");
             }
         }
@@ -166,13 +169,14 @@ namespace Portal.Web.Management.Controllers;
         [Route("edit")]
         public ActionResult Edit([Bind()] {{viewDef.id | capitalize}}Edit entity)
         {
+
+		    var userName = this.GetUserName();
             try
             {
                 if (ModelState.IsValid)
                 {
                     Response.StatusCode = StatusCodes.Status202Accepted;
                     var domainInstance = mapper.ToDomain(entity);
-                    var userName = User.Identity?.Name?.Replace(@"CONKLIN\", "")!;
                     if (entity.Id < 1)
                     {
                         mapper.SetAudit(domainInstance, userName, true);
@@ -194,8 +198,8 @@ namespace Portal.Web.Management.Controllers;
             }
             catch (Exception ex)
             {
-			    this.logger.LogError(ex, "Error in Edit action method");
                 String message = ex.GetBaseException().ToString();
+                this.consolidatedLoggingService.Log(ex, message, $"{nameof({{viewDef.id | capitalize}}sController)}.Edit", LogLevel.Error, userName);
 	            return Problem(detail: message, title: "Error occurred in Edit");
             }
         }
@@ -210,18 +214,20 @@ namespace Portal.Web.Management.Controllers;
         [Route("delete/{id}")]
         public int? Delete(int? id)
         {
+
+		    var userName = this.GetUserName();
             try
             {
                 if (id != null)
                 {
-                    var userName = User.Identity?.Name?.Replace(@"CONKLIN\", "")!;
                     this._service.Delete(id.Value, userName);
                 }
                 return id;
             }
             catch (Exception ex)
             {
-			    this.logger.LogError(ex, "Error in Delete action method");
+			    String message = ex.GetBaseException().ToString();
+                this.consolidatedLoggingService.Log(ex, message, $"{nameof({{viewDef.id | capitalize}}sController)}.Delete", LogLevel.Error, userName);
 			    throw;
             }
         }
@@ -296,11 +302,12 @@ namespace Portal.Web.Management.Controllers;
 		[Route("{{ childEntityViewId | decapitalizeFilter }}s/edit")]
 		public ActionResult {{ childEntityViewId | capitalize}}Post([FromBody] {{ childEntityViewId | capitalize}}Edit entity)
 		{
+
+		    var userName = this.GetUserName();
 			try
 			{
 				if (ModelState.IsValid)
 				{
-				    var userName = User.Identity?.Name?.Replace(@"CONKLIN\", "")!;
 					var parent = this._service.GetFirstWhereIncluding(x => x.Id == entity.{{ viewDef.entityDef.name | capitalize }}Id, ["{{ childEntityDefName | capitalize }}s"]);
 					if (parent == null)
 					{
@@ -392,16 +399,20 @@ namespace Portal.Web.Management.Controllers;
 		protected class EntityMapper
 		{
 {% for referenceView in viewDef.referenceViewsList %}
-            private readonly I{{ referenceView.viewId | capitalize }} _{{ referenceView.viewId | decapitalizeFilter }};
+            //private readonly I{{ referenceView.viewId | capitalize }} _{{ referenceView.viewId | decapitalizeFilter }};
 {% endfor %}
+			public EntityMapper()
+			{
 
+			}
+{#
 			public EntityMapper({% for referenceView in viewDef.referenceViewsList %}I{{ referenceView.viewId | capitalize }} {{ referenceView.viewId | decapitalizeFilter  }}{% if loop.last %}{% else %},{% endif %}{% endfor %})
 			{
 {% for referenceView in viewDef.referenceViewsList %}
                 this._{{ referenceView.viewId | decapitalizeFilter }} = {{ referenceView.viewId | decapitalizeFilter }};
 {% endfor %}
 			}
-
+#}
 			public {{viewDef.entityDef.name | capitalize}}Edit ToViewModel({{viewDef.entityDef.name | capitalize}} entity)
 			{
 				return new {{viewDef.entityDef.name | capitalize}}Edit()
@@ -409,11 +420,13 @@ namespace Portal.Web.Management.Controllers;
 {% for field in viewDef.fieldDefinitions %}
                     {{ field.name | capitalize}} = entity.Instance.{{ field.name | capitalize}},
 {% endfor %}
+{#
 {% for field in viewDef.fieldDefinitions %}
 {% if field.referenceViewDefinition is not empty %}
                 viewModel.{{ field.name | capitalize}}String = this._{{ field.referenceViewDefinition.viewId | decapitalizeFilter }}.GetDescriptionById(entity.{{ field.name | capitalize}});
 {% endif %}
 {% endfor %}
+#}
 				    Id = entity.Instance.Id,
 				    TimeStamp = entity.Instance.TimeStamp
 				};

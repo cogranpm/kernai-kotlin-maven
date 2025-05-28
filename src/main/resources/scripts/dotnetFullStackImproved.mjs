@@ -8,7 +8,7 @@ const HashMap = Java.type('java.util.HashMap');
 const ArrayList = Java.type('java.util.ArrayList');
 
 const tempOutputDirectory = `${ApplicationData.getUserPath()}${File.separator}`;
-const basepath = "/improved";
+const basepath = "improved/";
 const targetFolderBase = "d:/projects/ConklinCentral/"; //note this should be environmental
 
 const writeTemplate = (folder, fileName, viewDef, pebbleTemplate) => {

@@ -264,7 +264,7 @@ data class FieldDef(
             DataTypeDef.MEMO, DataTypeDef.SOURCE, DataTypeDef.TEXT, DataTypeDef.LOOKUP, DataTypeDef.FILE -> "string"
             DataTypeDef.FLOAT -> "float"
             DataTypeDef.MONEY -> "decimal"
-            DataTypeDef.INT ->when (this.sizeHint) {
+            DataTypeDef.INT -> when (this.sizeHint) {
                     SizeDef.MEDIUM ->  "int"
                     SizeDef.SMALL -> "Int16"
                     SizeDef.LARGE -> "long"

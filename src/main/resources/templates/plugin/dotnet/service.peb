@@ -37,14 +37,12 @@ public interface I{{viewDef.entityDef.name | capitalize}}Service : IService<{{ba
 
 public class {{viewDef.entityDef.name | capitalize}}Service : BaseService<{{baseEntityName}}, int, I{{viewDef.entityDef.name | capitalize}}Repository>, I{{viewDef.entityDef.name | capitalize}}Service
 {
-
-	private readonly ILogger<{{viewDef.entityDef.name | capitalize}}Service> logger;
+	private readonly IConsolidatedLoggingService consolidatedLoggingService;
 
     public {{viewDef.entityDef.name | capitalize}}Service(
-		ILogger<{{viewDef.entityDef.name | capitalize}}Service> logger,
+		IConsolidatedLoggingService consolidatedLoggingService,
         I{{viewDef.entityDef.name | capitalize}}Repository repository) : base(repository) {
-
-		    this.logger = logger;
+		    this.consolidatedLoggingService = consolidatedLoggingService;
     }
 
     public IList<{{viewDef.entityDef.name | capitalize}}ForList> GetForList(
