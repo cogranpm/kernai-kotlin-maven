@@ -9,7 +9,7 @@ customPrimaryKey
 {# child tables come first or the drop statement will fail due to foreign key constraint #}
 {% for ownerAssociation in viewDef.ownerAssociations %}
 {% if ownerAssociation.owningType == "one" %}
-{{  tableDDL(vDef = ownerAssociation.ownedViewDef, parentViewDef = viewDef) }}
+{{  tableDDL(vDef = ownerAssociation.ownedViewDef, parentViewDef = viewDef, customPrimaryKey = primaryKeyDef) }}
 {% endif %}
 {% endfor %}
 
@@ -67,8 +67,10 @@ ALTER TABLE [dbo].[{{vDef.customTableName}}]
 GO
 
 {% for field in vDef.sortedFields%}
-{% if field.referenceViewDefinition is not null and field.dataTypeDef  == "REFERENCE"%}
--- future foreign key for pickers{{vDef.entityDef.name | capitalize}}_{{ field.referenceViewDefinition.entityName }} FOREIGN KEY ()
+{% if field.referenceViewDefinition is not empty %}
+ALTER TABLE [dbo].[{{vDef.customTableName}}]
+    ADD CONSTRAINT [FK_{{vDef.customTableName}}_{{ field.referenceViewDefinition.entityName}}] FOREIGN KEY ([{{ field.name }}]) REFERENCES [dbo].[{{ field.referenceViewDefinition.entityName }}] ([Id])
+GO
 {% endif %}
 {% endfor %}
 

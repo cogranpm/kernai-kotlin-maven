@@ -22,17 +22,4 @@ public class {{viewDef.entityDef.name | capitalize}}Search
         public {{ field.dataTypeToCSharpDef }}? {{ field.name | capitalize}} { get; set; }
 {% endif %}
 {% endfor %}
-
-{% if hasDateSearch == true %}
-        public IEnumerable<SelectListItem> Timespans => (IEnumerable<SelectListItem>)SearchHelperService.Timespans.ToArray().Clone();
-{% endif %}
-{% if hasCycleSearch == true %}
-	public IEnumerable<SelectListItem> Cycles => new[]
-	{
-		new SelectListItem("Any", "0"),
-		new SelectListItem("One", "1"),
-		new SelectListItem("Two", "2"),
-		new SelectListItem("Three", "3")
-	};
-{% endif %}
 }

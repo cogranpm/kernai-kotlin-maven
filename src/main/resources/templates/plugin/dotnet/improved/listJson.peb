@@ -1,5 +1,18 @@
+{% set hasCycleSearch = false %}
+{% set hasDateSearch = false %}
+{% for field in viewDef.searchFields %}
+{% if field.isDateType %}
+{% set hasDateSearch = true %}
+{% endif %}
+{#  cycle is a special search type that maps to a list of 0, 1, 2, 3 #}
+{% if field.isCycleSearch %}
+{% set hasCycleSearch = true %}
+{% endif %}
+{% endfor %}
 using System.Collections.Generic;
 using Portal.Repository.Model.ConklinCentral;
+using Portal.Web.Management.Helpers;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Portal.Web.Management.Models.App;
 
@@ -9,4 +22,17 @@ public class {{viewDef.entityDef.name | capitalize}}ListJson
     public int RecordsTotal { get; set; }
     public int RecordsFiltered { get; set; }
     public IList<{{viewDef.entityDef.name | capitalize}}ForList> Data { get; set; }
+{#  lookup fields for cycle and date searches #}
+{% if hasDateSearch == true %}
+    public static IEnumerable<SelectListItem> Timespans => (IEnumerable<SelectListItem>)SearchHelperService.Timespans.ToArray().Clone();
+{% endif %}
+{% if hasCycleSearch == true %}
+	public static IEnumerable<SelectListItem> Cycles => new[]
+	{
+		new SelectListItem("Any", "0"),
+		new SelectListItem("One", "1"),
+		new SelectListItem("Two", "2"),
+		new SelectListItem("Three", "3")
+	};
+{% endif %}
 }

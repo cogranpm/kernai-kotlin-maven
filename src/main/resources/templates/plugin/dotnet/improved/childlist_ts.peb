@@ -32,7 +32,18 @@ const configureModal = async () => {
             ajax: {
                 type: 'GET',
                 url: `/{{ field.referenceViewDefinition.viewId | capitalize }}s`,
-                dataType: 'json'
+                dataType: 'json',
+                processResults: function (data, params) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                id: item.id,
+                                text: item.title
+                            };
+                        })
+                    };
+                },
+                cache: true // Cache AJAX requests
             },
         });
         {{ field.name | decapitalizeFilter}}Combo.val(current{{ field.name | capitalize}}).trigger('change');

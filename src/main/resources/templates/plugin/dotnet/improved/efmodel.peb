@@ -1,0 +1,26 @@
+namespace webapi.Model.Vacation;
+
+public class {{viewDef.entityDef.name | capitalize}}: TripPrimaryKeyBase
+{
+{% for field in viewDef.fieldDefinitions %}
+public {{ field.dataTypeDef.dataTypeToCSharpDef }}{% if not field.required  %}?{% endif %} {{ field.name | capitalize}} { get; set; }
+{% endfor %}
+
+{% for ownerAssociation in viewDef.ownerAssociations %}
+{% if ownerAssociation.owningType == "one" %}
+public {{ ownerAssociation.ownedViewDefinition.entityName | capitalize }} {{ ownerAssociation.name | capitalize }} { get; set; } = null!;
+public Guid {{ ownerAssociation.name | capitalize }}Id { get; set; }
+{% else %}
+public ICollection<{{ ownerAssociation.ownedViewDefinition.entityName | capitalize }}> {{ ownerAssociation.name | capitalize }},
+{% endif %}
+{% endfor %}
+{% for assoc in viewDef.ownedAssociations %}
+{% if assoc.ownedType == "one" %}
+public {{ assoc.ownerViewDefinition.entityName | capitalize }} {{ assoc.name | capitalize }} { get; set; } = null!;
+public Guid {{ assoc.name | capitalize }}Id { get; set; }
+{% else %}
+public {{ assoc.ownedViewDefinition.entityName | capitalize }} {{ assoc.name | capitalize }} { get; set; } = null!;
+public Guid {{ assoc.name | capitalize }}Id { get; set; }
+{% endif %}
+{% endfor %}
+}

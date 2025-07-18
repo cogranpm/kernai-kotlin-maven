@@ -5,7 +5,8 @@
 
 @{
 	Layout = "~/Views/Shared/_Dashforge2Template.cshtml";
-    ViewData["MenuActive"] = "Rebates/Definition";
+	{% if parentViewDef.configMap["menuTitle"] is not empty %}ViewData["MenuActive"] = "{{ parentViewDef.configMap["menuTitle"] }}";{% endif %}
+
 }
 {% set firstFieldName = "" %}
 {% for field in parentViewDef.showInListSortedFields %}

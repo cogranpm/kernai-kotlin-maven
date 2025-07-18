@@ -26,7 +26,7 @@ public class {{vDef.entityDef.name | capitalize}}Base : AuditTracking {
 {%  if parentViewDef is not null %}
     [Required]
     public int {{ parentViewDef.entityDef.name | capitalize }}Id { get; set; }
-    public {{ parentViewDef.entityDef.name | capitalize }} {{ parentViewDef.entityDef.name | capitalize }} { get; set; } = null!;
+    public {{ parentViewDef.entityDef.name | capitalize }}Base {{ parentViewDef.entityDef.name | capitalize }} { get; set; } = null!;
 {% endif %}
 {% for field in vDef.sortedFields%}
 
@@ -34,11 +34,16 @@ public class {{vDef.entityDef.name | capitalize}}Base : AuditTracking {
     [Required]
 {% endif %}
     public {{ field.dataTypeToCSharpDef }}{% if field.required == false%}{{ field.cSharpNullablePostfix }}{% endif %} {{ field.name | capitalize}} { get; set; }
+
+{% if field.referenceViewDefinition is not empty %}
+    [ForeignKey("{{ field.name | capitalize }}")]
+    public {{ field.referenceViewDefinition.entityName}} {{ field.referenceViewDefinition.entityName}} { get; set; }
+{% endif %}
 {% endfor %}
 
 {% for ownerAssociation in vDef.ownerAssociations %}
 {% if ownerAssociation.owningType == "one" and ownerAssociation.ownedType == "many"%}
-    public ICollection<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}> {{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s { get; } = new List<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}>();
+    public ICollection<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}Base> {{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}s { get; } = new List<{{ ownerAssociation.ownedViewDef.entityDef.name | capitalize }}Base>();
 {% endif %}
 {% endfor %}
 {%  if parentViewDef is not null %}

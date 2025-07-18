@@ -13,6 +13,7 @@
 @using Portal.Core
 @using Portal.Repository
 @using Portal.Repository.Model.Enums
+@using Portal.Web.Management.Models.App
 @model Portal.Web.Management.Models.App.{{viewDef.entityDef.name | capitalize}}Search
 @{
 	Layout = "~/Views/Shared/_Dashforge2Template.cshtml";
@@ -57,7 +58,7 @@
 							<div class="col-xl-9">
 								@Html.DropDownList(
 								"{{ field.name | capitalize }}",
-								new SelectList(Model.Cycles, "Value", "Text", @Model.{{ field.name | capitalize }}),
+								new SelectList({{viewDef.entityDef.name | capitalize}}ListJson.Cycles, "Value", "Text", @Model.{{ field.name | capitalize }}),
 								new { id = "{{ field.name | capitalize }}", Class = "form-control" }
 								)
 							</div>
@@ -72,7 +73,7 @@
 							<div class="col-xl-9">
 								@Html.DropDownList(
 								"{{ field.name | decapitalizeFilter }}Timespan",
-								new SelectList(Model.Timespans, "Value", "Text", @Model.{{ field.name | capitalize }}Timespan),
+								new SelectList({{viewDef.entityDef.name | capitalize}}ListJson.Timespans, "Value", "Text", @Model.{{ field.name | capitalize }}Timespan),
 								new { id = "{{ field.name | decapitalizeFilter }}timespan", Class = "form-control" }
 								)
 							</div>

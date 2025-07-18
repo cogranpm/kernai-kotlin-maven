@@ -33,12 +33,12 @@
 				@Html.DropDownListFor(
 					model => model.{{ field.name | capitalize }},
 					new List<SelectListItem>() { new SelectListItem()
-						{ Text = @Model.{{ field.name | capitalize }}String, Value = @Model.{{ field.name | capitalize }}, Selected = true }
+						{ Text = @Model.{{ field.name | capitalize }}String, Value = @Model.{{ field.name | capitalize }}.ToString(), Selected = true }
 					},
 					"-- Select {{ field.title }} --",
 					new
 					{
-						data_productid = $"{@Model.{{ field.name | capitalize }}{{ "}" }}",
+						data_{{ field.name | lower }} = $"{@Model.{{ field.name | capitalize }}{{ "}" }}",
 						style = "width: 100%",
 						name = "{{ field.name | decapitalizeFilter }}",
 						id = "{{ field.name | decapitalizeFilter }}",
