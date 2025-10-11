@@ -33,6 +33,7 @@ object ViewDefConstants {
     const val menuitemViewId = "menuitem"
     const val passwordsViewId = "passwords"
     const val salesforceConfigViewId = "salesforceConfig"
+    const val databaseConnectionViewId = "databaseConnection"
 
     // the properties available to the views
     const val title = "title"

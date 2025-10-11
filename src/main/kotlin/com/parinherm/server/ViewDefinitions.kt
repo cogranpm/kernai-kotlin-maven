@@ -632,6 +632,39 @@ object DefaultViewDefinitions {
         ViewDefinitionMapper.createDefault(childViewDef, childFields)
     }
 
+    private fun makeDatabaseConnection() {
+        val name = makeTextField("name", "Name", true)
+        val host = makeTextField("host", "Host", true)
+        val user = makeTextField("user", "User", true)
+        val password = makeTextField("password", "Password", true)
+        val databaseType = makeLookupField("databaseType", "Type", true, LookupUtils.countryLookupKey)
+
+        /*
+        val income = makeMoneyField("income", "Income", true)
+        val height = makeFloatField("height", "Height", true)
+        val age = makeIntField("age", "Age", true)
+        val country = makeLookupField("country", "Country", true, LookupUtils.countryLookupKey)
+        val enteredDate = makeDateTimeField("enteredDate", "Entered", true)
+        val isDeceased = makeBooleanField("deceased", "Deceased", true)
+         */
+        val fields = listOf(name, host, user, password, databaseType)
+        val viewDef = ViewDefinition(
+            0,
+            0,
+            ViewDefConstants.databaseConnectionViewId,
+            "DatabaseConnection",
+            1,
+            3,
+            SashOrientationDef.mappedOrientation(SashOrientationDef.VERTICAL),
+            "databaseConnection",
+            ""
+        )
+
+        /* save the data to tables here */
+        ViewDefinitionMapper.createDefault(viewDef, fields)
+        //val (viewDetail, viewDetailFields) = makePersonDetail(viewDef.id)
+        //ViewDefinitionMapper.createDefault(viewDetail, viewDetailFields)
+    }
 
     fun makeDefaultViews() {
         makePerson()
