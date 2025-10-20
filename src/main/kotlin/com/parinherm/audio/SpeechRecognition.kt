@@ -17,7 +17,7 @@ object SpeechRecognition {
     private val modelPath: String
     private val jsonFormat = Json { isLenient = true }
     private var model: Model? = null
-    private var recognizer: Recognizer? = null
+    public var recognizer: Recognizer? = null
     private var opened = false
 
     init {

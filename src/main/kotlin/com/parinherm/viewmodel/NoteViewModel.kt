@@ -1,6 +1,8 @@
 package com.parinherm.viewmodel
 
 import com.parinherm.ApplicationData
+import com.parinherm.audio.SpeechRecognition
+import com.parinherm.audio.speech.SpeechPipelineService
 import com.parinherm.builders.BeansViewerComparator
 import com.parinherm.builders.IViewerComparator
 import com.parinherm.entity.*
@@ -9,7 +11,11 @@ import com.parinherm.form.ChildFormTab
 import com.parinherm.form.FormViewModel
 import com.parinherm.form.IFormViewModel
 import com.parinherm.menus.TabInfo
+import com.parinherm.view.AnswerView
 import com.parinherm.view.NoteView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.eclipse.core.databinding.observable.list.WritableList
 import org.eclipse.jface.viewers.Viewer
 import org.eclipse.swt.custom.CTabFolder
@@ -27,6 +33,7 @@ class NoteViewModel(
 
     private val noteSegments = WritableList<NoteSegment>()
     private val noteSegmentComparator = NoteSegmentViewModel.Comparator()
+    private val noteView = view as NoteView
 
     init {
 
@@ -44,6 +51,26 @@ class NoteViewModel(
 
         loadData(mapOf("topicId" to topicId))
         onLoad(selectedNote)
+
+        // try the new voice pipleliness class
+        val service = SpeechPipelineService(
+            recognizer = SpeechRecognition.recognizer!!,
+            onFinalResult = { text, audio, length ->
+                //audioHandler(text, audio, length)
+                println(text)
+                currentEntity?.description = currentEntity?.description + text
+            },
+            onPartialResult = { partial ->
+                println(partial)
+                //quizRunQuestionView.commandOutput.text = partial
+            }
+        )
+
+        CoroutineScope(Dispatchers.IO).launch {
+            service.start().collect({
+               // println("Processed audio chunk")
+            })
+        }
     }
 
 
